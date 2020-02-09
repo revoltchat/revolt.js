@@ -1,0 +1,27 @@
+{
+  "name": "revolt.js",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "repository": "https://gitlab.insrt.uk/revolt/revolt.js",
+  "author": "Paul Makles <insrt.uk>",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "concurrently": "^5.1.0",
+    "isomorphic-ws": "^4.0.1",
+    "lodash": "^4.17.15",
+    "tsc-watch": "^4.1.0",
+    "ws": "^7.2.1"
+  },
+  "devDependencies": {
+    "@types/events": "^3.0.0",
+    "@types/lodash": "^4.14.149",
+    "@types/node": "^13.7.0",
+    "@types/ws": "^7.2.1",
+    "dotenv": "^8.2.0",
+    "typescript": "^3.8.0-dev.20200208"
+  },
+  "scripts": {
+    "dev": "tsc-watch --onSuccess \"node dist/tester\""
+  }
+}
