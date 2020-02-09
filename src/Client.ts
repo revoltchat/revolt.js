@@ -4,7 +4,7 @@ import { defaultsDeep } from 'lodash';
 
 import { EventEmitter } from 'events';
 import { User } from './objects';
-import { Request, Account, Users } from './api';
+import { Request, Response, Account } from './api';
 
 const API_URL = "http://86.11.153.158:5500/api";
 const WS_URI = "ws://86.11.153.158:9999"
@@ -103,7 +103,7 @@ export class Client extends EventEmitter {
 		}
 	}
 
-	async $request<T>(method: 'GET' | 'POST', url: string, data?: T, config?: AxiosRequestConfig) {
+	async $request<T extends Request>(method: 'GET' | 'POST', url: string, data?: T, config?: AxiosRequestConfig) {
 		return await
 			axios(
 				defaultsDeep(
@@ -120,7 +120,7 @@ export class Client extends EventEmitter {
 			)
 	}
 
-	async $req<T, R>(method: 'GET' | 'POST', url: string, data?: T, config?: AxiosRequestConfig): Promise<R> {
+	async $req<T extends Request, R extends Response>(method: 'GET' | 'POST', url: string, data?: T, config?: AxiosRequestConfig): Promise<R> {
 		return (await this.$request(method, url, data, config)).data;
 	}
 

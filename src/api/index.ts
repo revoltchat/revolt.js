@@ -7,3 +7,4 @@ export interface Response {
 
 export * from './account';
 export * from './users';
+export * from './channels';

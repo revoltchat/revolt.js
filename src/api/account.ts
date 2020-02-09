@@ -1,8 +1,8 @@
-import { Response } from '.';
+import { Request, Response } from '.';
 
 export namespace Account {
 	// /create
-	export interface CreateRequest {
+	export interface CreateRequest extends Request {
 		username: string,
 		password: string,
 		email: string,
@@ -13,14 +13,14 @@ export namespace Account {
 	}
 
 	// /resend
-	export interface ResendRequest {
+	export interface ResendRequest extends Request {
 		email: string,
 	}
 
 	export interface ResendResponse extends Response { }
 
 	// /login
-	export interface LoginRequest {
+	export interface LoginRequest extends Request {
 		email: string,
 		password: string,
 	}

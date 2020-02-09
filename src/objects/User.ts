@@ -2,13 +2,17 @@ import { Users } from '../api';
 import { Client } from '../Client';
 
 export class User {
+	client: Client;
+
 	id: string;
 	username: string;
 
 	email?: string;
 	verified?: boolean;
 
-	constructor(data: Users.UserResponse) {
+	constructor(client: Client, data: Users.UserResponse) {
+		this.client = client;
+
 		this.id = data.id;
 		this.username = data.username;
 
@@ -26,9 +30,9 @@ export class User {
 			user = client.users.get(id) as User;
 			data && user?.update(data);
 		} else if (data) {
-			user = new User(data);
+			user = new User(client, data);
 		} else {
-			user = new User(await client.$req<Request, Users.UserResponse>('GET', '/users/@me'));
+			user = new User(client, await client.$req<Request, Users.UserResponse>('GET', '/users/@me'));
 		}
 
 		client.users.set(id, user);

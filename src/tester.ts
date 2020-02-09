@@ -9,7 +9,7 @@ client.on('ready', () => {
 	console.log(`Logged in as ${client.user?.username}!`);
 });
 
-client.on('connect', () => {
+client.on('connected', () => {
 	console.error('Connected.');
 });
 
