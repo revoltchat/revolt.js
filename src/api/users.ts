@@ -24,34 +24,27 @@ export namespace Users {
 		username?: string,
 	}
 
-	export interface LookupResponse extends Response {
-		[index: number]: {
-			id: string,
-			username: string,
-		}
-	}
+	export type LookupResponse = UserResponse[];
 
 	// GET /@me/friend
-	export interface FriendsResponse extends Response {
-		[index: number]: {
-			id: string,
-			status: Relationship,
-		}
-	}
+	export type FriendsResponse = {
+		id: string,
+		status: Relationship,
+	}[];
 
 	// GET /@me/dms
-	export interface DMsResponse extends Response {
-		[index: number]: RawChannel,
-	}
+	export type DMsResponse = RawChannel[];
 
 	// GET /:id/friend
-	export interface FriendResponse extends Response {
+	export interface FriendResponse {
 		id: string,
 		status: Relationship,
 	}
 
 	// PUT /:id/friend
-	export interface AddFriendResponse extends Response { }
+	export interface AddFriendResponse extends Response {
+		status: Relationship,
+	}
 
 	// DELETE /:id/friend
 	export interface RemoveFriendResponse extends Response { }

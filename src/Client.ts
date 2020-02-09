@@ -3,8 +3,8 @@ import axios, { AxiosRequestConfig } from 'axios';
 import { defaultsDeep } from 'lodash';
 
 import { EventEmitter } from 'events';
-import { User } from './objects';
-import { Request, Response, Account } from './api';
+import { Channel, User } from './objects';
+import { Request, Account, Users } from './api';
 
 const API_URL = "http://86.11.153.158:5500/api";
 const WS_URI = "ws://86.11.153.158:9999"
@@ -36,7 +36,7 @@ export class Client extends EventEmitter {
 	user?: User;
 
 	users: Map<string, User>;
-	channels: Map<string, undefined>;
+	channels: Map<string, Channel>;
 
 	autoReconnect: boolean;
 	constructor(config?: { autoReconnect?: boolean }) {
@@ -103,7 +103,7 @@ export class Client extends EventEmitter {
 		}
 	}
 
-	async $request<T extends Request>(method: 'GET' | 'POST', url: string, data?: T, config?: AxiosRequestConfig) {
+	async $request<T extends Request>(method: AxiosRequestConfig['method'], url: string, data?: T, config?: AxiosRequestConfig) {
 		return await
 			axios(
 				defaultsDeep(
@@ -120,7 +120,7 @@ export class Client extends EventEmitter {
 			)
 	}
 
-	async $req<T extends Request, R extends Response>(method: 'GET' | 'POST', url: string, data?: T, config?: AxiosRequestConfig): Promise<R> {
+	async $req<T extends Request, R>(method: AxiosRequestConfig['method'], url: string, data?: T, config?: AxiosRequestConfig): Promise<R> {
 		return (await this.$request(method, url, data, config)).data;
 	}
 
@@ -143,5 +143,22 @@ export class Client extends EventEmitter {
 		} catch (err) {
 			this.emit('error', err);
 		}
+	}
+
+	async lookup(query: Users.LookupRequest) {
+		let users = [];
+		for (let x of await this.$req<Users.LookupRequest, Users.LookupResponse>('POST', '/users/lookup', query)) {
+			users.push(await User.from(x.id, this, x));
+		}
+
+		return users;
+	}
+
+	findUser(id: string) {
+		return User.from(id, this);
+	}
+
+	findChannel(id: string) {
+		return Channel.from(id, this);
 	}
 }

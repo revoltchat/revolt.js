@@ -1,4 +1,4 @@
-import { Users } from '../api';
+import { Users, Relationship } from '../api';
 import { Client } from '../Client';
 
 export class User {
@@ -7,20 +7,17 @@ export class User {
 	id: string;
 	username: string;
 
+	relationship?: Relationship;
+
 	email?: string;
 	verified?: boolean;
 
 	constructor(client: Client, data: Users.UserResponse) {
 		this.client = client;
-
-		this.id = data.id;
-		this.username = data.username;
-
-		this.email = data.email;
-		this.verified = data.verified;
+		this.$update(data);
 	}
 
-	update(data: Users.UserResponse) {
+	$update(data: Users.UserResponse) {
 		Object.assign(this, data);
 	}
 
@@ -28,14 +25,40 @@ export class User {
 		let user;
 		if (client.users.has(id)) {
 			user = client.users.get(id) as User;
-			data && user?.update(data);
+			data && user.$update(data);
 		} else if (data) {
 			user = new User(client, data);
 		} else {
-			user = new User(client, await client.$req<Request, Users.UserResponse>('GET', '/users/@me'));
+			user = new User(client, await client.$req<Request, Users.UserResponse>('GET', '/users/' + id));
 		}
 
 		client.users.set(id, user);
 		return user;
+	}
+
+	async fetchRelationship() {
+		let friend = await this.client.$req<Request, Users.FriendResponse>('GET', '/users/' + this.id + '/friend');
+		this.relationship = friend.status;
+		return friend.status;
+	}
+
+	async addFriend() {
+		let res = await this.client.$req<Request, Users.AddFriendResponse>('PUT', '/users/' + this.id + '/friend');
+
+		if (res.success) {
+			this.relationship = res.status;
+		}
+
+		return res;
+	}
+
+	async removeFriend() {
+		let res = await this.client.$req<Request, Users.RemoveFriendResponse>('DELETE', '/users/' + this.id + '/friend');
+
+		if (res.success) {
+			this.relationship = Relationship.NONE;
+		}
+
+		return res;
 	}
 }

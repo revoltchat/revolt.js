@@ -34,12 +34,10 @@ export type RawMessage = {
 
 export namespace Channels {
 	// GET /:id
-	export type Channel = RawChannel & Response;
+	export type ChannelResponse = RawChannel;
 
 	// GET /:id/messages
-	export interface MessagesResponse extends Response {
-		[index: number]: RawMessage
-	}
+	export type MessagesResponse = RawMessage[];
 
 	// POST /:id/messages
 	export interface SendMessageRequest extends Request {
