@@ -167,7 +167,7 @@ export class Client extends EventEmitter {
 					this.emit('error', data.error ?? 'Failed to login, unknown error.');
 				}
 			} else {
-				let data = await this.$req<Account.TokenRequest, Account.TokenResponse>('POST', '/account/login', { token: ut });
+				let data = await this.$req<Account.TokenRequest, Account.TokenResponse>('POST', '/account/token', { token: ut });
 			
 				if (data.success) {
 					this.token = ut;
