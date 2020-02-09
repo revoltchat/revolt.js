@@ -29,4 +29,13 @@ export namespace Account {
 		access_token?: string,
 		id?: string,
 	}
+
+	// /token
+	export interface TokenRequest extends Request {
+		token: string,
+	}
+
+	export interface TokenResponse extends Response {
+		id?: string,
+	}
 }

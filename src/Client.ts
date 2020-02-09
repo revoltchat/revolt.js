@@ -150,17 +150,33 @@ export class Client extends EventEmitter {
 		this.user = await User.from(this.userId as string, this);
 	}
 
-	async login(email: string, password: string) {
+	async login(token: string): Promise<void>;
+	async login(email: string, password: string): Promise<void>;
+
+	async login(ut: string, password?: string) {
 		try {
-			let data = await this.$req<Account.LoginRequest, Account.LoginResponse>('POST', '/account/login', { email, password });
+			if (password) {
+				let data = await this.$req<Account.LoginRequest, Account.LoginResponse>('POST', '/account/login', { email: ut, password });
 			
-			if (data.success) {
-				this.token = data.access_token;
-				this.userId = data.id;
-				await this.$sync();
-				this.$connect();
+				if (data.success) {
+					this.token = data.access_token;
+					this.userId = data.id;
+					await this.$sync();
+					this.$connect();
+				} else {
+					this.emit('error', data.error ?? 'Failed to login, unknown error.');
+				}
 			} else {
-				this.emit('error', data.error ?? 'Failed to login, unknown error.');
+				let data = await this.$req<Account.TokenRequest, Account.TokenResponse>('POST', '/account/login', { token: ut });
+			
+				if (data.success) {
+					this.token = ut;
+					this.userId = data.id;
+					await this.$sync();
+					this.$connect();
+				} else {
+					this.emit('error', data.error ?? 'Failed to login, unknown error.');
+				}
 			}
 		} catch (err) {
 			this.emit('error', err);
