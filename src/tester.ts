@@ -7,24 +7,6 @@ let client = new Client();
 
 client.on('ready', () => {
 	console.log(`Logged in as ${client.user?.username}!`);
-
-	client.lookup({ username: 'password' })
-		.then(async x => {
-			let dm = await x[0].getDM();
-			//console.log('Opened DM channel [', dm.id, ']');
-			//let messages = await dm.fetchMessages();
-			//console.log(messages.map(x => `${x.id}, ${x.author}: ${x.content}`));
-
-			/*let m = await dm.sendMessage('hello from javascript!');
-			await m.edit('test');
-			await m.delete();*/
-
-			for (let message of await dm.fetchMessages()) {
-				if (message.content.includes("javascript")) {
-					await message.delete();
-				}
-			}
-		})
 });
 
 client.on('message', msg => {

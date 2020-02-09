@@ -6,9 +6,6 @@ import { EventEmitter } from 'events';
 import { Channel, User, Message, MessageSnapshot } from './objects';
 import { Request, Account, Users, RawMessage } from './api';
 
-const API_URL = "http://86.11.153.158:5500/api";
-const WS_URI = "ws://86.11.153.158:9999"
-
 export declare interface Client {
 	// ready: only fired once when it first connects
 	on(event: 'ready', listener: () => void): this;
@@ -29,6 +26,9 @@ export declare interface Client {
 }
 
 export class Client extends EventEmitter {
+	API_URL = "http://" + process.env.NODE_IP + ":5500/api";
+	WS_URI = "ws://" + process.env.NODE_IP + ":9999" 
+
 	ws?: WebSocket;
 	token?: string;
 
@@ -55,7 +55,7 @@ export class Client extends EventEmitter {
 			&& this.ws.readyState === WebSocket.OPEN)
 			this.ws.close();
 		
-		let ws = new WebSocket(WS_URI);
+		let ws = new WebSocket(this.WS_URI);
 
 		ws.onopen = () => {
 			this.socketOpen = true;
@@ -132,7 +132,7 @@ export class Client extends EventEmitter {
 					config ?? {},
 					{
 						method,
-						url: API_URL + url,
+						url: this.API_URL + url,
 						data,
 						headers: {
 							'x-auth-token': this.token ?? ''
