@@ -26,8 +26,8 @@ export declare interface Client {
 }
 
 export class Client extends EventEmitter {
-	API_URL = "http://" + process.env.NODE_IP + ":5500/api";
-	WS_URI = "ws://" + process.env.NODE_IP + ":9999" 
+	API_URL = "http://" + process?.env?.NODE_IP + ":5500/api";
+	WS_URI = "ws://" + process?.env?.NODE_IP + ":9999" 
 
 	ws?: WebSocket;
 	token?: string;
