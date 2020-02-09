@@ -164,8 +164,9 @@ export class Client extends EventEmitter {
 					await this.$sync();
 					this.$connect();
 				} else {
-					this.emit('error', data.error ?? 'Failed to login, unknown error.');
-					throw "Failed to login, unknown error.";
+					let err = data.error ?? 'Failed to login, unknown error.';
+					this.emit('error', err);
+					throw err;
 				}
 			} else {
 				let data = await this.$req<Account.TokenRequest, Account.TokenResponse>('POST', '/account/token', { token: ut });
@@ -176,8 +177,9 @@ export class Client extends EventEmitter {
 					await this.$sync();
 					this.$connect();
 				} else {
-					this.emit('error', data.error ?? 'Failed to login, unknown error.');
-					throw "Failed to login, unknown error.";
+					let err = data.error ?? 'Failed to login, unknown error.';
+					this.emit('error', err);
+					throw err;
 				}
 			}
 		} catch (err) {
