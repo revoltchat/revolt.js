@@ -3,8 +3,8 @@ import axios, { AxiosRequestConfig } from 'axios';
 import { defaultsDeep } from 'lodash';
 
 import { EventEmitter } from 'events';
-import { Channel, User } from './objects';
-import { Request, Account, Users } from './api';
+import { Channel, User, Message, MessageSnapshot } from './objects';
+import { Request, Account, Users, RawMessage } from './api';
 
 const API_URL = "http://86.11.153.158:5500/api";
 const WS_URI = "ws://86.11.153.158:9999"
@@ -21,9 +21,9 @@ export declare interface Client {
     on(event: 'dropped', listener: () => void): this;
 	
 	// events: messages
-	on(event: 'message', listener: () => void): this;
-	on(event: 'message_update', listener: () => void): this;
-	on(event: 'message_delete', listener: () => void): this;
+	on(event: 'message', listener: (message: Message) => void): this;
+	on(event: 'message_update', listener: (message: Message, previous?: MessageSnapshot) => void): this;
+	on(event: 'message_delete', listener: (id: string, deleted?: MessageSnapshot) => void): this;
 	
 	on(event: string, listener: Function): this;
 }
@@ -65,14 +65,14 @@ export class Client extends EventEmitter {
 			}));
 		}
 
-		ws.onmessage = raw => {
-			let data = JSON.parse(raw.data.toString());
+		ws.onmessage = async raw => {
+			let packet = JSON.parse(raw.data.toString());
 
-			switch (data.type) {
+			switch (packet.type) {
 				// pre-auth
 				case 'authenticate':
 					{
-						if (data.success) {
+						if (packet.success) {
 							this.socketAuthenticated = true;
 
 							this.emit('connected');
@@ -81,14 +81,36 @@ export class Client extends EventEmitter {
 								this.previouslyConnected = true;
 							}
 						} else {
-							this.emit('error', data.error ?? 'Failed to auth with websocket, unknown error.');
+							this.emit('error', packet.error ?? 'Failed to auth with websocket, unknown error.');
 						}
 					}
 					break;
 				// post-auth
 				case 'message':
 					{
-						//
+						let m = packet.data as RawMessage & { channel: string };
+						let channel = await this.findChannel(m.channel);
+
+						this.emit('message', await Message.from(m.id, channel, m));
+					}
+					break;
+				case 'message_update':
+					{
+						let m = packet.data as RawMessage & { channel: string };
+						let channel = await this.findChannel(m.channel);
+						let snapshot = channel.messages.get(m.id)?.$snapshot();
+
+						this.emit('message_update', await Message.from(m.id, channel, m), snapshot);
+					}
+					break;
+				case 'message_delete':
+					{
+						let m = packet.data as { id: string, channel: string };
+						let channel = await this.findChannel(m.channel);
+						let snapshot = channel.messages.get(m.id)?.$snapshot();
+
+						channel.messages.delete(m.id);
+						this.emit('message_delete', m.id, snapshot);
 					}
 					break;
 			}

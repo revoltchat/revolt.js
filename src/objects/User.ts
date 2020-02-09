@@ -47,9 +47,10 @@ export class User {
 
 		if (res.success) {
 			this.relationship = res.status;
+			return this.relationship;
+		} else {
+			throw new Error(res.error);
 		}
-
-		return res;
 	}
 
 	async removeFriend() {
@@ -57,8 +58,19 @@ export class User {
 
 		if (res.success) {
 			this.relationship = Relationship.NONE;
+			return this.relationship;
+		} else {
+			throw new Error(res.error);
 		}
+	}
 
-		return res;
+	async getDM() {
+		let res = await this.client.$req<Request, Users.OpenDMResponse>('GET', '/users/' + this.id + '/dm');
+
+		if (res.success) {
+			return this.client.findChannel(res.id);
+		} else {
+			throw new Error(res.error);
+		}
 	}
 }
