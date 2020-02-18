@@ -148,6 +148,14 @@ export class Client extends EventEmitter {
 
 	async $sync() {
 		this.user = await User.from(this.userId as string, this);
+
+		for (let raw of await this.$req<Request, Users.FriendsResponse>('GET', '/users/@me/friend')) {
+			await User.from(raw.id, this); // !!WARN: THIS FETCHES ALL USERS INDIVIDUALLY!!
+		}
+
+		for (let raw of await this.$req<Request, Users.DMsResponse>('GET', '/users/@me/dms')) {
+			await Channel.from(raw.id, this, raw);
+		}
 	}
 
 	async login(token: string): Promise<void>;
