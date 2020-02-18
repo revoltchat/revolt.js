@@ -1,7 +1,7 @@
 import { Channels, ChannelType } from '../api';
 import { Client } from '../Client';
 import { User } from './User';
-import { Message } from './Message';
+import { Message, Sent } from './Message';
 import { ulid } from 'ulid';
 
 export class Channel {
@@ -83,6 +83,7 @@ export class Channel {
 			edited: null
 		});
 
+		message.user = this.client.user as User;
 		this.messages.set(nonce, message);
 
 		return [
@@ -91,7 +92,8 @@ export class Channel {
 				let res = await this.client.$req<Channels.SendMessageRequest, Channels.SendMessageResponse>('POST', '/channels/' + this.id + '/messages', { content, nonce });
 				if (res.success) {
 					this.messages.delete(nonce);
-					Message.from(res.id, this,
+
+					return await Message.from(res.id, this,
 						{
 							id: this.id,
 							author: this.client.userId as string,
@@ -99,9 +101,9 @@ export class Channel {
 							edited: null,
 						}
 					);
-
-					return message;
 				} else {
+					message.sent = Sent.FAILED;
+					this.client.emit('$message_failed', { channel: this.id });
 					throw new Error(res.error);
 				}
 			})()
