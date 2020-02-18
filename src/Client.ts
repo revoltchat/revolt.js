@@ -158,6 +158,14 @@ export class Client extends EventEmitter {
 		}
 	}
 
+	create(data: Account.CreateRequest): Promise<Account.CreateResponse> {
+		return this.$req('POST', '/account/create', data);
+	}
+
+	resend_email_verification(email: string) {
+		return this.$req<Account.ResendRequest, Account.ResendResponse>('POST', '/account/resend', { email });
+	}
+
 	async login(token: string): Promise<void>;
 	async login(email: string, password: string): Promise<void>;
 

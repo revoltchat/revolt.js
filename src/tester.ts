@@ -33,4 +33,4 @@ client.on('error', err => {
 	console.error('Encountered an error!', err);
 });
 
-client.login(process.env.email as string, process.env.password as string);
+client.login(process.env.TOKEN as string);
