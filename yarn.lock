@@ -503,6 +503,11 @@ typescript@^3.8.0-dev.20200208:
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.8.0-dev.20200208.tgz#3cd1ee025932c88ff78831f3629e99b1995e1de5"
   integrity sha512-/n4f+RIfoHvEmXprHjE7dHzGlDzD0wpqpvHBXBtwaCi1wp8zsGqA07v1UPijR1xBqumO5FFDMEPIuu7fEDJemA==
 
+ulid@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/ulid/-/ulid-2.3.0.tgz#93063522771a9774121a84d126ecd3eb9804071f"
+  integrity sha512-keqHubrlpvT6G2wH0OEfSW4mquYRcbe/J8NMmveoQOjUqmo+hXtO+ORCpWhdbZ7k72UtY61BL7haGxW6enBnjw==
+
 validate-npm-package-license@^3.0.1:
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/validate-npm-package-license/-/validate-npm-package-license-3.0.4.tgz#fc91f6b9c7ba15c857f4cb2c5defeec39d4f410a"

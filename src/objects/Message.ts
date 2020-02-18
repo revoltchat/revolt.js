@@ -8,10 +8,19 @@ export interface MessageSnapshot {
 	content: string,
 }
 
+export enum Sent {
+	UNSENT,
+	SENT,
+	FAILED,
+}
+
 export class Message {
 	channel: Channel;
 
 	id: string;
+	nonce: string;
+	sent: Sent;
+
 	user: User;
 	content: string;
 	edited: Date | null;
@@ -20,6 +29,7 @@ export class Message {
 
 	constructor(channel: Channel, data: RawMessage) {
 		this.channel = channel;
+		this.sent = Sent.UNSENT;
 		this.update(data);
 	}
 
@@ -57,12 +67,21 @@ export class Message {
 			message = new Message(channel, await channel.client.$req<Request, RawMessage>('GET', '/channels/' + channel.id + '/messages/' + id));
 		}
 
+		message.sent = Sent.SENT;
 		await message.$init();
 		channel.messages.set(id, message);
 		return message;
 	}
 
 	async edit(content: string) {
+		if (this.sent === Sent.FAILED) {
+			throw new Error("Cannot edit failed message!");
+		}
+
+		if (this.sent === Sent.UNSENT) {
+			throw new Error("Cannot delete unsent message!");
+		}
+
 		let res = await this.channel.client.$req<Channels.EditMessageRequest, Channels.EditMessageResponse>('PATCH', '/channels/' + this.channel.id + '/messages/' + this.id, { content });
 
 		if (res.success) {
@@ -73,6 +92,15 @@ export class Message {
 	}
 
 	async delete() {
+		if (this.sent === Sent.FAILED) {
+			this.channel.messages.delete(this.id);
+			return;
+		}
+
+		if (this.sent === Sent.UNSENT) {
+			throw new Error("Cannot delete unsent message!");
+		}
+
 		let res = await this.channel.client.$req<Request, Channels.DeleteMessageResponse>('DELETE', '/channels/' + this.channel.id + '/messages/' + this.id);
 
 		if (res.success) {

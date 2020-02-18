@@ -91,6 +91,10 @@ export class Client extends EventEmitter {
 						let m = packet.data as RawMessage & { channel: string };
 						let channel = await this.findChannel(m.channel);
 
+						if (m.nonce) {
+							channel.messages.delete(m.nonce);
+						}
+
 						this.emit('message', await Message.from(m.id, channel, m));
 					}
 					break;

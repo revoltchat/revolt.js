@@ -2,6 +2,7 @@ import { Channels, ChannelType } from '../api';
 import { Client } from '../Client';
 import { User } from './User';
 import { Message } from './Message';
+import { ulid } from 'ulid';
 
 export class Channel {
 	client: Client;
@@ -69,21 +70,41 @@ export class Channel {
 		return messages;
 	}
 
-	async sendMessage(content: string) {
-		let res = await this.client.$req<Channels.SendMessageRequest, Channels.SendMessageResponse>('POST', '/channels/' + this.id + '/messages', { content });
+	sendMessage(content: string): [ Message, Promise<Message> ] {
+		if (content.length > 2000)
+			throw new Error("Message too long! > 2000 characters.");
 
-		if (res.success) {
-			let message = new Message(this, {
-				id: res.id,
-				author: this.client.userId as string,
-				content,
-				edited: null
-			});
+		let nonce = ulid();
+		let message = new Message(this, {
+			id: nonce,
+			nonce,
+			author: this.client.userId as string,
+			content,
+			edited: null
+		});
 
-			this.messages.set(this.id, message);
-			return message;
-		} else {
-			throw new Error(res.error);
-		}
+		this.messages.set(nonce, message);
+
+		return [
+			message,
+			(async () => {
+				let res = await this.client.$req<Channels.SendMessageRequest, Channels.SendMessageResponse>('POST', '/channels/' + this.id + '/messages', { content, nonce });
+				if (res.success) {
+					this.messages.delete(nonce);
+					Message.from(res.id, this,
+						{
+							id: this.id,
+							author: this.client.userId as string,
+							content,
+							edited: null,
+						}
+					);
+
+					return message;
+				} else {
+					throw new Error(res.error);
+				}
+			})()
+		]
 	}
 }

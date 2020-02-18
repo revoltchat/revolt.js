@@ -27,6 +27,7 @@ export type RawChannel = {
 
 export type RawMessage = {
 	id: string,
+	nonce?: string,
 	author: string,
 	content: string,
 	edited: number | null,
@@ -42,6 +43,7 @@ export namespace Channels {
 	// POST /:id/messages
 	export interface SendMessageRequest extends Request {
 		content: string,
+		nonce: string,
 	}
 
 	export interface SendMessageResponse extends Response {

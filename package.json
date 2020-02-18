@@ -11,6 +11,7 @@
     "isomorphic-ws": "^4.0.1",
     "lodash": "^4.17.15",
     "tsc-watch": "^4.1.0",
+    "ulid": "^2.3.0",
     "ws": "^7.2.1"
   },
   "devDependencies": {
