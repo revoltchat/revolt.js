@@ -334,6 +334,11 @@ export class Client extends EventEmitter {
         await this.$connect();
     }
 
+    async register(info: Account.CreateRequest) {
+        let data = await this.$req<Account.CreateRequest, Account.CreateResponse>('POST', '/account/create', info);
+        return data;
+    }
+
     async fetchUser(id: string) {
         return await User.fetch(this, id);
     }
