@@ -4,11 +4,7 @@ import { defaultsDeep } from 'lodash';
 import { EventEmitter } from 'events';
 
 import { Account, Users, Guild as GuildAPI, WebsocketPackets, Relationship, ChannelType } from './api';
-
-import User from './objects/User';
-import Channel, { GroupChannel } from './objects/Channel';
-import Guild from './objects/Guild';
-import Message from './objects/Message';
+import { User, Message, GroupChannel, Guild, Channel } from './objects';
 
 export interface ClientOptions {
     apiURL?: string,

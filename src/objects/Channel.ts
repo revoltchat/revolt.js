@@ -1,14 +1,14 @@
 import { Client } from '../Client';
 
-import User from './User';
-import Guild from './Guild';
-import Message from './Message';
+import { User } from './User';
+import { Guild } from './Guild';
+import { Message } from './Message';
 
 import { Channels, RawChannel, ChannelType } from '../api/channels';
 
 import { ulid } from 'ulid';
 
-export default abstract class Channel {
+export abstract class Channel {
     client: Client;
     id: string;
     type: ChannelType;

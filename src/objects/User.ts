@@ -1,9 +1,9 @@
 import { Client } from '../Client';
 
 import { Users, Relationship } from '../api/users';
-import Channel from './Channel';
+import { Channel } from './Channel';
 
-export default class User {
+export class User {
     client: Client;
     id: string;
     username: string;

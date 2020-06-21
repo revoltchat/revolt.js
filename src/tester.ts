@@ -17,8 +17,8 @@ client.on('message/edit', msg => {
     console.log(`${msg.author.username} [edited their message]: ${msg.content}`);
 });
 
-client.login('paulmakles@gmail.com', 'bruhbruh')
-    .catch(err => console.error(err));
+import { config } from 'dotenv';
+config();
 
-//client.login('2u73AmzBwso7DQVfJdey6zSspITbVr5GA1jidck7O4EwXkYhwyhIcL9q9eN8qWRAEGYDTDUhvR3pwKFJ0yLHois9XOTg')
-    //.catch(err => console.error(err));
+client.login(process.env.TOKEN as any)
+    .catch(err => console.error(err));

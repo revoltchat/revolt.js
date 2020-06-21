@@ -1,10 +1,10 @@
 import { Client } from '../Client';
-import Channel from './Channel';
+import { Channel } from './Channel';
+import { User } from './User';
 
 import { Guild as GuildAPI, CoreGuild, RawChannel, ChannelType } from '../api';
-import User from './User';
 
-export default class Guild {
+export class Guild {
     client: Client;
     id: string;
 

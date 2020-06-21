@@ -1,10 +1,10 @@
 import { Client } from '../Client';
 
 import { RawMessage, Channels } from '../api';
-import Channel from './Channel';
-import User from './User';
+import { Channel } from './Channel';
+import { User } from './User';
 
-export default class Message {
+export class Message {
     client: Client;
     channel: Channel;
     id: string;
