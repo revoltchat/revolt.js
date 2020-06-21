@@ -1,4 +1,4 @@
-import { Request, Response, RawChannel } from '.';
+import { RawChannel } from "./channels";
 
 export enum Relationship {
 	FRIEND = 0,
@@ -12,28 +12,31 @@ export enum Relationship {
 
 export namespace Users {
 	// GET /@me or /:id
-	export interface UserResponse extends Response {
+	export interface UserResponse {
 		id: string,
 		username: string,
 		email?: string,
-		verified?: boolean,
+        verified?: boolean,
+        relationship?: Relationship
 	}
 
 	// POST /lookup
-	export interface LookupRequest extends Request {
+	export interface LookupRequest {
 		username?: string,
 	}
 
 	export type LookupResponse = UserResponse[];
 
-	// GET /@me/friend
-	export type FriendsResponse = {
-		id: string,
-		status: Relationship,
-	}[];
-
 	// GET /@me/dms
 	export type DMsResponse = RawChannel[];
+
+	// GET /:id/dm
+	export interface OpenDMResponse {
+		id: string
+	}
+
+	// GET /@me/friend
+	export type FriendsResponse = FriendResponse[];
 
 	// GET /:id/friend
 	export interface FriendResponse {
@@ -42,15 +45,22 @@ export namespace Users {
 	}
 
 	// PUT /:id/friend
-	export interface AddFriendResponse extends Response {
+	export interface AddFriendResponse {
 		status: Relationship,
 	}
 
 	// DELETE /:id/friend
-	export interface RemoveFriendResponse extends Response { }
-
-	// GET /:id/dm
-	export interface OpenDMResponse extends Response {
-		id: string
+	export interface RemoveFriendResponse {
+		status: Relationship,
 	}
+
+	// PUT /:id/block
+	export interface BlockUserResponse {
+		status: Relationship,
+	}
+
+	// DELETE /:id/block
+	export interface UnblockUserResponse {
+        status: Relationship,
+    }
 }

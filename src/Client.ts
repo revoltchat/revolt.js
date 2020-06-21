@@ -1,227 +1,352 @@
-import WebSocket from 'isomorphic-ws';
 import axios, { AxiosRequestConfig } from 'axios';
+import WebSocket from 'isomorphic-ws';
 import { defaultsDeep } from 'lodash';
-
 import { EventEmitter } from 'events';
-import { Channel, User, Message, MessageSnapshot } from './objects';
-import { Request, Account, Users, RawMessage } from './api';
+
+import { Account, Users, Guild as GuildAPI, WebsocketPackets, Relationship, ChannelType } from './api';
+
+import User from './objects/User';
+import Channel, { GroupChannel } from './objects/Channel';
+import Guild from './objects/Guild';
+import Message from './objects/Message';
+
+export interface ClientOptions {
+    apiURL?: string,
+    wsURL?: string
+}
 
 export declare interface Client {
 	// ready: only fired once when it first connects
 	on(event: 'ready', listener: () => void): this;
 
-	// error: fires on authentication error
-	on(event: 'error', listener: (error: Error) => void): this;
-
 	// websocket: connection status
 	on(event: 'connected', listener: () => void): this;
     on(event: 'dropped', listener: () => void): this;
-	
-	// events: messages
-	on(event: 'message', listener: (message: Message) => void): this;
-	on(event: 'message_update', listener: (message: Message, previous?: MessageSnapshot) => void): this;
-	on(event: 'message_delete', listener: (id: string, deleted?: MessageSnapshot) => void): this;
-	
-	on(event: string, listener: Function): this;
+
+    // message events
+    on(event: 'message', listener: (message: Message) => void): this;
+    on(event: 'message/edit', listener: (message: Message) => void): this;
+    on(event: 'message/delete', listener: (id: string, message?: Message) => void): this;
+
+    // group events
+    on(event: 'group/user_join', listener: (channel: GroupChannel, user: User) => void): this;
+    on(event: 'group/user_leave', listener: (channel: GroupChannel, id: string, user?: User) => void): this;
+
+    // guild events
+    on(event: 'guild/user_join', listener: (guild: Guild, user: User) => void): this;
+    on(event: 'guild/user_leave', listener: (guild: Guild, id: string, user?: User) => void): this;
+    on(event: 'guild/channel_create', listener: (guild: Guild, channel: Channel) => void): this;
+    on(event: 'guild/channel_delete', listener: (guild: Guild, id: string, channel?: Channel) => void): this;
+    on(event: 'guild/delete', listener: (id: string, guild?: Guild) => void): this;
+
+    // user events
+    on(event: 'user/friend_status', listener: (user: User, relationship: Relationship) => void): this;
 }
 
 export class Client extends EventEmitter {
-	API_URL = "http://86.11.153.158:5500/api";
-	WS_URI = "ws://86.11.153.158:9999" 
+    apiURL: string;
+    wsURL: string;
+
+    token?: string;
+    userId?: string;
+    user?: User;
+
+    users: Map<string, User>;
+    channels: Map<string, Channel>;
+    messages: Map<string, Message>;
+    guilds: Map<string, Guild>;
+
+    constructor(options?: ClientOptions) {
+        super();
+
+        let opt = defaultsDeep(
+            options ?? { },
+            {
+                apiURL: 'https://revolt.insrt.uk/api',
+                wsURL:  'wss://revolt.insrt.uk/ws'
+            }
+        );
+
+        this.apiURL = opt.apiURL;
+        this.wsURL  = opt.wsURL;
+
+        this.users = new Map();
+        this.channels = new Map();
+        this.messages = new Map();
+        this.guilds = new Map();
+    }
 
 	ws?: WebSocket;
-	token?: string;
-
-	userId?: string;
-	user?: User;
-
-	users: Map<string, User>;
-	channels: Map<string, Channel>;
-
-	autoReconnect: boolean;
-	constructor(config?: { autoReconnect?: boolean }) {
-		super();
-		this.users = new Map();
-		this.channels = new Map();
-		this.autoReconnect = config?.autoReconnect ?? false;
-	}
-
 	socketOpen?: boolean;
 	socketAuthenticated?: boolean;
 	previouslyConnected?: boolean;
 
 	$connect() {
-		if (typeof this.ws !== 'undefined'
-			&& this.ws.readyState === WebSocket.OPEN)
-			this.ws.close();
-		
-		let ws = new WebSocket(this.WS_URI);
+        return new Promise((resolve, reject) => {
+            if (typeof this.ws !== 'undefined'
+                && this.ws.readyState === WebSocket.OPEN)
+                this.ws.close();
+            
+            let ws = new WebSocket(this.wsURL);
 
-		ws.onopen = () => {
-			this.socketOpen = true;
-			ws.send(JSON.stringify({
-				"type": "authenticate",
-				"token": this.token
-			}));
-		}
+            ws.onopen = () => {
+                this.socketOpen = true;
+                ws.send(JSON.stringify({
+                    "type": "authenticate",
+                    "token": this.token
+                }));
+            }
 
-		ws.onmessage = async raw => {
-			let packet = JSON.parse(raw.data.toString());
+            ws.onmessage = async raw => {
+                let packet = JSON.parse(raw.data.toString());
 
-			switch (packet.type) {
-				// pre-auth
-				case 'authenticate':
-					{
-						if (packet.success) {
-							this.socketAuthenticated = true;
+                switch (packet.type) {
+                    // pre-auth
+                    case 'authenticate':
+                        {
+                            if (packet.success) {
+                                this.socketAuthenticated = true;
+                                resolve();
 
-							this.emit('connected');
-							if (!this.previouslyConnected) {
-								this.emit('ready');
-								this.previouslyConnected = true;
-							}
-						} else {
-							this.emit('error', packet.error ?? 'Failed to auth with websocket, unknown error.');
-						}
-					}
-					break;
-				// post-auth
-				case 'message':
-					{
-						let m = packet.data as RawMessage & { channel: string };
-						let channel = await this.findChannel(m.channel);
+                                this.emit('connected');
+                                if (!this.previouslyConnected) {
+                                    this.emit('ready');
+                                    this.previouslyConnected = true;
+                                }
+                            } else {
+                                reject(packet.error ?? 'Failed to auth with websocket, unknown error.');
+                            }
+                        }
+                        break;
+                    // post-auth
+                    case 'message_create':
+                        {
+                            let data = packet as WebsocketPackets.message_create & { edited: number | null };
+                            data.edited = null;
 
-						if (m.nonce) {
-							channel.messages.delete(m.nonce);
-						}
+                            if (data.nonce) {
+                                this.messages.get(data.nonce)?._delete();
+                            }
 
-						this.emit('message', await Message.from(m.id, channel, m));
-					}
-					break;
-				case 'message_update':
-					{
-						let m = packet.data as RawMessage & { channel: string };
-						let channel = await this.findChannel(m.channel);
-						let snapshot = channel.messages.get(m.id)?.$snapshot();
+                            let channel = await Channel.fetch(this, data.channel);
+                            let message = await Message.fetch(this, channel, data.id, data);
 
-						this.emit('message_update', await Message.from(m.id, channel, m), snapshot);
-					}
-					break;
-				case 'message_delete':
-					{
-						let m = packet.data as { id: string, channel: string };
-						let channel = await this.findChannel(m.channel);
-						let snapshot = channel.messages.get(m.id)?.$snapshot();
+                            this.emit('message', message);
+                        }
+                        break;
+                    case 'message_edit':
+                        {
+                            let data = packet as WebsocketPackets.message_edit;
+                            let message = this.messages.get(data.id);
 
-						channel.messages.delete(m.id);
-						this.emit('message_delete', m.id, snapshot);
-					}
-					break;
-			}
-		}
+                            if (message) {
+                                message.content = data.content;
+                                this.emit('message/edit', message);
+                            } else {
+                                let channel = await Channel.fetch(this, data.channel);
+                                let message = await Message.fetch(
+                                    this,
+                                    channel,
+                                    data.id,
+                                    {
+                                        id: data.id,
+                                        author: data.author,
+                                        content: data.content,
+                                        edited: + new Date()
+                                    }
+                                );
 
-		ws.onclose = () => {
-			this.socketOpen = false;
-			this.socketAuthenticated = false;
-			this.emit('dropped');
-			this.autoReconnect &&
-				this.$connect();
-		}
+                                this.emit('message/edit', message);
+                            }
+                        }
+                        break;
+                    case 'message_delete':
+                        {
+                            let data = packet as WebsocketPackets.message_delete;
+                            let message = this.messages.get(data.id);
+                            message?._delete();
+
+                            this.emit('message/delete', data.id, message);
+                        }
+                        break;
+                    case 'group_user_join':
+                        {
+                            let data = packet as WebsocketPackets.group_user_join;
+                            let channel = await Channel.fetch(this, data.id) as GroupChannel;
+                            let user = await User.fetch(this, data.user);
+
+                            channel.recipients.set(user.id, user);
+
+                            this.emit('group/user_join', channel, user);
+                        }
+                        break;
+                    case 'group_user_leave':
+                        {
+                            let data = packet as WebsocketPackets.group_user_leave;
+                            let channel = await Channel.fetch(this, data.id) as GroupChannel;
+
+                            let user;
+                            try {
+                                user = await User.fetch(this, data.user);
+                            } catch (err) { }
+
+                            channel.recipients.delete(data.user);
+
+                            this.emit('group/user_leave', channel, data.user, user);                            
+                        }
+                        break;
+                    case 'guild_user_join':
+                        {
+                            let data = packet as WebsocketPackets.guild_user_join;
+                            let guild = await Guild.fetch(this, data.id);
+                            let user = await User.fetch(this, data.user);
+
+                            guild.members.set(user.id, user);
+
+                            this.emit('guild/user_join', guild, user);
+                        }
+                        break;
+                    case 'guild_user_leave':
+                        {
+                            let data = packet as WebsocketPackets.guild_user_leave;
+                            let guild = await Guild.fetch(this, data.id);
+
+                            let user;
+                            try {
+                                user = await User.fetch(this, data.user);
+                            } catch (err) { }
+
+                            guild.members.delete(data.user);
+
+                            this.emit('guild/user_leave', guild, data.id, user);
+                        }
+                        break;
+                    case 'guild_channel_create':
+                        {
+                            let data = packet as WebsocketPackets.guild_channel_create;
+                            let guild = await Guild.fetch(this, data.id);
+                            let channel = await Channel.fetch(this, data.channel, {
+                                id: data.channel,
+                                type: ChannelType.GUILDCHANNEL,
+                                name: data.name,
+                                description: data.description,
+                                guild: guild.id
+                            });
+
+                            this.emit('guild/channel_create', guild, channel);
+                        }
+                        break;
+                    case 'guild_channel_delete':
+                        {
+                            let data = packet as WebsocketPackets.guild_channel_delete;
+                            let guild = await Guild.fetch(this, data.id);
+                            
+                            let channel = this.channels.get(data.channel);
+                            channel?._delete();
+
+                            this.emit('guild/channel_create', guild, data.channel, channel);
+                        }
+                        break;
+                    case 'guild_delete':
+                        {
+                            let data = packet as WebsocketPackets.guild_delete;
+                            let guild = this.guilds.get(data.id);
+
+                            guild?._delete();
+
+                            this.emit('guild/delete', data.id, guild);
+                        }
+                        break;
+                    case 'user_friend_status':
+                        {
+                            let data = packet as WebsocketPackets.user_friend_status;
+                            let user = await User.fetch(this, data.id);
+                            user.relationship = data.status;
+
+                            this.emit('user/friend_status', user, data.status);
+                        }
+                        break;
+                }
+            }
+
+            ws.onclose = () => {
+                this.socketOpen = false;
+                this.socketAuthenticated = false;
+                this.emit('dropped');
+                this.$connect().catch(err => this.emit('error', err));
+            }
+        });
 	}
 
-	async $request<T extends Request>(method: AxiosRequestConfig['method'], url: string, data?: T, config?: AxiosRequestConfig) {
+	async $request<T>(method: AxiosRequestConfig['method'], path: string, data?: T, config?: AxiosRequestConfig) {
+        let headers = {} as any;
+        if (this.token) headers['x-auth-token'] = this.token;
+
 		return await
 			axios(
 				defaultsDeep(
 					config ?? {},
 					{
 						method,
-						url: this.API_URL + url,
+						url: this.apiURL + path,
 						data,
-						headers: {
-							'x-auth-token': this.token ?? ''
-						}
+						headers
 					} as AxiosRequestConfig
 				)
 			)
 	}
 
-	async $req<T extends Request, R>(method: AxiosRequestConfig['method'], url: string, data?: T, config?: AxiosRequestConfig): Promise<R> {
+	async $req<T, R>(method: AxiosRequestConfig['method'], url: string, data?: T, config?: AxiosRequestConfig): Promise<R> {
 		return (await this.$request(method, url, data, config)).data;
-	}
+    }
+    
+    async $sync() {
+        this.user = await User.fetch(this, this.userId as string);
 
-	async $sync() {
-		this.user = await User.from(this.userId as string, this);
+        let dms = await this.$req<any, Users.DMsResponse>('GET', '/users/@me/dms');
+        for (let dm of dms) {
+            await Channel.fetch(this, dm.id, dm);
+        }
 
-		for (let raw of await this.$req<Request, Users.FriendsResponse>('GET', '/users/@me/friend')) {
-			await User.from(raw.id, this); // !!WARN: THIS FETCHES ALL USERS INDIVIDUALLY!!
-		}
+        let friends = await this.$req<any, Users.FriendsResponse>('GET', '/users/@me/friend');
+        for (let friend of friends) {
+            await User.fetch(this, friend.id);
+            // ? future optimisation; return user objects from this route.
+        }
 
-		for (let raw of await this.$req<Request, Users.DMsResponse>('GET', '/users/@me/dms')) {
-			await Channel.from(raw.id, this, raw);
-		}
-	}
+        let guilds = await this.$req<any, GuildAPI.GuildsResponse>('GET', '/guild/@me');
+        for (let guild of guilds) {
+            await Guild.fetch(this, guild.id);
+        }
+    }
 
-	create(data: Account.CreateRequest): Promise<Account.CreateResponse> {
-		return this.$req('POST', '/account/create', data);
-	}
-
-	resend_email_verification(email: string) {
-		return this.$req<Account.ResendRequest, Account.ResendResponse>('POST', '/account/resend', { email });
-	}
-
-	async login(token: string): Promise<void>;
+    async login(token: string): Promise<void>;
 	async login(email: string, password: string): Promise<void>;
 
-	async login(ut: string, password?: string) {
-		try {
-			if (password) {
-				let data = await this.$req<Account.LoginRequest, Account.LoginResponse>('POST', '/account/login', { email: ut, password });
-			
-				if (data.success) {
-					this.token = data.access_token;
-					this.userId = data.id;
-					await this.$sync();
-					this.$connect();
-				} else {
-					let err = data.error ?? 'Failed to login, unknown error.';
-					this.emit('error', err);
-					throw err;
-				}
-			} else {
-				let data = await this.$req<Account.TokenRequest, Account.TokenResponse>('POST', '/account/token', { token: ut });
-			
-				if (data.success) {
-					this.token = ut;
-					this.userId = data.id;
-					await this.$sync();
-					this.$connect();
-				} else {
-					let err = data.error ?? 'Failed to login, unknown error.';
-					this.emit('error', err);
-					throw err;
-				}
-			}
-		} catch (err) {
-			this.emit('error', err);
-			throw err;
-		}
-	}
+	async login(token: string, password?: string) {
+        if (typeof password === 'string') {
+            let data = await this.$req<Account.LoginRequest, Account.LoginResponse>('POST', '/account/login', { email: token, password });
+            this.token = data.access_token;
+            this.userId = data.id;
+        } else {
+            let data = await this.$req<Account.TokenRequest, Account.TokenResponse>('POST', '/account/token', { token });
+            this.token = token;
+            this.userId = data.id;
+        }
 
-	async lookup(query: Users.LookupRequest) {
-		let users = [];
-		for (let x of await this.$req<Users.LookupRequest, Users.LookupResponse>('POST', '/users/lookup', query)) {
-			users.push(await User.from(x.id, this, x));
-		}
+        await this.$sync();
+        await this.$connect();
+    }
 
-		return users;
-	}
+    async fetchUser(id: string) {
+        return await User.fetch(this, id);
+    }
 
-	findUser(id: string) {
-		return User.from(id, this);
-	}
+    async fetchChannel(id: string) {
+        return await Channel.fetch(this, id);
+    }
 
-	findChannel(id: string) {
-		return Channel.from(id, this);
-	}
+    async fetchGuild(id: string) {
+        return await Guild.fetch(this, id);
+    }
 }

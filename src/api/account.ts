@@ -1,41 +1,39 @@
-import { Request, Response } from '.';
-
 export namespace Account {
-	// /create
-	export interface CreateRequest extends Request {
+	// POST /create
+	export interface CreateRequest {
 		username: string,
 		password: string,
 		email: string,
 	}
 
-	export interface CreateResponse extends Response {
+	export interface CreateResponse {
 		email_sent?: boolean,
-	}
+    }
 
-	// /resend
-	export interface ResendRequest extends Request {
-		email: string,
-	}
-
-	export interface ResendResponse extends Response { }
-
-	// /login
-	export interface LoginRequest extends Request {
+	// POST /login
+	export interface LoginRequest {
 		email: string,
 		password: string,
 	}
 
-	export interface LoginResponse extends Response {
-		access_token?: string,
-		id?: string,
+	export interface LoginResponse {
+		access_token: string,
+		id: string,
+	}
+    
+	// POST /resend
+	export interface ResendRequest {
+		email: string,
 	}
 
-	// /token
-	export interface TokenRequest extends Request {
+	export interface ResendResponse { }
+
+	// POST /token
+	export interface TokenRequest {
 		token: string,
 	}
 
-	export interface TokenResponse extends Response {
-		id?: string,
+	export interface TokenResponse {
+		id: string,
 	}
 }

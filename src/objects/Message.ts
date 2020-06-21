@@ -1,112 +1,63 @@
-import { Channel } from './Channel';
+import { Client } from '../Client';
+
 import { RawMessage, Channels } from '../api';
-import { User } from './User';
+import Channel from './Channel';
+import User from './User';
 
-export interface MessageSnapshot {
-	id: string,
-	author: User,
-	content: string,
-}
+export default class Message {
+    client: Client;
+    channel: Channel;
+    id: string;
 
-export enum Sent {
-	UNSENT,
-	SENT,
-	FAILED,
-}
+    _author: string;
 
-export class Message {
-	channel: Channel;
+    author: User;
+    content: string;
+    edited?: Date;
+    nonce?: string;
 
-	id: string;
-	nonce: string;
-	sent: Sent;
+	constructor(client: Client, channel: Channel, data: RawMessage) {
+        this.client = client;
+        this.channel = channel;
+        this.id = this.id;
 
-	user: User;
-	content: string;
-	edited: Date | null;
+        this._author = data.author;
+        this.content = data.content;
+        this.edited = data.edited === null ? undefined : new Date(data.edited);
+        this.nonce = data.nonce;
+    }
 
-	author: string;
+    async $sync() {
+        this.author = await this.client.fetchUser(this._author);
+    }
+    
+    static async fetch(client: Client, channel: Channel, id: string, raw: RawMessage): Promise<Message> {
+        let existing = channel.messages.get(id);
+        if (existing) {
+            return existing;
+        }
 
-	constructor(channel: Channel, data: RawMessage) {
-		this.channel = channel;
-		this.sent = Sent.UNSENT;
-		this.update(data);
-	}
+        let data = raw ?? await client.$req<any, Channels.MessageResponse>('GET', `/channels/${channel.id}/messages/${id}`);
+        let message = new Message(client, channel, data);
+        await message.$sync();
+        client.messages.set(message.id, message);
+        channel.messages.set(message.id, message);
+        return message;
+    }
 
-	update(data: RawMessage & { channel?: string }) {
-		if (data.edited) {
-			this.edited = new Date(data.edited);
-			delete data.edited;
-		}
+    async edit(content: string) {
+        await this.client.$req<Channels.EditMessageRequest, Channels.EditMessageResponse>('PATCH', `/channels/${this.channel.id}/messages/${this.id}`);
+        this.content = content;
+        this.edited = new Date();
+    }
 
-		delete data.channel;
+    async delete() {
+        await this.client.$req<any, Channels.DeleteMessageResponse>('DELETE', `/channels/${this.channel.id}/messages/${this.id}`);
+        this._delete();
+    }
 
-		Object.assign(this, data);
-	}
-
-	async $init() {
-		this.user = await this.channel.client.findUser(this.author);
-	}
-
-	$snapshot(): MessageSnapshot {
-		return {
-			id: this.id,
-			author: this.user,
-			content: this.content,
-		}
-	}
-
-	static async from(id: string, channel: Channel, data?: RawMessage) {
-		let message;
-		if (channel.messages.has(id)) {
-			message = channel.messages.get(id) as Message;
-			data && message.update(data);
-		} else if (data) {
-			message = new Message(channel, data);
-		} else {
-			message = new Message(channel, await channel.client.$req<Request, RawMessage>('GET', '/channels/' + channel.id + '/messages/' + id));
-		}
-
-		message.sent = Sent.SENT;
-		await message.$init();
-		channel.messages.set(id, message);
-		return message;
-	}
-
-	async edit(content: string) {
-		if (this.sent === Sent.FAILED) {
-			throw new Error("Cannot edit failed message!");
-		}
-
-		if (this.sent === Sent.UNSENT) {
-			throw new Error("Cannot delete unsent message!");
-		}
-
-		let res = await this.channel.client.$req<Channels.EditMessageRequest, Channels.EditMessageResponse>('PATCH', '/channels/' + this.channel.id + '/messages/' + this.id, { content });
-
-		if (res.success) {
-			this.content = content;
-		} else {
-			throw new Error(res.error);
-		}
-	}
-
-	async delete() {
-		if (this.sent === Sent.FAILED) {
-			this.channel.messages.delete(this.id);
-			return;
-		}
-
-		if (this.sent === Sent.UNSENT) {
-			throw new Error("Cannot delete unsent message!");
-		}
-
-		let res = await this.channel.client.$req<Request, Channels.DeleteMessageResponse>('DELETE', '/channels/' + this.channel.id + '/messages/' + this.id);
-
-		if (res.success) {
-			this.channel.messages.delete(this.id);
-		} else {
-			throw new Error(res.error);
-		}
-	}
+    _delete() {
+        this.client.messages.delete(this.id);
+        this.channel.messages.delete(this.id);
+    }
 }

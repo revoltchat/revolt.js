@@ -1,43 +1,24 @@
-import { config } from 'dotenv';
-config();
-
-import { Client } from '.';
+import { Client } from "./Client";
 
 let client = new Client();
 
-client.on('ready', () => {
-	console.log(`Logged in as ${client.user?.username}!`);
-
-	/*client.findChannel('01E1CDFQ4QWT93Q2Z6YWVTW2ND')
-		.then(async x => {
-			let [ temp, next ] = x.sendMessage('bruh');
-			await next;
-			console.log(Array.from(x.messages.values()).map(x => x.id));
-		})*/
+client.on('ready', async () => {
+    console.log(`Logged in as ${client.user?.username}!`);
+    console.log(`Users: ${Array.from(client.users.values()).map(x => x.username).join(', ')}`);
+    console.log(`Channels: ${Array.from(client.channels.values()).map(x => `[${x.id}:${x.type}]`).join(', ')}`);
+    console.log(`Guilds: ${Array.from(client.guilds.values()).map(x => x.name).join(', ')}`);
 });
 
 client.on('message', msg => {
-	console.log(`[${msg.user.username}] ${msg.content}`);
+    console.log(`${msg.author.username}: ${msg.content}`);
 });
 
-client.on('message_update', (msg, old) => {
-	console.log(`[${msg.user.username}::edited] ${msg.content}`);
+client.on('message/edit', msg => {
+    console.log(`${msg.author.username} [edited their message]: ${msg.content}`);
 });
 
-client.on('message_delete', id => {
-	console.log(`[deleted] ${id}`);
-});
+client.login('paulmakles@gmail.com', 'bruhbruh')
+    .catch(err => console.error(err));
 
-client.on('connected', () => {
-	console.error('Connected.');
-});
-
-client.on('dropped', () => {
-	console.error('Disconnected.');
-});
-
-client.on('error', err => {
-	console.error('Encountered an error!', err);
-});
-
-client.login(process.env.TOKEN as string);
+//client.login('2u73AmzBwso7DQVfJdey6zSspITbVr5GA1jidck7O4EwXkYhwyhIcL9q9eN8qWRAEGYDTDUhvR3pwKFJ0yLHois9XOTg')
+    //.catch(err => console.error(err));

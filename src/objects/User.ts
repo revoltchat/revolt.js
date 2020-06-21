@@ -1,76 +1,74 @@
-import { Users, Relationship } from '../api';
 import { Client } from '../Client';
 
-export class User {
-	client: Client;
+import { Users, Relationship } from '../api/users';
+import Channel from './Channel';
 
-	id: string;
-	username: string;
+export default class User {
+    client: Client;
+    id: string;
+    username: string;
 
-	relationship?: Relationship;
+    // only fetched if self
+    email?: string;
+    verified?: boolean;
 
-	email?: string;
-	verified?: boolean;
+    // only fetched if other
+    relationship: Relationship;
 
 	constructor(client: Client, data: Users.UserResponse) {
-		this.client = client;
-		this.$update(data);
-	}
+        this.client = client;
+        this.id = data.id;
+        this.username = data.username;
 
-	$update(data: Users.UserResponse) {
-		Object.assign(this, data);
-	}
+        this.email = data.email;
+        this.verified = data.verified;
 
-	static async from(id: string, client: Client, data?: Users.UserResponse) {
-		let user;
-		if (client.users.has(id)) {
-			user = client.users.get(id) as User;
-			data && user.$update(data);
-		} else if (data) {
-			user = new User(client, data);
-		} else {
-			user = new User(client, await client.$req<Request, Users.UserResponse>('GET', '/users/' + id));
-		}
+        this.relationship = data.relationship ?? Relationship.SELF;
+    }
+    
+    static async fetch(client: Client, id: string): Promise<User> {
+        if (id === client.userId)
+            id = '@me';
 
-		client.users.set(id, user);
-		return user;
-	}
+        let existing = client.users.get(id);
+        if (existing) {
+            return existing;
+        }
 
-	async fetchRelationship() {
-		let friend = await this.client.$req<Request, Users.FriendResponse>('GET', '/users/' + this.id + '/friend');
-		this.relationship = friend.status;
-		return friend.status;
-	}
+        let data = await client.$req<any, Users.UserResponse>('GET', `/users/${id}`);
+        let user = new User(client, data);
+        client.users.set(id, user);
+        return user;
+    }
 
-	async addFriend() {
-		let res = await this.client.$req<Request, Users.AddFriendResponse>('PUT', '/users/' + this.id + '/friend');
+    async openDM(): Promise<Channel> {
+        let res = await this.client.$req<any, Users.OpenDMResponse>('GET', `/users/${this.id}/dm`);
+        return await Channel.fetch(this.client, res.id);
+    }
 
-		if (res.success) {
-			this.relationship = res.status;
-			return this.relationship;
-		} else {
-			throw new Error(res.error);
-		}
-	}
+    async fetchRelationship(): Promise<Relationship> {
+        let res = await this.client.$req<any, Users.FriendResponse>('GET', `/users/${this.id}/friend`);
+        this.relationship = res.status;
+        return res.status;
+    }
 
-	async removeFriend() {
-		let res = await this.client.$req<Request, Users.RemoveFriendResponse>('DELETE', '/users/' + this.id + '/friend');
+    async addFriend() {
+        let res = await this.client.$req<any, Users.AddFriendResponse>('PUT', `/users/${this.id}/friend`);
+        this.relationship = res.status;
+    }
 
-		if (res.success) {
-			this.relationship = Relationship.NONE;
-			return this.relationship;
-		} else {
-			throw new Error(res.error);
-		}
-	}
+    async removeFriend() {
+        let res = await this.client.$req<any, Users.RemoveFriendResponse>('DELETE', `/users/${this.id}/friend`);
+        this.relationship = res.status;
+    }
 
-	async getDM() {
-		let res = await this.client.$req<Request, Users.OpenDMResponse>('GET', '/users/' + this.id + '/dm');
+    async block() {
+        let res = await this.client.$req<any, Users.BlockUserResponse>('PUT', `/users/${this.id}/block`);
+        this.relationship = res.status;
+    }
 
-		if (res.success) {
-			return this.client.findChannel(res.id);
-		} else {
-			throw new Error(res.error);
-		}
-	}
+    async unblock() {
+        let res = await this.client.$req<any, Users.UnblockUserResponse>('DELETE', `/users/${this.id}/block`);
+        this.relationship = res.status;
+    }
 }
