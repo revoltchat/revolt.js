@@ -19,7 +19,7 @@ export class Message {
 	constructor(client: Client, channel: Channel, data: RawMessage) {
         this.client = client;
         this.channel = channel;
-        this.id = this.id;
+        this.id = data.id;
 
         this._author = data.author;
         this.content = data.content;
