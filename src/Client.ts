@@ -4,7 +4,7 @@ import { defaultsDeep } from 'lodash';
 import { EventEmitter } from 'events';
 
 import { Account, Users, Guild as GuildAPI, WebsocketPackets, Relationship, ChannelType } from './api';
-import { User, Message, GroupChannel, Guild, Channel } from './objects';
+import { User, Message, GroupChannel, Guild, Channel, DMChannel } from './objects';
 
 export interface ClientOptions {
     apiURL?: string,
@@ -127,6 +127,15 @@ export class Client extends EventEmitter {
                             let channel = await Channel.fetch(this, data.channel);
                             let message = await Message.fetch(this, channel, data.id, data);
 
+                            if (channel instanceof DMChannel ||
+                                channel instanceof GroupChannel) {
+                                channel._lastMessage = {
+                                    id: data.id,
+                                    user_id: data.author,
+                                    short_content: message.author.username + ': ' + data.content.substring(0, 24)
+                                }
+                            }
+
                             this.emit('message', message);
                         }
                         break;
@@ -135,12 +144,13 @@ export class Client extends EventEmitter {
                             let data = packet as WebsocketPackets.message_edit;
                             let message = this.messages.get(data.id);
 
+                            let channel = message?.channel;
                             if (message) {
                                 message.content = data.content;
                                 this.emit('message/edit', message);
                             } else {
-                                let channel = await Channel.fetch(this, data.channel);
-                                let message = await Message.fetch(
+                                channel = await Channel.fetch(this, data.channel);
+                                message = await Message.fetch(
                                     this,
                                     channel,
                                     data.id,
@@ -154,6 +164,17 @@ export class Client extends EventEmitter {
 
                                 this.emit('message/edit', message);
                             }
+
+                            if (channel instanceof DMChannel ||
+                                channel instanceof GroupChannel) {
+                                if (!channel._lastMessage || data.id >= channel._lastMessage.id) {
+                                    channel._lastMessage = {
+                                        id: data.id,
+                                        user_id: data.author,
+                                        short_content: message.author.username + ': ' + data.content.substring(0, 24)
+                                    }
+                                }
+                            }
                         }
                         break;
                     case 'message_delete':
@@ -163,6 +184,14 @@ export class Client extends EventEmitter {
                             message?._delete();
 
                             this.emit('message/delete', data.id, message);
+
+                            let channel = message?.channel;
+                            if (channel instanceof DMChannel ||
+                                channel instanceof GroupChannel) {
+                                if (channel._lastMessage && data.id === channel._lastMessage.id) {
+                                    delete channel._lastMessage;
+                                }
+                            }
                         }
                         break;
                     case 'group_user_join':

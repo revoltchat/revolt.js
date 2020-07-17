@@ -46,7 +46,7 @@ export class Message {
     }
 
     async edit(content: string) {
-        await this.client.$req<Channels.EditMessageRequest, Channels.EditMessageResponse>('PATCH', `/channels/${this.channel.id}/messages/${this.id}`);
+        await this.client.$req<Channels.EditMessageRequest, Channels.EditMessageResponse>('PATCH', `/channels/${this.channel.id}/messages/${this.id}`, { content });
         this.content = content;
         this.edited = new Date();
     }

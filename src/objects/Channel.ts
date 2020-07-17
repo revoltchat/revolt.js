@@ -4,9 +4,14 @@ import { User } from './User';
 import { Guild } from './Guild';
 import { Message } from './Message';
 
-import { Channels, RawChannel, ChannelType } from '../api/channels';
-
+import { Channels, RawChannel, ChannelType, LastMessage } from '../api/channels';
 import { ulid } from 'ulid';
+
+interface FetchOptions {
+    limit?: number,
+    before?: string,
+    after?: string
+}
 
 export abstract class Channel {
     client: Client;
@@ -53,8 +58,8 @@ export abstract class Channel {
         return channel;
     }
 
-    async fetchMessages() {
-        let res = await this.client.$req<any, Channels.MessagesResponse>('GET', `/channels/${this.id}/messages`);
+    async fetchMessages(params?: FetchOptions) {
+        let res = await this.client.$req<any, Channels.MessagesResponse>('GET', `/channels/${this.id}/messages`, { }, { params });
         let messages = [];
         for (let message of res) {
             messages.push(await Message.fetch(this.client, this, message.id, message));
@@ -63,13 +68,13 @@ export abstract class Channel {
         return messages;
     }
 
-    async sendMessage(content: string) {
+    async sendMessage(content: string, nonce?: string) {
         let res = await this.client.$req<Channels.SendMessageRequest, Channels.SendMessageResponse>(
             'POST',
             `/channels/${this.id}/messages`,
             {
                 content,
-                nonce: ulid()
+                nonce: nonce ?? ulid()
             }
         );
 
@@ -119,6 +124,7 @@ export class GuildChannel extends Channel {
 }
 
 export class GroupChannel extends Channel {
+    _lastMessage?: LastMessage;
     _recipients: string[];
     _owner: string;
 
@@ -135,6 +141,7 @@ export class GroupChannel extends Channel {
         
         this.name = data.name;
         this.description = data.description;
+        this._lastMessage = data.last_message;
         this._recipients = data.recipients;
         this._owner = data.owner;
     }
@@ -165,6 +172,7 @@ export class GroupChannel extends Channel {
 }
 
 export class DMChannel extends Channel {
+    _lastMessage?: LastMessage;
     _recipients: string[];
 
     recipient: User;
@@ -175,6 +183,7 @@ export class DMChannel extends Channel {
         if (data.type !== ChannelType.DM)
             throw new Error("Trying to instantiate non-dm, dm channel.");
         
+        this._lastMessage = data.last_message;
         this._recipients = data.recipients;
     }
 

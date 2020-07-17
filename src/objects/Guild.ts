@@ -68,7 +68,7 @@ export class Guild {
     }
 
     async delete() {
-        this.client.$req<any, GuildAPI.GuildDeleteResponse>('DELETE', `/guilds/${this.id}`);
+        this.client.$req<any, GuildAPI.GuildDeleteResponse>('DELETE', `/guild/${this.id}`);
         this._delete();
     }
 
@@ -78,5 +78,9 @@ export class Guild {
         for (let channel of this.channels.values()) {
             channel._delete();
         }
+    }
+
+    get iconURL() {
+        return;
     }
 }

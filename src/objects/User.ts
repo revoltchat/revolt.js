@@ -71,4 +71,8 @@ export class User {
         let res = await this.client.$req<any, Users.UnblockUserResponse>('DELETE', `/users/${this.id}/block`);
         this.relationship = res.status;
     }
+
+    get avatarURL() {
+        return `https://dl.insrt.uk/projects/revolt/user.png`;
+    }
 }
