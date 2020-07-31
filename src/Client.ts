@@ -22,8 +22,6 @@ export declare interface Client {
     // object creation
     on(event: 'create/user', listener: (id: string, user: User) => void): this;
     on(event: 'create/guild', listener: (id: string, guild: Guild) => void): this;
-    on(event: 'create/channel', listener: (id: string, channel: Channel) => void): this;
-    on(event: 'create/message', listener: (id: string, message: Message) => void): this;
 
     // object patches
     on(event: 'patch/user', listener: (id: string, partial: Partial<Users.UserResponse>) => void): this;
