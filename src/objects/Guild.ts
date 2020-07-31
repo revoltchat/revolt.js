@@ -64,6 +64,8 @@ export class Guild {
         let guild = new Guild(client, data);
         await guild.$sync();
         client.guilds.set(id, guild);
+        client.emit('create/guild', guild);
+
         return guild;
     }
 
@@ -80,7 +82,7 @@ export class Guild {
         }
     }
 
-    get iconURL() {
-        return;
+    get iconURL(): string | undefined {
+        return undefined;
     }
 }

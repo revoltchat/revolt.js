@@ -40,8 +40,11 @@ export class Message {
         let data = raw ?? await client.$req<any, Channels.MessageResponse>('GET', `/channels/${channel.id}/messages/${id}`);
         let message = new Message(client, channel, data);
         await message.$sync();
+
         client.messages.set(message.id, message);
         channel.messages.set(message.id, message);
+        client.emit('create/message', message);
+
         return message;
     }
 
@@ -49,6 +52,7 @@ export class Message {
         await this.client.$req<Channels.EditMessageRequest, Channels.EditMessageResponse>('PATCH', `/channels/${this.channel.id}/messages/${this.id}`, { content });
         this.content = content;
         this.edited = new Date();
+        this.client.emit('patch/message', this.id, { content, edited: this.edited });
     }
 
     async delete() {

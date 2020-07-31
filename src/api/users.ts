@@ -15,17 +15,18 @@ export namespace Users {
 	export interface UserResponse {
 		id: string,
 		username: string,
+		display_name: string,
 		email?: string,
         verified?: boolean,
         relationship?: Relationship
 	}
 
-	// POST /lookup
-	export interface LookupRequest {
-		username?: string,
+	// POST /query
+	export interface QueryRequest {
+		username: string,
 	}
 
-	export type LookupResponse = UserResponse[];
+	export type QueryResponse = UserResponse;
 
 	// GET /@me/dms
 	export type DMsResponse = RawChannel[];

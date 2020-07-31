@@ -55,6 +55,8 @@ export abstract class Channel {
         }
 
         client.channels.set(id, channel);
+        client.emit('create/channel', channel);
+
         return channel;
     }
 
@@ -168,6 +170,10 @@ export class GroupChannel extends Channel {
     async removeUser(user: User) {
         await this.client.$req<any, Channels.RemoveFromGroupResponse>('DELETE', `/channels/${this.id}/recipients/${user.id}`);
         this.recipients.delete(user.id);
+    }
+
+    get iconURL(): string {
+        return `https://dl.insrt.uk/projects/revolt/group.png`;
     }
 }
 

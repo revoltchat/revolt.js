@@ -3,7 +3,7 @@ import WebSocket from 'isomorphic-ws';
 import { defaultsDeep } from 'lodash';
 import { EventEmitter } from 'events';
 
-import { Account, Users, Guild as GuildAPI, WebsocketPackets, Relationship, ChannelType } from './api';
+import { Account, Users, Guild as GuildAPI, WebsocketPackets, Relationship, ChannelType, RawMessage, RawChannel } from './api';
 import { User, Message, GroupChannel, Guild, Channel, DMChannel } from './objects';
 
 export interface ClientOptions {
@@ -18,6 +18,18 @@ export declare interface Client {
 	// websocket: connection status
 	on(event: 'connected', listener: () => void): this;
     on(event: 'dropped', listener: () => void): this;
+
+    // object creation
+    on(event: 'create/user', listener: (id: string, user: User) => void): this;
+    on(event: 'create/guild', listener: (id: string, guild: Guild) => void): this;
+    on(event: 'create/channel', listener: (id: string, channel: Channel) => void): this;
+    on(event: 'create/message', listener: (id: string, message: Message) => void): this;
+
+    // object patches
+    on(event: 'patch/user', listener: (id: string, partial: Partial<Users.UserResponse>) => void): this;
+    on(event: 'patch/guild', listener: (id: string, partial: Partial<GuildAPI.GuildResponse>) => void): this; // ! TODO
+    on(event: 'patch/channel', listener: (id: string, partial: Partial<RawChannel>) => void): this; // ! TOOD
+    on(event: 'patch/message', listener: (id: string, partial: Partial<RawMessage>) => void): this; // ! TODO FIXME
 
     // message events
     on(event: 'message', listener: (message: Message) => void): this;
@@ -93,7 +105,7 @@ export class Client extends EventEmitter {
                 }));
             }
 
-            ws.onmessage = async raw => {
+            ws.onmessage = async (raw: any) => {
                 let packet = JSON.parse(raw.data.toString());
 
                 switch (packet.type) {
@@ -366,6 +378,11 @@ export class Client extends EventEmitter {
     async register(info: Account.CreateRequest) {
         let data = await this.$req<Account.CreateRequest, Account.CreateResponse>('POST', '/account/create', info);
         return data;
+    }
+
+    async findUser(username: string) {
+        let data = await this.$req<Users.QueryRequest, Users.QueryResponse>('POST', '/users/query', { username });
+        return await User.fetch(this, data.id, data);
     }
 
     async fetchUser(id: string) {

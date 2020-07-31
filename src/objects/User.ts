@@ -7,6 +7,7 @@ export class User {
     client: Client;
     id: string;
     username: string;
+    displayName: string;
 
     // only fetched if self
     email?: string;
@@ -19,6 +20,7 @@ export class User {
         this.client = client;
         this.id = data.id;
         this.username = data.username;
+        this.displayName = data.display_name;
 
         this.email = data.email;
         this.verified = data.verified;
@@ -26,7 +28,7 @@ export class User {
         this.relationship = data.relationship ?? Relationship.SELF;
     }
     
-    static async fetch(client: Client, id: string): Promise<User> {
+    static async fetch(client: Client, id: string, raw?: Users.UserResponse): Promise<User> {
         if (id === client.userId)
             id = '@me';
 
@@ -35,9 +37,11 @@ export class User {
             return existing;
         }
 
-        let data = await client.$req<any, Users.UserResponse>('GET', `/users/${id}`);
+        let data = raw ?? await client.$req<any, Users.UserResponse>('GET', `/users/${id}`);
         let user = new User(client, data);
         client.users.set(id, user);
+        client.emit('create/user', user);
+
         return user;
     }
 
@@ -48,31 +52,46 @@ export class User {
 
     async fetchRelationship(): Promise<Relationship> {
         let res = await this.client.$req<any, Users.FriendResponse>('GET', `/users/${this.id}/friend`);
-        this.relationship = res.status;
-        return res.status;
+        let relationship = res.status;
+
+        this.relationship = relationship;
+        this.client.emit('patch/user', this.id, { relationship });
+        return relationship;
     }
 
     async addFriend() {
         let res = await this.client.$req<any, Users.AddFriendResponse>('PUT', `/users/${this.id}/friend`);
-        this.relationship = res.status;
+        let relationship = res.status;
+
+        this.relationship = relationship;
+        this.client.emit('patch/user', this.id, { relationship });
     }
 
     async removeFriend() {
         let res = await this.client.$req<any, Users.RemoveFriendResponse>('DELETE', `/users/${this.id}/friend`);
-        this.relationship = res.status;
+        let relationship = res.status;
+
+        this.relationship = relationship;
+        this.client.emit('patch/user', this.id, { relationship });
     }
 
     async block() {
         let res = await this.client.$req<any, Users.BlockUserResponse>('PUT', `/users/${this.id}/block`);
-        this.relationship = res.status;
+        let relationship = res.status;
+
+        this.relationship = relationship;
+        this.client.emit('patch/user', this.id, { relationship });
     }
 
     async unblock() {
         let res = await this.client.$req<any, Users.UnblockUserResponse>('DELETE', `/users/${this.id}/block`);
-        this.relationship = res.status;
+        let relationship = res.status;
+
+        this.relationship = relationship;
+        this.client.emit('patch/user', this.id, { relationship });
     }
 
-    get avatarURL() {
+    get avatarURL(): string {
         return `https://dl.insrt.uk/projects/revolt/user.png`;
     }
 }
