@@ -392,7 +392,7 @@ export class Client extends EventEmitter {
     async createGroup(info: Channels.CreateGroupRequest) {
         // ! FIXME: return group data in response
         let data = await this.$req<any, GuildAPI.CreateGuildResponse>('POST', '/channels/create', info);
-        return await Guild.fetch(this, data.id);
+        return await Channel.fetch(this, data.id);
     }
 
     async fetchUser(id: string) {
