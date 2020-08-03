@@ -3,7 +3,7 @@ import WebSocket from 'isomorphic-ws';
 import { defaultsDeep } from 'lodash';
 import { EventEmitter } from 'events';
 
-import { Account, Users, Guild as GuildAPI, WebsocketPackets, Relationship, ChannelType, RawMessage, RawChannel } from './api';
+import { Account, Users, Guild as GuildAPI, WebsocketPackets, Relationship, ChannelType, RawMessage, RawChannel, Channels } from './api';
 import { User, Message, GroupChannel, Guild, Channel, DMChannel } from './objects';
 
 export interface ClientOptions {
@@ -381,6 +381,18 @@ export class Client extends EventEmitter {
     async findUser(username: string) {
         let data = await this.$req<Users.QueryRequest, Users.QueryResponse>('POST', '/users/query', { username });
         return await User.fetch(this, data.id, data);
+    }
+
+    async createGuild(info: GuildAPI.CreateGuildRequest) {
+        // ! FIXME: return guild data in response
+        let data = await this.$req<any, GuildAPI.CreateGuildResponse>('POST', '/guild/create', info);
+        return await Guild.fetch(this, data.id);
+    }
+
+    async createGroup(info: Channels.CreateGroupRequest) {
+        // ! FIXME: return group data in response
+        let data = await this.$req<any, GuildAPI.CreateGuildResponse>('POST', '/channels/create', info);
+        return await Guild.fetch(this, data.id);
     }
 
     async fetchUser(id: string) {

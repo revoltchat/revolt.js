@@ -54,13 +54,13 @@ export class Guild {
         }
     }
     
-    static async fetch(client: Client, id: string): Promise<Guild> {
+    static async fetch(client: Client, id: string, raw?: GuildAPI.GuildResponse): Promise<Guild> {
         let existing = client.guilds.get(id);
         if (existing) {
             return existing;
         }
 
-        let data = await client.$req<any, GuildAPI.GuildResponse>('GET', `/guild/${id}`);
+        let data = raw ?? await client.$req<any, GuildAPI.GuildResponse>('GET', `/guild/${id}`);
         let guild = new Guild(client, data);
         await guild.$sync();
         client.guilds.set(id, guild);
@@ -72,6 +72,15 @@ export class Guild {
     async delete() {
         this.client.$req<any, GuildAPI.GuildDeleteResponse>('DELETE', `/guild/${this.id}`);
         this._delete();
+    }
+
+    async createChannel(info: GuildAPI.CreateChannelRequest) {
+        let data = await this.client.$req<any, GuildAPI.CreateChannelResponse>('POST', `/guild/${this.id}/channels`, info);
+        return await Channel.fetch(this.client, data.id);
+    }
+
+    async fetchMembers() {
+        return await this.client.$req<any, GuildAPI.MembersResponse>('GET', `/guild/${this.id}/members`);
     }
 
     _delete() {
