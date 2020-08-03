@@ -80,7 +80,7 @@ export abstract class Channel {
             }
         );
 
-        return res.id;
+        return Message.fetch(this.client, this, res.id);
     }
 
     _delete() {

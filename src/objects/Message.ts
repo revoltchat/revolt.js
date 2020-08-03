@@ -31,7 +31,7 @@ export class Message {
         this.author = await this.client.fetchUser(this._author);
     }
     
-    static async fetch(client: Client, channel: Channel, id: string, raw: RawMessage): Promise<Message> {
+    static async fetch(client: Client, channel: Channel, id: string, raw?: RawMessage): Promise<Message> {
         let existing = channel.messages.get(id);
         if (existing) {
             return existing;
