@@ -296,7 +296,7 @@ export class Client extends EventEmitter {
                     case 'user_friend_status':
                         {
                             let data = packet as WebsocketPackets.user_friend_status;
-                            let user = await User.fetch(this, data.id);
+                            let user = await User.fetch(this, data.user);
                             user.relationship = data.status;
 
                             this.emit('user/friend_status', user, data.status);
@@ -316,6 +316,7 @@ export class Client extends EventEmitter {
 
 	async $request<T>(method: AxiosRequestConfig['method'], path: string, data?: T, config?: AxiosRequestConfig) {
         let headers = {} as any;
+        if (this.userId) headers['x-user'] = this.userId;
         if (this.token) headers['x-auth-token'] = this.token;
 
 		return await

@@ -63,6 +63,7 @@ export namespace WebsocketPackets {
 
     export interface user_friend_status {
         id: string,
+        user: string,
         status: Relationship
     }
 }
