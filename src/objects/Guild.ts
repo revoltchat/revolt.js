@@ -2,7 +2,7 @@ import { Client } from '../Client';
 import { Channel } from './Channel';
 import { User } from './User';
 
-import { Guild as GuildAPI, CoreGuild, RawChannel, ChannelType } from '../api';
+import { Guild as GuildAPI, CoreGuild, RawChannel } from '../api';
 
 export class Guild {
     client: Client;
@@ -23,18 +23,7 @@ export class Guild {
         this.id = data.id;
 
         this._owner = data.owner;
-        this._channels = data.channels ?
-            data.channels
-                .map(x => {
-                    return {
-                        id: x.id,
-                        type: ChannelType.GUILDCHANNEL,
-                        guild: data.id,
-                        name: x.name,
-                        description: x.description
-                    };
-                })
-                : [];
+        this._channels = data.channels;
 
         this.name = data.name;
         this.description = data.description;
@@ -47,10 +36,9 @@ export class Guild {
         this.owner = await User.fetch(this.client, this._owner);
         
         for (let raw of this._channels) {
-            let channel = await Channel.fetch(this.client, raw.id);
+            let channel = await Channel.fetch(this.client, raw.id, raw);
             await channel.$sync(this);
             this.channels.set(raw.id, channel);
-            // TODO: MAKE CHANNELS COMPULSARY IN CORE GUILD HENCE USE IT HERE INSTEAD OF FETCHING AGAIN
         }
     }
     

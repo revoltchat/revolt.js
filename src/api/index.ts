@@ -1,4 +1,6 @@
-import { Relationship } from './users';
+import { Relationship, Users } from './users';
+import { RawChannel } from './channels';
+import { CoreGuild } from './guild';
 
 export * from './account';
 export * from './users';
@@ -6,6 +8,13 @@ export * from './channels';
 export * from './guild';
 
 export namespace WebsocketPackets {
+    export interface ready {
+        channels: RawChannel[],
+        guilds: CoreGuild[],
+        user: Users.UserResponse,
+        users: Users.UserResponse[]
+    }
+
     export interface message_create {
         id: string,
         nonce?: string,

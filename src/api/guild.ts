@@ -1,13 +1,11 @@
+import { RawChannel } from "./channels";
+
 export interface CoreGuild {
     id: string,
     name: string,
     description: string,
     owner: string,
-    channels?: {
-        id: string,
-        name: string,
-        description: string
-    }[]
+    channels: RawChannel[]
 }
 
 export namespace Guild {

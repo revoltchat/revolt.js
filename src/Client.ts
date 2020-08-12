@@ -86,7 +86,6 @@ export class Client extends EventEmitter {
 	ws?: WebSocket;
 	socketOpen?: boolean;
 	socketAuthenticated?: boolean;
-	previouslyConnected?: boolean;
 
 	$connect() {
         return new Promise((resolve, reject) => {
@@ -116,13 +115,31 @@ export class Client extends EventEmitter {
                                 resolve();
 
                                 this.emit('connected');
-                                if (!this.previouslyConnected) {
-                                    this.emit('ready');
-                                    this.previouslyConnected = true;
-                                }
                             } else {
                                 reject(packet.error ?? 'Failed to auth with websocket, unknown error.');
                             }
+                        }
+                        break;
+                    // preparing
+                    case 'ready':
+                        {
+                            let data = packet.data.Ok as WebsocketPackets.ready;
+
+                            this.user = await User.fetch(this, data.user.id, data.user);
+
+                            for (let user of data.users) {
+                                await User.fetch(this, user.id, user);
+                            }
+
+                            for (let dm of data.channels) {
+                                await Channel.fetch(this, dm.id, dm);
+                            }
+
+                            for (let guild of data.guilds) {
+                                await Guild.fetch(this, guild.id, guild);
+                            }
+
+                            this.emit('ready');
                         }
                         break;
                     // post-auth
@@ -336,26 +353,6 @@ export class Client extends EventEmitter {
 	async $req<T, R>(method: AxiosRequestConfig['method'], url: string, data?: T, config?: AxiosRequestConfig): Promise<R> {
 		return (await this.$request(method, url, data, config)).data;
     }
-    
-    async $sync() {
-        this.user = await User.fetch(this, this.userId as string);
-
-        let dms = await this.$req<any, Users.DMsResponse>('GET', '/users/@me/dms');
-        for (let dm of dms) {
-            await Channel.fetch(this, dm.id, dm);
-        }
-
-        let friends = await this.$req<any, Users.FriendsResponse>('GET', '/users/@me/friend');
-        for (let friend of friends) {
-            await User.fetch(this, friend.id);
-            // ? future optimisation; return user objects from this route.
-        }
-
-        let guilds = await this.$req<any, GuildAPI.GuildsResponse>('GET', '/guild/@me');
-        for (let guild of guilds) {
-            await Guild.fetch(this, guild.id);
-        }
-    }
 
     async login(token: string): Promise<void>;
 	async login(email: string, password: string): Promise<void>;
@@ -371,7 +368,6 @@ export class Client extends EventEmitter {
             this.userId = data.id;
         }
 
-        await this.$sync();
         await this.$connect();
     }
 
