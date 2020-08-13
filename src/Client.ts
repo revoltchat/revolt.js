@@ -355,11 +355,11 @@ export class Client extends EventEmitter {
     }
 
     async login(token: string): Promise<void>;
-	async login(email: string, password: string): Promise<void>;
+	async login(email: string, password: string, captcha?: string): Promise<void>;
 
-	async login(token: string, password?: string) {
+	async login(token: string, password?: string, captcha?: string) {
         if (typeof password === 'string') {
-            let data = await this.$req<Account.LoginRequest, Account.LoginResponse>('POST', '/account/login', { email: token, password });
+            let data = await this.$req<Account.LoginRequest, Account.LoginResponse>('POST', '/account/login', { email: token, password, captcha });
             this.token = data.access_token;
             this.userId = data.id;
         } else {

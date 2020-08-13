@@ -4,6 +4,7 @@ export namespace Account {
 		username: string,
 		password: string,
 		email: string,
+		captcha?: string,
 	}
 
 	export interface CreateResponse {
@@ -14,6 +15,7 @@ export namespace Account {
 	export interface LoginRequest {
 		email: string,
 		password: string,
+		captcha?: string,
 	}
 
 	export interface LoginResponse {
@@ -24,6 +26,7 @@ export namespace Account {
 	// POST /resend
 	export interface ResendRequest {
 		email: string,
+		captcha?: string,
 	}
 
 	export interface ResendResponse { }
