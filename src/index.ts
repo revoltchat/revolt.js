@@ -9,8 +9,8 @@ export const API_VERSION = {
 };
 
 export const LIBRARY_VERSION = {
-    str: '2.2.5',
+    str: '2.2.6',
     major: 2,
     minor: 2,
-    patch: 5
+    patch: 6
 }
