@@ -1,4 +1,4 @@
-export namespace Core {
+export namespace Onboarding {
     // GET /onboard/hello
     export interface HelloResponse {
         onboarding: boolean
