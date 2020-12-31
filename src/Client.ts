@@ -9,13 +9,14 @@ import { Onboarding } from './api/onboarding';
 import { WebSocketClient } from './websocket/client';
 
 import User from './objects/User';
-import { Users } from './api/users';
+import Channel from './objects/Channel';
 
 export interface ClientOptions {
     apiURL: string,
     wsURL: string,
 
-    autoReconnect: boolean
+    autoReconnect: boolean,
+    debug: boolean
 }
 
 export declare interface Client {
@@ -23,7 +24,10 @@ export declare interface Client {
 	on(event: 'connected', listener: () => void): this;
 	on(event: 'connecting', listener: () => void): this;
     on(event: 'dropped', listener: () => void): this;
-	on(event: 'ready', listener: () => void): this;
+    on(event: 'ready', listener: () => void): this;
+    
+    // Notifications bound for the client.
+    on(event: 'user/relationship_changed', listener: (user: User) => void): this;
 }
 
 export class Client extends EventEmitter {
@@ -32,9 +36,10 @@ export class Client extends EventEmitter {
     websocket: WebSocketClient;
     configuration?: Core.RevoltNodeConfiguration;
     session?: Auth.Session;
+    user?: User;
 
     users: Map<string, User>;
-    user?: User;
+    channels: Map<string, Channel>;
 
     constructor(options: Partial<ClientOptions> = {}) {
         super();
@@ -44,7 +49,24 @@ export class Client extends EventEmitter {
         this.websocket = new WebSocketClient(this);
 
         this.users = new Map();
+        this.channels = new Map();
+
+        if (options.debug) {
+            this.Axios.interceptors.request.use(request => {
+                console.debug('[<]', request.method?.toUpperCase(), request.url);
+                return request
+            })
+                
+            this.Axios.interceptors.response.use(response => {
+                console.debug('[>] (' + response.status + ':', response.statusText + ')', JSON.stringify(response.data));
+                return response
+            })
+        }
     }
+
+    /**
+     * Authentication and connection.
+     */
     
     // Stage 1: Connect to Revolt.
     async connect() {
@@ -92,5 +114,12 @@ export class Client extends EventEmitter {
     // Complete onboarding if required.
     async completeOnboarding(data: Onboarding.OnboardRequest) {
         await this.Axios.post('/onboard/complete', data);
+    }
+
+    /**
+     * Utility functions.
+     */
+    async addFriend(username: string) {
+        await this.Axios.put(`/users/${username}/friend`);
     }
 }

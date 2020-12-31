@@ -1,12 +1,16 @@
 import { config } from 'dotenv';
 config();
 
-import { Client } from "./Client";
+import { Client, User } from ".";
 let client = new Client();
 
-client.on('ready', () => {
+client.once('ready', async () => {
     console.log(`Logged in as @${client.user?.username}`);
+
+    await client.addFriend('poggers');
 });
+
+client.once('user/relationship_changed', user => user.removeFriend());
 
 client.on('connecting', () => {
     console.log(`Connecting to the notifications server.`);

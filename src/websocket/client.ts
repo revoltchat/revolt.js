@@ -36,7 +36,11 @@ export class WebSocketClient {
             }
 
             let ws = new WebSocket(this.client.options.wsURL);
-            const send = (notification: ServerboundNotification) => ws.send(JSON.stringify(notification));
+            const send = (notification: ServerboundNotification) => {
+                let data = JSON.stringify(notification);
+                if (this.client.options.debug) console.debug('[<] PACKET', data);
+                ws.send(data)
+            };
 
             ws.onopen = () => {
                 send({ type: 'Authenticate', ...this.client.session as Auth.Session });
@@ -46,15 +50,30 @@ export class WebSocketClient {
                 let data = msg.data;
                 if (typeof data !== 'string') return;
 
+                if (this.client.options.debug) console.debug('[>] PACKET', data);
                 let packet = JSON.parse(data) as ClientboundNotification;
                 switch (packet.type) {
-                    case 'Error': reject(packet.error); break;
-                    case 'Authenticated': this.client.emit('connected'); break;
+                    case 'Error': {
+                        reject(packet.error);
+                        break;
+                    }
+                    case 'Authenticated': {
+                        disallowReconnect = false;
+                        this.client.emit('connected');
+                        break;
+                    }
                     case 'Ready': {
                         this.client.user = await User.fetch(this.client, packet.user._id, packet.user);
-
                         this.client.emit('ready');
                         resolve();
+                        break;
+                    }
+                    case 'UserRelationship': {
+                        if (packet.status !== 'None' || this.client.users.has(packet.user)) {
+                            let user = await User.fetch(this.client, packet.user);
+                            user.relationship = packet.status;
+                            this.client.emit('user/relationship_changed', user);
+                        }
                         break;
                     }
                 }

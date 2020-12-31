@@ -1,5 +1,8 @@
 export * from './Client';
 
+export { default as User } from './objects/User';
+export { default as Channel } from './objects/Channel';
+
 export const API_VERSION = {
     str: '0.3.0-alpha',
     major: 0,
@@ -18,5 +21,6 @@ export const defaultConfig = {
     apiURL: 'https://api.revolt.chat',
     wsURL:  'wss://ws.revolt.chat',
 
-    autoReconnect: true
+    autoReconnect: true,
+    debug: true
 };
