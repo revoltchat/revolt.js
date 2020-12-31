@@ -16,5 +16,7 @@ export const LIBRARY_VERSION = {
 
 export const defaultConfig = {
     apiURL: 'https://api.revolt.chat',
-    wsURL:  'wss://api.revolt.chat/ws'
+    wsURL:  'wss://ws.revolt.chat',
+
+    autoReconnect: true
 };

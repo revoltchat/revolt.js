@@ -4,13 +4,21 @@ config();
 import { Client } from "./Client";
 let client = new Client();
 
+client.on('ready', () => {
+    console.log(`Logged in as @${client.user?.username}`);
+});
+
 (async () => {
     console.log('Start:', new Date());
 
-    await client.connect();
-    let onboarding = await client.login({ email: 'mink3@insrt.uk', password: 'password', device_name: 'aaa' });
-    if (onboarding) {
-        await onboarding("poggers");
+    try {
+        await client.connect();
+        let onboarding = await client.login({ email: 'mink@insrt.uk', password: 'password', device_name: 'aaa' });
+        if (onboarding) {
+            await onboarding("username");
+        }
+    } catch (err) {
+        console.error(err);
     }
 
     console.log('End:  ', new Date());

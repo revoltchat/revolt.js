@@ -7,3 +7,14 @@ export enum Relationship {
     Blocked = "Blocked",
     BlockedOther = "BlockedOther",
 }
+
+export type Relationships = { _id: string, status: Relationship }[];
+
+export namespace Users {
+    // GET /:id
+    export interface User {
+        _id: string,
+        username: string,
+        relations?: Relationships
+    }
+}
