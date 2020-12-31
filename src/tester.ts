@@ -8,6 +8,18 @@ client.on('ready', () => {
     console.log(`Logged in as @${client.user?.username}`);
 });
 
+client.on('connecting', () => {
+    console.log(`Connecting to the notifications server.`);
+});
+
+client.on('connected', () => {
+    console.log(`Connected to notifications server.`);
+});
+
+client.on('dropped', () => {
+    console.log(`Connection dropped.`);
+});
+
 (async () => {
     console.log('Start:', new Date());
 

@@ -21,6 +21,7 @@ export interface ClientOptions {
 export declare interface Client {
 	// WebSocket related events.
 	on(event: 'connected', listener: () => void): this;
+	on(event: 'connecting', listener: () => void): this;
     on(event: 'dropped', listener: () => void): this;
 	on(event: 'ready', listener: () => void): this;
 }

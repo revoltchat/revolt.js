@@ -1,4 +1,5 @@
 import WebSocket from 'isomorphic-ws';
+import { backOff } from 'exponential-backoff';
 
 import { Client } from '..';
 import { Auth } from '../api/auth';
@@ -14,7 +15,9 @@ export class WebSocketClient {
         this.client = client;
     }
 
-    connect(): Promise<void> {
+    connect(disallowReconnect?: boolean): Promise<void> {
+        this.client.emit('connecting');
+
         return new Promise((resolve, $reject) => {
             let thrown = false;
             const reject = (err: any) => {
@@ -63,6 +66,9 @@ export class WebSocketClient {
 
             ws.onclose = () => {
                 this.client.emit('dropped');
+                if (!disallowReconnect && this.client.options.autoReconnect) {
+                    backOff(() => this.connect(true)).catch(reject);
+                }
             };
         });
     }
