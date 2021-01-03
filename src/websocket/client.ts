@@ -6,6 +6,7 @@ import { Auth } from '../api/auth';
 import { ServerboundNotification, ClientboundNotification } from './notifications';
 
 import User from '../objects/User';
+import { Relationship } from '../api/users';
 
 export class WebSocketClient {
     client: Client;
@@ -63,16 +64,25 @@ export class WebSocketClient {
                         break;
                     }
                     case 'Ready': {
-                        this.client.user = await User.fetch(this.client, packet.user._id, packet.user);
+                        for (let user of packet.users) {
+                            await User.fetch(this.client, user._id, user);
+                        }
+
+                        // INFO:
+                        // Our user object should be included in this
+                        // payload so we can just take it out of the map.
+                        this.client.user = this.client.users.get(this.client.session?.user_id as string);
                         this.client.emit('ready');
                         resolve();
                         break;
                     }
                     case 'UserRelationship': {
-                        if (packet.status !== 'None' || this.client.users.has(packet.user)) {
+                        if (packet.status !== Relationship.None || this.client.users.has(packet.user)) {
                             let user = await User.fetch(this.client, packet.user);
-                            user.relationship = packet.status;
+                            let relationship = packet.status;
+                            user.relationship = relationship;
                             this.client.emit('user/relationship_changed', user);
+                            this.client.emit('mutation/user', user, { relationship });
                         }
                         break;
                     }

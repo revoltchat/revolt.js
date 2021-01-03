@@ -25,6 +25,9 @@ export declare interface Client {
 	on(event: 'connecting', listener: () => void): this;
     on(event: 'dropped', listener: () => void): this;
     on(event: 'ready', listener: () => void): this;
+
+    // Object mutations: used for Revolt client.
+    on(event: 'mutation/user', listener: (user: User, object: Partial<User>) => void): this;
     
     // Notifications bound for the client.
     on(event: 'user/relationship_changed', listener: (user: User) => void): this;
