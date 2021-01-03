@@ -71,7 +71,10 @@ export class WebSocketClient {
                         // INFO:
                         // Our user object should be included in this
                         // payload so we can just take it out of the map.
-                        this.client.user = this.client.users.get(this.client.session?.user_id as string);
+                        let user = this.client.users.get(this.client.session?.user_id as string) as User;
+                        user.relationship = Relationship.User;
+                        this.client.user = user;
+
                         this.client.emit('ready');
                         resolve();
                         break;

@@ -15,6 +15,7 @@ export default class User {
         this.client = client;
         this.id = data._id;
         this.username = data.username;
+        this.relationship = data.relationship || Relationship.None;
 
         this._relations = data.relations;
     }
