@@ -32,11 +32,15 @@ export class WebSocketClient {
                 this.ws.close();
             }
 
+            if (typeof this.client.configuration === 'undefined') {
+                throw new Error("Attempted to open WebSocket without syncing configuration from server.");
+            }
+
             if (typeof this.client.session === 'undefined') {
                 throw new Error("Attempted to open WebSocket without valid session.");
             }
 
-            let ws = new WebSocket(this.client.options.wsURL);
+            let ws = new WebSocket(this.client.configuration.ws);
             const send = (notification: ServerboundNotification) => {
                 let data = JSON.stringify(notification);
                 if (this.client.options.debug) console.debug('[<] PACKET', data);

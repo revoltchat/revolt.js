@@ -11,7 +11,7 @@ export const API_VERSION = {
 };
 
 export const LIBRARY_VERSION = {
-    str: '3.0.0',
+    str: '3.0.0-beta.3',
     major: 3,
     minor: 0,
     patch: 0
@@ -19,8 +19,6 @@ export const LIBRARY_VERSION = {
 
 export const defaultConfig = {
     apiURL: 'https://api.revolt.chat',
-    wsURL:  'wss://ws.revolt.chat',
-
     autoReconnect: true,
     debug: true
 };

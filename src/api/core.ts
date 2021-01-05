@@ -9,6 +9,7 @@ export namespace Core {
                 key: string,
             },
             email: boolean
-        }
+        },
+        ws: string
     }
 }

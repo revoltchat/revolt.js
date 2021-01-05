@@ -13,8 +13,6 @@ import Channel from './objects/Channel';
 
 export interface ClientOptions {
     apiURL: string,
-    wsURL: string,
-
     autoReconnect: boolean,
     debug: boolean
 }
