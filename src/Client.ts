@@ -120,6 +120,10 @@ export class Client extends EventEmitter {
     /**
      * Utility functions.
      */
+    async register(apiURL: string, data: Auth.CreateRequest): Promise<Auth.CreateResponse> {
+        return (await Axios.post('/auth/create', data, { baseURL: apiURL })).data;
+    }
+
     async addFriend(username: string) {
         await this.Axios.put(`/users/${username}/friend`);
     }
