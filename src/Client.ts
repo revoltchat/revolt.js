@@ -123,4 +123,8 @@ export class Client extends EventEmitter {
     async addFriend(username: string) {
         await this.Axios.put(`/users/${username}/friend`);
     }
+
+    fetchUser(id: string): Promise<User> {
+        return User.fetch(this, id)
+    }
 }
