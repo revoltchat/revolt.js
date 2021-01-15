@@ -16,6 +16,10 @@ export default class User {
     constructor(client: Client, data: Users.User) {
         this.client = client;
         this.id = data._id;
+        this.patch(data);
+    }
+
+    patch(data: Users.User) {
         this.username = data.username;
 
         this.relationship = data.relationship || Relationship.None;

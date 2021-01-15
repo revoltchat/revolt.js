@@ -69,7 +69,12 @@ export class WebSocketClient {
                     }
                     case 'Ready': {
                         for (let user of packet.users) {
-                            await User.fetch(this.client, user._id, user);
+                            let u = this.client.users.get(user._id);
+                            if (u) {
+                                u.patch(user);
+                            } else {
+                                await User.fetch(this.client, user._id, user);
+                            }
                         }
 
                         // INFO:
