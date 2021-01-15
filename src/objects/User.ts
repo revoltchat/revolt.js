@@ -7,7 +7,9 @@ export default class User {
     client: Client;
     id: string;
     username: string;
+
     relationship: Relationship;
+    online: boolean;
 
     _relations?: Relationships;
 
@@ -15,7 +17,9 @@ export default class User {
         this.client = client;
         this.id = data._id;
         this.username = data.username;
+
         this.relationship = data.relationship || Relationship.None;
+        this.online = data.online ?? false;
 
         this._relations = data.relations;
     }

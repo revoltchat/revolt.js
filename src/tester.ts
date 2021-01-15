@@ -7,7 +7,8 @@ let client = new Client();
 client.once('ready', async () => {
     console.log(`Logged in as @${client.user?.username}`);
 
-    console.log(Array.from(client.users.values()).map(x => `@${x.username}: ${x.relationship}`));
+    console.log(client.user?.online);
+    //console.log(Array.from(client.users.values()).map(x => `@${x.username}: ${x.relationship}`));
     //await client.addFriend('poggers');
 });
 

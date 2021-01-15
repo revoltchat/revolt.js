@@ -17,6 +17,7 @@ export namespace Users {
         _id: string,
         username: string,
         relations?: Relationships,
-        relationship?: Relationship
+        relationship?: Relationship,
+        online?: boolean
     }
 }
