@@ -29,6 +29,7 @@ export declare interface Client {
     
     // Notifications bound for the client.
     on(event: 'user/relationship_changed', listener: (user: User) => void): this;
+    on(event: 'user/status_changed', listener: (user: User) => void): this;
 }
 
 export class Client extends EventEmitter {

@@ -93,6 +93,16 @@ export class WebSocketClient {
                         }
                         break;
                     }
+                    case 'UserPresence': {
+                        if (this.client.users.has(packet.id)) {
+                            let user = await User.fetch(this.client, packet.id);
+                            let online = packet.online;
+                            user.online = online;
+                            this.client.emit('user/status_changed', user);
+                            this.client.emit('mutation/user', user, { online });
+                        }
+                        break;
+                    }
                 }
             };
 

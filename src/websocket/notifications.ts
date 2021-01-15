@@ -13,5 +13,6 @@ export type ClientboundNotification = (
     ({ type: 'Error' } & WebSocketError) |
     { type: 'Authenticated' } |
     { type: 'Ready', users: Users.User[] } |
-    { type: 'UserRelationship', user: string, status: Relationship }
+    { type: 'UserRelationship', user: string, status: Relationship } |
+    { type: 'UserPresence', id: string, online: boolean }
 )
