@@ -107,15 +107,19 @@ export class Client extends EventEmitter {
         this.Axios.defaults.headers = this.$generateHeaders();
         let { onboarding } = (await this.Axios.get('/onboard/hello')).data;
         if (onboarding) {
-            return (username: string) => this.completeOnboarding({ username });
+            return (username: string, loginAfterSuccess?: boolean) =>
+                this.completeOnboarding({ username }, loginAfterSuccess);
         }
 
         await this.websocket.connect();
     }
 
     // Complete onboarding if required.
-    async completeOnboarding(data: Onboarding.OnboardRequest) {
+    async completeOnboarding(data: Onboarding.OnboardRequest, loginAfterSuccess?: boolean) {
         await this.Axios.post('/onboard/complete', data);
+        if (loginAfterSuccess) {
+            await this.$connect();
+        }
     }
 
     /**

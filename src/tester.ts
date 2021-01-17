@@ -33,7 +33,7 @@ client.on('dropped', () => {
         await client.connect();
         let onboarding = await client.login({ email: 'mink@insrt.uk', password: 'password', device_name: 'aaa' });
         if (onboarding) {
-            await onboarding("username");
+            await onboarding("username", false);
         }
     } catch (err) {
         console.error(err);
