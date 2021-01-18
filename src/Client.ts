@@ -125,6 +125,11 @@ export class Client extends EventEmitter {
     /**
      * Utility functions.
      */
+    async logout() {
+        this.websocket.disconnect();
+        await Axios.get('/auth/logout');
+    }
+
     async register(apiURL: string, data: Auth.CreateRequest): Promise<Auth.CreateResponse> {
         return (await Axios.post('/auth/create', data, { baseURL: apiURL })).data;
     }

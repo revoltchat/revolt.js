@@ -16,6 +16,12 @@ export class WebSocketClient {
         this.client = client;
     }
 
+    disconnect() {
+        if (typeof this.ws !== 'undefined' && this.ws.readyState === WebSocket.OPEN) {
+            this.ws.close();
+        }
+    }
+
     connect(disallowReconnect?: boolean): Promise<void> {
         this.client.emit('connecting');
 
@@ -28,9 +34,7 @@ export class WebSocketClient {
                 }
             };
 
-            if (typeof this.ws !== 'undefined' && this.ws.readyState === WebSocket.OPEN) {
-                this.ws.close();
-            }
+            this.disconnect();
 
             if (typeof this.client.configuration === 'undefined') {
                 throw new Error("Attempted to open WebSocket without syncing configuration from server.");
