@@ -1,6 +1,6 @@
 {
   "name": "revolt.js",
-  "version": "3.0.0-beta.11",
+  "version": "3.0.0-beta.12",
   "main": "dist/index.js",
   "repository": "https://gitlab.insrt.uk/revolt/revolt.js",
   "author": "Paul Makles <insrt.uk>",
@@ -21,10 +21,12 @@
     "@types/node": "^13.7.0",
     "@types/ws": "^7.2.1",
     "dotenv": "^8.2.0",
+    "in-publish": "^2.0.1",
     "typescript": "^3.8.0-dev.20200208"
   },
   "scripts": {
     "dev": "tsc-watch --onSuccess \"node dist/tester\"",
+    "prepublish": "in-publish && tsc || echo Skipping build.",
     "build": "tsc"
   },
   "files": [
