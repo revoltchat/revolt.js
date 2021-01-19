@@ -9,6 +9,8 @@ export default abstract class Channel {
     constructor(client: Client, data: Channels.Channel) {
         this.client = client;
         this.id = data._id;
+
+        this.patch(data);
     }
 
     abstract patch(data: Channels.Channel): void;
@@ -17,7 +19,11 @@ export default abstract class Channel {
     static async fetch(client: Client, id: string, raw?: Channels.Channel): Promise<Channel> {
         let existing;
         if (existing = client.channels.get(id)) {
-            if (raw) existing.patch(raw);
+            if (raw) {
+                existing.patch(raw);
+                await existing.$sync();
+            }
+
             return existing;
         }
 
@@ -45,12 +51,15 @@ export class SavedMessagesChannel extends TextChannel {
     _user: string;
 
     constructor(client: Client, data: Channels.Channel) {
-        if (data.type !== 'SavedMessages') throw new Error("Trying to create SavedMessagesChannel with incorrect type.");
         super(client, data);
+    }
+
+    patch(data: Channels.Channel) {
+        if (data.type !== 'SavedMessages') throw new Error("Trying to create SavedMessagesChannel with incorrect type.");
         this._user = data.user;
     }
 
-    async $sync() { }
+    async $sync() {}
 }
 
 export class DirectMessageChannel extends TextChannel {
@@ -59,8 +68,11 @@ export class DirectMessageChannel extends TextChannel {
     _recipients: string[];
 
     constructor(client: Client, data: Channels.Channel) {
-        if (data.type !== 'DirectMessage') throw new Error("Trying to create DirectMessageChannel with incorrect type.");
         super(client, data);
+    }
+
+    patch(data: Channels.Channel) {
+        if (data.type !== 'DirectMessage') throw new Error("Trying to create DirectMessageChannel with incorrect type.");
         this._recipients = data.recipients;
     }
 
@@ -81,8 +93,11 @@ export class GroupChannel extends TextChannel {
     _recipients: string[];
 
     constructor(client: Client, data: Channels.Channel) {
-        if (data.type !== 'Group') throw new Error("Trying to create GroupChannel with incorrect type.");
         super(client, data);
+    }
+
+    patch(data: Channels.Channel) {
+        if (data.type !== 'Group') throw new Error("Trying to create GroupChannel with incorrect type.");
         this.name = data.name;
         this.description = data.description;
         this._owner = data.owner;
