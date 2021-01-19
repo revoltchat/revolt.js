@@ -1,11 +1,16 @@
 import { config } from 'dotenv';
 config();
 
-import { Client } from ".";
+import { Channel, Client } from ".";
 let client = new Client();
 
 client.once('ready', async () => {
     console.log(`Logged in as @${client.user?.username}`);
+
+    let channel = client.channels.values().next().value as Channel;
+    let message = await channel.sendMessage("epic!");
+    await message.edit("pogger!");
+    await message.delete();
 
     // console.log(client.user?.online);
     // console.log(Array.from(client.users.values()).map(x => `@${x.username}: ${x.relationship}`));
@@ -28,7 +33,6 @@ client.on('dropped', () => {
 
 client.on('message', (msg) => {
     console.log(`@${msg.author.username}: ${msg.content}`);
-    msg.delete();
 });
 
 (async () => {

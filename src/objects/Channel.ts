@@ -2,6 +2,8 @@ import { Client, Message, User } from '..';
 import { Channels } from '../api/channels';
 import { hasChanged } from '../util/object';
 
+import { ulid } from 'ulid';
+
 export default abstract class Channel {
     _data: Channels.Channel;
     client: Client;
@@ -17,14 +19,14 @@ export default abstract class Channel {
         this.patch(data);
     }
 
-    abstract patch(data: Partial<Channels.Channel>): void;
+    abstract patch(data: Partial<Channels.Channel>, emitPatch?: boolean): void;
     abstract $sync(): Promise<void>;
 
     static async fetch(client: Client, id: string, raw?: Channels.Channel): Promise<Channel> {
         let existing;
         if (existing = client.channels.get(id)) {
             if (raw) {
-                existing.patch(raw);
+                existing.patch(raw, true);
                 await existing.$sync();
             }
 
@@ -51,7 +53,7 @@ export default abstract class Channel {
         let existing;
         if (existing = this.messages.get(id)) {
             if (data) {
-                existing.patch(data);
+                existing.patch(data, true);
                 await existing.$sync();
             }
 
@@ -64,6 +66,13 @@ export default abstract class Channel {
         client.messages.set(id, message);
         client.emit('create/message', message);
         
+        return message;
+    }
+
+    async sendMessage(content: string, nonce: string = ulid()) {
+        let res = await this.client.Axios.post(`/channels/${this.id}/messages`, { content, nonce });
+        let message = await this.fetchMessage(this.client, res.data.id, res.data);
+        this.client.emit('message', message);
         return message;
     }
 

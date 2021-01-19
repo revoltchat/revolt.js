@@ -48,6 +48,11 @@ export default class Message {
         this.author = await User.fetch(this.client, this._author);
     }
 
+    async edit(content: string) {
+        await this.client.Axios.patch(`/channels/${this.channel.id}/messages/${this.id}`, { content });
+        this.patch({ content }, true);
+    }
+
     async delete(preventRequest?: boolean) {
         if (!preventRequest)
             await this.client.Axios.delete(`/channels/${this.channel.id}/messages/${this.id}`);

@@ -95,8 +95,10 @@ export class WebSocketClient {
 
                     case 'Message': {
                         let channel = await Channel.fetch(this.client, packet.channel);
-                        let message = await channel.fetchMessage(this.client, packet._id, packet);
-                        this.client.emit('message', message);
+                        if (!channel.messages.has(packet._id)) {
+                            let message = await channel.fetchMessage(this.client, packet._id, packet);
+                            this.client.emit('message', message);
+                        }
                         break;
                     }
                     case 'MessageUpdate': {
@@ -121,21 +123,24 @@ export class WebSocketClient {
                     }
                     case 'ChannelUpdate': {
                         let channel = await Channel.fetch(this.client, packet.id);
-                        channel.patch(packet.data);
+                        channel.patch(packet.data, true);
                         await channel.$sync();
                         break;
                     }
                     case 'ChannelGroupJoin': {
                         let channel = await Channel.fetch(this.client, packet.id) as GroupChannel;
-                        channel.patch({ recipients: [ ...channel._recipients, packet.user ] });
+                        let user = await User.fetch(this.client, packet.user);
+                        channel.patch({ recipients: [ ...channel._recipients, packet.user ] }, true);
                         await channel.$sync();
+                        this.client.emit('channel/group/join', user);
                         break;
                     }
                     case 'ChannelGroupLeave': {
                         let channel = await Channel.fetch(this.client, packet.id) as GroupChannel;
                         let user = packet.user;
-                        channel.patch({ recipients: channel._recipients.filter(x => x !== user) });
+                        channel.patch({ recipients: channel._recipients.filter(x => x !== user) }, true);
                         await channel.$sync();
+                        this.client.emit('channel/group/leave', user, this.client.users.get(user));
                         break;
                     }
                     case 'ChannelDelete': {

@@ -45,7 +45,7 @@ export declare interface Client {
     on(event: 'user/status_changed', listener: (user: User) => void): this;
     on(event: 'channel/create', listener: (channel: Channel) => void): this;
     on(event: 'channel/group/join', listener: (channel: Channel, member: User) => void): this;
-    on(event: 'channel/group/leave', listener: (channel: Channel, member: User) => void): this;
+    on(event: 'channel/group/leave', listener: (channel: Channel, id: string, member?: User) => void): this;
     on(event: 'message', listener: (message: Message) => void): this;
     on(event: 'message/create', listener: (message: Message) => void): this;
     on(event: 'message/edit', listener: (message: Message) => void): this;
@@ -157,6 +157,10 @@ export class Client extends EventEmitter {
 
     async addFriend(username: string) {
         await this.Axios.put(`/users/${username}/friend`);
+    }
+
+    async createGroup() {
+        
     }
 
     fetchUser(id: string): Promise<User> {
