@@ -10,6 +10,7 @@ import { WebSocketClient } from './websocket/client';
 
 import User from './objects/User';
 import Channel from './objects/Channel';
+import Message from './objects/Message';
 
 export interface ClientOptions {
     apiURL: string,
@@ -24,12 +25,30 @@ export declare interface Client {
     on(event: 'dropped', listener: () => void): this;
     on(event: 'ready', listener: () => void): this;
 
-    // Object mutations: used for Revolt client.
-    on(event: 'mutation/user', listener: (user: User, object: Partial<User>) => void): this;
+    // Object creation.
+    on(event: 'create/user', listener: (user: User) => void): this;
+    on(event: 'create/channel', listener: (channel: Channel) => void): this;
+    on(event: 'create/message', listener: (message: Message) => void): this;
+
+    // Object mutations.
+    on(event: 'mutation/user', listener: (user: User, partial: Partial<User>) => void): this;
+    on(event: 'mutation/channel', listener: (channel: Channel, partial: Partial<Channel>) => void): this;
+    on(event: 'mutation/message', listener: (message: Message, partial: Partial<Message>) => void): this;
+
+    // Object destruction.
+    on(event: 'delete/user', listener: (user: User, id: string) => void): this;
+    on(event: 'delete/channel', listener: (user: User, id: string) => void): this;
+    on(event: 'delete/message', listener: (user: User, id: string) => void): this;
     
-    // Notifications bound for the client.
+    // Contextual notifications bound for the client.
     on(event: 'user/relationship_changed', listener: (user: User) => void): this;
     on(event: 'user/status_changed', listener: (user: User) => void): this;
+    on(event: 'channel/create', listener: (channel: Channel) => void): this;
+    on(event: 'channel/group/join', listener: (channel: Channel, member: User) => void): this;
+    on(event: 'channel/group/leave', listener: (channel: Channel, member: User) => void): this;
+    on(event: 'message', listener: (message: Message) => void): this;
+    on(event: 'message/create', listener: (message: Message) => void): this;
+    on(event: 'message/edit', listener: (message: Message) => void): this;
 }
 
 export class Client extends EventEmitter {
@@ -42,6 +61,7 @@ export class Client extends EventEmitter {
 
     users: Map<string, User>;
     channels: Map<string, Channel>;
+    messages: Map<string, Message>;
 
     constructor(options: Partial<ClientOptions> = {}) {
         super();
@@ -52,6 +72,7 @@ export class Client extends EventEmitter {
 
         this.users = new Map();
         this.channels = new Map();
+        this.messages = new Map();
 
         if (options.debug) {
             this.Axios.interceptors.request.use(request => {

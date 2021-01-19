@@ -7,6 +7,7 @@ import { ServerboundNotification, ClientboundNotification } from './notification
 
 import User from '../objects/User';
 import { Relationship } from '../api/users';
+import { GroupChannel } from '../objects/Channel';
 
 export class WebSocketClient {
     client: Client;
@@ -55,7 +56,7 @@ export class WebSocketClient {
                 send({ type: 'Authenticate', ...this.client.session as Auth.Session });
             };
 
-            ws.onmessage = async (msg) => {
+            let handle = async (msg: WebSocket.MessageEvent) => {
                 let data = msg.data;
                 if (typeof data !== 'string') return;
 
@@ -91,28 +92,89 @@ export class WebSocketClient {
                         resolve();
                         break;
                     }
+
+                    case 'Message': {
+                        let channel = await Channel.fetch(this.client, packet.channel);
+                        let message = await channel.fetchMessage(this.client, packet._id, packet);
+                        this.client.emit('message', message);
+                        break;
+                    }
+                    case 'MessageUpdate': {
+                        let message = this.client.messages.get(packet.id);
+                        if (message) {
+                            await message.patch(packet.data, true);
+                        }
+                        break;
+                    }
+                    case 'MessageDelete': {
+                        let message = this.client.messages.get(packet.id);
+                        if (message) {
+                            await message.delete(true);
+                        }
+                        break;
+                    }
+
+                    case 'ChannelCreate': {
+                        let channel = await Channel.fetch(this.client, packet._id, packet);
+                        this.client.emit('channel/create', channel);
+                        break;
+                    }
+                    case 'ChannelUpdate': {
+                        let channel = await Channel.fetch(this.client, packet.id);
+                        channel.patch(packet.data);
+                        await channel.$sync();
+                        break;
+                    }
+                    case 'ChannelGroupJoin': {
+                        let channel = await Channel.fetch(this.client, packet.id) as GroupChannel;
+                        channel.patch({ recipients: [ ...channel._recipients, packet.user ] });
+                        await channel.$sync();
+                        break;
+                    }
+                    case 'ChannelGroupLeave': {
+                        let channel = await Channel.fetch(this.client, packet.id) as GroupChannel;
+                        let user = packet.user;
+                        channel.patch({ recipients: channel._recipients.filter(x => x !== user) });
+                        await channel.$sync();
+                        break;
+                    }
+                    case 'ChannelDelete': {
+                        let channel = this.client.channels.get(packet.id);
+                        if (channel) {
+                            await channel.delete(true);
+                        }
+                        break;
+                    }
+
                     case 'UserRelationship': {
                         if (packet.status !== Relationship.None || this.client.users.has(packet.user)) {
                             let user = await User.fetch(this.client, packet.user);
-                            let relationship = packet.status;
-                            user.relationship = relationship;
-                            this.client.emit('user/relationship_changed', user);
-                            this.client.emit('mutation/user', user, { relationship });
+                            user.patch({ relationship: packet.status }, true);
                         }
                         break;
                     }
                     case 'UserPresence': {
-                        if (this.client.users.has(packet.id)) {
-                            let user = await User.fetch(this.client, packet.id);
-                            let online = packet.online;
-                            user.online = online;
-                            this.client.emit('user/status_changed', user);
-                            this.client.emit('mutation/user', user, { online });
-                        }
+                        let user = await User.fetch(this.client, packet.id);
+                        user.patch({ online: packet.online }, true);
+
                         break;
                     }
                 }
-            };
+            }
+            
+            let processing = false;
+            let queue: WebSocket.MessageEvent[] = [];
+            ws.onmessage = async (data) => {
+                queue.push(data);
+
+                if (!processing) {
+                    processing = true;
+                    while (queue.length > 0) {
+                        await handle(queue.shift() as any);
+                    }
+                    processing = false;
+                }
+            }
 
             ws.onerror = (err) => {
                 reject(err);

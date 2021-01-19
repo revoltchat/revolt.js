@@ -1,19 +1,23 @@
-import { Client } from '..';
+import { Client, Message, User } from '..';
 import { Channels } from '../api/channels';
-import User from './User';
+import { hasChanged } from '../util/object';
 
 export default abstract class Channel {
+    _data: Channels.Channel;
     client: Client;
     id: string;
+    messages: Map<string, Message>;
 
     constructor(client: Client, data: Channels.Channel) {
+        this._data = data;
         this.client = client;
         this.id = data._id;
+        this.messages = new Map();
 
         this.patch(data);
     }
 
-    abstract patch(data: Channels.Channel): void;
+    abstract patch(data: Partial<Channels.Channel>): void;
     abstract $sync(): Promise<void>;
 
     static async fetch(client: Client, id: string, raw?: Channels.Channel): Promise<Channel> {
@@ -29,7 +33,7 @@ export default abstract class Channel {
 
         let data = raw ?? (await client.Axios.get(`/channels/${id}`)).data;
         let channel: Channel;
-        switch (data.type) {
+        switch (data.channel_type) {
             case 'SavedMessages': channel = new SavedMessagesChannel(client, data); break;
             case 'DirectMessage': channel = new DirectMessageChannel(client, data); break;
             case 'Group': channel = new GroupChannel(client, data); break;
@@ -38,8 +42,41 @@ export default abstract class Channel {
 
         await channel.$sync();
         client.channels.set(id, channel);
+        client.emit('create/channel', channel);
         
         return channel;
+    }
+
+    async fetchMessage(client: Client, id: string, data?: Channels.Message): Promise<Message> {
+        let existing;
+        if (existing = this.messages.get(id)) {
+            if (data) {
+                existing.patch(data);
+                await existing.$sync();
+            }
+
+            return existing;
+        }
+
+        let message = new Message(client, this, data ?? (await client.Axios.get(`/channels/${this.id}/messages/${id}`)).data);
+        await message.$sync();
+        this.messages.set(id, message);
+        client.messages.set(id, message);
+        client.emit('create/message', message);
+        
+        return message;
+    }
+
+    async delete(preventRequest?: boolean) {
+        if (!preventRequest)
+            await this.client.Axios.delete(`/channels/${this.id}`);
+        
+        for (let id of this.messages.keys()) {
+            this.client.messages.delete(id);
+        }
+        
+        this.client.channels.delete(this.id);
+        this.client.emit('delete/channel', this.id);
     }
 }
 
@@ -54,8 +91,8 @@ export class SavedMessagesChannel extends TextChannel {
         super(client, data);
     }
 
-    patch(data: Channels.Channel) {
-        if (data.type !== 'SavedMessages') throw new Error("Trying to create SavedMessagesChannel with incorrect type.");
+    patch(data: Channels.SavedMessagesChannel) {
+        // ? info: there are no partial patches that can occur here
         this._user = data.user;
     }
 
@@ -69,10 +106,11 @@ export class DirectMessageChannel extends TextChannel {
 
     constructor(client: Client, data: Channels.Channel) {
         super(client, data);
+        this.recipients = new Set();
     }
 
-    patch(data: Channels.Channel) {
-        if (data.type !== 'DirectMessage') throw new Error("Trying to create DirectMessageChannel with incorrect type.");
+    patch(data: Channels.DirectMessageChannel) {
+        // ? info: there are no partial patches that can occur here
         this._recipients = data.recipients;
     }
 
@@ -94,14 +132,21 @@ export class GroupChannel extends TextChannel {
 
     constructor(client: Client, data: Channels.Channel) {
         super(client, data);
+        this.recipients = new Set();
     }
 
-    patch(data: Channels.Channel) {
-        if (data.type !== 'Group') throw new Error("Trying to create GroupChannel with incorrect type.");
-        this.name = data.name;
-        this.description = data.description;
-        this._owner = data.owner;
-        this._recipients = data.recipients;
+    patch(data: Partial<Channels.GroupChannel>, emitPatch?: boolean) {
+        let changedFields = hasChanged(this._data, data, !emitPatch);
+
+        this.name = data.name ?? this.name;
+        this.description = data.description ?? this.description;
+        this._owner = data.owner ?? this._owner;
+        this._recipients = data.recipients ?? this._recipients;
+        Object.assign(this._data, data);
+
+        if (changedFields.length > 0) {
+            this.client.emit('mutation/channel', this, data);
+        }
     }
 
     async $sync() {
