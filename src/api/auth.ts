@@ -1,12 +1,10 @@
 export namespace Auth {
-    // POST /auth/login
     export interface LoginRequest {
         email: string,
         password: string,
         device_name: string
     }
 
-    // POST /auth/create
     export interface CreateRequest {
         email: string,
         password: string

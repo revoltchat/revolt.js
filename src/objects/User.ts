@@ -31,6 +31,7 @@ export default class User {
     static async fetch(client: Client, id: string, data?: Users.User): Promise<User> {
         let existing;
         if (existing = client.users.get(id)) {
+            if (data) existing.patch(data);
             return existing;
         }
 

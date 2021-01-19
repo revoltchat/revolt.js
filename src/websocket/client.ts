@@ -1,7 +1,7 @@
 import WebSocket from 'isomorphic-ws';
 import { backOff } from 'exponential-backoff';
 
-import { Client } from '..';
+import { Channel, Client } from '..';
 import { Auth } from '../api/auth';
 import { ServerboundNotification, ClientboundNotification } from './notifications';
 
@@ -73,12 +73,7 @@ export class WebSocketClient {
                     }
                     case 'Ready': {
                         for (let user of packet.users) {
-                            let u = this.client.users.get(user._id);
-                            if (u) {
-                                u.patch(user);
-                            } else {
-                                await User.fetch(this.client, user._id, user);
-                            }
+                            await User.fetch(this.client, user._id, user);
                         }
 
                         // INFO:
@@ -87,6 +82,10 @@ export class WebSocketClient {
                         let user = this.client.users.get(this.client.session?.user_id as string) as User;
                         user.relationship = Relationship.User;
                         this.client.user = user;
+
+                        for (let channel of packet.channels) {
+                            await Channel.fetch(this.client, channel._id, channel);
+                        }
 
                         this.client.emit('ready');
                         resolve();

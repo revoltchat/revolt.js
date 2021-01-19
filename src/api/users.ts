@@ -11,8 +11,6 @@ export enum Relationship {
 export type Relationships = { _id: string, status: Relationship }[];
 
 export namespace Users {
-    // GET /:id
-    // WebSocket: Ready payload.
     export interface User {
         _id: string,
         username: string,

@@ -11,11 +11,13 @@ export default abstract class Channel {
         this.id = data._id;
     }
 
+    abstract patch(data: Channels.Channel): void;
     abstract $sync(): Promise<void>;
 
     static async fetch(client: Client, id: string, raw?: Channels.Channel): Promise<Channel> {
         let existing;
         if (existing = client.channels.get(id)) {
+            if (raw) existing.patch(raw);
             return existing;
         }
 

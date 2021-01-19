@@ -1,15 +1,17 @@
 import { config } from 'dotenv';
 config();
 
-import { Client, User } from ".";
+import { Client } from ".";
 let client = new Client();
 
 client.once('ready', async () => {
     console.log(`Logged in as @${client.user?.username}`);
 
-    console.log(client.user?.online);
-    //console.log(Array.from(client.users.values()).map(x => `@${x.username}: ${x.relationship}`));
-    //await client.addFriend('poggers');
+    console.log(client.channels.values());
+
+    // console.log(client.user?.online);
+    // console.log(Array.from(client.users.values()).map(x => `@${x.username}: ${x.relationship}`));
+    // await client.addFriend('poggers');
 });
 
 client.once('user/relationship_changed', user => user.removeFriend());
@@ -31,7 +33,7 @@ client.on('dropped', () => {
 
     try {
         await client.connect();
-        let onboarding = await client.login({ email: 'mink@insrt.uk', password: 'password', device_name: 'aaa' });
+        let onboarding = await client.login({ email: 'me@insrt.uk', password: 'password', device_name: 'aaa' });
         if (onboarding) {
             await onboarding("username", false);
         }

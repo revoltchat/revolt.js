@@ -1,5 +1,4 @@
 export namespace Channels {
-    // GET /:id
     export type Channel = (
         {
             _id: string,
@@ -18,4 +17,14 @@ export namespace Channels {
             description: string
         }
     )
+
+    export type Message = {
+        _id: string,
+        nonce?: string,
+        channel: string,
+        author: string,
+
+        content: string,
+        edited?: { $date: string }
+    }
 }

@@ -141,4 +141,8 @@ export class Client extends EventEmitter {
     fetchUser(id: string): Promise<User> {
         return User.fetch(this, id)
     }
+
+    fetchChannel(id: string): Promise<Channel> {
+        return Channel.fetch(this, id)
+    }
 }
