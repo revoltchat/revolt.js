@@ -94,8 +94,8 @@ export class WebSocketClient {
                     }
 
                     case 'Message': {
-                        let channel = await Channel.fetch(this.client, packet.channel);
-                        if (!channel.messages.has(packet._id)) {
+                        if (!this.client.messages.has(packet._id)) {
+                            let channel = await Channel.fetch(this.client, packet.channel);
                             let message = await channel.fetchMessage(this.client, packet._id, packet);
                             this.client.emit('message', message);
                         }

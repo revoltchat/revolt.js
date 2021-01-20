@@ -71,8 +71,9 @@ export default abstract class Channel {
 
     async sendMessage(content: string, nonce: string = ulid()) {
         let res = await this.client.Axios.post(`/channels/${this.id}/messages`, { content, nonce });
+        let fire = !this.client.messages.has(res.data.id);
         let message = await this.fetchMessage(this.client, res.data.id, res.data);
-        this.client.emit('message', message);
+        fire && this.client.emit('message', message);
         return message;
     }
 
