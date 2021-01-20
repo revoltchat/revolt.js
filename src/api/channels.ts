@@ -31,4 +31,10 @@ export namespace Channels {
         content: string,
         edited?: { $date: string }
     }
+    
+    export type CreateGroupRequest = {
+        name: string,
+        nonce: string,
+        users: string[]
+    }
 }

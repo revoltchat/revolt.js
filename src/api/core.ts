@@ -1,5 +1,4 @@
 export namespace Core {
-    // GET /
     export interface RevoltNodeConfiguration {
         revolt: string,
         features: {

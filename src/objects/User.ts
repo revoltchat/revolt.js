@@ -106,3 +106,17 @@ export default class User {
         this.client.emit('delete/user', this.id);
     }
 }
+
+export class SystemUser extends User {
+    constructor(client: Client) {
+        super(client, {
+            _id: "00000000000000000000000000",
+            username: "revolt",
+            online: true
+        });
+    }
+
+    get avatarURL(): string {
+        return `${this.client.options.apiURL}/users/${this.id}/avatar`;
+    }
+}

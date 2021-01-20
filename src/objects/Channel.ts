@@ -158,11 +158,45 @@ export class GroupChannel extends TextChannel {
         }
     }
 
+    async $addMember(user: User) {
+        if (this._recipients.indexOf(user.id) === -1) {
+            this.patch({ recipients: [ ...this._recipients, user.id ] }, true);
+            await this.$sync();
+            this.client.emit('channel/group/join', user);
+        }
+    }
+
+    async $removeMember(user: string) {
+        if (this._recipients.indexOf(user) !== -1) {
+            this.patch({ recipients: this._recipients.filter(x => x !== user) }, true);
+            await this.$sync();
+            this.client.emit('channel/group/leave', user, this.client.users.get(user));
+        }
+    }
+
     async $sync() {
         this.owner = await User.fetch(this.client, this._owner);
 
         for (let recipient of this._recipients) {
             this.recipients.add(await User.fetch(this.client, recipient));
         }
+    }
+
+    async addMember(user: User | string) {
+        if (typeof user === 'string') {
+            user = await User.fetch(this.client, user);
+        }
+
+        await this.client.Axios.put(`/channels/${this.id}/recipients/${user.id}`);
+        await this.$addMember(user);
+    }
+
+    async removeMember(user: User | string) {
+        if (typeof user !== 'string') {
+            user = user.id;
+        }
+
+        await this.client.Axios.delete(`/channels/${this.id}/recipients/${user}`);
+        await this.$removeMember(user);
     }
 }

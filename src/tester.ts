@@ -1,20 +1,27 @@
 import { config } from 'dotenv';
 config();
 
-import { Channel, Client } from ".";
+import { Channel, Client, User } from ".";
+import { GroupChannel } from './objects/Channel';
+import { SystemUser } from './objects/User';
 let client = new Client();
 
 client.once('ready', async () => {
     console.log(`Logged in as @${client.user?.username}`);
 
-    let channel = client.channels.values().next().value as Channel;
-    let message = await channel.sendMessage("epic!");
-    await message.edit("pogger!");
-    await message.delete();
+    // let channel = client.channels.values().next().value as Channel;
+    // let message = await channel.sendMessage("epic!");
+    // await message.edit("pogger!");
+    // await message.delete();
 
     // console.log(client.user?.online);
     // console.log(Array.from(client.users.values()).map(x => `@${x.username}: ${x.relationship}`));
     // await client.addFriend('poggers');
+
+    // let user = Array.from(client.users.values()).find(x => x.id !== client.user?.id && !(x instanceof SystemUser)) as User;
+    // let channel = await client.createGroup({ name: 'le group', nonce: ''+Math.random(), users: [ ] }) as GroupChannel;
+    // await channel.addMember(user);
+    // await channel.removeMember(user);
 });
 
 client.once('user/relationship_changed', user => user.removeFriend());

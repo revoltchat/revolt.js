@@ -5,10 +5,11 @@ import { EventEmitter } from 'events';
 import { defaultConfig } from '.';
 import { Core } from './api/core';
 import { Auth } from './api/auth';
+import { Channels } from './api/channels';
 import { Onboarding } from './api/onboarding';
 import { WebSocketClient } from './websocket/client';
 
-import User from './objects/User';
+import User, { SystemUser } from './objects/User';
 import Channel from './objects/Channel';
 import Message from './objects/Message';
 
@@ -73,6 +74,8 @@ export class Client extends EventEmitter {
         this.users = new Map();
         this.channels = new Map();
         this.messages = new Map();
+
+        this.users.set("00000000000000000000000000", new SystemUser(this));
 
         if (options.debug) {
             this.Axios.interceptors.request.use(request => {
@@ -159,8 +162,9 @@ export class Client extends EventEmitter {
         await this.Axios.put(`/users/${username}/friend`);
     }
 
-    async createGroup() {
-        
+    async createGroup(data: Channels.CreateGroupRequest) {
+        let res = await this.Axios.post('/channels/create', data);
+        return await Channel.fetch(this, res.data.id, res.data);
     }
 
     fetchUser(id: string): Promise<User> {

@@ -104,7 +104,7 @@ export class WebSocketClient {
                     case 'MessageUpdate': {
                         let message = this.client.messages.get(packet.id);
                         if (message) {
-                            await message.patch(packet.data, true);
+                            message.patch(packet.data, true);
                         }
                         break;
                     }
@@ -130,17 +130,12 @@ export class WebSocketClient {
                     case 'ChannelGroupJoin': {
                         let channel = await Channel.fetch(this.client, packet.id) as GroupChannel;
                         let user = await User.fetch(this.client, packet.user);
-                        channel.patch({ recipients: [ ...channel._recipients, packet.user ] }, true);
-                        await channel.$sync();
-                        this.client.emit('channel/group/join', user);
+                        await channel.$addMember(user);
                         break;
                     }
                     case 'ChannelGroupLeave': {
                         let channel = await Channel.fetch(this.client, packet.id) as GroupChannel;
-                        let user = packet.user;
-                        channel.patch({ recipients: channel._recipients.filter(x => x !== user) }, true);
-                        await channel.$sync();
-                        this.client.emit('channel/group/leave', user, this.client.users.get(user));
+                        await channel.$removeMember(packet.user);
                         break;
                     }
                     case 'ChannelDelete': {
@@ -161,7 +156,6 @@ export class WebSocketClient {
                     case 'UserPresence': {
                         let user = await User.fetch(this.client, packet.id);
                         user.patch({ online: packet.online }, true);
-
                         break;
                     }
                 }
