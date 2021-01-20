@@ -21,6 +21,7 @@ export default abstract class Channel {
 
     abstract patch(data: Partial<Channels.Channel>, emitPatch?: boolean): void;
     abstract $sync(): Promise<void>;
+    abstract getName(): string;
 
     static async fetch(client: Client, id: string, raw?: Channels.Channel): Promise<Channel> {
         let existing;
@@ -107,17 +108,20 @@ export class SavedMessagesChannel extends TextChannel {
     }
 
     async $sync() {}
+
+    getName() {
+        return 'Saved Messages';
+    }
 }
 
 export class DirectMessageChannel extends TextChannel {
     active: boolean;
-    recipients: Set<User>;
+    recipient: User;
 
     _recipients: string[];
 
     constructor(client: Client, data: Channels.Channel) {
         super(client, data);
-        this.recipients = new Set();
     }
 
     patch(data: Channels.DirectMessageChannel) {
@@ -127,9 +131,13 @@ export class DirectMessageChannel extends TextChannel {
     }
 
     async $sync() {
-        for (let recipient of this._recipients) {
-            this.recipients.add(await User.fetch(this.client, recipient));
-        }
+        let user = this._recipients.find(user => user !== this.client.user?.id);
+        if (typeof user === 'undefined') throw "No recipient.";
+        this.recipient = await User.fetch(this.client, user);
+    }
+
+    getName() {
+        return '@' + this.recipient.username;
     }
 }
 
@@ -201,6 +209,10 @@ export class GroupChannel extends TextChannel {
 
         await this.client.Axios.delete(`/channels/${this.id}/recipients/${user}`);
         await this.$removeMember(user);
+    }
+
+    getName() {
+        return this.name;
     }
 
     get iconURL(): string {
