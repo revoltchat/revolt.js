@@ -109,6 +109,7 @@ export class SavedMessagesChannel extends TextChannel {
 }
 
 export class DirectMessageChannel extends TextChannel {
+    active: boolean;
     recipients: Set<User>;
 
     _recipients: string[];
@@ -120,6 +121,7 @@ export class DirectMessageChannel extends TextChannel {
 
     patch(data: Channels.DirectMessageChannel) {
         // ? info: there are no partial patches that can occur here
+        this.active = data.active;
         this._recipients = data.recipients;
     }
 
@@ -198,5 +200,9 @@ export class GroupChannel extends TextChannel {
 
         await this.client.Axios.delete(`/channels/${this.id}/recipients/${user}`);
         await this.$removeMember(user);
+    }
+
+    get iconURL(): string {
+        return `https://dl.insrt.uk/projects/revolt/group.png`;
     }
 }

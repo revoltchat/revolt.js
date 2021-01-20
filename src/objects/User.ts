@@ -97,13 +97,13 @@ export default class User {
         this.patch({ relationship: res.data.status }, true);
     }
 
-    get avatarURL(): string {
-        return `${this.client.options.apiURL}/users/${this.id}/avatar`;
-    }
-
     async delete() {
         this.client.users.delete(this.id);
         this.client.emit('delete/user', this.id);
+    }
+
+    get avatarURL(): string {
+        return `${this.client.options.apiURL}/users/${this.id}/avatar`;
     }
 }
 

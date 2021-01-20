@@ -8,6 +8,7 @@ export namespace Channels {
     export type DirectMessageChannel = {
         _id: string,
         channel_type: 'DirectMessage',
+        active: boolean,
         recipients: string[]
     }
 
