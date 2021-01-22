@@ -75,7 +75,7 @@ export default abstract class Channel {
         let messages = [];
 
         for (let entry of res.data) {
-            messages.push(await this.fetchMessage(entry.id, entry, true));
+            messages.push(await this.fetchMessage(entry._id, entry, true));
         }
 
         return messages;
