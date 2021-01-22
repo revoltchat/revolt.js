@@ -38,4 +38,10 @@ export namespace Channels {
         nonce: string,
         users: string[]
     }
+
+    export type FetchMessagesRequest = {
+        limit?: number,
+        before?: string,
+        after?: string
+    }
 }

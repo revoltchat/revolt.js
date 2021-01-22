@@ -10,6 +10,7 @@ client.once('ready', async () => {
     console.log(`Logged in as @${client.user?.username}`);
 
     // let channel = client.channels.values().next().value as Channel;
+    // console.log(await channel.fetchMessages());
     // let message = await channel.sendMessage("epic!");
     // await message.edit("pogger!");
     // await message.delete();

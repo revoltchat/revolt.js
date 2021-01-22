@@ -50,7 +50,7 @@ export default abstract class Channel {
         return channel;
     }
 
-    async fetchMessage(client: Client, id: string, data?: Channels.Message): Promise<Message> {
+    async fetchMessage(id: string, data?: Channels.Message, fetchingMultiple?: boolean): Promise<Message> {
         let existing;
         if (existing = this.messages.get(id)) {
             if (data) {
@@ -61,19 +61,30 @@ export default abstract class Channel {
             return existing;
         }
 
-        let message = new Message(client, this, data ?? (await client.Axios.get(`/channels/${this.id}/messages/${id}`)).data);
+        let message = new Message(this.client, this, data ?? (await this.client.Axios.get(`/channels/${this.id}/messages/${id}`)).data);
         await message.$sync();
         this.messages.set(id, message);
-        client.messages.set(id, message);
-        client.emit('create/message', message);
+        this.client.messages.set(id, message);
+        this.client.emit('create/message', message, fetchingMultiple);
         
         return message;
+    }
+
+    async fetchMessages(params?: Channels.FetchMessagesRequest): Promise<Message[]> {
+        let res = await this.client.Axios.get(`/channels/${this.id}/messages`, { params });
+        let messages = [];
+
+        for (let entry of res.data) {
+            messages.push(await this.fetchMessage(entry.id, entry, true));
+        }
+
+        return messages;
     }
 
     async sendMessage(content: string, nonce: string = ulid()) {
         let res = await this.client.Axios.post(`/channels/${this.id}/messages`, { content, nonce });
         let fire = !this.client.messages.has(res.data.id);
-        let message = await this.fetchMessage(this.client, res.data.id, res.data);
+        let message = await this.fetchMessage(res.data.id, res.data);
         fire && this.client.emit('message', message);
         return message;
     }
