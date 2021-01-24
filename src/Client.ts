@@ -5,6 +5,7 @@ import { EventEmitter } from 'events';
 import { defaultConfig } from '.';
 import { Core } from './api/core';
 import { Auth } from './api/auth';
+import { Users } from './api/users';
 import { Channels } from './api/channels';
 import { Onboarding } from './api/onboarding';
 import { WebSocketClient } from './websocket/client';
@@ -32,9 +33,9 @@ export declare interface Client {
     on(event: 'create/message', listener: (message: Message) => void): this;
 
     // Object mutations.
-    on(event: 'mutation/user', listener: (user: User, partial: Partial<User>) => void): this;
-    on(event: 'mutation/channel', listener: (channel: Channel, partial: Partial<Channel>) => void): this;
-    on(event: 'mutation/message', listener: (message: Message, partial: Partial<Message>) => void): this;
+    on(event: 'mutation/user', listener: (user: User, partial: Partial<Users.User>) => void): this;
+    on(event: 'mutation/channel', listener: (channel: Channel, partial: Partial<Channels.Channel>) => void): this;
+    on(event: 'mutation/message', listener: (message: Message, partial: Partial<Channels.Message>) => void): this;
 
     // Object destruction.
     on(event: 'delete/user', listener: (user: User, id: string) => void): this;

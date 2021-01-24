@@ -130,15 +130,23 @@ export class DirectMessageChannel extends TextChannel {
     recipient: User;
 
     _recipients: string[];
+    _lastMessage: Channels.LastMessage;
 
     constructor(client: Client, data: Channels.Channel) {
         super(client, data);
     }
 
-    patch(data: Channels.DirectMessageChannel) {
-        // ? info: there are no partial patches that can occur here
-        this.active = data.active;
-        this._recipients = data.recipients;
+    patch(data: Partial<Channels.DirectMessageChannel>, emitPatch?: boolean) {
+        let changedFields = hasChanged(this._data, data, !emitPatch);
+
+        this.active = data.active ?? this.active;
+        this._recipients = data.recipients ?? this._recipients;
+        this._lastMessage = data.last_message ?? this._lastMessage;
+        Object.assign(this._data, data);
+
+        if (changedFields.length > 0) {
+            this.client.emit('mutation/channel', this, data);
+        }
     }
 
     async $sync() {
@@ -160,6 +168,7 @@ export class GroupChannel extends TextChannel {
     
     _owner: string;
     _recipients: string[];
+    _lastMessage: Channels.LastMessage;
 
     constructor(client: Client, data: Channels.Channel) {
         super(client, data);
@@ -173,6 +182,7 @@ export class GroupChannel extends TextChannel {
         this.description = data.description ?? this.description;
         this._owner = data.owner ?? this._owner;
         this._recipients = data.recipients ?? this._recipients;
+        this._lastMessage = data.last_message ?? this._lastMessage;
         Object.assign(this._data, data);
 
         if (changedFields.length > 0) {

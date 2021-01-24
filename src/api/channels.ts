@@ -1,4 +1,10 @@
 export namespace Channels {
+    export type LastMessage = {
+        _id: string,
+        author: string,
+        short: string
+    }
+
     export type SavedMessagesChannel = {
         _id: string,
         channel_type: 'SavedMessages',
@@ -9,7 +15,8 @@ export namespace Channels {
         _id: string,
         channel_type: 'DirectMessage',
         active: boolean,
-        recipients: string[]
+        recipients: string[],
+        last_message: LastMessage
     }
 
     export type GroupChannel = {
@@ -18,7 +25,8 @@ export namespace Channels {
         recipients: string[],
         name: string,
         owner: string,
-        description: string
+        description: string,
+        last_message: LastMessage
     }
 
     export type Channel = (SavedMessagesChannel | DirectMessageChannel | GroupChannel)
