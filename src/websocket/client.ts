@@ -98,6 +98,13 @@ export class WebSocketClient {
                             let channel = await Channel.fetch(this.client, packet.channel);
                             let message = await channel.fetchMessage(packet._id, packet);
                             this.client.emit('message', message);
+                            channel.patch({
+                                last_message: {
+                                    _id: packet._id,
+                                    author: packet.author,
+                                    short: packet.content.substr(0, 24)
+                                }
+                            }, true);
                         }
                         break;
                     }
