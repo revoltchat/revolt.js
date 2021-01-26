@@ -25,9 +25,9 @@ export default class User {
         let changedFields = hasChanged(this._data, data, !emitPatch);
 
         this.username = data.username ?? this.username;
-        this.relationship = (data.relationship || Relationship.None) ?? this.relationship;
-        this.online = (data.online ?? false) ?? this.online;
-        this._relations = (data.relations) ?? this._relations;
+        this.relationship = data.relationship ?? this.relationship ?? Relationship.None;
+        this.online = data.online ?? this.online ?? false;
+        this._relations = data.relations ?? this._relations;
         Object.assign(this._data, data);
 
         if (changedFields.length > 0) {
