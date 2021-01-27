@@ -50,7 +50,7 @@ export default class Message {
 
     async edit(content: string) {
         await this.client.Axios.patch(`/channels/${this.channel.id}/messages/${this.id}`, { content });
-        this.patch({ content }, true);
+        this.patch({ content, edited: { $date: new Date().toUTCString() } }, true);
     }
 
     async delete(preventRequest?: boolean) {
