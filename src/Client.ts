@@ -11,7 +11,7 @@ import { Onboarding } from './api/onboarding';
 import { WebSocketClient } from './websocket/client';
 
 import User, { SystemUser } from './objects/User';
-import Channel from './objects/Channel';
+import Channel, { DirectMessageChannel } from './objects/Channel';
 import Message from './objects/Message';
 
 export interface ClientOptions {
@@ -89,6 +89,16 @@ export class Client extends EventEmitter {
                 return response
             })
         }
+
+        // Internal loopback.
+        this.on('message', message => {
+            let channel = message.channel;
+            if (channel instanceof DirectMessageChannel) {
+                if (!channel.active) {
+                    channel.patch({ active: true });
+                }
+            }
+        });
     }
 
     /**
