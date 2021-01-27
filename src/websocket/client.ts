@@ -13,11 +13,20 @@ export class WebSocketClient {
     client: Client;
     ws?: WebSocket;
 
+    connected: boolean;
+    ready: boolean;
+
     constructor(client: Client) {
         this.client = client;
+
+        this.connected = false;
+        this.ready = false;
     }
 
     disconnect() {
+        this.connected = false;
+        this.ready = false;
+
         if (typeof this.ws !== 'undefined' && this.ws.readyState === WebSocket.OPEN) {
             this.ws.close();
         }
@@ -70,6 +79,7 @@ export class WebSocketClient {
                     case 'Authenticated': {
                         disallowReconnect = false;
                         this.client.emit('connected');
+                        this.connected = true;
                         break;
                     }
                     case 'Ready': {
@@ -89,6 +99,7 @@ export class WebSocketClient {
                         }
 
                         this.client.emit('ready');
+                        this.ready = true;
                         resolve();
                         break;
                     }
@@ -188,6 +199,9 @@ export class WebSocketClient {
 
             ws.onclose = () => {
                 this.client.emit('dropped');
+                this.connected = false;
+                this.ready = false;
+
                 if (!disallowReconnect && this.client.options.autoReconnect) {
                     backOff(() => this.connect(true)).catch(reject);
                 }
