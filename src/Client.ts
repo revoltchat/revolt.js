@@ -93,11 +93,14 @@ export class Client extends EventEmitter {
         // Internal loopback.
         this.on('message', message => {
             let channel = message.channel;
-            if (channel instanceof DirectMessageChannel) {
-                if (!channel.active) {
-                    channel.patch({ active: true });
+            channel.patch({
+                active: true,
+                last_message: {
+                    _id: message.id,
+                    author: message.author.id,
+                    short: message.content.substr(24)
                 }
-            }
+            });
         });
     }
 
