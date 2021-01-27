@@ -1,6 +1,6 @@
 {
   "name": "revolt.js",
-  "version": "3.0.1-beta.8",
+  "version": "3.0.1-beta.9",
   "main": "dist/index.js",
   "repository": "https://gitlab.insrt.uk/revolt/revolt.js",
   "author": "Paul Makles <insrt.uk>",
@@ -8,6 +8,7 @@
   "dependencies": {
     "axios": "^0.19.2",
     "concurrently": "^5.1.0",
+    "eventemitter3": "^4.0.7",
     "exponential-backoff": "^3.1.0",
     "isomorphic-ws": "^4.0.1",
     "lodash": "^4.17.15",

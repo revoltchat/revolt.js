@@ -1,6 +1,6 @@
 import Axios, { AxiosInstance } from 'axios';
+import { EventEmitter } from 'eventemitter3';
 import { defaultsDeep } from 'lodash';
-import { EventEmitter } from 'events';
 
 import { defaultConfig } from '.';
 import { Core } from './api/core';
