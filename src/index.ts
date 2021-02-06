@@ -12,7 +12,7 @@ export const API_VERSION = {
 };
 
 export const LIBRARY_VERSION = {
-    str: '3.0.1',
+    str: '3.0.1-beta.14',
     major: 3,
     minor: 0,
     patch: 1
