@@ -1,4 +1,4 @@
-import { Auth, Channels, Users } from './objects';
+import { Channels, Core, Users } from './objects';
 
 type Routes =
     /**
@@ -9,19 +9,7 @@ type Routes =
         method: 'GET',
         route: '/',
         data: undefined,
-        response: {
-            revolt: string,
-            features: {
-                registration: boolean,
-                captcha: {
-                    enabled: boolean,
-                    key: string,
-                },
-                email: boolean,
-                invite_only: boolean
-            },
-            ws: string
-        }
+        response: Core.RevoltNodeConfiguration
     }
     /**
      * Auth

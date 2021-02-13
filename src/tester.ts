@@ -1,9 +1,7 @@
 import { config } from 'dotenv';
 config();
 
-import { Channel, Client, User } from ".";
-import { GroupChannel } from './objects/Channel';
-import { SystemUser } from './objects/User';
+import { Client } from ".";
 let client = new Client();
 
 client.once('ready', async () => {

@@ -7,7 +7,8 @@ export namespace Core {
                 enabled: boolean,
                 key: string,
             },
-            email: boolean
+            email: boolean,
+            invite_only: string
         },
         ws: string
     }

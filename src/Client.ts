@@ -205,8 +205,17 @@ export class Client extends EventEmitter {
      * Utility functions.
      */
     async logout() {
-        this.websocket.disconnect();
+        this.reset();
         await this.req('GET', '/auth/logout');
+    }
+
+    reset() {
+        this.websocket.disconnect();
+        delete this.user;
+        delete this.session;
+        this.users = new Map();
+        this.channels = new Map();
+        this.messages = new Map();
     }
 
     register(apiURL: string, data: Route<'POST', '/auth/create'>["data"]) {
