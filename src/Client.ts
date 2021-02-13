@@ -153,6 +153,11 @@ export class Client extends EventEmitter {
         this.configuration = await this.req('GET', '/');
     }
 
+    async fetchConfiguration() {
+        if (!this.configuration)
+            await this.connect();
+    }
+
     private $checkConfiguration() {
         if (typeof this.configuration === 'undefined')
             throw new Error("No configuration synced from Revolt node yet. Use client.connect();");
@@ -167,7 +172,7 @@ export class Client extends EventEmitter {
 
     // Login to Revolt.
     async login(details: Route<'POST', '/auth/login'>["data"]) {
-        this.$checkConfiguration();
+        this.fetchConfiguration();
         this.session = await this.req('POST', '/auth/login', details);
         
         return await this.$connect();
@@ -175,7 +180,7 @@ export class Client extends EventEmitter {
 
     // Use an existing session to log into Revolt.
     async useExistingSession(session: Auth.Session) {
-        this.$checkConfiguration();
+        this.fetchConfiguration();
         await this.request('GET', '/auth/check', { headers: this.$generateHeaders(session) });
         this.session = session;
         return await this.$connect();

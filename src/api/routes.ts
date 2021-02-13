@@ -21,7 +21,8 @@ type Routes =
         data: {
             email: string,
             password: string,
-            invite?: string
+            invite?: string,
+            captcha?: string
         }
         response: {
             user_id: string
@@ -33,7 +34,8 @@ type Routes =
         data: {
             email: string,
             password: string,
-            device_name?: string
+            device_name?: string,
+            captcha?: string
         }
         response: {
             id: string,
@@ -72,7 +74,8 @@ type Routes =
         method: 'POST',
         route: '/auth/resend',
         data: {
-            email: string
+            email: string,
+            captcha?: string
         },
         response: undefined
     }
@@ -80,7 +83,8 @@ type Routes =
         method: 'POST',
         route: '/auth/send_reset',
         data: {
-            email: string
+            email: string,
+            captcha?: string
         },
         response: undefined
     }
