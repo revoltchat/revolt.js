@@ -1,4 +1,4 @@
-import { Channels, Users } from './objects';
+import { Auth, Channels, Users } from './objects';
 
 type Routes =
     /**
@@ -54,10 +54,68 @@ type Routes =
         }
     }
     | {
+        method: 'GET',
+        route: '/auth/user',
+        data: undefined
+        response: {
+            id: string,
+            email: string
+        }
+    }
+    | {
+        method: 'POST',
+        route: '/auth/change/password',
+        data: {
+            password: string,
+            new_password: string
+        },
+        response: undefined
+    }
+    | {
+        method: 'POST',
+        route: '/auth/change/email',
+        data: {
+            password: string,
+            new_email: string
+        },
+        response: undefined
+    }
+    | {
+        method: 'POST',
+        route: '/auth/resend',
+        data: {
+            email: string
+        },
+        response: undefined
+    }
+    | {
+        method: 'POST',
+        route: '/auth/send_reset',
+        data: {
+            email: string
+        },
+        response: undefined
+    }
+    | {
         method: 'POST',
         route: '/auth/check',
         data: undefined
         response: undefined
+    }
+    | {
+        method: 'DELETE',
+        route: '/auth/sessions/:id',
+        data: undefined
+        response: undefined
+    }
+    | {
+        method: 'GET',
+        route: '/auth/sessions',
+        data: undefined
+        response: {
+            id: string,
+            friendly_name: string
+        }[]
     }
     | {
         method: 'GET',
