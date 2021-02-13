@@ -1,6 +1,4 @@
-import { Auth } from '../api/auth';
-import { Channels } from '../api/channels';
-import { Relationship, Users } from '../api/users';
+import { Auth, Channels, Users } from '../api/objects';
 
 type WebSocketError = {
     error: 'InternalError' | 'InvalidSession' | 'OnboardingNotFinished' | 'AlreadyAuthenticated'
@@ -25,6 +23,6 @@ export type ClientboundNotification = (
     ({ type: 'ChannelGroupLeave', id: string, user: string }) |
     ({ type: 'ChannelDelete', id: string }) |
 
-    { type: 'UserRelationship', user: string, status: Relationship } |
+    { type: 'UserRelationship', user: string, status: Users.Relationship } |
     { type: 'UserPresence', id: string, online: boolean }
 )

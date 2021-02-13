@@ -1,4 +1,4 @@
-const { isEqual } = require('lodash');
+import { isEqual } from 'lodash';
 
 export function hasChanged(obj: any, partial: any, ignore?: boolean): string[] {
     if (ignore) return [];

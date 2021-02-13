@@ -2,11 +2,10 @@ import WebSocket from 'isomorphic-ws';
 import { backOff } from 'exponential-backoff';
 
 import { Channel, Client } from '..';
-import { Auth } from '../api/auth';
 import { ServerboundNotification, ClientboundNotification } from './notifications';
 
 import User from '../objects/User';
-import { Relationship } from '../api/users';
+import { Auth, Users } from '../api/objects';
 import { GroupChannel } from '../objects/Channel';
 
 export class WebSocketClient {
@@ -57,7 +56,7 @@ export class WebSocketClient {
             let ws = new WebSocket(this.client.configuration.ws);
             const send = (notification: ServerboundNotification) => {
                 let data = JSON.stringify(notification);
-                if (this.client.options.debug) console.debug('[<] PACKET', data);
+                if (this.client.debug) console.debug('[<] PACKET', data);
                 ws.send(data)
             };
 
@@ -69,7 +68,7 @@ export class WebSocketClient {
                 let data = msg.data;
                 if (typeof data !== 'string') return;
 
-                if (this.client.options.debug) console.debug('[>] PACKET', data);
+                if (this.client.debug) console.debug('[>] PACKET', data);
                 let packet = JSON.parse(data) as ClientboundNotification;
                 switch (packet.type) {
                     case 'Error': {
@@ -91,7 +90,7 @@ export class WebSocketClient {
                         // Our user object should be included in this
                         // payload so we can just take it out of the map.
                         let user = this.client.users.get(this.client.session?.user_id as string) as User;
-                        user.relationship = Relationship.User;
+                        user.relationship = Users.Relationship.User;
                         this.client.user = user;
 
                         for (let channel of packet.channels) {
@@ -165,7 +164,7 @@ export class WebSocketClient {
                     }
 
                     case 'UserRelationship': {
-                        if (packet.status !== Relationship.None || this.client.users.has(packet.user)) {
+                        if (packet.status !== Users.Relationship.None || this.client.users.has(packet.user)) {
                             let user = await User.fetch(this.client, packet.user);
                             user.patch({ relationship: packet.status }, true);
                         }
@@ -202,7 +201,7 @@ export class WebSocketClient {
                 this.connected = false;
                 this.ready = false;
 
-                if (!disallowReconnect && this.client.options.autoReconnect) {
+                if (!disallowReconnect && this.client.autoReconnect) {
                     backOff(() => this.connect(true)).catch(reject);
                 }
             };

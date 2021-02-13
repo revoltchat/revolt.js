@@ -1,6 +1,6 @@
 import { Channel, Client, User } from '..';
-import { Channels } from '../api/channels';
 import { hasChanged } from '../util/object';
+import { Channels } from '../api/objects';
 
 export default class Message {
     _data: Channels.Message;
@@ -49,13 +49,13 @@ export default class Message {
     }
 
     async edit(content: string) {
-        await this.client.Axios.patch(`/channels/${this.channel.id}/messages/${this.id}`, { content });
+        await this.client.req<'PATCH', '/channels/:id/messages/:id'>('PATCH', `/channels/${this.channel.id}/messages/${this.id}` as any, { content });
         this.patch({ content, edited: { $date: new Date().toUTCString() } }, true);
     }
 
     async delete(preventRequest?: boolean) {
         if (!preventRequest)
-            await this.client.Axios.delete(`/channels/${this.channel.id}/messages/${this.id}`);
+            await this.client.req<'DELETE', '/channels/:id/messages/:id'>('DELETE', `/channels/${this.channel.id}/messages/${this.id}` as any);
         
         this.client.messages.delete(this.id);
         this.channel.messages.delete(this.id);

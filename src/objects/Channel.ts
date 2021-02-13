@@ -1,8 +1,9 @@
-import { Client, Message, User } from '..';
-import { Channels } from '../api/channels';
 import { hasChanged } from '../util/object';
+import { Client, Message, User } from '..';
+import { Channels } from '../api/objects';
 
 import { ulid } from 'ulid';
+import { Route } from '../api/routes';
 
 export default abstract class Channel {
     _data: Channels.Channel;
@@ -34,7 +35,9 @@ export default abstract class Channel {
             return existing;
         }
 
-        let data = raw ?? (await client.Axios.get(`/channels/${id}`)).data;
+        let data = raw ?? (
+            await client.req<'GET', '/channels/:id'>('GET', `/channels/${id}` as any)
+        );
         let channel: Channel;
         switch (data.channel_type) {
             case 'SavedMessages': channel = new SavedMessagesChannel(client, data); break;
@@ -61,7 +64,9 @@ export default abstract class Channel {
             return existing;
         }
 
-        let message = new Message(this.client, this, data ?? (await this.client.Axios.get(`/channels/${this.id}/messages/${id}`)).data);
+        let message = new Message(this.client, this,
+            data ?? (await this.client.req<'GET', '/channels/:id/messages/:id'>('GET', `/channels/${this.id}/messages/${id}` as any))
+        );
         await message.$sync();
         this.messages.set(id, message);
         this.client.messages.set(id, message);
@@ -70,11 +75,11 @@ export default abstract class Channel {
         return message;
     }
 
-    async fetchMessages(params?: Channels.FetchMessagesRequest): Promise<Message[]> {
-        let res = await this.client.Axios.get(`/channels/${this.id}/messages`, { params });
+    async fetchMessages(params?: Route<'GET', '/channels/:id/messages'>["data"]): Promise<Message[]> {
+        let data = await this.client.request<'GET', '/channels/:id/messages'>('GET', `/channels/${this.id}/messages` as any, { params });
         let messages = [];
 
-        for (let entry of res.data) {
+        for (let entry of data) {
             messages.push(await this.fetchMessage(entry._id, entry, true));
         }
 
@@ -82,16 +87,16 @@ export default abstract class Channel {
     }
 
     async sendMessage(content: string, nonce: string = ulid()) {
-        let res = await this.client.Axios.post(`/channels/${this.id}/messages`, { content, nonce }) as { data: Channels.Message };
-        let fire = !this.client.messages.has(res.data._id);
-        let message = await this.fetchMessage(res.data._id, res.data);
+        let data = await this.client.req<'POST', '/channels/:id/messages'>('POST', `/channels/${this.id}/messages` as any, { content, nonce });
+        let fire = !this.client.messages.has(data._id);
+        let message = await this.fetchMessage(data._id, data);
         fire && this.client.emit('message', message);
         return message;
     }
 
     async delete(preventRequest?: boolean) {
         if (!preventRequest)
-            await this.client.Axios.delete(`/channels/${this.id}`);
+            await this.client.req<'DELETE', '/channels/:id'>('DELETE', `/channels/${this.id}` as any);
         
         for (let id of this.messages.keys()) {
             this.client.messages.delete(id);
@@ -219,7 +224,7 @@ export class GroupChannel extends TextChannel {
             user = await User.fetch(this.client, user);
         }
 
-        await this.client.Axios.put(`/channels/${this.id}/recipients/${user.id}`);
+        await this.client.req<'PUT', '/channels/:id/recipients/:id'>('PUT', `/channels/${this.id}/recipients/${user.id}` as any);
         await this.$addMember(user);
     }
 
@@ -228,7 +233,7 @@ export class GroupChannel extends TextChannel {
             user = user.id;
         }
 
-        await this.client.Axios.delete(`/channels/${this.id}/recipients/${user}`);
+        await this.client.req<'DELETE', '/channels/:id/recipients/:id'>('DELETE', `/channels/${this.id}/recipients/${user}` as any);
         await this.$removeMember(user);
     }
 

@@ -1,17 +1,15 @@
-import Axios, { AxiosInstance } from 'axios';
+import Axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import { EventEmitter } from 'eventemitter3';
 import { defaultsDeep } from 'lodash';
 
 import { defaultConfig } from '.';
-import { Core } from './api/core';
-import { Auth } from './api/auth';
-import { Users } from './api/users';
-import { Channels } from './api/channels';
-import { Onboarding } from './api/onboarding';
 import { WebSocketClient } from './websocket/client';
+import { Core, Auth, Users, Channels } from './api/objects';
+
+import { Route, RoutePath, RouteMethod } from './api/routes';
 
 import User, { SystemUser } from './objects/User';
-import Channel, { DirectMessageChannel } from './objects/Channel';
+import Channel from './objects/Channel';
 import Message from './objects/Message';
 
 export interface ClientOptions {
@@ -54,12 +52,12 @@ export declare interface Client {
 }
 
 export class Client extends EventEmitter {
-    Axios: AxiosInstance;
-    options: ClientOptions;
-    websocket: WebSocketClient;
-    configuration?: Core.RevoltNodeConfiguration;
-    session?: Auth.Session;
     user?: User;
+    session?: Auth.Session;
+    websocket: WebSocketClient;
+    private Axios: AxiosInstance;
+    private options: ClientOptions;
+    configuration?: Core.RevoltNodeConfiguration;
 
     users: Map<string, User>;
     channels: Map<string, Channel>;
@@ -69,7 +67,7 @@ export class Client extends EventEmitter {
         super();
 
         this.options = defaultsDeep(options, defaultConfig);
-        this.Axios = Axios.create({ baseURL: this.options.apiURL });
+        this.Axios = Axios.create({ baseURL: this.apiURL });
         this.websocket = new WebSocketClient(this);
 
         this.users = new Map();
@@ -105,12 +103,54 @@ export class Client extends EventEmitter {
     }
 
     /**
+     * Configuration.
+     */
+
+    get apiURL() {
+        return this.options.apiURL;
+    }
+
+    get debug() {
+        return this.options.debug;
+    }
+
+    get autoReconnect() {
+        return this.options.autoReconnect;
+    }
+
+    /**
+     * Axios request wrapper.
+     */
+    req<M extends RouteMethod, T extends RoutePath>(method: M, url: T): Promise<Route<M, T>["response"]>;
+    req<M extends RouteMethod, T extends RoutePath>(method: M, url: T, data: Route<M, T>["data"]): Promise<Route<M, T>["response"]>;
+
+    async req<M extends RouteMethod, T extends RoutePath>(method: M, url: T, data?: Route<M, T>["data"]): Promise<Route<M, T>["response"]> {
+        let res = await this.Axios.request({
+            method,
+            data,
+            url
+        });
+
+        return res.data;
+    }
+
+    async request<M extends RouteMethod, T extends RoutePath>(method: M, url: T, data: AxiosRequestConfig): Promise<Route<M, T>["response"]> {
+        let res = await this.Axios.request({
+            ...data,
+            method,
+            url,
+        });
+
+        return res.data;
+    }
+
+    /**
      * Authentication and connection.
      */
     
     // Stage 1: Connect to Revolt.
     async connect() {
-        this.configuration = (await this.Axios.get('/')).data;
+        this.configuration = await this.req('GET', '/');
     }
 
     private $checkConfiguration() {
@@ -126,16 +166,17 @@ export class Client extends EventEmitter {
     }
 
     // Login to Revolt.
-    async login(details: Auth.LoginRequest) {
+    async login(details: Route<'POST', '/auth/login'>["data"]) {
         this.$checkConfiguration();
-        this.session = (await this.Axios.post('/auth/login', details)).data;
+        this.session = await this.req('POST', '/auth/login', details);
+        
         return await this.$connect();
     }
 
     // Use an existing session to log into Revolt.
     async useExistingSession(session: Auth.Session) {
         this.$checkConfiguration();
-        await this.Axios.get('/auth/check', { headers: this.$generateHeaders(session) });
+        await this.request('GET', '/auth/check', { headers: this.$generateHeaders(session) });
         this.session = session;
         return await this.$connect();
     }
@@ -143,7 +184,7 @@ export class Client extends EventEmitter {
     // Check onboarding status and connect to notifications service.
     private async $connect() {
         this.Axios.defaults.headers = this.$generateHeaders();
-        let { onboarding } = (await this.Axios.get('/onboard/hello')).data;
+        let { onboarding } = await this.req('GET', '/onboard/hello');
         if (onboarding) {
             return (username: string, loginAfterSuccess?: boolean) =>
                 this.completeOnboarding({ username }, loginAfterSuccess);
@@ -153,8 +194,8 @@ export class Client extends EventEmitter {
     }
 
     // Complete onboarding if required.
-    async completeOnboarding(data: Onboarding.OnboardRequest, loginAfterSuccess?: boolean) {
-        await this.Axios.post('/onboard/complete', data);
+    async completeOnboarding(data: Route<'POST', '/onboard/complete'>["data"], loginAfterSuccess?: boolean) {
+        await this.req('POST', '/onboard/complete', data);
         if (loginAfterSuccess) {
             await this.$connect();
         }
@@ -165,20 +206,20 @@ export class Client extends EventEmitter {
      */
     async logout() {
         this.websocket.disconnect();
-        await Axios.get('/auth/logout');
+        await this.req('GET', '/auth/logout');
     }
 
-    async register(apiURL: string, data: Auth.CreateRequest): Promise<Auth.CreateResponse> {
-        return (await Axios.post('/auth/create', data, { baseURL: apiURL })).data;
+    register(apiURL: string, data: Route<'POST', '/auth/create'>["data"]) {
+        return this.request('POST', '/auth/create', { data, baseURL: apiURL });
     }
 
     async addFriend(username: string) {
-        await this.Axios.put(`/users/${username}/friend`);
+        await this.req<'PUT', '/users/:id/friend'>('PUT', `/users/${username}/friend` as any);
     }
 
-    async createGroup(data: Channels.CreateGroupRequest) {
-        let res = await this.Axios.post('/channels/create', data);
-        return await Channel.fetch(this, res.data.id, res.data);
+    async createGroup(data: Route<'POST', '/channels/create'>["data"]) {
+        let obj = await this.req('POST', '/channels/create', data);
+        return await Channel.fetch(this, obj._id, obj);
     }
 
     fetchUser(id: string): Promise<User> {

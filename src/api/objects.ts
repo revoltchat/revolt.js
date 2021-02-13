@@ -1,3 +1,48 @@
+export namespace Core {
+    export interface RevoltNodeConfiguration {
+        revolt: string,
+        features: {
+            registration: boolean,
+            captcha: {
+                enabled: boolean,
+                key: string,
+            },
+            email: boolean
+        },
+        ws: string
+    }
+}
+
+export namespace Auth {
+    export interface Session {
+        id?: string,
+        user_id: string,
+        session_token: string
+    }
+}
+
+export namespace Users {
+    export enum Relationship {
+        None = "None",
+        User = "User",
+        Friend = "Friend",
+        Outgoing = "Outgoing",
+        Incoming = "Incoming",
+        Blocked = "Blocked",
+        BlockedOther = "BlockedOther",
+    }
+    
+    export type Relationships = { _id: string, status: Relationship }[];
+
+    export interface User {
+        _id: string,
+        username: string,
+        relations?: Relationships,
+        relationship?: Relationship,
+        online?: boolean
+    }
+}
+
 export namespace Channels {
     export type LastMessage = {
         _id: string,
@@ -41,7 +86,7 @@ export namespace Channels {
         edited?: { $date: string }
     }
     
-    export type CreateGroupRequest = {
+    /* export type CreateGroupRequest = {
         name: string,
         nonce: string,
         users: string[]
@@ -51,5 +96,6 @@ export namespace Channels {
         limit?: number,
         before?: string,
         after?: string
-    }
+    } */
 }
+

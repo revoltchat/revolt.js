@@ -1,7 +1,6 @@
 import { Client, Channel } from '..';
-import { Channels } from '../api/channels';
+import { Users } from '../api/objects';
 import { hasChanged } from '../util/object';
-import { Users, Relationships, Relationship } from '../api/users';
 
 export default class User {
     _data: Users.User;
@@ -9,10 +8,10 @@ export default class User {
     id: string;
     username: string;
 
-    relationship: Relationship;
+    relationship: Users.Relationship;
     online: boolean;
 
-    _relations?: Relationships;
+    _relations?: Users.Relationships;
 
     constructor(client: Client, data: Users.User) {
         this._data = data;
@@ -25,7 +24,7 @@ export default class User {
         let changedFields = hasChanged(this._data, data, !emitPatch);
 
         this.username = data.username ?? this.username;
-        this.relationship = data.relationship ?? this.relationship ?? Relationship.None;
+        this.relationship = data.relationship ?? this.relationship ?? Users.Relationship.None;
         this.online = data.online ?? this.online ?? false;
         this._relations = data.relations ?? this._relations;
         Object.assign(this._data, data);
@@ -50,7 +49,9 @@ export default class User {
             return existing;
         }
 
-        let user = new User(client, data ?? (await client.Axios.get(`/users/${id}`)).data);
+        let user = new User(client,
+            data ?? (await client.req<'GET', '/users/:id'>('GET', `/users/${id}` as any))
+        );
         client.users.set(id, user);
         client.emit('create/user', user);
         
@@ -58,7 +59,7 @@ export default class User {
     }
 
     async openDM(): Promise<Channel> {
-        let data = (await this.client.Axios.get(`/users/${this.id}/dm`)).data as Channels.Channel;
+        let data = await this.client.req<'GET', '/users/:id/dm'>('GET', `/users/${this.id}/dm` as any);
         return await Channel.fetch(
             this.client,
             data._id,
@@ -66,9 +67,9 @@ export default class User {
         );
     }
 
-    async fetchRelationship(): Promise<Relationship> {
-        let res = await this.client.Axios.get(`/users/${this.id}/relationship`);
-        let relationship = res.data.status;
+    async fetchRelationship(): Promise<Users.Relationship> {
+        let data = await this.client.req<'GET', '/users/:id/relationship'>('GET', `/users/${this.id}/relationship` as any);
+        let relationship = data.status;
 
         if (this.relationship !== relationship) {
             this.patch({ relationship }, true);
@@ -78,23 +79,23 @@ export default class User {
     }
 
     async addFriend() {
-        let res = await this.client.Axios.put(`/users/${this.username}/friend`);
-        this.patch({ relationship: res.data.status }, true);
+        let data = await this.client.req<'PUT', '/users/:id/friend'>('PUT', `/users/${this.id}/friend` as any);
+        this.patch({ relationship: data.status }, true);
     }
 
     async removeFriend() {
-        let res = await this.client.Axios.delete(`/users/${this.id}/friend`);
-        this.patch({ relationship: res.data.status }, true);
+        let data = await this.client.req<'DELETE', '/users/:id/friend'>('DELETE', `/users/${this.id}/friend` as any);
+        this.patch({ relationship: data.status }, true);
     }
 
     async block() {
-        let res = await this.client.Axios.put(`/users/${this.id}/block`);
-        this.patch({ relationship: res.data.status }, true);
+        let data = await this.client.req<'PUT', '/users/:id/block'>('PUT', `/users/${this.id}/block` as any);
+        this.patch({ relationship: data.status }, true);
     }
 
     async unblock() {
-        let res = await this.client.Axios.delete(`/users/${this.id}/block`);
-        this.patch({ relationship: res.data.status }, true);
+        let data = await this.client.req<'DELETE', '/users/:id/block'>('DELETE', `/users/${this.id}/block` as any);
+        this.patch({ relationship: data.status }, true);
     }
 
     async delete() {
@@ -103,7 +104,7 @@ export default class User {
     }
 
     get avatarURL(): string {
-        return `${this.client.options.apiURL}/users/${this.id}/avatar`;
+        return `${this.client.apiURL}/users/${this.id}/avatar`;
     }
 }
 
@@ -117,6 +118,6 @@ export class SystemUser extends User {
     }
 
     get avatarURL(): string {
-        return `${this.client.options.apiURL}/users/${this.id}/avatar`;
+        return `${this.client.apiURL}/users/${this.id}/avatar`;
     }
 }
