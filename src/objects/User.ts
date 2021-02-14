@@ -79,7 +79,7 @@ export default class User {
     }
 
     async addFriend() {
-        let data = await this.client.req<'PUT', '/users/:id/friend'>('PUT', `/users/${this.id}/friend` as any);
+        let data = await this.client.req<'PUT', '/users/:id/friend'>('PUT', `/users/${this.username}/friend` as any);
         this.patch({ relationship: data.status }, true);
     }
 
