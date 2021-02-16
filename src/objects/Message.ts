@@ -10,6 +10,7 @@ export default class Message {
     author: User;
     channel: Channel;
     content: string;
+    attachment: Channels.Attachment;
     edited?: Date;
 
     _author: string;
@@ -30,6 +31,7 @@ export default class Message {
         let changedFields = hasChanged(this._data, data, !emitPatch);
         
         this.content = data.content ?? this.content;
+        this.attachment = data.attachment ?? this.attachment;
         if (data.edited) {
             this.edited = new Date(data.edited.$date);
         }

@@ -289,7 +289,8 @@ type Routes =
         route: '/channels/:id/messages',
         data: {
             content: string,
-            nonce: string
+            nonce: string,
+            attachment?: string
         },
         response: Channels.Message
     }

@@ -77,6 +77,20 @@ export namespace Channels {
 
     export type Channel = (SavedMessagesChannel | DirectMessageChannel | GroupChannel)
 
+    export type Metadata = (
+        { type: 'File' } |
+        { type: 'Audio' } |
+        { type: 'Image', width: number, height: number } |
+        { type: 'Video', width: number, height: number }
+    );
+
+    export type Attachment = {
+        _id: string,
+        filename: string,
+        metadata: Metadata,
+        content_type: string
+    };
+
     export type Message = {
         _id: string,
         nonce?: string,
@@ -84,6 +98,7 @@ export namespace Channels {
         author: string,
 
         content: string,
+        attachment: Attachment,
         edited?: { $date: string }
     }
     
