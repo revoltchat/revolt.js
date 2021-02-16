@@ -90,6 +90,15 @@ type Routes =
     }
     | {
         method: 'POST',
+        route: '/auth/reset',
+        data: {
+            password: string,
+            token: string
+        },
+        response: undefined
+    }
+    | {
+        method: 'POST',
         route: '/auth/check',
         data: undefined
         response: undefined
@@ -301,6 +310,18 @@ type Routes =
             after?: string
         },
         response: Channels.Message[]
+    }
+    | {
+        // Query updated messages from channel.
+        method: 'POST',
+        route: '/channels/:id/messages/stale',
+        data: {
+            ids: string[]
+        },
+        response: {
+            updated: Channels.Message[],
+            deleted: string[]
+        }
     }
     | {
         // Edit message.
