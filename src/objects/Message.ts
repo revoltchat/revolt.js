@@ -10,7 +10,7 @@ export default class Message {
     author: User;
     channel: Channel;
     content: string;
-    attachment: Channels.Attachment;
+    attachment?: Channels.Attachment;
     edited?: Date;
 
     _author: string;
