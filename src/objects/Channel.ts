@@ -86,8 +86,16 @@ export default abstract class Channel {
         return messages;
     }
 
-    async sendMessage(content: string, nonce: string = ulid()) {
-        let data = await this.client.req<'POST', '/channels/:id/messages'>('POST', `/channels/${this.id}/messages` as any, { content, nonce });
+    async sendMessage(msg: Omit<Route<'POST', '/channels/:id/messages'>["data"], 'nonce'> & { nonce?: string }) {
+        let data = await this.client.req<'POST', '/channels/:id/messages'>(
+            'POST',
+            `/channels/${this.id}/messages` as any,
+            {
+                nonce: ulid(),
+                ...msg
+            }
+        );
+
         let fire = !this.client.messages.has(data._id);
         let message = await this.fetchMessage(data._id, data);
         fire && this.client.emit('message', message);

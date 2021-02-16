@@ -1,15 +1,16 @@
 import { config } from 'dotenv';
 config();
 
-import { Client } from ".";
+import { Channel, Client } from ".";
 let client = new Client();
 
 client.once('ready', async () => {
     console.log(`Logged in as @${client.user?.username}`);
 
-    // let channel = client.channels.values().next().value as Channel;
+
+    let channel = client.channels.values().next().value as Channel;
     // console.log(await channel.fetchMessages());
-    // let message = await channel.sendMessage("epic!");
+    let message = await channel.sendMessage({ content: "bruh" });
     // await message.edit("pogger!");
     // await message.delete();
 
