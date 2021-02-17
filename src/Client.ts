@@ -96,9 +96,9 @@ export class Client extends EventEmitter {
                 last_message: {
                     _id: message.id,
                     author: message.author.id,
-                    short: message.content.substr(24)
+                    short: message.content.substr(0, 32)
                 }
-            });
+            }, true);
         });
     }
 
