@@ -339,6 +339,25 @@ type Routes =
         route: '/channels/:id/messages/:id',
         data: undefined,
         response: undefined
+    } |
+    /**
+     * Push API
+     */
+    {
+        method: 'POST',
+        route: '/push/subscribe',
+        data: {
+            endpoint: string,
+            p256dh: string,
+            auth: string
+        },
+        response: undefined
+    } |
+    {
+        method: 'POST',
+        route: '/push/unsubscribe',
+        data: undefined,
+        response: undefined
     }
 
 // ? Below are Typescript typings for extracting route data from the object above.
