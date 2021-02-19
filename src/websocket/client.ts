@@ -74,6 +74,7 @@ export class WebSocketClient {
 
                 if (this.client.debug) console.debug('[>] PACKET', data);
                 let packet = JSON.parse(data) as ClientboundNotification;
+                this.client.emit('packet', packet);
                 switch (packet.type) {
                     case 'Error': {
                         reject(packet.error);
