@@ -8,9 +8,10 @@ import { Core, Auth, Users, Channels } from './api/objects';
 
 import { Route, RoutePath, RouteMethod } from './api/routes';
 
-import User, { SystemUser } from './objects/User';
 import Channel from './objects/Channel';
 import Message from './objects/Message';
+import User, { SystemUser } from './objects/User';
+import { ClientboundNotification } from './websocket/notifications';
 
 export interface ClientOptions {
     apiURL: string,
@@ -24,6 +25,7 @@ export declare interface Client {
 	on(event: 'connecting', listener: () => void): this;
     on(event: 'dropped', listener: () => void): this;
     on(event: 'ready', listener: () => void): this;
+    on(event: 'packet', listener: (packet: ClientboundNotification) => void): this;
 
     // Object creation.
     on(event: 'create/user', listener: (user: User) => void): this;

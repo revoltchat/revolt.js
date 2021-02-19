@@ -5,7 +5,9 @@ type WebSocketError = {
 };
 
 export type ServerboundNotification = (
-    ({ type: 'Authenticate' } & Auth.Session)
+    ({ type: 'Authenticate' } & Auth.Session) |
+    ({ type: 'BeginTyping', channel: string }) |
+    ({ type: 'EndTyping', channel: string })
 );
 
 export type ClientboundNotification = (
@@ -22,6 +24,8 @@ export type ClientboundNotification = (
     ({ type: 'ChannelGroupJoin', id: string, user: string }) |
     ({ type: 'ChannelGroupLeave', id: string, user: string }) |
     ({ type: 'ChannelDelete', id: string }) |
+    ({ type: 'ChannelStartTyping', id: string, user: string }) |
+    ({ type: 'ChannelStopTyping', id: string, user: string }) |
 
     { type: 'UserRelationship', user: string, status: Users.Relationship } |
     { type: 'UserPresence', id: string, online: boolean }

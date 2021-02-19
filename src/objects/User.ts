@@ -1,3 +1,4 @@
+import { result } from 'lodash';
 import { Client, Channel } from '..';
 import { Users } from '../api/objects';
 import { hasChanged } from '../util/object';
@@ -76,6 +77,17 @@ export default class User {
         }
 
         return relationship;
+    }
+
+    async fetchMutualConnections(): Promise<{ users: User[] }> {
+        let data = await this.client.req<'GET', '/users/:id/mutual'>('GET', `/users/${this.id}/mutual` as any);
+        let users = [];
+
+        for (let user of data.users) {
+            users.push(await this.client.fetchUser(user));
+        }
+
+        return { users };
     }
 
     async addFriend() {

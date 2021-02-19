@@ -188,6 +188,15 @@ type Routes =
         }
     }
     | {
+        // Fetch your mutual relationships with another user.
+        method: 'GET',
+        route: '/users/:id/mutual',
+        data: undefined,
+        response: {
+            users: string[]
+        }
+    }
+    | {
         // Send a friend request / accept a friend request.
         method: 'PUT',
         route: '/users/:id/friend',
