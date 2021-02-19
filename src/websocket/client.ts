@@ -62,6 +62,7 @@ export class WebSocketClient {
             }
 
             let ws = new WebSocket(this.client.configuration.ws);
+            this.ws = ws;
 
             ws.onopen = () => {
                 this.send({ type: 'Authenticate', ...this.client.session as Auth.Session });
