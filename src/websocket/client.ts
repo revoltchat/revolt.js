@@ -31,6 +31,14 @@ export class WebSocketClient {
         }
     }
 
+    send(notification: ServerboundNotification) {
+        if (!this.ws) return;
+
+        let data = JSON.stringify(notification);
+        if (this.client.debug) console.debug('[<] PACKET', data);
+        this.ws.send(data);
+    }
+
     connect(disallowReconnect?: boolean): Promise<void> {
         this.client.emit('connecting');
 
@@ -54,14 +62,9 @@ export class WebSocketClient {
             }
 
             let ws = new WebSocket(this.client.configuration.ws);
-            const send = (notification: ServerboundNotification) => {
-                let data = JSON.stringify(notification);
-                if (this.client.debug) console.debug('[<] PACKET', data);
-                ws.send(data)
-            };
 
             ws.onopen = () => {
-                send({ type: 'Authenticate', ...this.client.session as Auth.Session });
+                this.send({ type: 'Authenticate', ...this.client.session as Auth.Session });
             };
 
             let handle = async (msg: WebSocket.MessageEvent) => {
