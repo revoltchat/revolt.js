@@ -101,17 +101,8 @@ export namespace Channels {
         attachment: Attachment,
         edited?: { $date: string }
     }
-    
-    /* export type CreateGroupRequest = {
-        name: string,
-        nonce: string,
-        users: string[]
-    }
-
-    export type FetchMessagesRequest = {
-        limit?: number,
-        before?: string,
-        after?: string
-    } */
 }
 
+export type User = Users.User;
+export type Channel = Channels.Channel;
+export type Message = Channels.Message;

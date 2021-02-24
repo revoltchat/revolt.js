@@ -3,14 +3,12 @@ import { EventEmitter } from 'eventemitter3';
 import { defaultsDeep } from 'lodash';
 
 import { defaultConfig } from '.';
+import { Core, Auth, User } from './api/objects';
 import { WebSocketClient } from './websocket/client';
-import { Core, Auth, Users, Channels } from './api/objects';
-
 import { Route, RoutePath, RouteMethod } from './api/routes';
 
-import Channel from './objects/Channel';
-import Message from './objects/Message';
-import User, { SystemUser } from './objects/User';
+import Users from './maps/Users';
+import Channels from './maps/Channels';
 import { ClientboundNotification } from './websocket/notifications';
 
 export interface ClientOptions {
@@ -27,6 +25,7 @@ export declare interface Client {
     on(event: 'ready', listener: () => void): this;
     on(event: 'packet', listener: (packet: ClientboundNotification) => void): this;
 
+    /*
     // Object creation.
     on(event: 'create/user', listener: (user: User) => void): this;
     on(event: 'create/channel', listener: (channel: Channel) => void): this;
@@ -51,19 +50,19 @@ export declare interface Client {
     on(event: 'message', listener: (message: Message) => void): this;
     on(event: 'message/create', listener: (message: Message) => void): this;
     on(event: 'message/edit', listener: (message: Message) => void): this;
+    */
 }
 
 export class Client extends EventEmitter {
-    user?: User;
+    user?: Readonly<User>;
     session?: Auth.Session;
     websocket: WebSocketClient;
     private Axios: AxiosInstance;
     private options: ClientOptions;
     configuration?: Core.RevoltNodeConfiguration;
 
-    users: Map<string, User>;
-    channels: Map<string, Channel>;
-    messages: Map<string, Message>;
+    users: Users;
+    channels: Channels;
 
     constructor(options: Partial<ClientOptions> = {}) {
         super();
@@ -72,11 +71,9 @@ export class Client extends EventEmitter {
         this.Axios = Axios.create({ baseURL: this.apiURL });
         this.websocket = new WebSocketClient(this);
 
-        this.users = new Map();
-        this.channels = new Map();
-        this.messages = new Map();
-
-        this.users.set("00000000000000000000000000", new SystemUser(this));
+        this.users = new Users(this);
+        this.channels = new Channels(this);
+        // this.messages = new Map();
 
         if (options.debug) {
             this.Axios.interceptors.request.use(request => {
@@ -90,6 +87,7 @@ export class Client extends EventEmitter {
             })
         }
 
+        /*
         // Internal loopback.
         this.on('message', message => {
             let channel = message.channel;
@@ -101,7 +99,7 @@ export class Client extends EventEmitter {
                     short: message.content.substr(0, 32)
                 }
             }, true);
-        });
+        }); */
     }
 
     /**
@@ -160,11 +158,6 @@ export class Client extends EventEmitter {
             await this.connect();
     }
 
-    private $checkConfiguration() {
-        if (typeof this.configuration === 'undefined')
-            throw new Error("No configuration synced from Revolt node yet. Use client.connect();");
-    }
-
     private $generateHeaders(session: Auth.Session | undefined = this.session) {
         return {
             'x-user-id': session?.user_id,
@@ -220,16 +213,16 @@ export class Client extends EventEmitter {
         this.websocket.disconnect();
         delete this.user;
         delete this.session;
-        this.users = new Map();
-        this.channels = new Map();
-        this.messages = new Map();
+        this.users = new Users(this);
+        this.channels = new Channels(this);
+        // this.messages = new Map();
     }
 
     register(apiURL: string, data: Route<'POST', '/auth/create'>["data"]) {
         return this.request('POST', '/auth/create', { data, baseURL: apiURL });
     }
 
-    async addFriend(username: string) {
+    /* async addFriend(username: string) {
         await this.req<'PUT', '/users/:id/friend'>('PUT', `/users/${username}/friend` as any);
     }
 
@@ -244,5 +237,5 @@ export class Client extends EventEmitter {
 
     fetchChannel(id: string): Promise<Channel> {
         return Channel.fetch(this, id)
-    }
+    } */
 }

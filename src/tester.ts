@@ -1,16 +1,28 @@
 import { config } from 'dotenv';
 config();
 
-import { Channel, Client } from ".";
-let client = new Client();
+import { Client } from ".";
+let client = new Client({ apiURL: 'https://staging-api.revolt.chat' });
+
+client.channels.on('mutation', console.log);
 
 client.once('ready', async () => {
     console.log(`Logged in as @${client.user?.username}`);
 
+    let channel = client.channels.toArray()[0];
+    let user = client.users.get(
+        client.users.keys()
+            .filter(id => id !== client.user?._id)[0]
+    );
+    
+    if (user) {
+        await client.channels.addMember(channel._id, user?._id);
+        await client.channels.removeMember(channel._id, user?._id);
+    }
 
-    let channel = client.channels.values().next().value as Channel;
+    // let channel = client.channels.values().next().value as Channel;
     // console.log(await channel.fetchMessages());
-    let message = await channel.sendMessage({ content: "bruh" });
+    // let message = await channel.sendMessage({ content: "bruh" });
     // await message.edit("pogger!");
     // await message.delete();
 
@@ -24,8 +36,6 @@ client.once('ready', async () => {
     // await channel.removeMember(user);
 });
 
-client.once('user/relationship_changed', user => user.removeFriend());
-
 client.on('connecting', () => {
     console.log(`Connecting to the notifications server.`);
 });
@@ -38,9 +48,9 @@ client.on('dropped', () => {
     console.log(`Connection dropped.`);
 });
 
-client.on('message', (msg) => {
+/*client.on('message', (msg) => {
     console.log(`@${msg.author.username}: ${msg.content}`);
-});
+});*/
 
 (async () => {
     console.log('Start:', new Date());

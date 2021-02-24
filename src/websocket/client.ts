@@ -1,12 +1,9 @@
 import WebSocket from 'isomorphic-ws';
 import { backOff } from 'exponential-backoff';
 
-import { Channel, Client } from '..';
+import { Client } from '..';
+import { Auth, User } from '../api/objects';
 import { ServerboundNotification, ClientboundNotification } from './notifications';
-
-import User from '../objects/User';
-import { Auth, Users } from '../api/objects';
-import { GroupChannel } from '../objects/Channel';
 
 export class WebSocketClient {
     client: Client;
@@ -88,18 +85,16 @@ export class WebSocketClient {
                     }
                     case 'Ready': {
                         for (let user of packet.users) {
-                            await User.fetch(this.client, user._id, user);
+                            this.client.users.set(user);
                         }
 
                         // INFO:
                         // Our user object should be included in this
                         // payload so we can just take it out of the map.
-                        let user = this.client.users.get(this.client.session?.user_id as string) as User;
-                        user.relationship = Users.Relationship.User;
-                        this.client.user = user;
+                        this.client.user = this.client.users.get(this.client.session?.user_id as string) as User;
 
                         for (let channel of packet.channels) {
-                            await Channel.fetch(this.client, channel._id, channel);
+                            this.client.channels.set(channel);
                         }
 
                         this.client.emit('ready');
@@ -108,7 +103,7 @@ export class WebSocketClient {
                         break;
                     }
 
-                    case 'Message': {
+                    /*case 'Message': {
                         if (!this.client.messages.has(packet._id)) {
                             let channel = await Channel.fetch(this.client, packet.channel);
                             let message = await channel.fetchMessage(packet._id, packet);
@@ -136,48 +131,36 @@ export class WebSocketClient {
                             await message.delete(true);
                         }
                         break;
-                    }
+                    }*/
 
-                    case 'ChannelCreate': {
-                        let channel = await Channel.fetch(this.client, packet._id, packet);
-                        this.client.emit('channel/create', channel);
-                        break;
-                    }
-                    case 'ChannelUpdate': {
-                        let channel = await Channel.fetch(this.client, packet.id);
-                        channel.patch(packet.data, true);
-                        await channel.$sync();
-                        break;
-                    }
+                    case 'ChannelCreate': this.client.channels.create(packet); break;
+                    case 'ChannelUpdate': this.client.channels.patch(packet.id, packet.data); break;
                     case 'ChannelGroupJoin': {
-                        let channel = await Channel.fetch(this.client, packet.id) as GroupChannel;
-                        let user = await User.fetch(this.client, packet.user);
-                        await channel.$addMember(user);
+                        let channel = await this.client.channels.fetchMutable(packet.id);
+                        if (channel.channel_type !== 'Group') throw "Not a group channel.";
+                        channel.recipients = [
+                            ...channel.recipients,
+                            packet.user
+                        ];
                         break;
                     }
                     case 'ChannelGroupLeave': {
-                        let channel = await Channel.fetch(this.client, packet.id) as GroupChannel;
-                        await channel.$removeMember(packet.user);
+                        let channel = await this.client.channels.fetchMutable(packet.id);
+                        if (channel.channel_type !== 'Group') throw "Not a group channel.";
+                        let user_id = packet.user;
+                        channel.recipients = channel.recipients.filter(user => user !== user_id);
                         break;
                     }
-                    case 'ChannelDelete': {
-                        let channel = this.client.channels.get(packet.id);
-                        if (channel) {
-                            await channel.delete(true);
-                        }
-                        break;
-                    }
+                    case 'ChannelDelete': this.client.channels.delete(packet.id); break;
 
                     case 'UserRelationship': {
-                        if (packet.status !== Users.Relationship.None || this.client.users.has(packet.user)) {
-                            let user = await User.fetch(this.client, packet.user);
-                            user.patch({ relationship: packet.status }, true);
-                        }
+                        let user = await this.client.users.fetchMutable(packet.user);
+                        user.relationship = packet.status;
                         break;
                     }
                     case 'UserPresence': {
-                        let user = await User.fetch(this.client, packet.id);
-                        user.patch({ online: packet.online }, true);
+                        let user = await this.client.users.fetchMutable(packet.id);
+                        user.online = packet.online;
                         break;
                     }
                 }

@@ -1,11 +1,13 @@
 {
   "name": "revolt.js",
-  "version": "3.0.3-alpha.9-patch.1",
+  "version": "3.1.0-alpha.0",
   "main": "dist/index.js",
   "repository": "https://gitlab.insrt.uk/revolt/revolt.js",
   "author": "Paul Makles <insrt.uk>",
   "license": "MIT",
   "dependencies": {
+    "@insertish/mutable": "^1.0.2",
+    "@insertish/zangodb": "1.0.10-patch.0",
     "axios": "^0.19.2",
     "concurrently": "^5.1.0",
     "eventemitter3": "^4.0.7",
@@ -19,7 +21,7 @@
   "devDependencies": {
     "@types/events": "^3.0.0",
     "@types/lodash": "^4.14.149",
-    "@types/node": "^13.7.0",
+    "@types/node": "^14.14.31",
     "@types/ws": "^7.2.1",
     "dotenv": "^8.2.0",
     "in-publish": "^2.0.1",
