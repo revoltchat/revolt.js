@@ -61,7 +61,7 @@ export default class Channels extends Collection<Channel> {
         return await this.client.req<'GET', '/channels/:id/messages/:id'>('GET', `/channels/${id}/messages/${message_id}` as any);
     }
 
-    async fetchMessages(id: string, params: Route<'GET', '/channels/:id/messages'>) {
+    async fetchMessages(id: string, params: Route<'GET', '/channels/:id/messages'>["data"]) {
         return await this.client.request<'GET', '/channels/:id/messages'>('GET', `/channels/${id}/messages` as any, { params });
     }
 
