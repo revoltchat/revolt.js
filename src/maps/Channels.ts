@@ -8,6 +8,12 @@ export default class Channels extends Collection<Channel> {
         super(client, 'channels');
     }
 
+    getRecipient(id: string) {
+        let channel = this.getThrow(id);
+        if (channel.channel_type !== 'DirectMessage') throw "Not a DirectMessage.";
+        return channel.recipients.find(user => user !== this.client.user?._id) as string;
+    }
+
     async fetchMutable(id: string) {
         if (this.map[id]) return this.get(id) as Channel;
         let res = await this.client.req<'GET', '/channels/:id'>('GET', `/channels/${id}` as any);

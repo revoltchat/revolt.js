@@ -98,7 +98,7 @@ export namespace Channels {
         author: string,
 
         content: string,
-        attachment: Attachment,
+        attachment?: Attachment,
         edited?: { $date: string }
     }
 }

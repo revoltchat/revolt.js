@@ -91,9 +91,10 @@ export class Client extends EventEmitter {
         });
     }
 
-    async restore() {
+    async restore(user_id?: string) {
         await this.users.restore(user => { return { ...user, online: false } });
         await this.channels.restore();
+        if (user_id) this.user = this.users.get(user_id);
     }
 
     /**
