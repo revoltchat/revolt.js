@@ -1,8 +1,13 @@
 import { Channel, Channels as ChannelsNS } from '../api/objects';
 import { Route } from '../api/routes';
 import Collection from './Collection';
+import { Client } from '..';
 
 export default class Channels extends Collection<Channel> {
+    constructor(client: Client) {
+        super(client, 'channels');
+    }
+
     async fetchMutable(id: string) {
         if (this.map[id]) return this.get(id) as Channel;
         let res = await this.client.req<'GET', '/channels/:id'>('GET', `/channels/${id}` as any);

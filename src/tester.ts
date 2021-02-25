@@ -1,8 +1,15 @@
 import { config } from 'dotenv';
 config();
 
+global.indexedDB = require('fake-indexeddb');
+global.IDBKeyRange = require('fake-indexeddb/lib/FDBKeyRange');
+
+import { Db } from '@insertish/zangodb';
+let db = new Db('state', 1, [ 'channels', 'users' ]);
+
 import { Client } from ".";
-let client = new Client({ apiURL: 'https://staging-api.revolt.chat' });
+import { Users } from './api/objects';
+let client = new Client({ apiURL: 'https://staging-api.revolt.chat', db, debug: true });
 
 client.channels.on('mutation', console.log);
 
@@ -10,10 +17,9 @@ client.once('ready', async () => {
     console.log(`Logged in as @${client.user?.username}`);
 
     let channel = client.channels.toArray()[0];
-    let user = client.users.get(
-        client.users.keys()
-            .filter(id => id !== client.user?._id)[0]
-    );
+    let user = client.users.toArray()
+        .filter(user => user._id !== client.user?._id)
+        .find(user => user.relationship === Users.Relationship.Friend);
     
     if (user) {
         await client.channels.addMember(channel._id, user?._id);
@@ -48,9 +54,10 @@ client.on('dropped', () => {
     console.log(`Connection dropped.`);
 });
 
-/*client.on('message', (msg) => {
-    console.log(`@${msg.author.username}: ${msg.content}`);
-});*/
+client.on('message', (msg) => {
+    let user = client.users.get(msg.author);
+    console.log(`@${user?.username}: ${msg.content}`);
+});
 
 (async () => {
     console.log('Start:', new Date());

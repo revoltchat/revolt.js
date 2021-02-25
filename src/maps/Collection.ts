@@ -4,8 +4,8 @@ import { Client } from '../Client';
 export default class Collection<T extends ObjectWithId> extends MutableMap<T> {
     client: Client;
 
-    constructor(client: Client) {
-        super();
+    constructor(client: Client, col: string) {
+        super(client.collection(col));
         this.client = client;
     }
 

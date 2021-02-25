@@ -103,35 +103,15 @@ export class WebSocketClient {
                         break;
                     }
 
-                    /*case 'Message': {
-                        if (!this.client.messages.has(packet._id)) {
-                            let channel = await Channel.fetch(this.client, packet.channel);
-                            let message = await channel.fetchMessage(packet._id, packet);
-                            this.client.emit('message', message);
-                            channel.patch({
-                                last_message: {
-                                    _id: packet._id,
-                                    author: packet.author,
-                                    short: packet.content.substr(0, 24)
-                                }
-                            }, true);
+                    case 'Message': {
+                        if (!this.client.messages.includes(packet._id)) {
+                            this.client.messages.push(packet._id);
+                            this.client.emit('message', packet);
                         }
                         break;
                     }
-                    case 'MessageUpdate': {
-                        let message = this.client.messages.get(packet.id);
-                        if (message) {
-                            message.patch(packet.data, true);
-                        }
-                        break;
-                    }
-                    case 'MessageDelete': {
-                        let message = this.client.messages.get(packet.id);
-                        if (message) {
-                            await message.delete(true);
-                        }
-                        break;
-                    }*/
+                    case 'MessageUpdate': this.client.emit('message/update', packet.id, packet.data); break;
+                    case 'MessageDelete': this.client.emit('message/delete', packet.id); break;
 
                     case 'ChannelCreate': this.client.channels.create(packet); break;
                     case 'ChannelUpdate': this.client.channels.patch(packet.id, packet.data); break;
@@ -188,6 +168,9 @@ export class WebSocketClient {
                 this.client.emit('dropped');
                 this.connected = false;
                 this.ready = false;
+
+                this.client.users.toMutableArray()
+                    .forEach(user => user.online = false);
 
                 if (!disallowReconnect && this.client.autoReconnect) {
                     backOff(() => this.connect(true)).catch(reject);

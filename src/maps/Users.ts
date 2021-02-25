@@ -1,7 +1,17 @@
 import Collection from './Collection';
 import { User } from '../api/objects';
+import { Client } from '..';
 
 export default class Users extends Collection<User> {
+    constructor(client: Client) {
+        super(client, 'users');
+
+        this.set({
+            _id: '00000000000000000000000000',
+            username: 'revolt'
+        });
+    }
+
     async fetchMutable(id: string) {
         if (this.map[id]) return this.get(id) as User;
         let res = await this.client.req<'GET', '/users/:id'>('GET', `/users/${id}` as any);

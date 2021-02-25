@@ -1,19 +1,17 @@
 {
   "name": "revolt.js",
-  "version": "3.1.0-alpha.0",
+  "version": "4.0.0-alpha.0",
   "main": "dist/index.js",
   "repository": "https://gitlab.insrt.uk/revolt/revolt.js",
   "author": "Paul Makles <insrt.uk>",
   "license": "MIT",
   "dependencies": {
-    "@insertish/mutable": "^1.0.2",
+    "@insertish/mutable": "1.0.3",
     "@insertish/zangodb": "1.0.10-patch.0",
     "axios": "^0.19.2",
-    "concurrently": "^5.1.0",
     "eventemitter3": "^4.0.7",
     "exponential-backoff": "^3.1.0",
     "isomorphic-ws": "^4.0.1",
-    "lodash": "^4.17.15",
     "tsc-watch": "^4.1.0",
     "ulid": "^2.3.0",
     "ws": "^7.2.1"
@@ -24,6 +22,7 @@
     "@types/node": "^14.14.31",
     "@types/ws": "^7.2.1",
     "dotenv": "^8.2.0",
+    "fake-indexeddb": "^3.1.2",
     "in-publish": "^2.0.1",
     "rimraf": "^3.0.2",
     "typescript": "^3.8.0-dev.20200208"
