@@ -47,4 +47,35 @@ export default class Channels extends Collection<Channel> {
         channel.recipients = channel.recipients
             .filter(user => user !== user_id);
     }
+
+    async sendMessage(id: string, data: Route<'POST', '/channels/:id/messages'>["data"]) {
+        this.getThrow(id);
+        let message = await this.client.req<'POST', '/channels/:id/messages'>('POST', `/channels/${id}/messages` as any, data);
+        if (!this.client.messages.includes(id)) {
+            this.client.emit('message', message);
+        }
+        return message;
+    }
+
+    async fetchMessage(id: string, message_id: string) {
+        return await this.client.req<'GET', '/channels/:id/messages/:id'>('GET', `/channels/${id}/messages/${message_id}` as any);
+    }
+
+    async fetchMessages(id: string, params: Route<'GET', '/channels/:id/messages'>) {
+        return await this.client.request<'GET', '/channels/:id/messages'>('GET', `/channels/${id}/messages` as any, { params });
+    }
+
+    async fetchStale(id: string, ids: string[]) {
+        return await this.client.req<'POST', '/channels/:id/messages/stale'>('POST', `/channels/${id}/messages/stale` as any, { ids });
+    }
+
+    async editMessage(id: string, message_id: string, data: Route<'PATCH', '/channels/:id/messages/:id'>["data"]) {
+        await this.client.req<'PATCH', '/channels/:id/messages/:id'>('PATCH', `/channels/${id}/messages/${message_id}` as any, data);
+        this.client.emit('message/edit', message_id, data);
+    }
+
+    async deleteMessage(id: string, message_id: string) {
+        await this.client.req<'DELETE', '/channels/:id/messages/:id'>('DELETE', `/channels/${id}/messages/${message_id}` as any);
+        this.client.emit('message/delete', message_id);
+    }
 }
