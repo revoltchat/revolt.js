@@ -211,8 +211,9 @@ export class Client extends EventEmitter {
      * Utility functions.
      */
     async logout() {
-        this.reset();
+        this.websocket.disconnect();
         await this.req('GET', '/auth/logout');
+        this.reset();
     }
 
     reset() {
