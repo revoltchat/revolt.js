@@ -20,8 +20,16 @@ export default class Users extends Collection<User> {
 
     async openDM(id: string) {
         this.getThrow(id);
-        let channel = await this.client.req<'GET', '/users/:id/dm'>('GET', `/users/${id}/dm` as any);
-        this.client.channels.create(channel);
+        let channel = this.client.channels
+            .toArray()
+            .find(channel => channel.channel_type === 'DirectMessage'
+                && channel.recipients.find(user => user !== this.client.user?._id));
+        
+        if (typeof channel === 'undefined') {
+            channel = await this.client.req<'GET', '/users/:id/dm'>('GET', `/users/${id}/dm` as any);
+            this.client.channels.set(channel);
+        }
+        
         return this.client.channels.get(channel._id);
     }
 

@@ -123,7 +123,7 @@ export class WebSocketClient {
                     case 'MessageUpdate': this.client.emit('message/update', packet.id, packet.data); break;
                     case 'MessageDelete': this.client.emit('message/delete', packet.id); break;
 
-                    case 'ChannelCreate': this.client.channels.create(packet); break;
+                    case 'ChannelCreate': this.client.channels.set(packet); break;
                     case 'ChannelUpdate': this.client.channels.patch(packet.id, packet.data); break;
                     case 'ChannelGroupJoin': {
                         let channel = await this.client.channels.fetchMutable(packet.id);
