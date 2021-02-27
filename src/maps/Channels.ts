@@ -25,9 +25,17 @@ export default class Channels extends Collection<Channel> {
         return await this.fetchMutable(id) as Readonly<Channel>;
     }
 
-    async delete(id: string) {
-        await this.client.req<'DELETE', '/channels/:id'>('DELETE', `/channels/${id}` as any);
-        this.delete(id);
+    async delete(id: string, avoidRequest?: boolean) {
+        let channel = this.getMutable(id);
+        if (channel?.channel_type === 'SavedMessages') throw "Cannot delete Saved Messages.";
+        if (!avoidRequest)
+            await this.client.req<'DELETE', '/channels/:id'>('DELETE', `/channels/${id}` as any);
+        
+        if (channel?.channel_type === 'DirectMessage') {
+            channel.active = false;
+        } else {
+            super.delete(id);
+        }
     }
 
     async createGroup(data: Route<'POST', '/channels/create'>["data"]) {

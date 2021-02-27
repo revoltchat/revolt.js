@@ -95,6 +95,7 @@ export class WebSocketClient {
                         // payload so we can just take it out of the map.
                         this.client.user = this.client.users.get(this.client.session?.user_id as string) as User;
 
+                        this.client.channels.clear();
                         for (let channel of packet.channels) {
                             this.client.channels.set(channel);
                         }
@@ -142,7 +143,7 @@ export class WebSocketClient {
                         channel.recipients = channel.recipients.filter(user => user !== user_id);
                         break;
                     }
-                    case 'ChannelDelete': this.client.channels.delete(packet.id); break;
+                    case 'ChannelDelete': this.client.channels.delete(packet.id, true); break;
 
                     case 'UserRelationship': {
                         let user = await this.client.users.fetchMutable(packet.user);
