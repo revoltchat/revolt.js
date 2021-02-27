@@ -6,5 +6,6 @@ export const LIBRARY_VERSION = '4.0.0-alpha.7';
 export const defaultConfig = {
     apiURL: 'https://api.revolt.chat',
     autoReconnect: true,
-    debug: false
+    heartbeat: 10,
+    debug: false,
 };

@@ -9,6 +9,7 @@ export class WebSocketClient {
     client: Client;
     ws?: WebSocket;
 
+    heartbeat?: number;
     connected: boolean;
     ready: boolean;
 
@@ -20,6 +21,7 @@ export class WebSocketClient {
     }
 
     disconnect() {
+        clearInterval(this.heartbeat);
         this.connected = false;
         this.ready = false;
 
@@ -29,7 +31,7 @@ export class WebSocketClient {
     }
 
     send(notification: ServerboundNotification) {
-        if (!this.ws) return;
+        if (typeof this.ws === 'undefined' || this.ws.readyState !== WebSocket.OPEN) return;
 
         let data = JSON.stringify(notification);
         if (this.client.debug) console.debug('[<] PACKET', data);
@@ -100,6 +102,14 @@ export class WebSocketClient {
                         this.client.emit('ready');
                         this.ready = true;
                         resolve();
+
+                        if (this.client.heartbeat > 0) {
+                            this.heartbeat = setInterval(
+                                () => this.send({ type: 'Ping', time: + new Date() }),
+                                this.client.heartbeat * 1e3
+                            ) as any;
+                        }
+                        
                         break;
                     }
 

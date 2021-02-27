@@ -5,12 +5,16 @@ type WebSocketError = {
 };
 
 export type ServerboundNotification = (
+    { type: 'Ping', time: number } |
+    { type: 'Pong', time: number } |
     ({ type: 'Authenticate' } & Auth.Session) |
     ({ type: 'BeginTyping', channel: string }) |
     ({ type: 'EndTyping', channel: string })
 );
 
 export type ClientboundNotification = (
+    { type: 'Ping', time: number } |
+    { type: 'Pong', time: number } |
     ({ type: 'Error' } & WebSocketError) |
     { type: 'Authenticated' } |
     { type: 'Ready', users: Users.User[], channels: Channels.Channel[] } |

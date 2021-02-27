@@ -1,6 +1,6 @@
 import Axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
+import defaultsDeep from 'lodash.defaultsdeep';
 import { EventEmitter } from 'eventemitter3';
-import { defaultsDeep } from 'lodash';
 
 import { defaultConfig } from '.';
 import { WebSocketClient } from './websocket/client';
@@ -15,6 +15,7 @@ import { ClientboundNotification } from './websocket/notifications';
 export interface ClientOptions {
     apiURL: string
     autoReconnect: boolean
+    heartbeat: number
     debug: boolean
     db: Db
 }
@@ -35,6 +36,7 @@ export declare interface Client {
 
 export class Client extends EventEmitter {
     private db?: Db;
+    heartbeat: number;
     user?: Readonly<User>;
     session?: Auth.Session;
     websocket: WebSocketClient;
@@ -52,6 +54,7 @@ export class Client extends EventEmitter {
         this.options = defaultsDeep(options, defaultConfig);
         this.Axios = Axios.create({ baseURL: this.apiURL });
         this.websocket = new WebSocketClient(this);
+        this.heartbeat = this.options.heartbeat;
 
         if (options.db) {
             this.db = options.db;
@@ -224,7 +227,6 @@ export class Client extends EventEmitter {
         this.channels.clear();
         this.users = new Users(this);
         this.channels = new Channels(this);
-        // this.messages = new Map();
     }
 
     register(apiURL: string, data: Route<'POST', '/auth/create'>["data"]) {
