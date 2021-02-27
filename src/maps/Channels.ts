@@ -41,7 +41,7 @@ export default class Channels extends Collection<Channel> {
         if (channel.channel_type !== 'Group') throw "Channel is not group channel.";
         await this.client.req<'PUT', '/channels/:id/recipients/:id'>('PUT', `/channels/${id}/recipients/${user_id}` as any);
         channel.recipients = [
-            ...channel.recipients,
+            ...channel.recipients.filter(user => user !== user_id),
             user_id
         ];
     }

@@ -118,9 +118,10 @@ export class WebSocketClient {
                     case 'ChannelGroupJoin': {
                         let channel = await this.client.channels.fetchMutable(packet.id);
                         if (channel.channel_type !== 'Group') throw "Not a group channel.";
+                        let user_id = packet.user;
                         channel.recipients = [
-                            ...channel.recipients,
-                            packet.user
+                            ...channel.recipients.filter(user => user !== user_id),
+                            user_id
                         ];
                         break;
                     }
