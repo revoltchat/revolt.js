@@ -101,6 +101,12 @@ export namespace Channels {
         attachment?: Attachment,
         edited?: { $date: string }
     }
+
+    export type SystemMessage =
+        | { type: "text"; content: string }
+        | { type: "user_added"; id: string; by: string }
+        | { type: "user_remove"; id: string; by: string }
+        | { type: "user_left"; id: string };
 }
 
 export type User = Users.User;

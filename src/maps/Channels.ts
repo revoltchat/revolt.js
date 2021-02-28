@@ -14,6 +14,14 @@ export default class Channels extends Collection<Channel> {
         return channel.recipients.find(user => user !== this.client.user?._id) as string;
     }
 
+    tryParseSystemMessage(content: string): ChannelsNS.SystemMessage {
+        try {
+            return JSON.parse(content);
+        } catch (e) {
+            return { type: 'text', content }
+        }
+    }
+
     async fetchMutable(id: string) {
         if (this.map[id]) return this.get(id) as Channel;
         let res = await this.client.req<'GET', '/channels/:id'>('GET', `/channels/${id}` as any);

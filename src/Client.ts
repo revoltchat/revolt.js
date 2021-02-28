@@ -34,6 +34,8 @@ export declare interface Client {
     on(event: 'message/delete', listener: (id: string) => void): this;
 }
 
+export const SYSTEM_USER_ID = '00000000000000000000000000';
+
 export class Client extends EventEmitter {
     private db?: Db;
     heartbeat: number;
@@ -98,7 +100,7 @@ export class Client extends EventEmitter {
         await this.users.restore(user => { return { ...user, online: false } });
         await this.channels.restore();
         this.users.set({
-            _id: '00000000000000000000000000',
+            _id: SYSTEM_USER_ID,
             username: 'revolt'
         });
         if (user_id) this.user = this.users.get(user_id);

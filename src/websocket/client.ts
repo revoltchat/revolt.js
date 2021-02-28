@@ -1,8 +1,8 @@
 import WebSocket from 'isomorphic-ws';
 import { backOff } from 'exponential-backoff';
 
-import { Client } from '..';
-import { Auth, User } from '../api/objects';
+import { Client, SYSTEM_USER_ID } from '..';
+import { Auth, Channels, User } from '../api/objects';
 import { ServerboundNotification, ClientboundNotification } from './notifications';
 
 export class WebSocketClient {
@@ -117,6 +117,20 @@ export class WebSocketClient {
                     case 'Message': {
                         if (!this.client.messages.includes(packet._id)) {
                             this.client.messages.push(packet._id);
+
+                            if (packet.author === SYSTEM_USER_ID) {
+                                let system = this.client.channels.tryParseSystemMessage(packet.content);
+                                switch (system.type) {
+                                    case 'user_added':
+                                    case 'user_remove':
+                                        await this.client.users.fetch(system.by);
+                                    case 'user_left':
+                                        await this.client.users.fetch(system.id);
+                                }
+                            } else {
+                                await this.client.users.fetch(packet.author);
+                            }
+
                             this.client.emit('message', packet);
                         }
                         break;
@@ -130,6 +144,8 @@ export class WebSocketClient {
                         let channel = await this.client.channels.fetchMutable(packet.id);
                         if (channel.channel_type !== 'Group') throw "Not a group channel.";
                         let user_id = packet.user;
+                        await this.client.users.fetch(user_id);
+
                         channel.recipients = [
                             ...channel.recipients.filter(user => user !== user_id),
                             user_id
