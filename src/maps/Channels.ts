@@ -2,6 +2,7 @@ import { Channel, Channels as ChannelsNS } from '../api/objects';
 import { Route } from '../api/routes';
 import Collection from './Collection';
 import { Client } from '..';
+import { ulid } from 'ulid';
 
 export default class Channels extends Collection<Channel> {
     constructor(client: Client) {
@@ -70,9 +71,14 @@ export default class Channels extends Collection<Channel> {
             .filter(user => user !== user_id);
     }
 
-    async sendMessage(id: string, data: Route<'POST', '/channels/:id/messages'>["data"]) {
+    async sendMessage(id: string, data: string | (Omit<Route<'POST', '/channels/:id/messages'>["data"], 'nonce'> & { nonce?: string })) {
+        let msg: Route<'POST', '/channels/:id/messages'>["data"] = {
+            nonce: ulid(),
+            ...(typeof data === 'string' ? { content: data } : data)
+        };
+
         this.getThrow(id);
-        let message = await this.client.req<'POST', '/channels/:id/messages'>('POST', `/channels/${id}/messages` as any, data);
+        let message = await this.client.req<'POST', '/channels/:id/messages'>('POST', `/channels/${id}/messages` as any, msg);
         if (!this.client.messages.includes(id)) {
             this.client.messages.push(id);
             this.client.emit('message', message);
