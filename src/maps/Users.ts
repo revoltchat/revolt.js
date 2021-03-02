@@ -23,7 +23,7 @@ export default class Users extends Collection<User> {
         let channel = this.client.channels
             .toArray()
             .find(channel => channel.channel_type === 'DirectMessage'
-                && channel.recipients.find(user => user !== this.client.user?._id));
+                && channel.recipients.find(user => user === id));
         
         if (typeof channel === 'undefined') {
             channel = await this.client.req<'GET', '/users/:id/dm'>('GET', `/users/${id}/dm` as any);
