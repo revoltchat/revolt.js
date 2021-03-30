@@ -26,6 +26,15 @@ export default class Channels extends Collection<Channel> {
     async fetchMutable(id: string) {
         if (this.map[id]) return this.get(id) as Channel;
         let res = await this.client.req<'GET', '/channels/:id'>('GET', `/channels/${id}` as any);
+
+        // Fetch user information if this is the first time we are seeing this object.
+        // We shouldn't need to fetch for anything apart from groups.
+        if (res.channel_type === 'Group') {
+            for (let member of res.recipients) {
+                await this.client.users.fetch(member);
+            }
+        }
+
         this.set(res);
         return this.get(id) as Channel;
     }
