@@ -367,6 +367,18 @@ type Routes =
         route: '/push/unsubscribe',
         data: undefined,
         response: undefined
+    } |
+    /**
+     * Voice API
+     */
+    {
+        // Join voice call for channel.
+        method: 'POST',
+        route: '/channels/:id/join_call',
+        data: undefined,
+        response: {
+            token: string
+        }
     }
 
 // ? Below are Typescript typings for extracting route data from the object above.

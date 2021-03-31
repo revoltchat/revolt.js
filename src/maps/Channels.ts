@@ -116,4 +116,8 @@ export default class Channels extends Collection<Channel> {
         await this.client.req<'DELETE', '/channels/:id/messages/:id'>('DELETE', `/channels/${id}/messages/${message_id}` as any);
         this.client.emit('message/delete', message_id);
     }
+
+    async joinCall(id: string) {
+        return await this.client.req<'POST', '/channels/:id/join_call'>('POST', `/channels/${id}/join_call` as any);
+    }
 }
