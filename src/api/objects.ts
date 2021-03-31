@@ -97,7 +97,7 @@ export namespace Channels {
         channel: string,
         author: string,
 
-        content: string,
+        content: string | SystemMessage,
         attachment?: Attachment,
         edited?: { $date: string }
     }
@@ -106,7 +106,8 @@ export namespace Channels {
         | { type: "text"; content: string }
         | { type: "user_added"; id: string; by: string }
         | { type: "user_remove"; id: string; by: string }
-        | { type: "user_left"; id: string };
+        | { type: "user_left"; id: string }
+        | { type: "channel_renamed"; name: string, by: string };
 }
 
 export type User = Users.User;

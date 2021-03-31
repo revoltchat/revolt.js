@@ -119,13 +119,14 @@ export class WebSocketClient {
                             this.client.messages.push(packet._id);
 
                             if (packet.author === SYSTEM_USER_ID) {
-                                let system = this.client.channels.tryParseSystemMessage(packet.content);
-                                switch (system.type) {
-                                    case 'user_added':
-                                    case 'user_remove':
-                                        await this.client.users.fetch(system.by);
-                                    case 'user_left':
-                                        await this.client.users.fetch(system.id);
+                                if (typeof packet.content === 'object') {
+                                    switch (packet.content.type) {
+                                        case 'user_added':
+                                        case 'user_remove':
+                                            await this.client.users.fetch(packet.content.by);
+                                        case 'user_left':
+                                            await this.client.users.fetch(packet.content.id);
+                                    }
                                 }
                             } else {
                                 await this.client.users.fetch(packet.author);

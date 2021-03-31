@@ -87,10 +87,12 @@ export class Client extends EventEmitter {
 
             if (channel.channel_type === 'DirectMessage' ||
                 channel.channel_type === 'Group') {
-                channel.last_message = {
-                    _id: message._id,
-                    author: message.author,
-                    short: message.content.substr(0, 32)
+                if (typeof message.content === 'string') {
+                    channel.last_message = {
+                        _id: message._id,
+                        author: message.author,
+                        short: message.content.substr(0, 32)
+                    }
                 }
             }
         });
@@ -101,7 +103,7 @@ export class Client extends EventEmitter {
         await this.channels.restore();
         this.users.set({
             _id: SYSTEM_USER_ID,
-            username: 'revolt'
+            username: 'REVOLT'
         });
         if (user_id) this.user = this.users.get(user_id);
     }
