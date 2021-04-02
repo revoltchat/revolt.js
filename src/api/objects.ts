@@ -35,10 +35,20 @@ export namespace Users {
     
     export type Relationships = { _id: string, status: Relationship }[];
 
+    export type Status = {
+        type: 'text',
+        text: string
+    }
+
     export interface User {
         _id: string,
         username: string,
         relations?: Relationships,
+
+        badges?: number,
+        profile?: string,
+        status?: Status[],
+
         relationship?: Relationship,
         online?: boolean
     }

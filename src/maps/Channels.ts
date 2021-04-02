@@ -43,6 +43,15 @@ export default class Channels extends Collection<Channel> {
         return await this.fetchMutable(id) as Readonly<Channel>;
     }
 
+    async edit(id: string, data: Route<'PATCH', '/channels/:id'>["data"]) {
+        let channel = this.getThrow(id);
+        if (channel.channel_type !== 'Group') throw "Channel is not group channel.";
+        await this.client.req<'PATCH', '/channels/:id'>('PATCH', `/channels/${id}` as any, data);
+        
+        if (data.name) channel.name = data.name;
+        if (data.description) channel.description = data.description;
+    }
+
     async delete(id: string, avoidRequest?: boolean) {
         let channel = this.getMutable(id);
         if (channel?.channel_type === 'SavedMessages') throw "Cannot delete Saved Messages.";

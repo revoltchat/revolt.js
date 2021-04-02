@@ -257,6 +257,16 @@ type Routes =
         response: Channels.Channel
     }
     | {
+        // Edit a group channel.
+        method: 'PATCH',
+        route: '/channels/:id',
+        data: {
+            name?: string,
+            description?: string
+        },
+        response: undefined
+    }
+    | {
         // Close DM channel or leave group channel.
         method: 'DELETE',
         route: '/channels/:id',
