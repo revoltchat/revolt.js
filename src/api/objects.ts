@@ -46,7 +46,6 @@ export namespace Users {
         relations?: Relationships,
 
         badges?: number,
-        profile?: string,
         status?: Status[],
 
         relationship?: Relationship,

@@ -158,6 +158,15 @@ type Routes =
         response: Users.User
     }
     | {
+        // Retrieve a user's profile.
+        method: 'GET',
+        route: '/users/:id/profile',
+        data: undefined,
+        response: {
+            profile?: string
+        }
+    }
+    | {
         // Fetch all your DM conversations.
         method: 'GET',
         route: '/users/dms',

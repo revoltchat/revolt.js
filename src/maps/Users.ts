@@ -64,6 +64,14 @@ export default class Users extends Collection<User> {
         await this.client.req<'DELETE', '/users/:id/block'>('DELETE', `/users/${id}/block` as any);
     }
 
+    async fetchProfile(id: string) {
+        return await this.client.req<'GET', '/users/:id/profile'>('GET', `/users/${id}/profile` as any);
+    }
+
+    async fetchMutual(id: string) {
+        return await this.client.req<'GET', '/users/:id/mutual'>('GET', `/users/${id}/mutual` as any);
+    }
+
     getAvatarURL(id: string) {
         return `${this.client.apiURL}/users/${id}/avatar`;
     }
