@@ -35,8 +35,16 @@ export namespace Users {
     
     export type Relationships = { _id: string, status: Relationship }[];
 
+    export enum Presence {
+        Online = "Online",
+        Idle = "Idle",
+        Busy = "Busy",
+        Invisible = "Invisible"
+    }
+
     export type Status = {
         text?: string
+        presence?: Presence
     }
 
     export interface User {
