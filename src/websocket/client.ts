@@ -162,6 +162,7 @@ export class WebSocketClient {
                     }
                     case 'ChannelDelete': this.client.channels.delete(packet.id, true); break;
 
+                    case 'UserUpdate': this.client.users.patch(packet.id, packet.data); break;
                     case 'UserRelationship': {
                         let user = await this.client.users.fetchMutable(packet.user);
                         user.relationship = packet.status;

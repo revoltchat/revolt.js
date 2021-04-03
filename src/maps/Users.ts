@@ -1,6 +1,7 @@
 import Collection from './Collection';
 import { User } from '../api/objects';
 import { Client } from '..';
+import { Route } from '../api/routes';
 
 export default class Users extends Collection<User> {
     constructor(client: Client) {
@@ -70,6 +71,14 @@ export default class Users extends Collection<User> {
 
     async fetchMutual(id: string) {
         return await this.client.req<'GET', '/users/:id/mutual'>('GET', `/users/${id}/mutual` as any);
+    }
+
+    async editUser(data: Route<'PATCH', '/users/:id'>["data"]) {
+        await this.client.req('PATCH', '/users/:id', data);
+    }
+
+    async changeUsername(username: string, password: string) {
+        await this.client.req('PATCH', '/users/:id/username', { username, password });
     }
 
     getAvatarURL(id: string) {

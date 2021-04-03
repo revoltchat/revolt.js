@@ -158,13 +158,31 @@ type Routes =
         response: Users.User
     }
     | {
+        // Edit user.
+        method: 'PATCH',
+        route: '/users/:id',
+        data: {
+            status?: Users.Status,
+            profile?: Users.Profile
+        },
+        response: undefined
+    }
+    | {
+        // Change username.
+        method: 'PATCH',
+        route: '/users/:id/username',
+        data: {
+            username?: string,
+            password?: string
+        },
+        response: undefined
+    }
+    | {
         // Retrieve a user's profile.
         method: 'GET',
         route: '/users/:id/profile',
         data: undefined,
-        response: {
-            profile?: string
-        }
+        response: Users.Profile
     }
     | {
         // Fetch all your DM conversations.

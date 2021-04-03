@@ -31,6 +31,7 @@ export type ClientboundNotification = (
     ({ type: 'ChannelStartTyping', id: string, user: string }) |
     ({ type: 'ChannelStopTyping', id: string, user: string }) |
 
+    { type: 'UserUpdate', id: string, data: Partial<Users.User> } |
     { type: 'UserRelationship', user: string, status: Users.Relationship } |
     { type: 'UserPresence', id: string, online: boolean }
 )

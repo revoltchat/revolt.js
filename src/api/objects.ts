@@ -36,8 +36,7 @@ export namespace Users {
     export type Relationships = { _id: string, status: Relationship }[];
 
     export type Status = {
-        type: 'text',
-        text: string
+        text?: string
     }
 
     export interface User {
@@ -46,10 +45,14 @@ export namespace Users {
         relations?: Relationships,
 
         badges?: number,
-        status?: Status[],
+        status?: Status,
 
         relationship?: Relationship,
         online?: boolean
+    }
+
+    export interface Profile {
+        content?: string
     }
 }
 
