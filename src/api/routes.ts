@@ -373,7 +373,7 @@ type Routes =
     | {
         // Edit message.
         method: 'PATCH',
-        route: `/channels/${Id}/messages/:id`,
+        route: `/channels/${Id}/messages/${Id}`,
         data: {
             content: string
         },
@@ -382,7 +382,7 @@ type Routes =
     | {
         // Delete message.
         method: 'DELETE',
-        route: `/channels/${Id}/messages/:id`,
+        route: `/channels/${Id}/messages/${Id}`,
         data: undefined,
         response: undefined
     } |
