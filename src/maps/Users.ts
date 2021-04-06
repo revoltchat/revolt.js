@@ -10,7 +10,7 @@ export default class Users extends Collection<User> {
 
     async fetchMutable(id: string) {
         if (this.map[id]) return this.get(id) as User;
-        let res = await this.client.req<'GET', '/users/:id'>('GET', `/users/${id}` as any);
+        let res = await this.client.req('GET', `/users/${id}` as '/users/id');
         this.set(res);
         return this.get(id) as User;
     }
@@ -39,7 +39,7 @@ export default class Users extends Collection<User> {
         }
         
         if (typeof channel === 'undefined') {
-            channel = await this.client.req<'GET', '/users/:id/dm'>('GET', `/users/${id}/dm` as any);
+            channel = await this.client.req('GET', `/users/${id}/dm` as '/users/id/dm');
             this.client.channels.set(channel);
         }
         
@@ -47,38 +47,39 @@ export default class Users extends Collection<User> {
     }
 
     async addFriend(username: string) {
-        await this.client.req<'PUT', '/users/:id/friend'>('PUT', `/users/${username}/friend` as any);
+        await this.client.req('PUT', `/users/${username}/friend` as '/users/id/friend');
+        // ! FIXME
         // ! WE NEED TO GET THE ID HERE SOMEHOW
         // ! IDEALLY WE WANT TO CHANGE THE ONES BELOW
         // ! TO USE USERNAME AS WELL
     }
 
     async removeFriend(id: string) {
-        await this.client.req<'DELETE', '/users/:id/friend'>('DELETE', `/users/${id}/friend` as any);
+        await this.client.req('DELETE', `/users/${id}/friend` as '/users/id/friend');
     }
 
     async blockUser(id: string) {
-        await this.client.req<'PUT', '/users/:id/block'>('PUT', `/users/${id}/block` as any);
+        await this.client.req('PUT', `/users/${id}/block` as '/users/id/block');
     }
 
     async unblockUser(id: string) {
-        await this.client.req<'DELETE', '/users/:id/block'>('DELETE', `/users/${id}/block` as any);
+        await this.client.req('DELETE', `/users/${id}/block` as '/users/id/block');
     }
 
     async fetchProfile(id: string) {
-        return await this.client.req<'GET', '/users/:id/profile'>('GET', `/users/${id}/profile` as any);
+        return await this.client.req('GET', `/users/${id}/profile` as '/users/id/profile');
     }
 
     async fetchMutual(id: string) {
-        return await this.client.req<'GET', '/users/:id/mutual'>('GET', `/users/${id}/mutual` as any);
+        return await this.client.req('GET', `/users/${id}/mutual` as '/users/id/mutual');
     }
 
-    async editUser(data: Route<'PATCH', '/users/:id'>["data"]) {
-        await this.client.req('PATCH', '/users/:id', data);
+    async editUser(data: Route<'PATCH', '/users/id'>["data"]) {
+        await this.client.req('PATCH', '/users/id', data);
     }
 
     async changeUsername(username: string, password: string) {
-        await this.client.req('PATCH', '/users/:id/username', { username, password });
+        await this.client.req('PATCH', '/users/id/username', { username, password });
     }
 
     getAvatarURL(id: string) {

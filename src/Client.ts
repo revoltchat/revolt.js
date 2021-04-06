@@ -35,6 +35,8 @@ export declare interface Client {
 }
 
 export const SYSTEM_USER_ID = '00000000000000000000000000';
+export const RE_MENTIONS = /<@([A-z0-9]{26})>/g;
+export const RE_SPOILER = /!!.+!!/g;
 
 export class Client extends EventEmitter {
     private db?: Db;
@@ -91,7 +93,7 @@ export class Client extends EventEmitter {
                     channel.last_message = {
                         _id: message._id,
                         author: message.author,
-                        short: message.content.substr(0, 32)
+                        short: this.markdownToText(message.content).substr(0, 64)
                     }
                 }
             }
@@ -235,5 +237,27 @@ export class Client extends EventEmitter {
 
     register(apiURL: string, data: Route<'POST', '/auth/create'>["data"]) {
         return this.request('POST', '/auth/create', { data, baseURL: apiURL });
+    }
+
+    markdownToText(source: string) {
+        return source
+        .replace(
+            RE_MENTIONS,
+            (sub: string, ...args: any[]) => {
+                const id = args[0],
+                    user = this.users.get(id);
+                
+                if (user) {
+                    return `@${user.username}`;
+                }
+
+                return sub;
+            }
+        )
+        .replace(
+            // This is a bit excessive, but we want to do it cheaply.
+            RE_SPOILER,
+            '<spoiler>'
+        );
     }
 }

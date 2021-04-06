@@ -1,5 +1,6 @@
 import { Channels, Core, Users } from './objects';
 
+type Id = 'id';
 type Routes =
     /**
      * Core
@@ -7,17 +8,16 @@ type Routes =
     | {
         // Query Revolt node.
         method: 'GET',
-        route: '/',
+        route: `/`,
         data: undefined,
         response: Core.RevoltNodeConfiguration
     }
     /**
      * Auth
-     * ! Temp.
      */
     | {
         method: 'POST',
-        route: '/auth/create',
+        route: `/auth/create`,
         data: {
             email: string,
             password: string,
@@ -30,7 +30,7 @@ type Routes =
     }
     | {
         method: 'POST',
-        route: '/auth/login',
+        route: `/auth/login`,
         data: {
             email: string,
             password: string,
@@ -45,7 +45,7 @@ type Routes =
     }
     | {
         method: 'GET',
-        route: '/auth/user',
+        route: `/auth/user`,
         data: undefined
         response: {
             id: string,
@@ -54,7 +54,7 @@ type Routes =
     }
     | {
         method: 'POST',
-        route: '/auth/change/password',
+        route: `/auth/change/password`,
         data: {
             password: string,
             new_password: string
@@ -63,7 +63,7 @@ type Routes =
     }
     | {
         method: 'POST',
-        route: '/auth/change/email',
+        route: `/auth/change/email`,
         data: {
             password: string,
             new_email: string
@@ -72,7 +72,7 @@ type Routes =
     }
     | {
         method: 'POST',
-        route: '/auth/resend',
+        route: `/auth/resend`,
         data: {
             email: string,
             captcha?: string
@@ -81,7 +81,7 @@ type Routes =
     }
     | {
         method: 'POST',
-        route: '/auth/send_reset',
+        route: `/auth/send_reset`,
         data: {
             email: string,
             captcha?: string
@@ -90,7 +90,7 @@ type Routes =
     }
     | {
         method: 'POST',
-        route: '/auth/reset',
+        route: `/auth/reset`,
         data: {
             password: string,
             token: string
@@ -99,19 +99,19 @@ type Routes =
     }
     | {
         method: 'POST',
-        route: '/auth/check',
+        route: `/auth/check`,
         data: undefined
         response: undefined
     }
     | {
         method: 'DELETE',
-        route: '/auth/sessions/:id',
+        route: `/auth/sessions/${Id}`,
         data: undefined
         response: undefined
     }
     | {
         method: 'GET',
-        route: '/auth/sessions',
+        route: `/auth/sessions`,
         data: undefined
         response: {
             id: string,
@@ -120,7 +120,7 @@ type Routes =
     }
     | {
         method: 'GET',
-        route: '/auth/logout',
+        route: `/auth/logout`,
         data: undefined
         response: undefined
     }
@@ -130,7 +130,7 @@ type Routes =
     | {
         // Ask server for user status.
         method: 'GET',
-        route: '/onboard/hello',
+        route: `/onboard/hello`,
         data: undefined,
         response: {
             onboarding: boolean
@@ -139,7 +139,7 @@ type Routes =
     | {
         // Complete onboarding.
         method: 'POST',
-        route: '/onboard/complete',
+        route: `/onboard/complete`,
         data: {
             username: string
         },
@@ -153,14 +153,14 @@ type Routes =
     | {
         // Retrieve a user's information.
         method: 'GET',
-        route: '/users/:id',
+        route: `/users/${Id}`,
         data: undefined,
         response: Users.User
     }
     | {
         // Edit user.
         method: 'PATCH',
-        route: '/users/:id',
+        route: `/users/${Id}`,
         data: {
             status?: Users.Status,
             profile?: Users.Profile
@@ -170,7 +170,7 @@ type Routes =
     | {
         // Change username.
         method: 'PATCH',
-        route: '/users/:id/username',
+        route: `/users/${Id}/username`,
         data: {
             username?: string,
             password?: string
@@ -180,35 +180,35 @@ type Routes =
     | {
         // Retrieve a user's profile.
         method: 'GET',
-        route: '/users/:id/profile',
+        route: `/users/${Id}/profile`,
         data: undefined,
         response: Users.Profile
     }
     | {
         // Fetch all your DM conversations.
         method: 'GET',
-        route: '/users/dms',
+        route: `/users/dms`,
         data: undefined,
         response: (Channels.DirectMessageChannel | Channels.GroupChannel)[]
     }
     | {
         // Open a DM with another user.
         method: 'GET',
-        route: '/users/:id/dm',
+        route: `/users/${Id}/dm`,
         data: undefined,
         response: Channels.DirectMessageChannel
     }
     | {
         // Fetch all of your relationships with other users.
         method: 'GET',
-        route: '/users/relationships',
+        route: `/users/relationships`,
         data: undefined,
         response: Users.Relationships
     }
     | {
         // Fetch your relationship with another other user.
         method: 'GET',
-        route: '/users/:id/relationship',
+        route: `/users/${Id}/relationship`,
         data: undefined,
         response: {
             status: Users.Relationship
@@ -217,7 +217,7 @@ type Routes =
     | {
         // Fetch your mutual relationships with another user.
         method: 'GET',
-        route: '/users/:id/mutual',
+        route: `/users/${Id}/mutual`,
         data: undefined,
         response: {
             users: string[]
@@ -226,7 +226,7 @@ type Routes =
     | {
         // Send a friend request / accept a friend request.
         method: 'PUT',
-        route: '/users/:id/friend',
+        route: `/users/${Id}/friend`,
         data: undefined,
         response: {
             status: Users.Relationship
@@ -235,7 +235,7 @@ type Routes =
     | {
         // Delete a friend request / remove a friend.
         method: 'DELETE',
-        route: '/users/:id/friend',
+        route: `/users/${Id}/friend`,
         data: undefined,
         response: {
             status: Users.Relationship
@@ -244,7 +244,7 @@ type Routes =
     | {
         // Block a user.
         method: 'PUT',
-        route: '/users/:id/block',
+        route: `/users/${Id}/block`,
         data: undefined,
         response: {
             status: Users.Relationship
@@ -253,7 +253,7 @@ type Routes =
     | {
         // Unblock a user.
         method: 'DELETE',
-        route: '/users/:id/block',
+        route: `/users/${Id}/block`,
         data: undefined,
         response: {
             status: Users.Relationship
@@ -262,14 +262,14 @@ type Routes =
     | {
         // Fetch a user's avatar.
         method: 'GET',
-        route: '/users/:id/avatar',
+        route: `/users/${Id}/avatar`,
         data: undefined,
         response: any
     }
     | {
         // Fetch default avatar for user.
         method: 'GET',
-        route: '/users/:id/default_avatar',
+        route: `/users/${Id}/default_avatar`,
         data: undefined,
         response: any
     }
@@ -279,14 +279,14 @@ type Routes =
     | {
         // Fetch a channel by ID.
         method: 'GET',
-        route: '/channels/:id',
+        route: `/channels/${Id}`,
         data: undefined,
         response: Channels.Channel
     }
     | {
         // Edit a group channel.
         method: 'PATCH',
-        route: '/channels/:id',
+        route: `/channels/${Id}`,
         data: {
             name?: string,
             description?: string
@@ -296,14 +296,14 @@ type Routes =
     | {
         // Close DM channel or leave group channel.
         method: 'DELETE',
-        route: '/channels/:id',
+        route: `/channels/${Id}`,
         data: undefined,
         response: undefined
     }
     | {
         // Close DM channel or leave group channel.
         method: 'POST',
-        route: '/channels/create',
+        route: `/channels/create`,
         data: {
             name: string,
             description?: string,
@@ -315,14 +315,14 @@ type Routes =
     | {
         // Add member to group.
         method: 'PUT',
-        route: '/channels/:id/recipients/:id',
+        route: `/channels/${Id}/recipients/${Id}`,
         data: undefined,
         response: undefined
     }
     | {
         // Remove member from group.
         method: 'DELETE',
-        route: '/channels/:id/recipients/:id',
+        route: `/channels/${Id}/recipients/${Id}`,
         data: undefined,
         response: undefined
     }
@@ -332,7 +332,7 @@ type Routes =
     | {
         // Send message to channel.
         method: 'POST',
-        route: '/channels/:id/messages',
+        route: `/channels/${Id}/messages`,
         data: {
             content: string,
             nonce: string,
@@ -343,14 +343,14 @@ type Routes =
     | {
         // Fetch message from channel.
         method: 'GET',
-        route: '/channels/:id/messages/:id',
+        route: `/channels/${Id}/messages/${Id}`,
         data: undefined,
         response: Channels.Message
     }
     | {
         // Query messages from channel.
         method: 'GET',
-        route: '/channels/:id/messages',
+        route: `/channels/${Id}/messages`,
         data: {
             limit?: number,
             before?: string,
@@ -361,7 +361,7 @@ type Routes =
     | {
         // Query updated messages from channel.
         method: 'POST',
-        route: '/channels/:id/messages/stale',
+        route: `/channels/${Id}/messages/stale`,
         data: {
             ids: string[]
         },
@@ -373,7 +373,7 @@ type Routes =
     | {
         // Edit message.
         method: 'PATCH',
-        route: '/channels/:id/messages/:id',
+        route: `/channels/${Id}/messages/:id`,
         data: {
             content: string
         },
@@ -382,7 +382,7 @@ type Routes =
     | {
         // Delete message.
         method: 'DELETE',
-        route: '/channels/:id/messages/:id',
+        route: `/channels/${Id}/messages/:id`,
         data: undefined,
         response: undefined
     } |
@@ -391,7 +391,7 @@ type Routes =
      */
     {
         method: 'POST',
-        route: '/push/subscribe',
+        route: `/push/subscribe`,
         data: {
             endpoint: string,
             p256dh: string,
@@ -401,7 +401,7 @@ type Routes =
     } |
     {
         method: 'POST',
-        route: '/push/unsubscribe',
+        route: `/push/unsubscribe`,
         data: undefined,
         response: undefined
     } |
@@ -411,7 +411,7 @@ type Routes =
     {
         // Join voice call for channel.
         method: 'POST',
-        route: '/channels/:id/join_call',
+        route: `/channels/${Id}/join_call`,
         data: undefined,
         response: {
             token: string

@@ -25,7 +25,7 @@ export default class Channels extends Collection<Channel> {
 
     async fetchMutable(id: string) {
         if (this.map[id]) return this.get(id) as Channel;
-        let res = await this.client.req<'GET', '/channels/:id'>('GET', `/channels/${id}` as any);
+        let res = await this.client.req('GET', `/channels/${id}` as '/channels/id');
 
         // Fetch user information if this is the first time we are seeing this object.
         // We shouldn't need to fetch for anything apart from groups.
@@ -43,10 +43,10 @@ export default class Channels extends Collection<Channel> {
         return await this.fetchMutable(id) as Readonly<Channel>;
     }
 
-    async edit(id: string, data: Route<'PATCH', '/channels/:id'>["data"]) {
+    async edit(id: string, data: Route<'PATCH', '/channels/id'>["data"]) {
         let channel = this.getThrow(id);
         if (channel.channel_type !== 'Group') throw "Channel is not group channel.";
-        await this.client.req<'PATCH', '/channels/:id'>('PATCH', `/channels/${id}` as any, data);
+        await this.client.req('PATCH', `/channels/${id}` as '/channels/id', data);
         
         if (data.name) channel.name = data.name;
         if (data.description) channel.description = data.description;
@@ -56,7 +56,7 @@ export default class Channels extends Collection<Channel> {
         let channel = this.getMutable(id);
         if (channel?.channel_type === 'SavedMessages') throw "Cannot delete Saved Messages.";
         if (!avoidRequest)
-            await this.client.req<'DELETE', '/channels/:id'>('DELETE', `/channels/${id}` as any);
+            await this.client.req('DELETE', `/channels/${id}` as '/channels/id');
         
         if (channel?.channel_type === 'DirectMessage') {
             channel.active = false;
@@ -74,7 +74,7 @@ export default class Channels extends Collection<Channel> {
     async addMember(id: string, user_id: string) {
         let channel = this.getThrow(id);
         if (channel.channel_type !== 'Group') throw "Channel is not group channel.";
-        await this.client.req<'PUT', '/channels/:id/recipients/:id'>('PUT', `/channels/${id}/recipients/${user_id}` as any);
+        await this.client.req('PUT', `/channels/${id}/recipients/${user_id}` as '/channels/id/recipients/id');
         channel.recipients = [
             ...channel.recipients.filter(user => user !== user_id),
             user_id
@@ -84,19 +84,19 @@ export default class Channels extends Collection<Channel> {
     async removeMember(id: string, user_id: string) {
         let channel = this.getThrow(id);
         if (channel.channel_type !== 'Group') throw "Channel is not group channel.";
-        await this.client.req<'DELETE', '/channels/:id/recipients/:id'>('DELETE', `/channels/${id}/recipients/${user_id}` as any);
+        await this.client.req('DELETE', `/channels/${id}/recipients/${user_id}` as '/channels/id/recipients/id');
         channel.recipients = channel.recipients
             .filter(user => user !== user_id);
     }
 
-    async sendMessage(id: string, data: string | (Omit<Route<'POST', '/channels/:id/messages'>["data"], 'nonce'> & { nonce?: string })) {
-        let msg: Route<'POST', '/channels/:id/messages'>["data"] = {
+    async sendMessage(id: string, data: string | (Omit<Route<'POST', '/channels/id/messages'>["data"], 'nonce'> & { nonce?: string })) {
+        let msg: Route<'POST', '/channels/id/messages'>["data"] = {
             nonce: ulid(),
             ...(typeof data === 'string' ? { content: data } : data)
         };
 
         this.getThrow(id);
-        let message = await this.client.req<'POST', '/channels/:id/messages'>('POST', `/channels/${id}/messages` as any, msg);
+        let message = await this.client.req('POST', `/channels/${id}/messages` as '/channels/id/messages', msg);
         if (!this.client.messages.includes(id)) {
             this.client.messages.push(id);
             this.client.emit('message', message);
@@ -105,28 +105,28 @@ export default class Channels extends Collection<Channel> {
     }
 
     async fetchMessage(id: string, message_id: string) {
-        return await this.client.req<'GET', '/channels/:id/messages/:id'>('GET', `/channels/${id}/messages/${message_id}` as any);
+        return await this.client.req('GET', `/channels/${id}/messages/${message_id}` as '/channels/id/messages/id');
     }
 
-    async fetchMessages(id: string, params: Route<'GET', '/channels/:id/messages'>["data"]) {
-        return await this.client.request<'GET', '/channels/:id/messages'>('GET', `/channels/${id}/messages` as any, { params });
+    async fetchMessages(id: string, params: Route<'GET', '/channels/id/messages'>["data"]) {
+        return await this.client.request('GET', `/channels/${id}/messages` as '/channels/id/messages', { params });
     }
 
     async fetchStale(id: string, ids: string[]) {
-        return await this.client.req<'POST', '/channels/:id/messages/stale'>('POST', `/channels/${id}/messages/stale` as any, { ids });
+        return await this.client.req('POST', `/channels/${id}/messages/stale` as '/channels/id/messages/stale', { ids });
     }
 
-    async editMessage(id: string, message_id: string, data: Route<'PATCH', '/channels/:id/messages/:id'>["data"]) {
-        await this.client.req<'PATCH', '/channels/:id/messages/:id'>('PATCH', `/channels/${id}/messages/${message_id}` as any, data);
+    async editMessage(id: string, message_id: string, data: Route<'PATCH', '/channels/id/messages/id'>["data"]) {
+        await this.client.req('PATCH', `/channels/${id}/messages/${message_id}` as '/channels/id/messages/id', data);
         this.client.emit('message/edit', message_id, data);
     }
 
     async deleteMessage(id: string, message_id: string) {
-        await this.client.req<'DELETE', '/channels/:id/messages/:id'>('DELETE', `/channels/${id}/messages/${message_id}` as any);
+        await this.client.req('DELETE', `/channels/${id}/messages/${message_id}` as '/channels/id/messages/id');
         this.client.emit('message/delete', message_id);
     }
 
     async joinCall(id: string) {
-        return await this.client.req<'POST', '/channels/:id/join_call'>('POST', `/channels/${id}/join_call` as any);
+        return await this.client.req('POST', `/channels/${id}/join_call` as '/channels/id/join_call');
     }
 }
