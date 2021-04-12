@@ -12,6 +12,9 @@ import Channels from './maps/Channels';
 import { Db } from '@insertish/zangodb';
 import { ClientboundNotification } from './websocket/notifications';
 
+/**
+ * Client options object
+ */
 export interface ClientOptions {
     apiURL: string
     autoReconnect: boolean
@@ -22,20 +25,41 @@ export interface ClientOptions {
 
 export declare interface Client {
 	// WebSocket related events.
+
+    // Event that gets fired on a successful WebSocket connection.
 	on(event: 'connected', listener: () => void): this;
+    // Event that gets fired when the WebSocket connection is pending connection.
 	on(event: 'connecting', listener: () => void): this;
+    // Event that gets fired when the WebSocket connection is dropped.
     on(event: 'dropped', listener: () => void): this;
+    // Event that gets fired when the WebSocket connection is ready.
     on(event: 'ready', listener: () => void): this;
+    // Event that gets fired on a new clientbound packet.
     on(event: 'packet', listener: (packet: ClientboundNotification) => void): this;
 
     // Message events.
+
+    // Event that gets fired on a new message.
     on(event: 'message', listener: (message: Message) => void): this;
+    // Event that gets fired on an update (for example, edit) of a message.
     on(event: 'message/update', listener: (id: string, patch: Partial<Message>) => void): this;
+    // Event that gets fired on the deletion of a message.
     on(event: 'message/delete', listener: (id: string) => void): this;
 }
 
+/**
+ * The user ID for system users.
+ */
 export const SYSTEM_USER_ID = '00000000000000000000000000';
+
+/**
+ * Regular expression for mentions.
+ */
 export const RE_MENTIONS = /<@([A-z0-9]{26})>/g;
+
+/**
+ * Regular expression for spoilers.
+ */
 export const RE_SPOILER = /!!.+!!/g;
 
 export class Client extends EventEmitter {
@@ -100,6 +124,10 @@ export class Client extends EventEmitter {
         });
     }
 
+    /**
+     * Restore users, channels, set the system user and specify the current user.
+     * @param user_id Current user ID
+     */
     async restore(user_id?: string) {
         await this.users.restore(user => { return { ...user, online: false } });
         await this.channels.restore();
@@ -126,6 +154,11 @@ export class Client extends EventEmitter {
         return this.options.autoReconnect;
     }
 
+    /**
+     * Retrieve a collectio by name if the database is initialized.
+     * @param col Collection name
+     * @returns The collection
+     */
     collection(col: string) {
         if (this.db) {
             return this.db.collection(col);
@@ -139,6 +172,13 @@ export class Client extends EventEmitter {
     req<M extends RouteMethod, T extends RoutePath>(method: M, url: T): Promise<Route<M, T>["response"]>;
     req<M extends RouteMethod, T extends RoutePath>(method: M, url: T, data: Route<M, T>["data"]): Promise<Route<M, T>["response"]>;
 
+    /**
+     * Perform an HTTP request using Axios, specifying a route data object.
+     * @param method HTTP method
+     * @param url Target route
+     * @param data Route data object
+     * @returns The response body
+     */
     async req<M extends RouteMethod, T extends RoutePath>(method: M, url: T, data?: Route<M, T>["data"]): Promise<Route<M, T>["response"]> {
         let res = await this.Axios.request({
             method,
@@ -149,6 +189,13 @@ export class Client extends EventEmitter {
         return res.data;
     }
 
+    /**
+     * Perform an HTTP request using Axios, specifying a request config.
+     * @param method HTTP method
+     * @param url Target route
+     * @param data Axios request config object
+     * @returns The response body
+     */
     async request<M extends RouteMethod, T extends RoutePath>(method: M, url: T, data: AxiosRequestConfig): Promise<Route<M, T>["response"]> {
         let res = await this.Axios.request({
             ...data,
@@ -163,11 +210,20 @@ export class Client extends EventEmitter {
      * Authentication and connection.
      */
     
-    // Stage 1: Connect to Revolt.
+    /**
+     * Fetches the configuration of the server.
+     * 
+     * @remarks
+     * Unlike `fetchConfiguration`, this function also fetches the
+     * configuration if it has already been fetched before.
+     */
     async connect() {
         this.configuration = await this.req('GET', '/');
     }
 
+    /**
+     * Fetches the configuration of the server if it has not been already fetched.
+     */
     async fetchConfiguration() {
         if (!this.configuration)
             await this.connect();
@@ -180,7 +236,11 @@ export class Client extends EventEmitter {
         }
     }
 
-    // Login to Revolt.
+    /**
+     * Log in with auth data, creating a new session in the process.
+     * @param details Login data object
+     * @returns An onboarding function if onboarding is required, undefined otherwise
+     */
     async login(details: Route<'POST', '/auth/login'>["data"]) {
         this.fetchConfiguration();
         this.session = await this.req('POST', '/auth/login', details);
@@ -188,7 +248,11 @@ export class Client extends EventEmitter {
         return await this.$connect();
     }
 
-    // Use an existing session to log into Revolt.
+    /**
+     * Use an existing session to log into REVOLT.
+     * @param session Session data object
+     * @returns An onboarding function if onboarding is required, undefined otherwise
+     */
     async useExistingSession(session: Auth.Session) {
         this.fetchConfiguration();
         await this.request('GET', '/auth/check', { headers: this.$generateHeaders(session) });
@@ -208,7 +272,11 @@ export class Client extends EventEmitter {
         await this.websocket.connect();
     }
 
-    // Complete onboarding if required.
+    /**
+     * Finish onboarding for a user, for example by providing a username.
+     * @param data Onboarding data object
+     * @param loginAfterSuccess Defines whether to automatically log in and connect after onboarding finishes
+     */
     async completeOnboarding(data: Route<'POST', '/onboard/complete'>["data"], loginAfterSuccess?: boolean) {
         await this.req('POST', '/onboard/complete', data);
         if (loginAfterSuccess) {
@@ -219,12 +287,20 @@ export class Client extends EventEmitter {
     /**
      * Utility functions.
      */
+
+    /**
+     * Log out of REVOLT. Disconnect the WebSocket, request a session invalidation and reset the client.
+     */
     async logout() {
         this.websocket.disconnect();
         await this.req('GET', '/auth/logout');
         this.reset();
     }
 
+    /**
+     * Reset the client by setting properties to their original value or deleting them entirely.
+     * Disconnects the current WebSocket.
+     */
     reset() {
         this.websocket.disconnect();
         delete this.user;
@@ -235,10 +311,21 @@ export class Client extends EventEmitter {
         this.channels = new Channels(this);
     }
 
+    /**
+     * Register for a new account.
+     * @param apiURL Base URL for the API of the server, such as https://api.revolt.example
+     * @param data Registration data object
+     * @returns A promise containing a registration response object
+     */
     register(apiURL: string, data: Route<'POST', '/auth/create'>["data"]) {
         return this.request('POST', '/auth/create', { data, baseURL: apiURL });
     }
 
+    /**
+     * Prepare a markdown-based message to be displayed to the user as plain text.
+     * @param source Source markdown text
+     * @returns Modified plain text
+     */
     markdownToText(source: string) {
         return source
         .replace(
