@@ -20,6 +20,9 @@ export class WebSocketClient {
         this.ready = false;
     }
 
+    /**
+     * Disconnect the WebSocket and disable heartbeats.
+     */
     disconnect() {
         clearInterval(this.heartbeat);
         this.connected = false;
@@ -30,6 +33,10 @@ export class WebSocketClient {
         }
     }
 
+    /**
+     * Send a notification
+     * @param notification Serverbound notification
+     */
     send(notification: ServerboundNotification) {
         if (typeof this.ws === 'undefined' || this.ws.readyState !== WebSocket.OPEN) return;
 
@@ -38,6 +45,10 @@ export class WebSocketClient {
         this.ws.send(data);
     }
 
+    /**
+     * Connect the WebSocket
+     * @param disallowReconnect Whether to disallow reconnection
+     */
     connect(disallowReconnect?: boolean): Promise<void> {
         this.client.emit('connecting');
 
