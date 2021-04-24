@@ -99,6 +99,7 @@ export namespace Channels {
 
     export type Metadata = (
         { type: 'File' } |
+        { type: 'Text' } |
         { type: 'Audio' } |
         { type: 'Image', width: number, height: number } |
         { type: 'Video', width: number, height: number }
@@ -106,9 +107,11 @@ export namespace Channels {
 
     export type Attachment = {
         _id: string,
+        tag: string,
+        size: string,
         filename: string,
         metadata: Metadata,
-        content_type: string
+        content_type: string,
     };
 
     export type Message = {

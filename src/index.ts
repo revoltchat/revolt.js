@@ -1,7 +1,7 @@
 export * from './Client';
 export { Channel, User, Message } from './api/objects';
 
-export const LIBRARY_VERSION = '4.1.1-alpha.5-patch.0';
+export const LIBRARY_VERSION = '4.1.1-alpha.6';
 
 export const defaultConfig = {
     apiURL: 'https://api.revolt.chat',
