@@ -133,14 +133,6 @@ export default class Users extends Collection<User> {
     }
 
     /**
-     * Get the avatar URL of a user
-     * @param id ID of the target user
-     */
-    getAvatarURL(id: string) {
-        return `${this.client.apiURL}/users/${id}/avatar`;
-    }
-
-    /**
      * Get the default avatar URL of a user
      * @param id ID of the target user
      */

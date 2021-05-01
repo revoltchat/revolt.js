@@ -8,9 +8,20 @@ export namespace Core {
                 key: string,
             },
             email: boolean,
-            invite_only: string
+            invite_only: string,
+            autumn: {
+                enabled: boolean,
+                url: string
+            },
+            voso: {
+                enabled: boolean,
+                url: string,
+                ws: string
+            }
         },
-        ws: string
+        ws: string,
+        app: string,
+        vapid: string
     }
 }
 
@@ -21,6 +32,22 @@ export namespace Auth {
         session_token: string
     }
 }
+export type Metadata = (
+    { type: 'File' } |
+    { type: 'Text' } |
+    { type: 'Audio' } |
+    { type: 'Image', width: number, height: number } |
+    { type: 'Video', width: number, height: number }
+);
+
+export type Attachment = {
+    _id: string,
+    tag: string,
+    size: string,
+    filename: string,
+    metadata: Metadata,
+    content_type: string,
+};
 
 export namespace Users {
     export enum Relationship {
@@ -50,6 +77,7 @@ export namespace Users {
     export interface User {
         _id: string,
         username: string,
+        avatar?: Attachment,
         relations?: Relationships,
 
         badges?: number,
@@ -96,23 +124,6 @@ export namespace Channels {
     }
 
     export type Channel = (SavedMessagesChannel | DirectMessageChannel | GroupChannel)
-
-    export type Metadata = (
-        { type: 'File' } |
-        { type: 'Text' } |
-        { type: 'Audio' } |
-        { type: 'Image', width: number, height: number } |
-        { type: 'Video', width: number, height: number }
-    );
-
-    export type Attachment = {
-        _id: string,
-        tag: string,
-        size: string,
-        filename: string,
-        metadata: Metadata,
-        content_type: string,
-    };
 
     export type Message = {
         _id: string,
