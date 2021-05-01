@@ -175,8 +175,7 @@ export class WebSocketClient {
 
                     case 'UserUpdate': this.client.users.patch(packet.id, packet.data); break;
                     case 'UserRelationship': {
-                        let user = await this.client.users.fetchMutable(packet.user);
-                        user.relationship = packet.status;
+                        this.client.users.set(packet.user);
                         break;
                     }
                     case 'UserPresence': {
