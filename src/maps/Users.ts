@@ -133,6 +133,19 @@ export default class Users extends Collection<User> {
     }
 
     /**
+     * Get the avatar URL of a user
+     * @param id ID of the target user
+     */
+    getAvatarURL(id: string) {
+        let attachment_id = this.getMutable(id)?.avatar?._id;
+        if (attachment_id) {
+            return `${this.client.configuration?.features.autumn.url}/avatars/${attachment_id}`;
+        } else {
+            return this.getDefaultAvatarURL(id);
+        }
+    }
+
+    /**
      * Get the default avatar URL of a user
      * @param id ID of the target user
      */
