@@ -163,7 +163,11 @@ type Routes =
         route: `/users/${Id}`,
         data: {
             status?: Users.Status,
-            profile?: Users.Profile
+            profile?: {
+                content?: string,
+                background?: string
+            },
+            avatar?: string
         },
         response: undefined
     }

@@ -1,5 +1,5 @@
 import Collection from './Collection';
-import { User } from '../api/objects';
+import { User, Users as UsersI } from '../api/objects';
 import { Client } from '..';
 import { Route } from '../api/routes';
 
@@ -135,8 +135,9 @@ export default class Users extends Collection<User> {
     /**
      * Get the avatar URL of a user
      * @param id ID of the target user
+     * @param size Size to resize image to
      */
-    getAvatarURL(id: string, size: number) {
+    getAvatarURL(id: string, size?: number) {
         let url = this.client.configuration?.features.autumn.url;
         let attachment_id = this.getMutable(id)?.avatar?._id;
         if (url && attachment_id) {
@@ -152,5 +153,18 @@ export default class Users extends Collection<User> {
      */
     getDefaultAvatarURL(id: string) {
         return `${this.client.apiURL}/users/${id}/default_avatar`;
+    }
+
+    /**
+     * Get the background URL of a user
+     * @param profile Profile to use
+     * @param width Horizontal width to resize the image to
+     */
+    getBackgroundURL(profile: UsersI.Profile, width?: number) {
+        let url = this.client.configuration?.features.autumn.url;
+        let attachment_id = profile?.background?._id;
+        if (url && attachment_id) {
+            return `${url}/backgrounds/${attachment_id}` + (width ? `?width=${width}` : undefined);;
+        }
     }
 }

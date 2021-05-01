@@ -215,4 +215,20 @@ export default class Channels extends Collection<Channel> {
     async joinCall(id: string) {
         return await this.client.req('POST', `/channels/${id}/join_call` as '/channels/id/join_call');
     }
+
+    /**
+     * Get the icon URL of a channel
+     * @param id ID of the target channel
+     * @param size Size to resize image to
+     */
+    getIconURL(id: string, size?: number) {
+        let url = this.client.configuration?.features.autumn.url;
+        let channel = this.getMutable(id);
+        if (url && channel?.channel_type === 'Group') {
+            let attachment_id = channel.icon?._id;
+            if (attachment_id) {
+                return `${url}/icons/${attachment_id}` + (size ? `?size=${size}` : undefined);
+            }
+        }
+    }
 }

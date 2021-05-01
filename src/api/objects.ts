@@ -88,7 +88,8 @@ export namespace Users {
     }
 
     export interface Profile {
-        content?: string
+        content?: string,
+        background?: Attachment
     }
 }
 
@@ -120,7 +121,8 @@ export namespace Channels {
         name: string,
         owner: string,
         description: string,
-        last_message: LastMessage
+        last_message: LastMessage,
+        icon?: Attachment
     }
 
     export type Channel = (SavedMessagesChannel | DirectMessageChannel | GroupChannel)
