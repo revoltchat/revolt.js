@@ -175,7 +175,7 @@ export class WebSocketClient {
 
                     case 'UserUpdate': this.client.users.patch(packet.id, packet.data); break;
                     case 'UserRelationship': {
-                        this.client.users.set(packet.user);
+                        this.client.users.setOverride(packet.user);
                         break;
                     }
                     case 'UserPresence': {

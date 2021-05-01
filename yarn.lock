@@ -2,30 +2,19 @@
 # yarn lockfile v1
 
 
-"@insertish/mutable@1.0.3":
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/@insertish/mutable/-/mutable-1.0.3.tgz#422c250c323f99f8dedbc88568fa905789cc5120"
-  integrity sha512-DDNdqs4r0KgdUxNFGlHDYVkyam27KsqEq+WQUNQA0+XA2g+VhowMmHjVA7Kxf70ONhhoE2R9XL4I4YMbxp43Dw==
+"@insertish/mutable@^1.0.5":
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/@insertish/mutable/-/mutable-1.0.5.tgz#7af874a1f2952997f636ae820ef480a0f4a1dbda"
+  integrity sha512-FsGJLuFA0Nt8WWOZCKwJ2URXYP3QrebEIqwIGGdxX9UInVodVA5DQHekLVSLAufeEXvp+aiL/hXD5oE7h8Z5Tw==
   dependencies:
-    "@insertish/zangodb" "1.0.11"
+    "@insertish/zangodb" "^1.0.12"
     eventemitter3 "^4.0.7"
     lodash.isequal "^4.5.0"
 
-"@insertish/zangodb@1.0.10-patch.0":
-  version "1.0.10-patch.0"
-  resolved "https://registry.yarnpkg.com/@insertish/zangodb/-/zangodb-1.0.10-patch.0.tgz#65bc27316b33f46e0cd414e40cd6a2909e8fe562"
-  integrity sha512-o6fEynGz/QMEIv/eZLmmzDaeJljGPq14XdrHQoNfKxNp53KkbGF6j+vIwQtNF+6osgXKBSC+BgeVEvFBN84QjA==
-  dependencies:
-    clone "^2.1.2"
-    deepmerge "^4.2.2"
-    memoizee "^0.4.15"
-    object-hash "^2.1.1"
-    q "^1.5.1"
-
-"@insertish/zangodb@1.0.11":
-  version "1.0.11"
-  resolved "https://registry.yarnpkg.com/@insertish/zangodb/-/zangodb-1.0.11.tgz#96893f649b393fd28844c1bbd30b1ecc5aff6fee"
-  integrity sha512-ubHJQC1+2pBlsUqJFDtFnhqXfHxEoXS4zZIllVe3EQhfe/wvNjtL48peE6dE7nkKos6a1Dan831aldJeltIbuA==
+"@insertish/zangodb@1.0.12", "@insertish/zangodb@^1.0.12":
+  version "1.0.12"
+  resolved "https://registry.yarnpkg.com/@insertish/zangodb/-/zangodb-1.0.12.tgz#25264ec065720fa43c7549ec7245e4f3839cb0ea"
+  integrity sha512-JlLI12Xqt1xvv/p2/AHs163ZYMZsB3sJyjB8yaAs6QcG0tyRBTIyxV5ISEAkAPo5kzlFza5z5oH82yQe/qw5RQ==
   dependencies:
     clone "^2.1.2"
     deepmerge "^4.2.2"
