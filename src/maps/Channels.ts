@@ -227,7 +227,7 @@ export default class Channels extends Collection<Channel> {
         if (url && channel?.channel_type === 'Group') {
             let attachment_id = channel.icon?._id;
             if (attachment_id) {
-                return `${url}/icons/${attachment_id}` + (size ? `?size=${size}` : undefined);
+                return `${url}/icons/${attachment_id}` + (size ? `?size=${size}` : '');
             }
         }
     }

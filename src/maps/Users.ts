@@ -141,7 +141,7 @@ export default class Users extends Collection<User> {
         let url = this.client.configuration?.features.autumn.url;
         let attachment_id = this.getMutable(id)?.avatar?._id;
         if (url && attachment_id) {
-            return `${url}/avatars/${attachment_id}` + (size ? `?size=${size}` : undefined);
+            return `${url}/avatars/${attachment_id}` + (size ? `?size=${size}` : '');
         } else {
             return this.getDefaultAvatarURL(id);
         }
@@ -164,7 +164,7 @@ export default class Users extends Collection<User> {
         let url = this.client.configuration?.features.autumn.url;
         let attachment_id = profile?.background?._id;
         if (url && attachment_id) {
-            return `${url}/backgrounds/${attachment_id}` + (width ? `?width=${width}` : undefined);;
+            return `${url}/backgrounds/${attachment_id}` + (width ? `?width=${width}` : '');
         }
     }
 }
