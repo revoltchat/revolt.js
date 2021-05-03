@@ -137,11 +137,16 @@ export default class Users extends Collection<User> {
      * @param id ID of the target user
      * @param size Size to resize image to
      */
-    getAvatarURL(id: string, size?: number) {
+    getAvatarURL(id: string, size?: number, allowAnimation?: boolean) {
         let url = this.client.configuration?.features.autumn.url;
-        let attachment_id = this.getMutable(id)?.avatar?._id;
-        if (url && attachment_id) {
-            return `${url}/avatars/${attachment_id}` + (size ? `?size=${size}` : '');
+        let attachment = this.getMutable(id)?.avatar;
+        if (url && attachment) {
+            let baseURL = `${url}/avatars/${attachment._id}`;
+            if (allowAnimation && attachment.content_type === 'image/gif') {
+                return baseURL;
+            } else {
+                return baseURL + (size ? `?size=${size}` : '');
+            }
         } else {
             return this.getDefaultAvatarURL(id);
         }
@@ -160,11 +165,16 @@ export default class Users extends Collection<User> {
      * @param profile Profile to use
      * @param width Horizontal width to resize the image to
      */
-    getBackgroundURL(profile: UsersI.Profile, width?: number) {
+    getBackgroundURL(profile: UsersI.Profile, width?: number, allowAnimation?: boolean) {
         let url = this.client.configuration?.features.autumn.url;
-        let attachment_id = profile?.background?._id;
-        if (url && attachment_id) {
-            return `${url}/backgrounds/${attachment_id}` + (width ? `?width=${width}` : '');
+        let attachment = profile?.background;
+        if (url && attachment) {
+            let baseURL = `${url}/backgrounds/${attachment._id}`;
+            if (allowAnimation && attachment.content_type === 'image/gif') {
+                return baseURL;
+            } else {
+                return baseURL + (width ? `?width=${width}` : '');
+            }
         }
     }
 }

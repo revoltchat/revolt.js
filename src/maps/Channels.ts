@@ -221,13 +221,18 @@ export default class Channels extends Collection<Channel> {
      * @param id ID of the target channel
      * @param size Size to resize image to
      */
-    getIconURL(id: string, size?: number) {
+    getIconURL(id: string, size?: number, allowAnimation?: boolean) {
         let url = this.client.configuration?.features.autumn.url;
         let channel = this.getMutable(id);
         if (url && channel?.channel_type === 'Group') {
-            let attachment_id = channel.icon?._id;
-            if (attachment_id) {
-                return `${url}/icons/${attachment_id}` + (size ? `?size=${size}` : '');
+            let attachment = channel.icon;
+            if (attachment) {
+                let baseURL = `${url}/icons/${attachment._id}`;
+                if (allowAnimation && attachment.content_type === 'image/gif') {
+                    return baseURL;
+                } else {
+                    return baseURL + (size ? `?size=${size}` : '');
+                }
             }
         }
     }
