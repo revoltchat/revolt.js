@@ -98,7 +98,7 @@ export class WebSocketClient {
                     }
                     case 'Ready': {
                         for (let user of packet.users) {
-                            this.client.users.set(user);
+                            this.client.users.setOverride(user);
                         }
 
                         // INFO:
@@ -108,7 +108,7 @@ export class WebSocketClient {
 
                         this.client.channels.clear();
                         for (let channel of packet.channels) {
-                            this.client.channels.set(channel);
+                            this.client.channels.setOverride(channel);
                         }
 
                         this.client.emit('ready');
@@ -151,7 +151,19 @@ export class WebSocketClient {
                     case 'MessageDelete': this.client.emit('message/delete', packet.id); break;
 
                     case 'ChannelCreate': this.client.channels.set(packet); break;
-                    case 'ChannelUpdate': this.client.channels.patch(packet.id, packet.data); break;
+                    case 'ChannelUpdate': {
+                        if (packet.clear) {
+                            let channel = this.client.channels.getMutable(packet.id);
+                            if (channel?.channel_type === 'Group') {
+                                switch (packet.clear) {
+                                    case 'Icon': delete channel.icon; break;
+                                }
+                            }
+                        }
+
+                        this.client.channels.patch(packet.id, packet.data);
+                        break;
+                    }
                     case 'ChannelGroupJoin': {
                         let channel = await this.client.channels.fetchMutable(packet.id);
                         if (channel.channel_type !== 'Group') throw "Not a group channel.";
@@ -173,7 +185,20 @@ export class WebSocketClient {
                     }
                     case 'ChannelDelete': this.client.channels.delete(packet.id, true); break;
 
-                    case 'UserUpdate': this.client.users.patch(packet.id, packet.data); break;
+                    case 'UserUpdate': {
+                        if (packet.clear) {
+                            let user = this.client.users.getMutable(packet.id);
+                            if (user) {
+                                switch (packet.clear) {
+                                    case 'Avatar': delete user.avatar; break;
+                                    case 'StatusText': delete user.status?.text; break;
+                                }
+                            }
+                        }
+
+                        this.client.users.patch(packet.id, packet.data);
+                        break;
+                    }
                     case 'UserRelationship': {
                         this.client.users.setOverride(packet.user);
                         break;

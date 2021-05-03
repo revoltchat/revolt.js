@@ -1,4 +1,5 @@
 import { Auth, Channels, Users } from '../api/objects';
+import { RemoveChannelField, RemoveUserField } from '../api/routes';
 
 type WebSocketError = {
     error: 'InternalError' | 'InvalidSession' | 'OnboardingNotFinished' | 'AlreadyAuthenticated'
@@ -24,14 +25,14 @@ export type ClientboundNotification = (
     ({ type: 'MessageDelete', id: string }) |
 
     ({ type: 'ChannelCreate' } & Channels.Channel) |
-    ({ type: 'ChannelUpdate', id: string, data: Partial<Channels.Channel> }) |
+    ({ type: 'ChannelUpdate', id: string, data: Partial<Channels.Channel>, clear?: RemoveChannelField }) |
     ({ type: 'ChannelGroupJoin', id: string, user: string }) |
     ({ type: 'ChannelGroupLeave', id: string, user: string }) |
     ({ type: 'ChannelDelete', id: string }) |
     ({ type: 'ChannelStartTyping', id: string, user: string }) |
     ({ type: 'ChannelStopTyping', id: string, user: string }) |
 
-    { type: 'UserUpdate', id: string, data: Partial<Users.User> } |
+    { type: 'UserUpdate', id: string, data: Partial<Users.User>, clear?: RemoveUserField } |
     { type: 'UserRelationship', user: Users.User, status: Users.Relationship } |
     { type: 'UserPresence', id: string, online: boolean }
 )

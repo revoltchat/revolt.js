@@ -1,5 +1,8 @@
 import { Channels, Core, Users } from './objects';
 
+export type RemoveUserField = 'ProfileContent' | 'ProfileBackground' | 'StatusText' | 'Avatar';
+export type RemoveChannelField = 'Icon';
+
 type Id = 'id';
 type Routes =
     /**
@@ -167,7 +170,8 @@ type Routes =
                 content?: string,
                 background?: string
             },
-            avatar?: string
+            avatar?: string,
+            remove?: RemoveUserField
         },
         response: undefined
     }
@@ -293,7 +297,9 @@ type Routes =
         route: `/channels/${Id}`,
         data: {
             name?: string,
-            description?: string
+            description?: string,
+            icon?: string,
+            remove?: RemoveChannelField
         },
         response: undefined
     }
