@@ -153,11 +153,8 @@ export class WebSocketClient {
                     case 'ChannelCreate': this.client.channels.set(packet); break;
                     case 'ChannelUpdate': {
                         if (packet.clear) {
-                            let channel = this.client.channels.getMutable(packet.id);
-                            if (channel?.channel_type === 'Group') {
-                                switch (packet.clear) {
-                                    case 'Icon': delete channel.icon; break;
-                                }
+                            switch (packet.clear) {
+                                case 'Icon': this.client.users.removeField(packet.id, 'icon'); break;
                             }
                         }
 
@@ -187,12 +184,9 @@ export class WebSocketClient {
 
                     case 'UserUpdate': {
                         if (packet.clear) {
-                            let user = this.client.users.getMutable(packet.id);
-                            if (user) {
-                                switch (packet.clear) {
-                                    case 'Avatar': delete user.avatar; break;
-                                    case 'StatusText': delete user.status?.text; break;
-                                }
+                            switch (packet.clear) {
+                                case 'Avatar': this.client.users.removeField(packet.id, 'avatar'); break;
+                                case 'StatusText': this.client.users.removeField(packet.id, 'status', 'text'); break;
                             }
                         }
 
