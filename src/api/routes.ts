@@ -364,7 +364,8 @@ type Routes =
         data: {
             limit?: number,
             before?: string,
-            after?: string
+            after?: string,
+            sort?: 'Latest' | 'Oldest'
         },
         response: Channels.Message[]
     }
