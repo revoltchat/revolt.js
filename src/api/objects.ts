@@ -32,7 +32,7 @@ export namespace Auth {
         session_token: string
     }
 }
-export type Metadata = (
+export type AttachmentMetadata = (
     { type: 'File' } |
     { type: 'Text' } |
     { type: 'Audio' } |
@@ -45,9 +45,29 @@ export type Attachment = {
     tag: string,
     size: string,
     filename: string,
-    metadata: Metadata,
+    metadata: AttachmentMetadata,
     content_type: string,
 };
+
+export type EmbedMedia = {
+    url: string,
+    width: number,
+    height: number,
+    size: 'Large' | 'Preview'
+};
+
+export type Embed = (
+    {
+        type: 'None'
+    } | {
+        type: 'Website',
+        title?: string,
+        description?: string,
+        image?: EmbedMedia
+    } | ({
+        type: 'Image'
+    } & EmbedMedia)
+);
 
 export namespace Users {
     export enum Relationship {
@@ -135,7 +155,8 @@ export namespace Channels {
 
         content: string | SystemMessage,
         attachment?: Attachment,
-        edited?: { $date: string }
+        edited?: { $date: string },
+        embeds?: Embed[]
     }
 
     export type SystemMessage =
