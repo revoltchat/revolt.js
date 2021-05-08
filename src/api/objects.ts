@@ -61,9 +61,14 @@ export type Embed = (
         type: 'None'
     } | {
         type: 'Website',
+        url?: string,
         title?: string,
         description?: string,
-        image?: EmbedMedia
+        image?: EmbedMedia,
+
+        site_name?: string,
+        icon_url?: string,
+        color?: string
     } | ({
         type: 'Image'
     } & EmbedMedia)
