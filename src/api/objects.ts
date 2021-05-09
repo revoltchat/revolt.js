@@ -49,12 +49,27 @@ export type Attachment = {
     content_type: string,
 };
 
-export type EmbedMedia = {
+export type EmbedImage = {
     url: string,
     width: number,
     height: number,
     size: 'Large' | 'Preview'
 };
+
+export type EmbedVideo = {
+    url: string,
+    width: number,
+    height: number
+};
+
+export type EmbedSpecial = (
+    { type: 'None' } |
+    { type: 'YouTube', id: string } |
+    { type: 'Twitch', content_type: 'Channel' | 'Video' | 'Clip', id: string } |
+    { type: 'Spotify', content_type: string, id: string } |
+    { type: 'Soundcloud' } |
+    { type: 'Bandcamp', content_type: 'Album' | 'Track', id: string }
+);
 
 export type Embed = (
     {
@@ -62,16 +77,19 @@ export type Embed = (
     } | {
         type: 'Website',
         url?: string,
+        special?: EmbedSpecial,
+
         title?: string,
         description?: string,
-        image?: EmbedMedia,
+        image?: EmbedImage,
+        video?: EmbedVideo,
 
         site_name?: string,
         icon_url?: string,
         color?: string
     } | ({
         type: 'Image'
-    } & EmbedMedia)
+    } & EmbedImage)
 );
 
 export namespace Users {
