@@ -50,7 +50,7 @@ export default class Channels extends Collection<Channel> {
             if (hasUnknowns) {
                 let members = await this.fetchMembers(id);
                 for (let member of members) {
-                    this.client.users.patch(member._id, member);
+                    this.client.users.set(member);
                 }
             }
         }
