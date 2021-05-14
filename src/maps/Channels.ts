@@ -46,8 +46,12 @@ export default class Channels extends Collection<Channel> {
         // Fetch user information if this is the first time we are seeing this object.
         // We shouldn't need to fetch for anything apart from groups.
         if (res.channel_type === 'Group') {
-            for (let member of res.recipients) {
-                await this.client.users.fetch(member);
+            let hasUnknowns = res.recipients.find(id => typeof this.client.users.get(id) === 'undefined');
+            if (hasUnknowns) {
+                let members = await this.fetchMembers(id);
+                for (let member of members) {
+                    this.client.users.patch(member._id, member);
+                }
             }
         }
 
@@ -62,6 +66,15 @@ export default class Channels extends Collection<Channel> {
      */
     async fetch(id: string) {
         return await this.fetchMutable(id) as Readonly<Channel>;
+    }
+
+    /**
+     * Fetch a channel's members.
+     * @param id Channel ID
+     * @returns An array of the channel's members.
+     */
+    async fetchMembers(id: string) {
+        return await this.client.req('GET', `/channels/${id}/members` as '/channels/id/members');
     }
 
     /**

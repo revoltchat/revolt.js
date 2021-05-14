@@ -13,6 +13,10 @@ export namespace Core {
                 enabled: boolean,
                 url: string
             },
+            january: {
+                enabled: boolean,
+                url: string
+            },
             voso: {
                 enabled: boolean,
                 url: string,
@@ -187,7 +191,9 @@ export namespace Channels {
         | { type: "user_added"; id: string; by: string }
         | { type: "user_remove"; id: string; by: string }
         | { type: "user_left"; id: string }
-        | { type: "channel_renamed"; name: string, by: string };
+        | { type: "channel_renamed"; name: string, by: string }
+        | { type: "channel_description_changed"; by: string }
+        | { type: "channel_icon_changed"; by: string };
 }
 
 export type User = Users.User;

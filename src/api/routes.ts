@@ -292,6 +292,13 @@ type Routes =
         response: Channels.Channel
     }
     | {
+        // Fetch a channel's members by ID.
+        method: 'GET',
+        route: `/channels/${Id}/members`,
+        data: undefined,
+        response: Users.User[]
+    }
+    | {
         // Edit a group channel.
         method: 'PATCH',
         route: `/channels/${Id}`,
