@@ -181,7 +181,7 @@ export namespace Channels {
         author: string,
 
         content: string | SystemMessage,
-        attachment?: Attachment,
+        attachments?: Attachment[],
         edited?: { $date: string },
         embeds?: Embed[]
     }
