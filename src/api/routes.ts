@@ -1,4 +1,4 @@
-import { Channels, Core, Users } from './objects';
+import { Channels, Core, Sync, Users } from './objects';
 
 export type RemoveUserField = 'ProfileContent' | 'ProfileBackground' | 'StatusText' | 'Avatar';
 export type RemoveChannelField = 'Icon';
@@ -434,6 +434,27 @@ type Routes =
         response: {
             token: string
         }
+    } |
+    /**
+     * Sync
+     */
+    {
+        // Fetch user settings.
+        method: 'POST',
+        route: `/sync/settings/fetch`,
+        data: {
+            keys: string[]
+        },
+        response: Sync.UserSettings
+    } |
+    {
+        // Set user settings.
+        method: 'POST',
+        route: `/sync/settings/set`,
+        data: {
+            [key: string]: string
+        },
+        response: undefined
     }
 
 // ? Below are Typescript typings for extracting route data from the object above.

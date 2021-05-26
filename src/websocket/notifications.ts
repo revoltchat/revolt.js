@@ -1,4 +1,4 @@
-import { Auth, Channels, Users } from '../api/objects';
+import { Auth, Channels, Sync, Users } from '../api/objects';
 import { RemoveChannelField, RemoveUserField } from '../api/routes';
 
 type WebSocketError = {
@@ -34,5 +34,6 @@ export type ClientboundNotification = (
 
     { type: 'UserUpdate', id: string, data: Partial<Users.User>, clear?: RemoveUserField } |
     { type: 'UserRelationship', user: Users.User, status: Users.Relationship } |
-    { type: 'UserPresence', id: string, online: boolean }
+    { type: 'UserPresence', id: string, online: boolean } |
+    { type: 'UserSettingsUpdate', id: string, update: Sync.UserSettings }
 )

@@ -196,6 +196,12 @@ export namespace Channels {
         | { type: "channel_icon_changed"; by: string };
 }
 
+export namespace Sync {
+    export type UserSettings = {
+        [key: string]: [ number, string ]
+    }
+}
+
 export type User = Users.User;
 export type Channel = Channels.Channel;
 export type Message = Channels.Message;

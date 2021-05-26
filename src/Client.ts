@@ -139,7 +139,7 @@ export class Client extends EventEmitter {
     }
 
     /**
-     * Configuration.
+     * ? Configuration.
      */
 
     get apiURL() {
@@ -166,7 +166,7 @@ export class Client extends EventEmitter {
     }
 
     /**
-     * Axios request wrapper.
+     * ? Axios request wrapper.
      */
     
     req<M extends RouteMethod, T extends RoutePath>(method: M, url: T): Promise<Route<M, T>["response"]>;
@@ -207,7 +207,7 @@ export class Client extends EventEmitter {
     }
 
     /**
-     * Authentication and connection.
+     * ? Authentication and connection.
      */
     
     /**
@@ -285,7 +285,34 @@ export class Client extends EventEmitter {
     }
 
     /**
-     * Utility functions.
+     * ? Miscellaneous API routes.
+     */
+
+    /**
+     * Fetch user settings for current user.
+     * @param keys Settings keys to fetch, leave blank to fetch full object.
+     * @returns Key-value object of settings.
+     */
+    async syncFetchSettings(keys: string[]) {
+        return await this.req('POST', '/sync/settings/fetch', { keys });
+    }
+
+    /**
+     * Set user settings for current user.
+     * @param data Data to set as an object. Any non-string values will be automatically serialised.
+     */
+    async syncSetSettings(data: { [key: string]: object | string }) {
+        let requestData: { [key: string]: string } = {};
+        for (let key of Object.keys(data)) {
+            let value = data[key];
+            requestData[key] = typeof value === 'string' ? value : JSON.stringify(value);
+        }
+
+        await this.req('POST', '/sync/settings/set', requestData);
+    }
+
+    /**
+     * ? Utility functions.
      */
 
     /**
