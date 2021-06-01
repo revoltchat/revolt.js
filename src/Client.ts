@@ -300,15 +300,17 @@ export class Client extends EventEmitter {
     /**
      * Set user settings for current user.
      * @param data Data to set as an object. Any non-string values will be automatically serialised.
+     * @param timestamp Timestamp to use for the current revision.
      */
-    async syncSetSettings(data: { [key: string]: object | string }) {
+    async syncSetSettings(data: { [key: string]: object | string }, timestamp?: number) {
         let requestData: { [key: string]: string } = {};
         for (let key of Object.keys(data)) {
             let value = data[key];
             requestData[key] = typeof value === 'string' ? value : JSON.stringify(value);
         }
 
-        await this.req('POST', '/sync/settings/set', requestData);
+        let query = timestamp ? `?timestamp=${timestamp}` : '';
+        await this.req('POST', `/sync/settings/set${query}` as '/sync/settings/set', requestData);
     }
 
     /**
