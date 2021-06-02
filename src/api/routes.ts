@@ -1,7 +1,8 @@
-import { Channels, Core, Sync, Users } from './objects';
+import { Channels, Core, Servers, Sync, Users } from './objects';
 
 export type RemoveUserField = 'ProfileContent' | 'ProfileBackground' | 'StatusText' | 'Avatar';
 export type RemoveChannelField = 'Icon';
+export type RemoveServerField = 'Icon' | 'Banner';
 
 type Id = 'id';
 type Routes =
@@ -318,7 +319,7 @@ type Routes =
         response: undefined
     }
     | {
-        // Close DM channel or leave group channel.
+        // Create a group DM.
         method: 'POST',
         route: `/channels/create`,
         data: {
@@ -365,16 +366,20 @@ type Routes =
         response: Channels.Message
     }
     | {
-        // Query messages from channel.
+        // Query messages from channel (optionally include users as well).
         method: 'GET',
         route: `/channels/${Id}/messages`,
         data: {
             limit?: number,
             before?: string,
             after?: string,
-            sort?: 'Latest' | 'Oldest'
+            sort?: 'Latest' | 'Oldest',
+            include_users?: boolean
         },
-        response: Channels.Message[]
+        response: Channels.Message[] | {
+            messages: Channels.Message[],
+            users: Users.User[]
+        }
     }
     | {
         // Query updated messages from channel.
@@ -403,11 +408,43 @@ type Routes =
         route: `/channels/${Id}/messages/${Id}`,
         data: undefined,
         response: undefined
-    } |
+    }
+    /**
+     * Servers
+     */
+    | {
+        // Create a server.
+        method: 'POST',
+        route: `/servers/create`,
+        data: {
+            name: string,
+            nonce: string
+        },
+        response: Servers.Server
+    }
+    | {
+        // Delete or leave a server.
+        method: 'DELETE',
+        route: `/servers/${Id}`,
+        data: undefined,
+        response: undefined
+    }
+    | {
+        // Edit a server.
+        method: 'PATCH',
+        route: `/servers/${Id}`,
+        data: {
+            name?: string,
+            icon?: string,
+            banner?: string,
+            remove?: RemoveServerField
+        },
+        response: undefined
+    }
     /**
      * Push API
      */
-    {
+    | {
         method: 'POST',
         route: `/push/subscribe`,
         data: {
@@ -416,17 +453,17 @@ type Routes =
             auth: string
         },
         response: undefined
-    } |
-    {
+    }
+    | {
         method: 'POST',
         route: `/push/unsubscribe`,
         data: undefined,
         response: undefined
-    } |
+    }
     /**
      * Voice API
      */
-    {
+    | {
         // Join voice call for channel.
         method: 'POST',
         route: `/channels/${Id}/join_call`,
@@ -434,11 +471,11 @@ type Routes =
         response: {
             token: string
         }
-    } |
+    }
     /**
      * Sync
      */
-    {
+    | {
         // Fetch user settings.
         method: 'POST',
         route: `/sync/settings/fetch`,
@@ -446,8 +483,8 @@ type Routes =
             keys: string[]
         },
         response: Sync.UserSettings
-    } |
-    {
+    }
+    | {
         // Set user settings.
         method: 'POST',
         route: `/sync/settings/set`,

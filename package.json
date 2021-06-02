@@ -1,6 +1,6 @@
 {
   "name": "revolt.js",
-  "version": "4.1.3-alpha.6",
+  "version": "4.2.0-alpha.0",
   "main": "dist/index.js",
   "repository": "https://gitlab.insrt.uk/revolt/revolt.js",
   "author": "Paul Makles <insrt.uk>",
@@ -34,6 +34,7 @@
     "dev": "tsc-watch --onSuccess \"node dist/tester\"",
     "prepublish": "in-publish && tsc || echo Skipping build.",
     "build": "rimraf dist && tsc",
+    "build:watch": "tsc-watch",
     "typecheck": "tsc --noEmit"
   },
   "files": [

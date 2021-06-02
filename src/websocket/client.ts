@@ -111,6 +111,11 @@ export class WebSocketClient {
                             this.client.channels.setOverride(channel);
                         }
 
+                        this.client.servers.clear();
+                        for (let server of packet.servers) {
+                            this.client.servers.setOverride(server);
+                        }
+
                         this.client.emit('ready');
                         this.ready = true;
                         resolve();
@@ -150,7 +155,19 @@ export class WebSocketClient {
                     case 'MessageUpdate': this.client.emit('message/update', packet.id, packet.data); break;
                     case 'MessageDelete': this.client.emit('message/delete', packet.id); break;
 
-                    case 'ChannelCreate': this.client.channels.set(packet); break;
+                    case 'ChannelCreate': {
+                        if (packet.channel_type === 'TextChannel') {
+                            let id = packet._id;
+                            let server = await this.client.servers.fetchMutable(packet.server);
+                            server.channels = [
+                                ...server.channels.filter(x => x !== id),
+                                id
+                            ];
+                        }
+
+                        this.client.channels.set(packet);
+                        break;
+                    }
                     case 'ChannelUpdate': {
                         if (packet.clear) {
                             switch (packet.clear) {
@@ -161,6 +178,7 @@ export class WebSocketClient {
                         this.client.channels.patch(packet.id, packet.data);
                         break;
                     }
+                    case 'ChannelDelete': this.client.channels.delete(packet.id, true); break;
                     case 'ChannelGroupJoin': {
                         let channel = await this.client.channels.fetchMutable(packet.id);
                         if (channel.channel_type !== 'Group') throw "Not a group channel.";
@@ -180,7 +198,29 @@ export class WebSocketClient {
                         channel.recipients = channel.recipients.filter(user => user !== user_id);
                         break;
                     }
-                    case 'ChannelDelete': this.client.channels.delete(packet.id, true); break;
+
+                    case 'ServerCreate': {
+                        for (let channel of packet.channels) {
+                            await this.client.channels.fetchMutable(channel);
+                        }
+
+                        this.client.servers.set(packet);
+                        break;
+                    }
+                    case 'ServerUpdate': {
+                        if (packet.clear) {
+                            switch (packet.clear) {
+                                case 'Icon': this.client.users.removeField(packet.id, 'icon'); break;
+                                case 'Banner': this.client.users.removeField(packet.id, 'banner'); break;
+                            }
+                        }
+
+                        this.client.servers.patch(packet.id, packet.data);
+                        break;
+                    }
+                    case 'ServerDelete': this.client.servers.delete(packet.id, true); break;
+                    case 'ServerMemberJoin': console.error( 'unimplemented' ); break;
+                    case 'ServerMemberJoin': console.error( 'unimplemented' ); break;
 
                     case 'UserUpdate': {
                         if (packet.clear) {

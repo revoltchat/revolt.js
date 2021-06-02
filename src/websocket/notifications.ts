@@ -1,5 +1,5 @@
-import { Auth, Channels, Sync, Users } from '../api/objects';
-import { RemoveChannelField, RemoveUserField } from '../api/routes';
+import { Auth, Channels, Servers, Sync, Users } from '../api/objects';
+import { RemoveChannelField, RemoveServerField, RemoveUserField } from '../api/routes';
 
 type WebSocketError = {
     error: 'InternalError' | 'InvalidSession' | 'OnboardingNotFinished' | 'AlreadyAuthenticated'
@@ -18,7 +18,7 @@ export type ClientboundNotification = (
     { type: 'Pong', time: number } |
     ({ type: 'Error' } & WebSocketError) |
     { type: 'Authenticated' } |
-    { type: 'Ready', users: Users.User[], channels: Channels.Channel[] } |
+    { type: 'Ready', users: Users.User[], servers: Servers.Server[], channels: Channels.Channel[] } |
 
     ({ type: 'Message' } & Channels.Message) |
     ({ type: 'MessageUpdate', id: string, data: Partial<Channels.Message> }) |
@@ -26,11 +26,17 @@ export type ClientboundNotification = (
 
     ({ type: 'ChannelCreate' } & Channels.Channel) |
     ({ type: 'ChannelUpdate', id: string, data: Partial<Channels.Channel>, clear?: RemoveChannelField }) |
+    ({ type: 'ChannelDelete', id: string }) |
     ({ type: 'ChannelGroupJoin', id: string, user: string }) |
     ({ type: 'ChannelGroupLeave', id: string, user: string }) |
-    ({ type: 'ChannelDelete', id: string }) |
     ({ type: 'ChannelStartTyping', id: string, user: string }) |
     ({ type: 'ChannelStopTyping', id: string, user: string }) |
+
+    ({ type: 'ServerCreate' } & Servers.Server) |
+    ({ type: 'ServerUpdate', id: string, data: Partial<Servers.Server>, clear?: RemoveServerField }) |
+    ({ type: 'ServerDelete', id: string }) |
+    ({ type: 'ServerMemberJoin', id: string, user: string }) |
+    ({ type: 'ServerMemberLeave', id: string, user: string }) |
 
     { type: 'UserUpdate', id: string, data: Partial<Users.User>, clear?: RemoveUserField } |
     { type: 'UserRelationship', user: Users.User, status: Users.Relationship } |

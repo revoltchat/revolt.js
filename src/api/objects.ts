@@ -156,6 +156,7 @@ export namespace Channels {
     export type DirectMessageChannel = {
         _id: string,
         channel_type: 'DirectMessage',
+        
         active: boolean,
         recipients: string[],
         last_message: LastMessage
@@ -165,14 +166,26 @@ export namespace Channels {
         _id: string,
         channel_type: 'Group',
         recipients: string[],
+
         name: string,
         owner: string,
         description: string,
+
         last_message: LastMessage,
         icon?: Attachment
     }
 
-    export type Channel = (SavedMessagesChannel | DirectMessageChannel | GroupChannel)
+    export type TextChannel = {
+        _id: string,
+        channel_type: 'TextChannel',
+        server: string,
+
+        name: string,
+        description: string,
+        icon?: Attachment
+    }
+
+    export type Channel = (SavedMessagesChannel | DirectMessageChannel | GroupChannel | TextChannel) & { nonce?: string }
 
     export type Message = {
         _id: string,
@@ -196,6 +209,20 @@ export namespace Channels {
         | { type: "channel_icon_changed"; by: string };
 }
 
+export namespace Servers {
+    export type Server = {
+        _id: string,
+        nonce?: string,
+        owner: string,
+
+        name: string,
+        channels: string[],
+
+        icon?: File,
+        banner?: File
+    }
+}
+
 export namespace Sync {
     export type UserSettings = {
         [key: string]: [ number, string ]
@@ -205,3 +232,4 @@ export namespace Sync {
 export type User = Users.User;
 export type Channel = Channels.Channel;
 export type Message = Channels.Message;
+export type Server = Servers.Server;

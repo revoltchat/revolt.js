@@ -1,4 +1,4 @@
-import { Channel, Channels as ChannelsNS } from '../api/objects';
+import { Channel, Channels as ChannelsNS, Message, User } from '../api/objects';
 import { Route } from '../api/routes';
 import Collection from './Collection';
 import { Client } from '..';
@@ -185,8 +185,27 @@ export default class Channels extends Collection<Channel> {
      * @param params Message fetching route data
      * @returns The messages
      */
-    async fetchMessages(id: string, params: Route<'GET', '/channels/id/messages'>["data"]) {
-        return await this.client.request('GET', `/channels/${id}/messages` as '/channels/id/messages', { params });
+    async fetchMessages(id: string, params?: Omit<Route<'GET', '/channels/id/messages'>["data"], 'include_users'>) {
+        return await this.client.request('GET', `/channels/${id}/messages` as '/channels/id/messages', { params }) as Message[];
+    }
+
+    /**
+     * Fetch multiple messages from a channel including the users that sent them
+     * @param id ID of the target channel
+     * @param params Message fetching route data
+     * @param processUsers Whether to automatically patch user objects using fetched data.
+     * @returns Object including messages and users
+     */
+    async fetchMessagesWithUsers(id: string, params?: Omit<Route<'GET', '/channels/id/messages'>["data"], 'include_users'>, processUsers?: boolean) {
+        let res = await this.client.request('GET', `/channels/${id}/messages` as '/channels/id/messages', { params: { ...params, include_users: true } }) as { messages: Message[], users: User[] };
+
+        if (processUsers) {
+            for (let user of res.users) {
+                this.client.users.set(user);
+            }
+        }
+
+        return res;
     }
 
     /**

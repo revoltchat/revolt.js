@@ -8,6 +8,7 @@ import { Core, Auth, User, Message } from './api/objects';
 import { Route, RoutePath, RouteMethod } from './api/routes';
 
 import Users from './maps/Users';
+import Servers from './maps/Servers';
 import Channels from './maps/Channels';
 import { Db } from '@insertish/zangodb';
 import { ClientboundNotification } from './websocket/notifications';
@@ -73,6 +74,7 @@ export class Client extends EventEmitter {
     configuration?: Core.RevoltNodeConfiguration;
 
     users: Users;
+    servers: Servers;
     channels: Channels;
     messages: string[];
 
@@ -89,6 +91,7 @@ export class Client extends EventEmitter {
         }
 
         this.users = new Users(this);
+        this.servers = new Servers(this);
         this.channels = new Channels(this);
         this.messages = [];
 
