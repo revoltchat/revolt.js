@@ -219,8 +219,11 @@ export class WebSocketClient {
                         break;
                     }
                     case 'ServerDelete': this.client.servers.delete(packet.id, true); break;
-                    case 'ServerMemberJoin': console.error( 'unimplemented' ); break;
-                    case 'ServerMemberJoin': console.error( 'unimplemented' ); break;
+                    case 'ServerMemberJoin': {
+                        await this.client.servers.fetchMutable(packet.id);
+                        break;
+                    }
+                    case 'ServerMemberLeave': console.error( 'unimplemented' ); break;
 
                     case 'UserUpdate': {
                         if (packet.clear) {

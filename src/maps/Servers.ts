@@ -1,4 +1,4 @@
-import { Server, Servers as ServersNS } from '../api/objects';
+import { Channels, Server, Servers as ServersNS } from '../api/objects';
 import { Route } from '../api/routes';
 import Collection from './Collection';
 import { Client } from '..';
@@ -13,8 +13,18 @@ export default class Servers extends Collection<Server> {
      * @param id Server ID
      * @returns The server
      */
-    async fetchMutable(id: string): Promise<Server> {
-        throw "unimplemented"
+    async fetchMutable(id: string, data?: Server): Promise<Server> {
+        if (this.map[id]) return this.get(id) as Server;
+        let res = data ?? await this.client.req('GET', `/servers/${id}` as '/servers/id');
+
+        // Fetch channel information.
+        for (let channel of res.channels) {
+            // ! FIXME: add route for fetching all channels in future, copy code for fetching group recipients
+            await this.client.channels.fetch(channel);
+        }
+
+        this.set(res);
+        return this.get(id) as Server;
     }
 
     /**
@@ -22,8 +32,31 @@ export default class Servers extends Collection<Server> {
      * @param id Server ID
      * @returns The server in read-only state 
      */
-    async fetch(id: string) {
-        throw "unimplemented"
+    async fetch(id: string, data?: Server) {
+        return await this.fetchMutable(id, data) as Readonly<Server>;
+    }
+
+    /**
+     * Create a server
+     * @param data Group create route data
+     * @returns The newly-created group
+     */
+    async createServer(data: Route<'POST', '/servers/create'>["data"]) {
+        let res = await this.client.req('POST', `/servers/create`, data);
+        this.set(res);
+        return this.get(res._id) as Readonly<ServersNS.Server>;
+    }
+
+    /**
+     * Create a channel
+     * @param id ID of the target server
+     * @param data Group create route data
+     * @returns The newly-created group
+     */
+    async createChannel(id: string, data: Route<'POST', '/servers/id/channels'>["data"]) {
+        let res = await this.client.req('POST', `/servers/${id}/channels` as '/servers/id/channels', data);
+        this.client.channels.set(res);
+        return this.client.channels.get(res._id) as Readonly<Channels.TextChannel>;
     }
 
     /**
@@ -31,19 +64,27 @@ export default class Servers extends Collection<Server> {
      * @param id ID of the target server
      * @param data Server editing route data
      */
-    async edit(id: string, data: Route<'PATCH', '/channels/id'>["data"]) {
-        throw "unimplemented"
+    async edit(id: string, data: Route<'PATCH', '/servers/id'>["data"]) {
+        let server = this.getThrow(id);
+        await this.client.req('PATCH', `/servers/${id}` as '/servers/id', data);
+        
+        if (data.name) server.name = data.name;
     }
 
     /**
      * Delete a guild
-     * @param id ID of the target guild
+     * @param id ID of the target server
      */
     async delete(id: string, avoidRequest?: boolean) {
-        if (avoidRequest) {
-            return super.delete(id);
+        if (!avoidRequest)
+            await this.client.req('DELETE', `/servers/${id}` as '/servers/id');
+        
+        for (let channel of this.client.channels.toArray()) {
+            if (channel.channel_type === 'TextChannel' && channel.server === id) {
+                this.client.channels.delete(channel._id, true);
+            }
         }
-
-        throw "unimplemented"
+        
+        super.delete(id);
     }
 }

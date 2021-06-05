@@ -1,4 +1,4 @@
-import { Channels, Core, Servers, Sync, Users } from './objects';
+import { Channels, Core, Invites, Servers, Sync, Users } from './objects';
 
 export type RemoveUserField = 'ProfileContent' | 'ProfileBackground' | 'StatusText' | 'Avatar';
 export type RemoveChannelField = 'Icon';
@@ -331,6 +331,13 @@ type Routes =
         response: Channels.GroupChannel
     }
     | {
+        // Create an invite to a channel.
+        method: 'POST',
+        route: `/channels/${Id}/invites`,
+        data: undefined,
+        response: { code: string }
+    }
+    | {
         // Add member to group.
         method: 'PUT',
         route: `/channels/${Id}/recipients/${Id}`,
@@ -423,6 +430,13 @@ type Routes =
         response: Servers.Server
     }
     | {
+        // Fetch a server by ID.
+        method: 'GET',
+        route: `/servers/${Id}`,
+        data: undefined,
+        response: Servers.Server
+    }
+    | {
         // Delete or leave a server.
         method: 'DELETE',
         route: `/servers/${Id}`,
@@ -438,6 +452,68 @@ type Routes =
             icon?: string,
             banner?: string,
             remove?: RemoveServerField
+        },
+        response: undefined
+    }
+    | {
+        // Create a new text channel for a server.
+        method: 'POST',
+        route: `/servers/${Id}/channels`,
+        data: {
+            name: string,
+            description?: string,
+            nonce: string
+        },
+        response: Channels.TextChannel
+    }
+    /**
+     * Invites
+     */
+    | {
+        // Fetch information about an invite.
+        method: 'GET',
+        route: `/invites/${Id}`,
+        data: undefined,
+        response: Invites.Invite
+    }
+    | {
+        // Use an invite.
+        method: 'POST',
+        route: `/invites/${Id}`,
+        data: undefined,
+        response: (
+            {
+                type: 'Server',
+                channel: Channels.TextChannel,
+                server: Servers.Server
+            }
+        )
+    }
+    | {
+        // Delete an invite.
+        method: 'DELETE',
+        route: `/invites/${Id}`,
+        data: undefined,
+        response: undefined
+    }
+    /**
+     * Sync
+     */
+    | {
+        // Fetch user settings.
+        method: 'POST',
+        route: `/sync/settings/fetch`,
+        data: {
+            keys: string[]
+        },
+        response: Sync.UserSettings
+    }
+    | {
+        // Set user settings.
+        method: 'POST',
+        route: `/sync/settings/set`,
+        data: {
+            [key: string]: string
         },
         response: undefined
     }
@@ -471,27 +547,6 @@ type Routes =
         response: {
             token: string
         }
-    }
-    /**
-     * Sync
-     */
-    | {
-        // Fetch user settings.
-        method: 'POST',
-        route: `/sync/settings/fetch`,
-        data: {
-            keys: string[]
-        },
-        response: Sync.UserSettings
-    }
-    | {
-        // Set user settings.
-        method: 'POST',
-        route: `/sync/settings/set`,
-        data: {
-            [key: string]: string
-        },
-        response: undefined
     }
 
 // ? Below are Typescript typings for extracting route data from the object above.

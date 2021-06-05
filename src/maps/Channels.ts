@@ -84,11 +84,14 @@ export default class Channels extends Collection<Channel> {
      */
     async edit(id: string, data: Route<'PATCH', '/channels/id'>["data"]) {
         let channel = this.getThrow(id);
-        if (channel.channel_type !== 'Group') throw "Channel is not group channel.";
-        await this.client.req('PATCH', `/channels/${id}` as '/channels/id', data);
-        
-        if (data.name) channel.name = data.name;
-        if (data.description) channel.description = data.description;
+        if (channel.channel_type === 'Group' || channel.channel_type === 'TextChannel') {
+            await this.client.req('PATCH', `/channels/${id}` as '/channels/id', data);
+            
+            if (data.name) channel.name = data.name;
+            if (data.description) channel.description = data.description;
+        } else {
+            throw "Channel is not group or text channel.";
+        }
     }
 
     /**
@@ -102,7 +105,14 @@ export default class Channels extends Collection<Channel> {
         if (!avoidRequest)
             await this.client.req('DELETE', `/channels/${id}` as '/channels/id');
         
-        if (channel?.channel_type === 'DirectMessage') {
+        if (!channel) return;
+        if (channel.channel_type === 'TextChannel') {
+            let id = channel._id;
+            let server = await this.client.servers.fetchMutable(channel.server);
+            server.channels = server.channels.filter(x => x !== id);
+        }
+
+        if (channel.channel_type === 'DirectMessage') {
             channel.active = false;
         } else {
             super.delete(id);
@@ -121,7 +131,7 @@ export default class Channels extends Collection<Channel> {
     }
 
     /**
-     * Add a user to a channel
+     * Add a user to a group
      * @param id ID of the target channel
      * @param user_id ID of the target user
      */
@@ -136,7 +146,7 @@ export default class Channels extends Collection<Channel> {
     }
 
     /**
-     * Remove a user from a channel
+     * Remove a user from a group
      * @param id ID of the target channel
      * @param user_id ID of the target user
      */
@@ -237,6 +247,15 @@ export default class Channels extends Collection<Channel> {
     async deleteMessage(id: string, message_id: string) {
         await this.client.req('DELETE', `/channels/${id}/messages/${message_id}` as '/channels/id/messages/id');
         this.client.emit('message/delete', message_id);
+    }
+
+    /**
+     * Create an invite to the channel
+     * @returns Newly created invite code
+     */
+    async createInvite(id: string) {
+        let res = await this.client.req('POST', `/channels/${id}/invites` as '/channels/id/invites');
+        return res.code;
     }
 
     /**

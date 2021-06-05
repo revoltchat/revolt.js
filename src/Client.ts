@@ -292,6 +292,41 @@ export class Client extends EventEmitter {
      */
 
     /**
+     * Fetch information about a given invite code.
+     * @param code The invite code.
+     * @returns Invite information.
+     */
+    async fetchInvite(code: string) {
+        return await this.req('GET', `/invites/${code}` as '/invites/id');
+    }
+
+    /**
+     * Use an invite.
+     * @param code The invite code.
+     * @returns Data provided by invite.
+     */
+    async joinInvite(code: string) {
+        let res = await this.req('POST', `/invites/${code}` as '/invites/id');
+
+        switch (res.type) {
+            case 'Server': {
+                await this.servers.fetch(res.server._id, res.server);
+                break;
+            }
+        }
+
+        return res;
+    }
+
+    /**
+     * Delete an invite.
+     * @param code The invite code.
+     */
+    async deleteInvite(code: string) {
+        await this.req('DELETE', `/invites/${code}` as '/invites/id');
+    }
+
+    /**
      * Fetch user settings for current user.
      * @param keys Settings keys to fetch, leave blank to fetch full object.
      * @returns Key-value object of settings.

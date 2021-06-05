@@ -5,41 +5,51 @@ global.indexedDB = require('fake-indexeddb');
 global.IDBKeyRange = require('fake-indexeddb/lib/FDBKeyRange');
 
 import { Db } from '@insertish/zangodb';
-let db = new Db('state', 1, [ 'channels', 'users' ]);
+let db = new Db('state', 1, [ 'channels', 'users', 'servers' ]);
 
 import { Client } from ".";
-import { Users } from './api/objects';
-let client = new Client({ apiURL: 'https://staging-api.revolt.chat', db, debug: true });
+let client = new Client({ apiURL: 'http://local.revolt.chat:8000', db, debug: false });
 
-client.channels.on('mutation', console.log);
+// client2
+let client2 = new Client({ apiURL: 'http://local.revolt.chat:8000', debug: false });
+client2.connect().then(() => client2.login({ email: '2@example.com', password: 'nBeNaSsukrCCYhVMKQEM', device_name: 'r.js' }))
+client2.once('ready', async () => console.log('Client 2 logged in.'))
+
+// client.channels.on('mutation', console.log);
 
 client.once('ready', async () => {
     console.log(`Logged in as @${client.user?.username}`);
 
-    let channel = client.channels.toArray()[0];
-    let user = client.users.toArray()
-        .filter(user => user._id !== client.user?._id)
-        .find(user => user.relationship === Users.Relationship.Friend);
-    
-    if (user) {
-        await client.channels.addMember(channel._id, user?._id);
-        await client.channels.removeMember(channel._id, user?._id);
+    let servers = client.servers.toArray();
+    for (let server of servers) {
+        client.servers.delete(server._id);
     }
 
-    // let channel = client.channels.values().next().value as Channel;
-    // console.log(await channel.fetchMessages());
-    // let message = await channel.sendMessage({ content: "bruh" });
-    // await message.edit("pogger!");
-    // await message.delete();
+    function dothing() {
+        (async () => {
+            let server = await client.servers.createServer({ name: 'sus amongus ' + Math.random(), nonce: ''+Math.random() });
+    
+            let invite: string;
+            let tasks = [
+                async () => await client.servers.createChannel(server._id, { name: 'based!', nonce: ''+Math.random() }),
+                async () => await client.channels.delete(server.channels[0]),
+                async () => await client.servers.edit(server._id, { name: 'wwwwwww' }),
+                async () => await client.channels.edit(server.channels[0], { name: 'edited!', description: 'haha yes' }),
+                async () => invite = await client.channels.createInvite(server.channels[0]),
+                async () => await client.fetchInvite(invite),
+                async () => await client2.joinInvite(invite),
+                async () => await client.deleteInvite(invite),
+                // async () => await client.servers.delete(server._id)
+            ];
 
-    // console.log(client.user?.online);
-    // console.log(Array.from(client.users.values()).map(x => `@${x.username}: ${x.relationship}`));
-    // await client.addFriend('poggers');
+            for (let task of tasks) {
+                await task();
+            }
+        })()
+    }
 
-    // let user = Array.from(client.users.values()).find(x => x.id !== client.user?.id && !(x instanceof SystemUser)) as User;
-    // let channel = await client.createGroup({ name: 'le group', nonce: ''+Math.random(), users: [ ] }) as GroupChannel;
-    // await channel.addMember(user);
-    // await channel.removeMember(user);
+    dothing();
+    // setInterval(dothing, 3000);
 });
 
 client.on('connecting', () => {
@@ -49,28 +59,29 @@ client.on('connecting', () => {
 client.on('connected', () => {
     console.log(`Connected to notifications server.`);
 });
-
+6
 client.on('dropped', () => {
     console.log(`Connection dropped.`);
 });
 
 client.on('message', (msg) => {
     let user = client.users.get(msg.author);
-    console.log(`@${user?.username}: ${msg.content}`);
+    console.log(`[client1] @${user?.username}: ${msg.content}`);
+});
+
+client2.on('message', (msg) => {
+    let user = client.users.get(msg.author);
+    console.log(`[client2] @${user?.username}: ${msg.content}`);
 });
 
 (async () => {
-    console.log('Start:', new Date());
-
-    try {
+    //try {
         await client.connect();
-        let onboarding = await client.login({ email: 'me@insrt.uk', password: 'password', device_name: 'aaa' });
+        let onboarding = await client.login({ email: '1@example.com', password: 'nBeNaSsukrCCYhVMKQEM', device_name: 'r.js' });
         if (onboarding) {
             await onboarding("username", false);
         }
-    } catch (err) {
-        console.error(err);
-    }
-
-    console.log('End:  ', new Date());
+    //} catch (err) {
+        //console.error(err);
+    //}
 })();

@@ -169,7 +169,7 @@ export namespace Channels {
 
         name: string,
         owner: string,
-        description: string,
+        description?: string,
 
         last_message: LastMessage,
         icon?: Attachment
@@ -220,6 +220,19 @@ export namespace Servers {
 
         icon?: File,
         banner?: File
+    }
+}
+
+export namespace Invites {
+    export type Invite = {
+        type: 'Server',
+        server_name: string,
+        server_icon?: File,
+        server_banner?: File,
+        channel_name: string,
+        channel_description?: string,
+        user_name: string,
+        user_avatar?: File
     }
 }
 
