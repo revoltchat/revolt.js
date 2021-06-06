@@ -172,10 +172,11 @@ export default class Channels extends Collection<Channel> {
 
         this.getThrow(id);
         let message = await this.client.req('POST', `/channels/${id}/messages` as '/channels/id/messages', msg);
-        if (!this.client.messages.includes(id)) {
-            this.client.messages.push(id);
+        if (!this.client.messages.includes(message._id)) {
+            this.client.messages.push(message._id);
             this.client.emit('message', message);
         }
+
         return message;
     }
 

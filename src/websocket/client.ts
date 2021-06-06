@@ -132,8 +132,6 @@ export class WebSocketClient {
 
                     case 'Message': {
                         if (!this.client.messages.includes(packet._id)) {
-                            this.client.messages.push(packet._id);
-
                             if (packet.author === SYSTEM_USER_ID) {
                                 if (typeof packet.content === 'object') {
                                     switch (packet.content.type) {
@@ -148,7 +146,10 @@ export class WebSocketClient {
                                 await this.client.users.fetch(packet.author);
                             }
 
-                            this.client.emit('message', packet);
+                            if (!this.client.messages.includes(packet._id)) {
+                                this.client.messages.push(packet._id);
+                                this.client.emit('message', packet);
+                            }
                         }
                         break;
                     }

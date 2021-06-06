@@ -22,7 +22,7 @@ client.once('ready', async () => {
 
     let servers = client.servers.toArray();
     for (let server of servers) {
-        client.servers.delete(server._id);
+        await client.servers.delete(server._id);
     }
 
     function dothing() {
@@ -39,7 +39,9 @@ client.once('ready', async () => {
                 async () => await client.fetchInvite(invite),
                 async () => await client2.joinInvite(invite),
                 async () => await client.deleteInvite(invite),
-                // async () => await client.servers.delete(server._id)
+                async () => await client.channels.sendMessage(server.channels[0], 'message 1'),
+                async () => await client2.channels.sendMessage(server.channels[0], 'message 2'),
+                async () => await client.servers.delete(server._id)
             ];
 
             for (let task of tasks) {
