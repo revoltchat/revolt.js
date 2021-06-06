@@ -33,14 +33,21 @@ client.once('ready', async () => {
             let tasks = [
                 async () => await client.servers.createChannel(server._id, { name: 'based!', nonce: ''+Math.random() }),
                 async () => await client.channels.delete(server.channels[0]),
-                async () => await client.servers.edit(server._id, { name: 'wwwwwww' }),
+                async () => await client.servers.edit(server._id, { name: 'wwwwwww', description: 'henlo' }),
                 async () => await client.channels.edit(server.channels[0], { name: 'edited!', description: 'haha yes' }),
                 async () => invite = await client.channels.createInvite(server.channels[0]),
                 async () => await client.fetchInvite(invite),
                 async () => await client2.joinInvite(invite),
+                async () => await client.servers.fetchInvites(server._id),
                 async () => await client.deleteInvite(invite),
-                async () => await client.channels.sendMessage(server.channels[0], 'message 1'),
                 async () => await client2.channels.sendMessage(server.channels[0], 'message 2'),
+                async () => await client.servers.fetchMembers(server._id),
+                async () => await client.servers.editMember(server._id, client.user?._id as string, { nickname: 'gamer' }),
+                async () => await client.servers.fetchMember(server._id, client.user?._id as string),
+                async () => await client.servers.kickMember(server._id, client2.user?._id as string),
+                () => new Promise(r => setTimeout(r, 200)),
+                async () => await client.channels.sendMessage(server.channels[0], 'message 1'),
+                async () => console.log(client2.servers.toArray()),
                 async () => await client.servers.delete(server._id)
             ];
 
@@ -51,7 +58,6 @@ client.once('ready', async () => {
     }
 
     dothing();
-    // setInterval(dothing, 3000);
 });
 
 client.on('connecting', () => {
@@ -77,13 +83,9 @@ client2.on('message', (msg) => {
 });
 
 (async () => {
-    //try {
-        await client.connect();
-        let onboarding = await client.login({ email: '1@example.com', password: 'nBeNaSsukrCCYhVMKQEM', device_name: 'r.js' });
-        if (onboarding) {
-            await onboarding("username", false);
-        }
-    //} catch (err) {
-        //console.error(err);
-    //}
+    await client.connect();
+    let onboarding = await client.login({ email: '1@example.com', password: 'nBeNaSsukrCCYhVMKQEM', device_name: 'r.js' });
+    if (onboarding) {
+        await onboarding("username", false);
+    }
 })();

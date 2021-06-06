@@ -172,7 +172,8 @@ export class WebSocketClient {
                     case 'ChannelUpdate': {
                         if (packet.clear) {
                             switch (packet.clear) {
-                                case 'Icon': this.client.users.removeField(packet.id, 'icon'); break;
+                                case 'Icon': this.client.channels.removeField(packet.id, 'icon'); break;
+                                case 'Description': this.client.channels.removeField(packet.id, 'description'); break;
                             }
                         }
 
@@ -211,8 +212,9 @@ export class WebSocketClient {
                     case 'ServerUpdate': {
                         if (packet.clear) {
                             switch (packet.clear) {
-                                case 'Icon': this.client.users.removeField(packet.id, 'icon'); break;
-                                case 'Banner': this.client.users.removeField(packet.id, 'banner'); break;
+                                case 'Icon': this.client.servers.removeField(packet.id, 'icon'); break;
+                                case 'Banner': this.client.servers.removeField(packet.id, 'banner'); break;
+                                case 'Description': this.client.servers.removeField(packet.id, 'description'); break;
                             }
                         }
 
@@ -224,7 +226,12 @@ export class WebSocketClient {
                         await this.client.servers.fetchMutable(packet.id);
                         break;
                     }
-                    case 'ServerMemberLeave': console.error( 'unimplemented' ); break;
+                    case 'ServerMemberLeave': {
+                        if (packet.user === this.client.user?._id) {
+                            this.client.servers.delete(packet.id, true);
+                        }
+                        break;
+                    }
 
                     case 'UserUpdate': {
                         if (packet.clear) {

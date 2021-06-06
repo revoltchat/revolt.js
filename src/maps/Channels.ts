@@ -74,7 +74,13 @@ export default class Channels extends Collection<Channel> {
      * @returns An array of the channel's members.
      */
     async fetchMembers(id: string) {
-        return await this.client.req('GET', `/channels/${id}/members` as '/channels/id/members');
+        let res = await this.client.req('GET', `/channels/${id}/members` as '/channels/id/members');
+
+        for (let user of res) {
+            this.client.users.set(user);
+        }
+
+        return res;
     }
 
     /**

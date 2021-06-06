@@ -1,8 +1,9 @@
 import { Channels, Core, Invites, Servers, Sync, Users } from './objects';
 
 export type RemoveUserField = 'ProfileContent' | 'ProfileBackground' | 'StatusText' | 'Avatar';
-export type RemoveChannelField = 'Icon';
-export type RemoveServerField = 'Icon' | 'Banner';
+export type RemoveChannelField = 'Icon' | 'Description';
+export type RemoveServerField = 'Icon' | 'Banner' | 'Description';
+export type RemoveMemberField = 'Nickname' | 'Avatar';
 
 type Id = 'id';
 type Routes =
@@ -449,6 +450,7 @@ type Routes =
         route: `/servers/${Id}`,
         data: {
             name?: string,
+            description?: string,
             icon?: string,
             banner?: string,
             remove?: RemoveServerField
@@ -456,7 +458,42 @@ type Routes =
         response: undefined
     }
     | {
-        // Create a new text channel for a server.
+        // Fetch a server's members
+        method: 'GET',
+        route: `/servers/${Id}/members`,
+        data: undefined,
+        response: {
+            members: Servers.Member[],
+            users: Users.User[]
+        }
+    }
+    | {
+        // Fetch a server member by their ID
+        method: 'GET',
+        route: `/servers/${Id}/members/${Id}`,
+        data: undefined,
+        response: Servers.Member[]
+    }
+    | {
+        // Edit a server member
+        method: 'PATCH',
+        route: `/servers/${Id}/members/${Id}`,
+        data: {
+            nickname?: string,
+            avatar?: string,
+            remove?: RemoveMemberField
+        },
+        response: undefined
+    }
+    | {
+        // Kick a server member
+        method: 'DELETE',
+        route: `/servers/${Id}/members/${Id}`,
+        data: undefined,
+        response: undefined
+    }
+    | {
+        // Create a new text channel for a server
         method: 'POST',
         route: `/servers/${Id}/channels`,
         data: {
@@ -466,6 +503,13 @@ type Routes =
         },
         response: Channels.TextChannel
     }
+    | {
+        // Fetch a server's invites
+        method: 'GET',
+        route: `/servers/${Id}/invites`,
+        data: undefined,
+        response: Invites.ServerInvite[]
+    }
     /**
      * Invites
      */
@@ -474,7 +518,7 @@ type Routes =
         method: 'GET',
         route: `/invites/${Id}`,
         data: undefined,
-        response: Invites.Invite
+        response: Invites.RetrievedInvite
     }
     | {
         // Use an invite.

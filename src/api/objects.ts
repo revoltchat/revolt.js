@@ -210,12 +210,30 @@ export namespace Channels {
 }
 
 export namespace Servers {
+    export type MemberCompositeKey = {
+        server: string,
+        user: string
+    }
+
+    export type Member = {
+        _id: MemberCompositeKey,
+        
+        nickname?: string,
+        avatar?: File
+    }
+
+    export type Ban = {
+        _id: MemberCompositeKey,
+        reason: string
+    }
+
     export type Server = {
         _id: string,
         nonce?: string,
         owner: string,
 
         name: string,
+        description?: string,
         channels: string[],
 
         icon?: File,
@@ -224,7 +242,17 @@ export namespace Servers {
 }
 
 export namespace Invites {
-    export type Invite = {
+    export type ServerInvite = {
+        type: 'Server',
+        _id: string,
+        server: String,
+        creator: String,
+        channel: String,
+    }
+
+    export type Invite = ServerInvite;
+
+    export type RetrievedInvite = {
         type: 'Server',
         server_name: string,
         server_icon?: File,

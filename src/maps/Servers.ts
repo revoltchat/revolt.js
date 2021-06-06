@@ -69,6 +69,7 @@ export default class Servers extends Collection<Server> {
         await this.client.req('PATCH', `/servers/${id}` as '/servers/id', data);
         
         if (data.name) server.name = data.name;
+        if (data.description) server.description = data.description;
     }
 
     /**
@@ -81,10 +82,64 @@ export default class Servers extends Collection<Server> {
         
         for (let channel of this.client.channels.toArray()) {
             if (channel.channel_type === 'TextChannel' && channel.server === id) {
-                this.client.channels.delete(channel._id, true);
+                this.client.channels.delete(channel._id, true); 
             }
         }
         
         super.delete(id);
+    }
+
+    /**
+     * Fetch a server member
+     * @param id Server ID
+     * @param user_id User ID
+     * @returns Server member object
+     */
+    async fetchMember(id: string, user_id: string) {
+        return await this.client.req('GET', `/servers/${id}/members/${user_id}` as '/servers/id/members/id');
+    }
+
+    /**
+     * Edit a server member
+     * @param id Server ID
+     * @param user_id User ID
+     * @param data Member editing route data
+     * @returns Server member object
+     */
+    async editMember(id: string, user_id: string, data: Route<'PATCH', '/servers/id/members/id'>["data"]) {
+        return await this.client.req('PATCH', `/servers/${id}/members/${user_id}` as '/servers/id/members/id', data);
+    }
+
+    /**
+     * Kick server member
+     * @param id Server ID
+     * @param user_id User ID
+     */
+    async kickMember(id: string, user_id: string) {
+        await this.client.req('DELETE', `/servers/${id}/members/${user_id}` as '/servers/id/members/id');
+    }
+
+    /**
+     * Fetch a server's members.
+     * @param id Server ID
+     * @returns An array of the server's members.
+     */
+    async fetchMembers(id: string) {
+        let res = await this.client.req('GET', `/servers/${id}/members` as '/servers/id/members');
+
+        for (let user of res.users) {
+            this.client.users.set(user);
+        }
+
+        return res.members;
+    }
+
+    /**
+     * Fetch a server's invites.
+     * @param id Server ID
+     * @returns An array of the server's invites.
+     */
+    async fetchInvites(id: string) {
+        return await this.client.req('GET', `/servers/${id}/invites` as '/servers/id/invites');
     }
 }

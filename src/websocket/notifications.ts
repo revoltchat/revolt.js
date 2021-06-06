@@ -1,5 +1,5 @@
 import { Auth, Channels, Servers, Sync, Users } from '../api/objects';
-import { RemoveChannelField, RemoveServerField, RemoveUserField } from '../api/routes';
+import { RemoveChannelField, RemoveServerField, RemoveUserField, RemoveMemberField } from '../api/routes';
 
 type WebSocketError = {
     error: 'InternalError' | 'InvalidSession' | 'OnboardingNotFinished' | 'AlreadyAuthenticated'
@@ -35,6 +35,7 @@ export type ClientboundNotification = (
     ({ type: 'ServerCreate' } & Servers.Server) |
     ({ type: 'ServerUpdate', id: string, data: Partial<Servers.Server>, clear?: RemoveServerField }) |
     ({ type: 'ServerDelete', id: string }) |
+    ({ type: 'ServerMemberUpdate', id: string, data: Partial<Servers.Member>, clear?: RemoveMemberField }) |
     ({ type: 'ServerMemberJoin', id: string, user: string }) |
     ({ type: 'ServerMemberLeave', id: string, user: string }) |
 
