@@ -472,7 +472,7 @@ type Routes =
         method: 'GET',
         route: `/servers/${Id}/members/${Id}`,
         data: undefined,
-        response: Servers.Member[]
+        response: Servers.Member
     }
     | {
         // Edit a server member
@@ -491,6 +491,29 @@ type Routes =
         route: `/servers/${Id}/members/${Id}`,
         data: undefined,
         response: undefined
+    }
+    | {
+        // Ban a user from the server
+        method: 'PUT',
+        route: `/servers/${Id}/bans/${Id}`,
+        data: {
+            reason?: string
+        },
+        response: undefined
+    }
+    | {
+        // Unban a user from the server
+        method: 'DELETE',
+        route: `/servers/${Id}/bans/${Id}`,
+        data: undefined,
+        response: undefined
+    }
+    | {
+        // Fetch a server's bans
+        method: 'GET',
+        route: `/servers/${Id}/bans`,
+        data: undefined,
+        response: Servers.Ban[]
     }
     | {
         // Create a new text channel for a server

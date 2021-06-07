@@ -1,11 +1,16 @@
 import { Channels, Server, Servers as ServersNS } from '../api/objects';
 import { Route } from '../api/routes';
 import Collection from './Collection';
+import Members from './Members';
 import { Client } from '..';
 
 export default class Servers extends Collection<Server> {
+    members: Members;
+
     constructor(client: Client) {
         super(client, 'servers');
+        
+        this.members = new Members(client);
     }
 
     /**
@@ -90,48 +95,21 @@ export default class Servers extends Collection<Server> {
     }
 
     /**
-     * Fetch a server member
-     * @param id Server ID
-     * @param user_id User ID
-     * @returns Server member object
-     */
-    async fetchMember(id: string, user_id: string) {
-        return await this.client.req('GET', `/servers/${id}/members/${user_id}` as '/servers/id/members/id');
-    }
-
-    /**
-     * Edit a server member
-     * @param id Server ID
-     * @param user_id User ID
-     * @param data Member editing route data
-     * @returns Server member object
-     */
-    async editMember(id: string, user_id: string, data: Route<'PATCH', '/servers/id/members/id'>["data"]) {
-        return await this.client.req('PATCH', `/servers/${id}/members/${user_id}` as '/servers/id/members/id', data);
-    }
-
-    /**
-     * Kick server member
+     * Ban user
      * @param id Server ID
      * @param user_id User ID
      */
-    async kickMember(id: string, user_id: string) {
-        await this.client.req('DELETE', `/servers/${id}/members/${user_id}` as '/servers/id/members/id');
+    async banUser(id: string, user_id: string, data: Route<'PUT', '/servers/id/bans/id'>["data"]) {
+        await this.client.req('PUT', `/servers/${id}/bans/${user_id}` as '/servers/id/bans/id', data);
     }
 
     /**
-     * Fetch a server's members.
+     * Unban user
      * @param id Server ID
-     * @returns An array of the server's members.
+     * @param user_id User ID
      */
-    async fetchMembers(id: string) {
-        let res = await this.client.req('GET', `/servers/${id}/members` as '/servers/id/members');
-
-        for (let user of res.users) {
-            this.client.users.set(user);
-        }
-
-        return res.members;
+    async unbanUser(id: string, user_id: string) {
+        await this.client.req('DELETE', `/servers/${id}/bans/${user_id}` as '/servers/id/bans/id');
     }
 
     /**
@@ -141,5 +119,14 @@ export default class Servers extends Collection<Server> {
      */
     async fetchInvites(id: string) {
         return await this.client.req('GET', `/servers/${id}/invites` as '/servers/id/invites');
+    }
+
+    /**
+     * Fetch a server's bans.
+     * @param id Server ID
+     * @returns An array of the server's bans.
+     */
+    async fetchBans(id: string) {
+        return await this.client.req('GET', `/servers/${id}/bans` as '/servers/id/bans');
     }
 }

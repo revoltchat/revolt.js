@@ -5,7 +5,7 @@ global.indexedDB = require('fake-indexeddb');
 global.IDBKeyRange = require('fake-indexeddb/lib/FDBKeyRange');
 
 import { Db } from '@insertish/zangodb';
-let db = new Db('state', 1, [ 'channels', 'users', 'servers' ]);
+let db = new Db('state', 1, [ 'channels', 'users', 'servers', 'members' ]);
 
 import { Client } from ".";
 let client = new Client({ apiURL: 'http://local.revolt.chat:8000', db, debug: false });
@@ -38,16 +38,32 @@ client.once('ready', async () => {
                 async () => invite = await client.channels.createInvite(server.channels[0]),
                 async () => await client.fetchInvite(invite),
                 async () => await client2.joinInvite(invite),
-                async () => await client.servers.fetchInvites(server._id),
-                async () => await client.deleteInvite(invite),
                 async () => await client2.channels.sendMessage(server.channels[0], 'message 2'),
-                async () => await client.servers.fetchMembers(server._id),
-                async () => await client.servers.editMember(server._id, client.user?._id as string, { nickname: 'gamer' }),
-                async () => await client.servers.fetchMember(server._id, client.user?._id as string),
-                async () => await client.servers.kickMember(server._id, client2.user?._id as string),
+                async () => await client.servers.members.fetchMembers(server._id),
+                async () => await client2.servers.members.fetchMembers(server._id),
+                async () => await client.servers.members.editMember(server._id, client.user?._id as string, { nickname: 'gamer' }),
+                async () => await client.servers.members.fetchMember(server._id, client.user?._id as string),
+
+                async () => console.log(client.servers.members.toArray()),
+
+                async () => await client.servers.members.kickMember(server._id, client2.user!._id),           // A kicks B from server
+                async () => await client2.joinInvite(invite),                                                 // B rejoins server
+                async () => await client.servers.banUser(server._id, client2.user!._id, { reason: 'bad' }),   // A bans B from server
+                async () => await client2.joinInvite(invite).catch(() => console.log('Failed succesfully.')), // B can no longer join
+
+                // async () => console.log(await client.servers.fetchBans(server._id)),
+
+                async () => console.log(client.servers.members.toArray()),
+                async () => console.log(client2.servers.members.toArray()),
+
+                async () => await client.servers.unbanUser(server._id, client2.user!._id),                    // A unbans B
+                async () => await client2.joinInvite(invite),                                                 // B can now join
+                async () => await client2.servers.delete(server._id),                                         // B leaves the server
+
                 () => new Promise(r => setTimeout(r, 200)),
                 async () => await client.channels.sendMessage(server.channels[0], 'message 1'),
-                async () => console.log(client2.servers.toArray()),
+                async () => await client.deleteInvite(invite),
+                async () => await client.servers.fetchInvites(server._id),
                 async () => await client.servers.delete(server._id)
             ];
 

@@ -4,6 +4,7 @@ import { backOff } from 'exponential-backoff';
 import { Client, SYSTEM_USER_ID } from '..';
 import { Auth, Channels, User } from '../api/objects';
 import { ServerboundNotification, ClientboundNotification } from './notifications';
+import { objectToFlatKey } from '../maps/Members';
 
 export class WebSocketClient {
     client: Client;
@@ -224,12 +225,22 @@ export class WebSocketClient {
                     case 'ServerDelete': this.client.servers.delete(packet.id, true); break;
                     case 'ServerMemberJoin': {
                         await this.client.servers.fetchMutable(packet.id);
+
+                        this.client.servers.members.set({
+                            _id: objectToFlatKey({ server: packet.id, user: packet.user })
+                        });
+
                         break;
                     }
                     case 'ServerMemberLeave': {
                         if (packet.user === this.client.user?._id) {
                             this.client.servers.delete(packet.id, true);
+                            this.client.servers.members.findMembers(packet.id)
+                                .forEach(member => this.client.servers.members.delete(member._id));
+                        } else {
+                            this.client.servers.members.delete(objectToFlatKey({ server: packet.id, user: packet.user }));
                         }
+
                         break;
                     }
 

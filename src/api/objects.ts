@@ -224,7 +224,7 @@ export namespace Servers {
 
     export type Ban = {
         _id: MemberCompositeKey,
-        reason: string
+        reason?: string
     }
 
     export type Server = {
