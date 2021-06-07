@@ -90,6 +90,9 @@ export default class Servers extends Collection<Server> {
                 this.client.channels.delete(channel._id, true); 
             }
         }
+
+        this.client.servers.members.findMembers(id)
+            .forEach(member => this.client.servers.members.delete(member._id));
         
         super.delete(id);
     }
@@ -128,5 +131,24 @@ export default class Servers extends Collection<Server> {
      */
     async fetchBans(id: string) {
         return await this.client.req('GET', `/servers/${id}/bans` as '/servers/id/bans');
+    }
+
+    /**
+     * Get the icon URL of a server
+     * @param id ID of the target server
+     * @param size Size to resize image to
+     * @param allowAnimation Whether to allow links to the original GIFs to be returned
+     */
+    getIconURL(id: string, size?: number, allowAnimation?: boolean) {
+        let url = this.client.configuration?.features.autumn.url;
+        let server = this.getMutable(id);
+        if (server?.icon) {
+            let baseURL = `${url}/icons/${server.icon._id}`;
+            if (allowAnimation && server.icon.content_type === 'image/gif') {
+                return baseURL;
+            } else {
+                return baseURL + (size ? `?size=${size}` : '');
+            }
+        }
     }
 }

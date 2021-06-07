@@ -219,7 +219,7 @@ export namespace Servers {
         _id: MemberCompositeKey,
         
         nickname?: string,
-        avatar?: File
+        avatar?: Attachment
     }
 
     export type Ban = {
@@ -236,8 +236,8 @@ export namespace Servers {
         description?: string,
         channels: string[],
 
-        icon?: File,
-        banner?: File
+        icon?: Attachment,
+        banner?: Attachment
     }
 }
 
@@ -255,12 +255,12 @@ export namespace Invites {
     export type RetrievedInvite = {
         type: 'Server',
         server_name: string,
-        server_icon?: File,
-        server_banner?: File,
+        server_icon?: Attachment,
+        server_banner?: Attachment,
         channel_name: string,
         channel_description?: string,
         user_name: string,
-        user_avatar?: File
+        user_avatar?: Attachment
     }
 }
 

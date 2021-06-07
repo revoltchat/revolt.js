@@ -134,6 +134,8 @@ export class Client extends EventEmitter {
     async restore(user_id?: string) {
         await this.users.restore(user => { return { ...user, online: false } });
         await this.channels.restore();
+        await this.servers.restore();
+        await this.servers.members.restore();
         this.users.set({
             _id: SYSTEM_USER_ID,
             username: 'REVOLT'

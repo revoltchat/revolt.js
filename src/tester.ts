@@ -22,7 +22,7 @@ client.once('ready', async () => {
 
     let servers = client.servers.toArray();
     for (let server of servers) {
-        await client.servers.delete(server._id);
+        // await client.servers.delete(server._id);
     }
 
     function dothing() {
@@ -33,7 +33,7 @@ client.once('ready', async () => {
             let tasks = [
                 async () => await client.servers.createChannel(server._id, { name: 'based!', nonce: ''+Math.random() }),
                 async () => await client.channels.delete(server.channels[0]),
-                async () => await client.servers.edit(server._id, { name: 'wwwwwww', description: 'henlo' }),
+                async () => await client.servers.edit(server._id, { name: ''+Math.random()*100, description: 'henlo' }),
                 async () => await client.channels.edit(server.channels[0], { name: 'edited!', description: 'haha yes' }),
                 async () => invite = await client.channels.createInvite(server.channels[0]),
                 async () => await client.fetchInvite(invite),
@@ -46,21 +46,23 @@ client.once('ready', async () => {
 
                 async () => console.log(client.servers.members.toArray()),
 
-                async () => await client.servers.members.kickMember(server._id, client2.user!._id),           // A kicks B from server
-                async () => await client2.joinInvite(invite),                                                 // B rejoins server
-                async () => await client.servers.banUser(server._id, client2.user!._id, { reason: 'bad' }),   // A bans B from server
-                async () => await client2.joinInvite(invite).catch(() => console.log('Failed succesfully.')), // B can no longer join
+                async () => await client.servers.members.kickMember(server._id, client2.user!._id),           
+                async () => await client2.joinInvite(invite),                                                 
+                async () => await client.servers.banUser(server._id, client2.user!._id, { reason: 'bad' }),  
+                async () => await client2.joinInvite(invite).catch(() => console.log('Failed succesfully.')),
 
                 // async () => console.log(await client.servers.fetchBans(server._id)),
 
-                async () => console.log(client.servers.members.toArray()),
-                async () => console.log(client2.servers.members.toArray()),
 
-                async () => await client.servers.unbanUser(server._id, client2.user!._id),                    // A unbans B
-                async () => await client2.joinInvite(invite),                                                 // B can now join
-                async () => await client2.servers.delete(server._id),                                         // B leaves the server
+                async () => await client.servers.unbanUser(server._id, client2.user!._id),                    
+                async () => await client2.joinInvite(invite),
+                async () => await client2.servers.delete(server._id),      
 
                 () => new Promise(r => setTimeout(r, 200)),
+                async () => console.log('c1', client.servers.members.toArray()),
+                async () => console.log('c2', client2.servers.members.toArray()),
+
+                () => new Promise(r => setTimeout(r, 1000)),
                 async () => await client.channels.sendMessage(server.channels[0], 'message 1'),
                 async () => await client.deleteInvite(invite),
                 async () => await client.servers.fetchInvites(server._id),

@@ -278,6 +278,7 @@ export default class Channels extends Collection<Channel> {
      * Get the icon URL of a channel
      * @param id ID of the target channel
      * @param size Size to resize image to
+     * @param allowAnimation Whether to allow links to the original GIFs to be returned
      */
     getIconURL(id: string, size?: number, allowAnimation?: boolean) {
         let url = this.client.configuration?.features.autumn.url;

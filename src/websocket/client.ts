@@ -235,8 +235,6 @@ export class WebSocketClient {
                     case 'ServerMemberLeave': {
                         if (packet.user === this.client.user?._id) {
                             this.client.servers.delete(packet.id, true);
-                            this.client.servers.members.findMembers(packet.id)
-                                .forEach(member => this.client.servers.members.delete(member._id));
                         } else {
                             this.client.servers.members.delete(objectToFlatKey({ server: packet.id, user: packet.user }));
                         }
