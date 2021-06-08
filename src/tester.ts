@@ -22,19 +22,19 @@ client.once('ready', async () => {
 
     let servers = client.servers.toArray();
     for (let server of servers) {
-        // await client.servers.delete(server._id);
+        await client.servers.delete(server._id);
     }
 
     function dothing() {
         (async () => {
-            let server = await client.servers.createServer({ name: 'sus amongus ' + Math.random(), nonce: ''+Math.random() });
+            let server = await client.servers.createServer({ name: 'sus amongus', nonce: ''+Math.random() });
     
             let invite: string;
             let tasks = [
                 async () => await client.servers.createChannel(server._id, { name: 'based!', nonce: ''+Math.random() }),
                 async () => await client.channels.delete(server.channels[0]),
-                async () => await client.servers.edit(server._id, { name: ''+Math.random()*100, description: 'henlo' }),
-                async () => await client.channels.edit(server.channels[0], { name: 'edited!', description: 'haha yes' }),
+                // async () => await client.servers.edit(server._id, { name: ''+Math.random()*100, description: 'henlo' }),
+                // async () => await client.channels.edit(server.channels[0], { name: 'edited!', description: 'haha yes' }),
                 async () => invite = await client.channels.createInvite(server.channels[0]),
                 async () => await client.fetchInvite(invite),
                 async () => await client2.joinInvite(invite),
@@ -53,7 +53,6 @@ client.once('ready', async () => {
 
                 // async () => console.log(await client.servers.fetchBans(server._id)),
 
-
                 async () => await client.servers.unbanUser(server._id, client2.user!._id),                    
                 async () => await client2.joinInvite(invite),
                 async () => await client2.servers.delete(server._id),      
@@ -66,7 +65,7 @@ client.once('ready', async () => {
                 async () => await client.channels.sendMessage(server.channels[0], 'message 1'),
                 async () => await client.deleteInvite(invite),
                 async () => await client.servers.fetchInvites(server._id),
-                async () => await client.servers.delete(server._id)
+                // async () => await client.servers.delete(server._id)
             ];
 
             for (let task of tasks) {

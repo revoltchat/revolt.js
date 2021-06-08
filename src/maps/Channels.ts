@@ -283,7 +283,7 @@ export default class Channels extends Collection<Channel> {
     getIconURL(id: string, size?: number, allowAnimation?: boolean) {
         let url = this.client.configuration?.features.autumn.url;
         let channel = this.getMutable(id);
-        if (url && channel?.channel_type === 'Group') {
+        if (url && channel && (channel.channel_type !== 'SavedMessages' && channel.channel_type !== 'DirectMessage')) {
             let attachment = channel.icon;
             if (attachment) {
                 let baseURL = `${url}/icons/${attachment._id}`;
