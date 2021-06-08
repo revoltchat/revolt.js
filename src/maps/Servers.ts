@@ -151,4 +151,23 @@ export default class Servers extends Collection<Server> {
             }
         }
     }
+
+    /**
+     * Get the banner URL of a server
+     * @param id ID of the target server
+     * @param size Size to resize image to
+     * @param allowAnimation Whether to allow links to the original GIFs to be returned
+     */
+    getBannerURL(id: string, size?: number, allowAnimation?: boolean) {
+        let url = this.client.configuration?.features.autumn.url;
+        let server = this.getMutable(id);
+        if (server?.banner) {
+            let baseURL = `${url}/banners/${server.banner._id}`;
+            if (allowAnimation && server.banner.content_type === 'image/gif') {
+                return baseURL;
+            } else {
+                return baseURL + (size ? `?size=${size}` : '');
+            }
+        }
+    }
 }
