@@ -312,6 +312,7 @@ export class Client extends EventEmitter {
 
         switch (res.type) {
             case 'Server': {
+                await this.channels.fetch(res.channel._id, res.channel);
                 await this.servers.fetch(res.server._id, res.server);
                 break;
             }
