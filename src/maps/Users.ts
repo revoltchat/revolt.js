@@ -136,8 +136,10 @@ export default class Users extends Collection<User> {
      * Get the avatar URL of a user
      * @param id ID of the target user
      * @param size Size to resize image to
+     * @param allowAnimation Whether to allow GIFs to play
+     * @param disableFallback Don't return default avatar if no avatar
      */
-    getAvatarURL(id: string, size?: number, allowAnimation?: boolean) {
+    getAvatarURL(id: string, size?: number, allowAnimation?: boolean, disableFallback?: boolean) {
         let url = this.client.configuration?.features.autumn.url;
         let attachment = this.getMutable(id)?.avatar;
         if (url && attachment) {
@@ -147,7 +149,7 @@ export default class Users extends Collection<User> {
             } else {
                 return baseURL + (size ? `?size=${size}` : '');
             }
-        } else {
+        } else if (!disableFallback) {
             return this.getDefaultAvatarURL(id);
         }
     }
