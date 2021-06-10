@@ -32,7 +32,7 @@ export const ServerPermission = {
 
 const U32_MAX = 2**32 - 1; // 4294967295
 
-class PermissionCalculator {
+export class PermissionCalculator {
     client: Client;
 
     constructor(client: Client) {
