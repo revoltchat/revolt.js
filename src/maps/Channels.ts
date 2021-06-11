@@ -222,8 +222,10 @@ export default class Channels extends Collection<Channel> {
                 this.client.users.set(user);
             }
 
-            for (let member of res.members) {
-                this.client.servers.members.set(flattenMember(member));
+            if (res.members) {
+                for (let member of res.members) {
+                    this.client.servers.members.set(flattenMember(member));
+                }
             }
         }
 

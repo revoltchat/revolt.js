@@ -387,7 +387,7 @@ type Routes =
         response: Channels.Message[] | {
             messages: Channels.Message[],
             users: Users.User[],
-            members: Servers.Member[]
+            members?: Servers.Member[]
         }
     }
     | {
