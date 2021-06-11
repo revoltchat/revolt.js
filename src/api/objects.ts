@@ -197,7 +197,8 @@ export namespace Channels {
         content: string | SystemMessage,
         attachments?: Attachment[],
         edited?: { $date: string },
-        embeds?: Embed[]
+        embeds?: Embed[],
+        mentions?: string[]
     }
 
     export type SystemMessage =
