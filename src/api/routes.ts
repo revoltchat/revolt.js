@@ -386,7 +386,8 @@ type Routes =
         },
         response: Channels.Message[] | {
             messages: Channels.Message[],
-            users: Users.User[]
+            users: Users.User[],
+            members: Servers.Member[]
         }
     }
     | {

@@ -116,16 +116,16 @@ export default class Servers extends Collection<Server> {
     }
 
     /**
-     * Fetch a server's invites.
+     * Fetch a server's invites
      * @param id Server ID
-     * @returns An array of the server's invites.
+     * @returns An array of the server's invites
      */
     async fetchInvites(id: string) {
         return await this.client.req('GET', `/servers/${id}/invites` as '/servers/id/invites');
     }
 
     /**
-     * Fetch a server's bans.
+     * Fetch a server's bans
      * @param id Server ID
      * @returns An array of the server's bans.
      */

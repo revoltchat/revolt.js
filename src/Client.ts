@@ -120,9 +120,11 @@ export class Client extends EventEmitter {
                     channel.last_message = {
                         _id: message._id,
                         author: message.author,
-                        short: this.markdownToText(message.content).substr(0, 64)
+                        short: this.markdownToText(message.content).substr(0, 128)
                     }
                 }
+            } else if (channel.channel_type === 'TextChannel') {
+                channel.last_message = message._id;
             }
         });
     }

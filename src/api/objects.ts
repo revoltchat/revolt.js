@@ -182,7 +182,8 @@ export namespace Channels {
 
         name: string,
         description: string,
-        icon?: Attachment
+        icon?: Attachment,
+        last_message: string
     }
 
     export type Channel = (SavedMessagesChannel | DirectMessageChannel | GroupChannel | TextChannel) & { nonce?: string }
@@ -245,9 +246,9 @@ export namespace Invites {
     export type ServerInvite = {
         type: 'Server',
         _id: string,
-        server: String,
-        creator: String,
-        channel: String,
+        server: string,
+        creator: string,
+        channel: string,
     }
 
     export type Invite = ServerInvite;

@@ -1,4 +1,5 @@
-import { Channel, Channels as ChannelsNS, Message, User } from '../api/objects';
+import { Channel, Channels as ChannelsNS, Message, Servers, User } from '../api/objects';
+import { flattenMember } from './Members';
 import { Route } from '../api/routes';
 import Collection from './Collection';
 import { Client } from '..';
@@ -214,11 +215,15 @@ export default class Channels extends Collection<Channel> {
      * @returns Object including messages and users
      */
     async fetchMessagesWithUsers(id: string, params?: Omit<Route<'GET', '/channels/id/messages'>["data"], 'include_users'>, processUsers?: boolean) {
-        let res = await this.client.request('GET', `/channels/${id}/messages` as '/channels/id/messages', { params: { ...params, include_users: true } }) as { messages: Message[], users: User[] };
+        let res = await this.client.request('GET', `/channels/${id}/messages` as '/channels/id/messages', { params: { ...params, include_users: true } }) as { messages: Message[], users: User[], members: Servers.Member[] };
 
         if (processUsers) {
             for (let user of res.users) {
                 this.client.users.set(user);
+            }
+
+            for (let member of res.members) {
+                this.client.servers.members.set(flattenMember(member));
             }
         }
 
