@@ -4,7 +4,7 @@ import { EventEmitter } from 'eventemitter3';
 
 import { defaultConfig } from '.';
 import { WebSocketClient } from './websocket/client';
-import { Core, Auth, User, Message } from './api/objects';
+import { Core, Auth, User, Message, Autumn } from './api/objects';
 import { Route, RoutePath, RouteMethod } from './api/routes';
 
 import Users from './maps/Users';
@@ -414,9 +414,33 @@ export class Client extends EventEmitter {
             }
         )
         .replace(
-            // This is a bit excessive, but we want to do it cheaply.
             RE_SPOILER,
             '<spoiler>'
         );
+    }
+
+    /**
+     * Generates a URL to a given file with given options.
+     * @param attachment Partial of attachment object
+     * @param options Optional query parameters to modify object
+     * @param allowAnimation Returns GIF if applicable, no operations occur on image
+     * @param fallback Fallback URL
+     * @returns Generated URL or nothing
+     */
+    generateFileURL(attachment?: { tag: string, _id: string, content_type?: string }, options?: Autumn.SizeOptions, allowAnimation?: boolean, fallback?: string) {
+        let autumn = this.configuration?.features.autumn;
+        if (!autumn?.enabled) return fallback;
+        if (!attachment) return fallback;
+
+        let { tag, _id, content_type } = attachment;
+
+        let query = '';
+        if (options) {
+            if (!allowAnimation || content_type !== 'image/gif') {
+                query = '?' + Object.keys(options).map(k => `${k}=${(options as any)[k]}`).join('&');
+            }
+        }
+
+        return `${autumn.url}/${tag}/${_id}${query}`;
     }
 }

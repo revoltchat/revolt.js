@@ -1,4 +1,4 @@
-import { Channels, Server, Servers as ServersNS } from '../api/objects';
+import { Autumn, Channels, Server, Servers as ServersNS } from '../api/objects';
 import { Route } from '../api/routes';
 import Collection from './Collection';
 import Members from './Members';
@@ -136,38 +136,22 @@ export default class Servers extends Collection<Server> {
     /**
      * Get the icon URL of a server
      * @param id ID of the target server
-     * @param size Size to resize image to
+     * @param options Optional query parameters to modify object
      * @param allowAnimation Whether to allow links to the original GIFs to be returned
      */
-    getIconURL(id: string, size?: number, allowAnimation?: boolean) {
-        let url = this.client.configuration?.features.autumn.url;
+    getIconURL(id: string, options?: Autumn.SizeOptions, allowAnimation?: boolean) {
         let server = this.getMutable(id);
-        if (server?.icon) {
-            let baseURL = `${url}/icons/${server.icon._id}`;
-            if (allowAnimation && server.icon.content_type === 'image/gif') {
-                return baseURL;
-            } else {
-                return baseURL + (size ? `?size=${size}` : '');
-            }
-        }
+        return this.client.generateFileURL(server?.icon, options, allowAnimation);
     }
 
     /**
      * Get the banner URL of a server
      * @param id ID of the target server
-     * @param width Width to resize image to
+     * @param options Optional query parameters to modify object
      * @param allowAnimation Whether to allow links to the original GIFs to be returned
      */
-    getBannerURL(id: string, width?: number, allowAnimation?: boolean) {
-        let url = this.client.configuration?.features.autumn.url;
+    getBannerURL(id: string, options?: Autumn.SizeOptions, allowAnimation?: boolean) {
         let server = this.getMutable(id);
-        if (server?.banner) {
-            let baseURL = `${url}/banners/${server.banner._id}`;
-            if (allowAnimation && server.banner.content_type === 'image/gif') {
-                return baseURL;
-            } else {
-                return baseURL + (width ? `?width=${width}` : '');
-            }
-        }
+        return this.client.generateFileURL(server?.banner, options, allowAnimation);
     }
 }

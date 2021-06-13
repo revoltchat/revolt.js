@@ -275,6 +275,15 @@ export namespace Sync {
     }
 }
 
+export namespace Autumn {
+    export interface SizeOptions {
+        width?: number,
+        height?: number,
+        size?: number,
+        max_side?: number
+    }
+}
+
 export type User = Users.User;
 export type Channel = Channels.Channel;
 export type Message = Channels.Message;

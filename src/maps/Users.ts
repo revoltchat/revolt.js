@@ -1,5 +1,5 @@
 import Collection from './Collection';
-import { User, Users as UsersI } from '../api/objects';
+import { Autumn, User, Users as UsersI } from '../api/objects';
 import { Client } from '..';
 import { Route } from '../api/routes';
 
@@ -135,23 +135,13 @@ export default class Users extends Collection<User> {
     /**
      * Get the avatar URL of a user
      * @param id ID of the target user
-     * @param size Size to resize image to
+     * @param options Optional query parameters to modify object
      * @param allowAnimation Whether to allow GIFs to play
      * @param disableFallback Don't return default avatar if no avatar
      */
-    getAvatarURL(id: string, size?: number, allowAnimation?: boolean, disableFallback?: boolean) {
-        let url = this.client.configuration?.features.autumn.url;
+    getAvatarURL(id: string, options?: Autumn.SizeOptions, allowAnimation?: boolean, disableFallback?: boolean) {
         let attachment = this.getMutable(id)?.avatar;
-        if (url && attachment) {
-            let baseURL = `${url}/avatars/${attachment._id}`;
-            if (allowAnimation && attachment.content_type === 'image/gif') {
-                return baseURL;
-            } else {
-                return baseURL + (size ? `?size=${size}` : '');
-            }
-        } else if (!disableFallback) {
-            return this.getDefaultAvatarURL(id);
-        }
+        return this.client.generateFileURL(attachment, options, allowAnimation, disableFallback ? undefined : this.getDefaultAvatarURL(id));
     }
 
     /**
@@ -165,18 +155,10 @@ export default class Users extends Collection<User> {
     /**
      * Get the background URL of a user
      * @param profile Profile to use
-     * @param width Horizontal width to resize the image to
+     * @param options Optional query parameters to modify object
      */
-    getBackgroundURL(profile: UsersI.Profile, width?: number, allowAnimation?: boolean) {
-        let url = this.client.configuration?.features.autumn.url;
+    getBackgroundURL(profile: UsersI.Profile, options?: Autumn.SizeOptions, allowAnimation?: boolean) {
         let attachment = profile?.background;
-        if (url && attachment) {
-            let baseURL = `${url}/backgrounds/${attachment._id}`;
-            if (allowAnimation && attachment.content_type === 'image/gif') {
-                return baseURL;
-            } else {
-                return baseURL + (width ? `?width=${width}` : '');
-            }
-        }
+        return this.client.generateFileURL(attachment, options, allowAnimation);
     }
 }

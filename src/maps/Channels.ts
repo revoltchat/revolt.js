@@ -1,4 +1,4 @@
-import { Channel, Channels as ChannelsNS, Message, Servers, User } from '../api/objects';
+import { Autumn, Channel, Channels as ChannelsNS, Message, Servers, User } from '../api/objects';
 import { flattenMember } from './Members';
 import { Route } from '../api/routes';
 import Collection from './Collection';
@@ -284,22 +284,14 @@ export default class Channels extends Collection<Channel> {
     /**
      * Get the icon URL of a channel
      * @param id ID of the target channel
-     * @param size Size to resize image to
+     * @param options Optional query parameters to modify object
      * @param allowAnimation Whether to allow links to the original GIFs to be returned
+     * @param fallback Fallback image
      */
-    getIconURL(id: string, size?: number, allowAnimation?: boolean) {
-        let url = this.client.configuration?.features.autumn.url;
+    getIconURL(id: string, options?: Autumn.SizeOptions, allowAnimation?: boolean, fallback?: string) {
         let channel = this.getMutable(id);
-        if (url && channel && (channel.channel_type !== 'SavedMessages' && channel.channel_type !== 'DirectMessage')) {
-            let attachment = channel.icon;
-            if (attachment) {
-                let baseURL = `${url}/icons/${attachment._id}`;
-                if (allowAnimation && attachment.content_type === 'image/gif') {
-                    return baseURL;
-                } else {
-                    return baseURL + (size ? `?size=${size}` : '');
-                }
-            }
+        if (channel && (channel.channel_type !== 'SavedMessages' && channel.channel_type !== 'DirectMessage')) {
+            return this.client.generateFileURL(channel.icon, options, allowAnimation, fallback);
         }
     }
 }
