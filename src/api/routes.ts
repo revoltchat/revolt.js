@@ -597,7 +597,7 @@ type Routes =
         method: 'GET',
         route: `/sync/unreads`,
         data: undefined,
-        response: Sync.ChannelUnread
+        response: Sync.ChannelUnread[]
     }
     /**
      * Push API

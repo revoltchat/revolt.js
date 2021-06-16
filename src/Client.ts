@@ -357,6 +357,14 @@ export class Client extends EventEmitter {
     }
 
     /**
+     * Fetch user unreads for current user.
+     * @returns Array of channel unreads.
+     */
+    async syncFetchUnreads() {
+        return await this.req('GET', '/sync/unreads');
+    }
+
+    /**
      * ? Utility functions.
      */
 
