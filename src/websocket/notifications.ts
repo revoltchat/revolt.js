@@ -25,12 +25,13 @@ export type ClientboundNotification = (
     ({ type: 'MessageDelete', id: string }) |
 
     ({ type: 'ChannelCreate' } & Channels.Channel) |
-    ({ type: 'ChannelUpdate', id: string, data: Partial<Channels.Channel>, clear?: RemoveChannelField }) |
-    ({ type: 'ChannelDelete', id: string }) |
-    ({ type: 'ChannelGroupJoin', id: string, user: string }) |
-    ({ type: 'ChannelGroupLeave', id: string, user: string }) |
-    ({ type: 'ChannelStartTyping', id: string, user: string }) |
-    ({ type: 'ChannelStopTyping', id: string, user: string }) |
+    { type: 'ChannelUpdate', id: string, data: Partial<Channels.Channel>, clear?: RemoveChannelField } |
+    { type: 'ChannelDelete', id: string } |
+    { type: 'ChannelGroupJoin', id: string, user: string } |
+    { type: 'ChannelGroupLeave', id: string, user: string } |
+    { type: 'ChannelStartTyping', id: string, user: string } |
+    { type: 'ChannelStopTyping', id: string, user: string } |
+    { type: 'ChannelAck', id: string, message_id: string } |
 
     ({ type: 'ServerCreate' } & Servers.Server) |
     ({ type: 'ServerUpdate', id: string, data: Partial<Servers.Server>, clear?: RemoveServerField }) |

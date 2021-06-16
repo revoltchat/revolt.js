@@ -273,6 +273,18 @@ export namespace Sync {
     export type UserSettings = {
         [key: string]: [ number, string ]
     }
+
+    export type ChannelCompositeKey = {
+        channel: string,
+        user: string
+    }
+
+    export interface ChannelUnread {
+        _id: ChannelCompositeKey,
+
+        last_id: string,
+        mentions?: string[]
+    }
 }
 
 export namespace Autumn {

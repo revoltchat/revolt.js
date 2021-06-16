@@ -352,6 +352,13 @@ type Routes =
         data: undefined,
         response: undefined
     }
+    | {
+        // Mark a channel as read at message.
+        method: 'PUT',
+        route: `/channels/${Id}/ack/${Id}`,
+        data: undefined,
+        response: undefined
+    }
     /**
      * Messaging
      */
@@ -584,6 +591,13 @@ type Routes =
             [key: string]: string
         },
         response: undefined
+    }
+    | {
+        // Fetch unreads.
+        method: 'GET',
+        route: `/sync/unreads`,
+        data: undefined,
+        response: Sync.ChannelUnread
     }
     /**
      * Push API
