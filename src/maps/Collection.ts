@@ -5,7 +5,7 @@ export default class Collection<T extends ObjectWithId> extends MutableMap<T> {
     client: Client;
 
     constructor(client: Client, col: string) {
-        super(client.collection(col));
+        super(col, client.db);
         this.client = client;
     }
 

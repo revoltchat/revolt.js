@@ -1,17 +1,17 @@
 import Axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import defaultsDeep from 'lodash.defaultsdeep';
 import { EventEmitter } from 'eventemitter3';
+import { IDBPDatabase } from 'idb';
 
 import { defaultConfig } from '.';
 import { WebSocketClient } from './websocket/client';
-import { Core, Auth, User, Message, Autumn } from './api/objects';
 import { Route, RoutePath, RouteMethod } from './api/routes';
+import { Core, Auth, User, Message, Autumn } from './api/objects';
+import { ClientboundNotification } from './websocket/notifications';
 
 import Users from './maps/Users';
 import Servers from './maps/Servers';
 import Channels from './maps/Channels';
-import { Db } from '@insertish/zangodb';
-import { ClientboundNotification } from './websocket/notifications';
 
 /**
  * Client options object
@@ -21,7 +21,7 @@ export interface ClientOptions {
     autoReconnect: boolean
     heartbeat: number
     debug: boolean
-    db: Db
+    db: IDBPDatabase
 }
 
 export declare interface Client {
@@ -64,7 +64,7 @@ export const RE_MENTIONS = /<@([A-z0-9]{26})>/g;
 export const RE_SPOILER = /!!.+!!/g;
 
 export class Client extends EventEmitter {
-    private db?: Db;
+    db?: IDBPDatabase;
     heartbeat: number;
     user?: Readonly<User>;
     session?: Auth.Session;
@@ -159,17 +159,6 @@ export class Client extends EventEmitter {
 
     get autoReconnect() {
         return this.options.autoReconnect;
-    }
-
-    /**
-     * Retrieve a collectio by name if the database is initialized.
-     * @param col Collection name
-     * @returns The collection
-     */
-    collection(col: string) {
-        if (this.db) {
-            return this.db.collection(col);
-        }
     }
 
     /**
