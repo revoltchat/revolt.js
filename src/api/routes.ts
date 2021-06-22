@@ -369,7 +369,7 @@ type Routes =
         data: {
             content: string,
             nonce: string,
-            attachment?: string
+            attachments?: string[]
         },
         response: Channels.Message
     }

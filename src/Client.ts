@@ -374,10 +374,15 @@ export class Client extends EventEmitter {
         this.websocket.disconnect();
         delete this.user;
         delete this.session;
+
         this.users.clear();
         this.channels.clear();
+        this.servers.clear();
+        this.servers.members.clear();
+
         this.users = new Users(this);
         this.channels = new Channels(this);
+        this.servers = new Servers(this);
     }
 
     /**
