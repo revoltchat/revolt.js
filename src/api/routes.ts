@@ -369,7 +369,8 @@ type Routes =
         data: {
             content: string,
             nonce: string,
-            attachments?: string[]
+            attachments?: string[],
+            replies?: { id: string, mention: boolean }[]
         },
         response: Channels.Message
     }
@@ -524,15 +525,16 @@ type Routes =
         response: Servers.Ban[]
     }
     | {
-        // Create a new text channel for a server
+        // Create a new server channel
         method: 'POST',
         route: `/servers/${Id}/channels`,
         data: {
+            type?: 'Text' | 'Voice',
             name: string,
             description?: string,
             nonce: string
         },
-        response: Channels.TextChannel
+        response: Channels.TextChannel | Channels.VoiceChannel
     }
     | {
         // Fetch a server's invites

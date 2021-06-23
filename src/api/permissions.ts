@@ -94,7 +94,8 @@ export class PermissionCalculator {
                 + ChannelPermission.ManageChannel
                 + ChannelPermission.VoiceCall
                 + ChannelPermission.InviteOthers;
-            case 'TextChannel': {
+            case 'TextChannel':
+            case 'VoiceChannel': {
                 let server = this.client.servers.get(channel.server);
                 if (typeof server === 'undefined') return 0;
 
@@ -103,6 +104,7 @@ export class PermissionCalculator {
                 } else {
                     return ChannelPermission.View
                         + ChannelPermission.SendMessage
+                        + ChannelPermission.VoiceCall
                         + ChannelPermission.InviteOthers;
                 }
             }

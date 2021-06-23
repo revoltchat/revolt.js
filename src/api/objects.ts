@@ -175,18 +175,25 @@ export namespace Channels {
         icon?: Attachment
     }
 
-    export type TextChannel = {
+    export type ServerChannel = {
         _id: string,
-        channel_type: 'TextChannel',
         server: string,
 
         name: string,
         description: string,
-        icon?: Attachment,
+        icon?: Attachment
+    }
+
+    export type TextChannel = ServerChannel & {
+        channel_type: 'TextChannel',
         last_message: string
     }
 
-    export type Channel = (SavedMessagesChannel | DirectMessageChannel | GroupChannel | TextChannel) & { nonce?: string }
+    export type VoiceChannel = ServerChannel & {
+        channel_type: 'VoiceChannel'
+    }
+
+    export type Channel = (SavedMessagesChannel | DirectMessageChannel | GroupChannel | TextChannel | VoiceChannel) & { nonce?: string }
 
     export type Message = {
         _id: string,
@@ -198,7 +205,8 @@ export namespace Channels {
         attachments?: Attachment[],
         edited?: { $date: string },
         embeds?: Embed[],
-        mentions?: string[]
+        mentions?: string[],
+        replies?: string[]
     }
 
     export type SystemMessage =
