@@ -1,6 +1,6 @@
 {
   "name": "revolt.js",
-  "version": "4.3.2-patch.0",
+  "version": "4.3.2-patch.1",
   "main": "dist/index.js",
   "repository": "https://gitlab.insrt.uk/revolt/revolt.js",
   "author": "Paul Makles <insrt.uk>",

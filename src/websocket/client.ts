@@ -1,10 +1,10 @@
 import WebSocket from 'isomorphic-ws';
 import { backOff } from 'exponential-backoff';
 
+import { Auth, User } from '../api/objects';
 import { Client, SYSTEM_USER_ID } from '..';
-import { Auth, Channels, User } from '../api/objects';
-import { ServerboundNotification, ClientboundNotification } from './notifications';
 import { objectToFlatKey } from '../maps/Members';
+import { ServerboundNotification, ClientboundNotification } from './notifications';
 
 export class WebSocketClient {
     client: Client;

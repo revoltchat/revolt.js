@@ -43,8 +43,8 @@ export default class Servers extends Collection<Server> {
 
     /**
      * Create a server
-     * @param data Group create route data
-     * @returns The newly-created group
+     * @param data Server create route data
+     * @returns The newly-created server
      */
     async createServer(data: Route<'POST', '/servers/create'>["data"]) {
         let res = await this.client.req('POST', `/servers/create`, data);
@@ -55,13 +55,22 @@ export default class Servers extends Collection<Server> {
     /**
      * Create a channel
      * @param id ID of the target server
-     * @param data Group create route data
-     * @returns The newly-created group
+     * @param data Channel create route data
+     * @returns The newly-created channel
      */
     async createChannel(id: string, data: Route<'POST', '/servers/id/channels'>["data"]) {
+        let server = this.client.servers.getMutable(id);
+        if (!server) throw "Server does not exist!";
+
         let res = await this.client.req('POST', `/servers/${id}/channels` as '/servers/id/channels', data);
         this.client.channels.set(res);
-        return this.client.channels.get(res._id) as Readonly<Channels.TextChannel>;
+        
+        server.channels = [
+            ...server.channels.filter(x => x !== res._id),
+            res._id
+        ];
+
+        return this.client.channels.get(res._id) as Readonly<Channels.TextChannel | Channels.VoiceChannel>;
     }
 
     /**
