@@ -158,7 +158,8 @@ export class WebSocketClient {
                     case 'MessageDelete': this.client.emit('message/delete', packet.id); break;
 
                     case 'ChannelCreate': {
-                        if (packet.channel_type === 'TextChannel') {
+                        if (packet.channel_type === 'TextChannel' ||
+                            packet.channel_type === 'VoiceChannel') {
                             let id = packet._id;
                             let server = await this.client.servers.fetchMutable(packet.server);
                             server.channels = [

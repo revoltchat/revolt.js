@@ -86,7 +86,7 @@ export default class Servers extends Collection<Server> {
             await this.client.req('DELETE', `/servers/${id}` as '/servers/id');
         
         for (let channel of this.client.channels.toArray()) {
-            if (channel.channel_type === 'TextChannel' && channel.server === id) {
+            if ((channel.channel_type === 'TextChannel' || channel.channel_type === 'VoiceChannel') && channel.server === id) {
                 this.client.channels.delete(channel._id, true); 
             }
         }

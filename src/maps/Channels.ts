@@ -91,13 +91,13 @@ export default class Channels extends Collection<Channel> {
      */
     async edit(id: string, data: Route<'PATCH', '/channels/id'>["data"]) {
         let channel = this.getThrow(id);
-        if (channel.channel_type === 'Group' || channel.channel_type === 'TextChannel') {
+        if (channel.channel_type === 'Group' || channel.channel_type === 'TextChannel' || channel.channel_type === 'VoiceChannel') {
             await this.client.req('PATCH', `/channels/${id}` as '/channels/id', data);
             
             if (data.name) channel.name = data.name;
             if (data.description) channel.description = data.description;
         } else {
-            throw "Channel is not group or text channel.";
+            throw "Channel is not group, text or voice channel.";
         }
     }
 
@@ -113,7 +113,7 @@ export default class Channels extends Collection<Channel> {
             await this.client.req('DELETE', `/channels/${id}` as '/channels/id');
         
         if (!channel) return;
-        if (channel.channel_type === 'TextChannel') {
+        if (channel.channel_type === 'TextChannel' || channel.channel_type === 'VoiceChannel') {
             let id = channel._id;
             let server = await this.client.servers.fetchMutable(channel.server);
             server.channels = server.channels.filter(x => x !== id);
