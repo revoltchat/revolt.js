@@ -258,6 +258,19 @@ export namespace Servers {
         colour?: string
     }
 
+    export type Category = {
+        id: string,
+        title: string,
+        channels: string[]
+    }
+
+    export type SystemMessageChannels = {
+        user_joined?: string,
+        user_left?: string,
+        user_kicked?: string,
+        user_banned?: string,
+    }
+
     export type Server = {
         _id: string,
         nonce?: string,
@@ -265,7 +278,10 @@ export namespace Servers {
 
         name: string,
         description?: string,
+
         channels: string[],
+        categories?: Category[],
+        system_messages?: SystemMessageChannels,
 
         roles?: { [key: string]: Role },
         default_permissions: PermissionTuple,
