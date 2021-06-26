@@ -172,7 +172,9 @@ export namespace Channels {
         description?: string,
 
         last_message: LastMessage,
-        icon?: Attachment
+        icon?: Attachment,
+
+        permissions?: number
     }
 
     export type ServerChannel = {
@@ -181,7 +183,10 @@ export namespace Channels {
 
         name: string,
         description: string,
-        icon?: Attachment
+        icon?: Attachment,
+
+        default_permissions?: number,
+        role_permissions?: { [key: string]: number }
     }
 
     export type TextChannel = ServerChannel & {
@@ -232,12 +237,25 @@ export namespace Servers {
         _id: MemberCompositeKey,
         
         nickname?: string,
-        avatar?: Attachment
+        avatar?: Attachment,
+
+        roles?: string[]
     }
 
     export type Ban = {
         _id: MemberCompositeKey,
         reason?: string
+    }
+
+    export type PermissionTuple = [
+        number, // server permission
+        number  // channel permission
+    ]
+
+    export type Role = {
+        name: string,
+        permissions: PermissionTuple,
+        colour?: string
     }
 
     export type Server = {
@@ -248,6 +266,9 @@ export namespace Servers {
         name: string,
         description?: string,
         channels: string[],
+
+        roles?: { [key: string]: Role },
+        default_permissions: PermissionTuple,
 
         icon?: Attachment,
         banner?: Attachment

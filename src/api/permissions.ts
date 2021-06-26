@@ -15,6 +15,8 @@ export const ChannelPermission = {
     ManageChannel: 0b00000000000000000000000000001000,  // 8
     VoiceCall: 0b00000000000000000000000000010000,      // 16
     InviteOthers: 0b00000000000000000000000000100000,   // 32
+    EmbedLinks: 0b00000000000000000000000001000000,   // 64
+    UploadFiles: 0b00000000000000000000000010000000,   // 128
 }
 
 export const ServerPermission = {
@@ -31,6 +33,15 @@ export const ServerPermission = {
 }
 
 const U32_MAX = 2**32 - 1; // 4294967295
+
+const DEFAULT_PERMISSION_DM =
+    ChannelPermission.View
+    + ChannelPermission.SendMessage
+    + ChannelPermission.ManageChannel
+    + ChannelPermission.VoiceCall
+    + ChannelPermission.InviteOthers
+    + ChannelPermission.EmbedLinks
+    + ChannelPermission.UploadFiles;
 
 export class PermissionCalculator {
     client: Client;
@@ -82,18 +93,12 @@ export class PermissionCalculator {
                 let user_permissions = this.forUser(recipient);
 
                 if (user_permissions & UserPermission.SendMessage) {
-                    return ChannelPermission.View
-                        + ChannelPermission.SendMessage
-                        + ChannelPermission.VoiceCall;
+                    return DEFAULT_PERMISSION_DM;
                 } else {
                     return 0;
                 }
             }
-            case 'Group': return ChannelPermission.View
-                + ChannelPermission.SendMessage
-                + ChannelPermission.ManageChannel
-                + ChannelPermission.VoiceCall
-                + ChannelPermission.InviteOthers;
+            case 'Group': return channel.permissions ?? DEFAULT_PERMISSION_DM;
             case 'TextChannel':
             case 'VoiceChannel': {
                 let server = this.client.servers.get(channel.server);
@@ -102,10 +107,22 @@ export class PermissionCalculator {
                 if (server.owner === this.client.user?._id) {
                     return U32_MAX;
                 } else {
-                    return ChannelPermission.View
-                        + ChannelPermission.SendMessage
-                        + ChannelPermission.VoiceCall
-                        + ChannelPermission.InviteOthers;
+                    let member = this.client.servers.members.get(`${channel.server}${this.client.user!._id}`);
+                    if (!member) return 0;
+
+                    let perm = (
+                        channel.default_permissions ??
+                        server.default_permissions[1]
+                    ) >>> 0;
+
+                    if (member.roles) {
+                        for (let role of member.roles) {
+                            perm |= (channel.role_permissions?.[role] ?? 0) >>> 0;
+                            perm |= (server.roles?.[role].permissions[1] ?? 0) >>> 0;
+                        }
+                    }
+
+                    return perm;
                 }
             }
         }
@@ -118,9 +135,17 @@ export class PermissionCalculator {
         if (server.owner === this.client.user?._id) {
             return U32_MAX;
         } else {
-            return ServerPermission.View
-                + ServerPermission.ChangeNickname
-                + ServerPermission.ChangeAvatar;
+            let member = this.client.servers.members.get(`${server._id}${this.client.user!._id}`);
+            if (!member) return 0;
+
+            let perm = server.default_permissions[0] >>> 0;
+            if (member.roles) {
+                for (let role of member.roles) {
+                    perm |= (server.roles?.[role].permissions[0] ?? 0) >>> 0;
+                }
+            }
+
+            return perm;
         }
     }
 }
