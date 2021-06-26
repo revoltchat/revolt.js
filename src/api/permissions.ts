@@ -98,7 +98,13 @@ export class PermissionCalculator {
                     return 0;
                 }
             }
-            case 'Group': return channel.permissions ?? DEFAULT_PERMISSION_DM;
+            case 'Group': {
+                if (channel.owner === this.client.user!._id) {
+                    return DEFAULT_PERMISSION_DM;
+                } else {
+                    return channel.permissions ?? DEFAULT_PERMISSION_DM;
+                }
+            }
             case 'TextChannel':
             case 'VoiceChannel': {
                 let server = this.client.servers.get(channel.server);
