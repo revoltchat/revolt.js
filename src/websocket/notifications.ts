@@ -36,7 +36,7 @@ export type ClientboundNotification = (
     ({ type: 'ServerCreate' } & Servers.Server) |
     ({ type: 'ServerUpdate', id: string, data: Partial<Servers.Server>, clear?: RemoveServerField }) |
     ({ type: 'ServerDelete', id: string }) |
-    ({ type: 'ServerMemberUpdate', id: string, data: Partial<Servers.Member>, clear?: RemoveMemberField }) |
+    ({ type: 'ServerMemberUpdate', id: Servers.MemberCompositeKey, data: Partial<Servers.Member>, clear?: RemoveMemberField }) |
     ({ type: 'ServerMemberJoin', id: string, user: string }) |
     ({ type: 'ServerMemberLeave', id: string, user: string }) |
     ({ type: 'ServerRoleUpdate', id: string, role_id: string, data: Partial<Servers.Role> }) |

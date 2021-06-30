@@ -3,7 +3,7 @@ import { backOff } from 'exponential-backoff';
 
 import { Auth, Servers, User } from '../api/objects';
 import { Client, SYSTEM_USER_ID } from '..';
-import { objectToFlatKey } from '../maps/Members';
+import { flattenMember, MemberFlatKey, objectToFlatKey } from '../maps/Members';
 import { ServerboundNotification, ClientboundNotification } from './notifications';
 
 export class WebSocketClient {
@@ -231,6 +231,18 @@ export class WebSocketClient {
                             _id: objectToFlatKey({ server: packet.id, user: packet.user })
                         });
 
+                        break;
+                    }
+                    case 'ServerMemberUpdate': {
+                        const id = objectToFlatKey(packet.id);
+                        if (packet.clear) {
+                            switch (packet.clear) {
+                                case 'Avatar': this.client.servers.members.removeField(id, 'avatar'); break;
+                                case 'Nickname': this.client.servers.members.removeField(id, 'nickname'); break;
+                            }
+                        }
+
+                        this.client.servers.members.patch(id, packet.data as Partial<MemberFlatKey>);
                         break;
                     }
                     case 'ServerMemberLeave': {
