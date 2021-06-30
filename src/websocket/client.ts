@@ -1,7 +1,7 @@
 import WebSocket from 'isomorphic-ws';
 import { backOff } from 'exponential-backoff';
 
-import { Auth, User } from '../api/objects';
+import { Auth, Servers, User } from '../api/objects';
 import { Client, SYSTEM_USER_ID } from '..';
 import { objectToFlatKey } from '../maps/Members';
 import { ServerboundNotification, ClientboundNotification } from './notifications';
@@ -239,6 +239,25 @@ export class WebSocketClient {
                         } else {
                             this.client.servers.members.delete(objectToFlatKey({ server: packet.id, user: packet.user }));
                         }
+
+                        break;
+                    }
+                    case 'ServerRoleUpdate': {
+                        let server = await this.client.servers.fetchMutable(packet.id);
+                        server.roles = {
+                            ...server.roles,
+                            [packet.role_id]: {
+                                ...server.roles?.[packet.role_id],
+                                ...packet.data
+                            } as Servers.Role
+                        };
+
+                        break;
+                    }
+                    case 'ServerRoleDelete': {
+                        let server = await this.client.servers.fetchMutable(packet.id);
+                        let { [packet.role_id]: _, ...roles } = server.roles ?? {};
+                        server.roles = roles;
 
                         break;
                     }
