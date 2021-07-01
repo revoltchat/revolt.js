@@ -499,6 +499,7 @@ type Routes =
         data: {
             nickname?: string,
             avatar?: string,
+            roles?: string[],
             remove?: RemoveMemberField
         },
         response: undefined
