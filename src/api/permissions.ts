@@ -70,6 +70,8 @@ export class PermissionCalculator {
         if (this.client.channels.toArray().find(channel =>
             (channel.channel_type === 'Group' || channel.channel_type === 'DirectMessage')
                 && channel.recipients.includes(user_id)
+        ) || this.client.servers.members.toArray().find(member =>
+             member._id.substr(26) === user_id
         )) {
             permissions |= UserPermission.Access | UserPermission.ViewProfile;
         }

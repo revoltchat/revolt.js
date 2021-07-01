@@ -359,6 +359,15 @@ type Routes =
         data: undefined,
         response: undefined
     }
+    | {
+        // Set role permission for channel.
+        method: 'PUT',
+        route: `/channels/${Id}/permissions/${Id}`,
+        data: {
+            permissions?: number
+        },
+        response: undefined
+    }
     /**
      * Messaging
      */
@@ -542,6 +551,34 @@ type Routes =
         route: `/servers/${Id}/invites`,
         data: undefined,
         response: Invites.ServerInvite[]
+    }
+    | {
+        // Create role
+        method: 'POST',
+        route: `/servers/${Id}/roles`,
+        data: {
+            name: string
+        },
+        response: undefined
+    }
+    | {
+        // Delete role
+        method: 'DELETE',
+        route: `/servers/${Id}/roles/${Id}`,
+        data: undefined,
+        response: undefined
+    }
+    | {
+        // Set role permission for server.
+        method: 'PUT',
+        route: `/servers/${Id}/permissions/${Id}`,
+        data: {
+            permissions?: {
+                server: number,
+                channel: number
+            }
+        },
+        response: undefined
     }
     /**
      * Invites

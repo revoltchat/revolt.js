@@ -143,6 +143,34 @@ export default class Servers extends Collection<Server> {
     }
 
     /**
+     * Set role permissions
+     * @param id ID of the target server
+     * @param role_id Role Id, set to 'default' to affect all users
+     * @param permissions Permission number, removes permission if unset
+     */
+    async setPermissions(id: string, role_id: string = 'default', permissions?: { server: number, channel: number }) {
+        return await this.client.req('PUT', `/servers/${id}/permissions/${role_id}` as '/servers/id/permissions/id', { permissions });
+    }
+
+    /**
+     * Create role
+     * @param id Server ID
+     * @param name Role name
+     */
+    async createRole(id: string, name: string) {
+        await this.client.req('POST', `/servers/${id}/roles` as '/servers/id/roles', { name });
+    }
+
+    /**
+     * Delete role
+     * @param id Server ID
+     * @param role_id Role ID
+     */
+    async deleteRole(id: string, role_id: string) {
+        await this.client.req('DELETE', `/servers/${id}/roles/${role_id}` as '/servers/id/roles/id');
+    }
+
+    /**
      * Get the icon URL of a server
      * @param id ID of the target server
      * @param options Optional query parameters to modify object

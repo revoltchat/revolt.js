@@ -273,12 +273,32 @@ export default class Channels extends Collection<Channel> {
     }
 
     /**
-     * Join a call in a channeö
+     * Join a call in a channel
      * @param id ID of the target channel
      * @returns Join call response data
      */
     async joinCall(id: string) {
         return await this.client.req('POST', `/channels/${id}/join_call` as '/channels/id/join_call');
+    }
+
+    /**
+     * Mark a channel as read
+     * @param id ID of the target channel
+     * @param message_id ID of the last read message
+     * @returns Join call response data
+     */
+    async markAsRead(id: string, message_id: string) {
+        return await this.client.req('POST', `/channels/${id}/ack/${message_id}` as '/channels/id/ack/id');
+    }
+
+    /**
+     * Set role permissions
+     * @param id ID of the target channel
+     * @param role_id Role Id, set to 'default' to affect all users
+     * @param permissions Permission number, removes permission if unset
+     */
+    async setPermissions(id: string, role_id: string = 'default', permissions?: number) {
+        return await this.client.req('PUT', `/channels/${id}/permissions/${role_id}` as '/channels/id/permissions/id', { permissions });
     }
 
     /**
