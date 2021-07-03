@@ -158,7 +158,7 @@ export default class Servers extends Collection<Server> {
      * @param name Role name
      */
     async createRole(id: string, name: string) {
-        await this.client.req('POST', `/servers/${id}/roles` as '/servers/id/roles', { name });
+        return await this.client.req('POST', `/servers/${id}/roles` as '/servers/id/roles', { name });
     }
 
     /**

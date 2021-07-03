@@ -560,7 +560,10 @@ type Routes =
         data: {
             name: string
         },
-        response: undefined
+        response: {
+            id: string,
+            permissions: Servers.PermissionTuple
+        }
     }
     | {
         // Delete role
