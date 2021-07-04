@@ -47,7 +47,7 @@ export type AttachmentMetadata = (
 export type Attachment = {
     _id: string,
     tag: string,
-    size: string,
+    size: number,
     filename: string,
     metadata: AttachmentMetadata,
     content_type: string,
