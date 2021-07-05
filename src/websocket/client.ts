@@ -226,6 +226,7 @@ export class WebSocketClient {
                     case 'ServerDelete': this.client.servers.delete(packet.id, true); break;
                     case 'ServerMemberJoin': {
                         await this.client.servers.fetchMutable(packet.id);
+                        await this.client.users.fetchMutable(packet.user);
 
                         this.client.servers.members.set({
                             _id: objectToFlatKey({ server: packet.id, user: packet.user })
