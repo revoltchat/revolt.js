@@ -304,9 +304,11 @@ export namespace Invites {
 
     export type RetrievedInvite = {
         type: 'Server',
+        server_id: string,
         server_name: string,
         server_icon?: Attachment,
         server_banner?: Attachment,
+        channel_id: string,
         channel_name: string,
         channel_description?: string,
         user_name: string,
