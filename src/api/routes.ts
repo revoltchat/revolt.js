@@ -399,6 +399,7 @@ type Routes =
             before?: string,
             after?: string,
             sort?: 'Latest' | 'Oldest',
+            nearby?: string,
             include_users?: boolean
         },
         response: Channels.Message[] | {
