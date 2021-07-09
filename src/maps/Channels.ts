@@ -233,6 +233,40 @@ export default class Channels extends Collection<Channel> {
     }
 
     /**
+     * Search for messages
+     * @param id ID of the target channel
+     * @param params Message searching route data
+     * @returns The messages
+     */
+    async search(id: string, params?: Omit<Route<'POST', '/channels/id/search'>["data"], 'include_users'>) {
+        return await this.client.request('POST', `/channels/${id}/search` as '/channels/id/search', { params }) as Message[];
+    }
+
+    /**
+     * Search for messages including the users that sent them
+     * @param id ID of the target channel
+     * @param params Message searching route data
+     * @returns The messages
+     */
+    async searchWithUsers(id: string, params?: Omit<Route<'POST', '/channels/id/search'>["data"], 'include_users'>, processUsers?: boolean) {
+        let res = await this.client.request('GET', `/channels/${id}/search` as '/channels/id/search', { params: { ...params, include_users: true } }) as { messages: Message[], users: User[], members: Servers.Member[] };
+
+        if (processUsers) {
+            for (let user of res.users) {
+                this.client.users.set(user);
+            }
+
+            if (res.members) {
+                for (let member of res.members) {
+                    this.client.servers.members.set(flattenMember(member));
+                }
+            }
+        }
+
+        return res;
+    }
+
+    /**
      * Fetch stale messages
      * @param id ID of the target channel
      * @param ids IDs of the target messages

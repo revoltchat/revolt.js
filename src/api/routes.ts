@@ -410,7 +410,7 @@ type Routes =
     }
     | {
         // Search messages in a channel (optionally include users as well).
-        method: 'GET',
+        method: 'POST',
         route: `/channels/${Id}/search`,
         data: {
             query: string,
