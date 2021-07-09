@@ -409,6 +409,25 @@ type Routes =
         }
     }
     | {
+        // Search messages in a channel (optionally include users as well).
+        method: 'GET',
+        route: `/channels/${Id}/search`,
+        data: {
+            query: string,
+
+            limit?: number,
+            before?: string,
+            after?: string,
+            sort: 'Relevance' | 'Latest' | 'Oldest',
+            include_users?: boolean
+        },
+        response: Channels.Message[] | {
+            messages: Channels.Message[],
+            users: Users.User[],
+            members?: Servers.Member[]
+        }
+    }
+    | {
         // Query updated messages from channel.
         method: 'POST',
         route: `/channels/${Id}/messages/stale`,
