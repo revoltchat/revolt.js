@@ -238,8 +238,8 @@ export default class Channels extends Collection<Channel> {
      * @param params Message searching route data
      * @returns The messages
      */
-    async search(id: string, params?: Omit<Route<'POST', '/channels/id/search'>["data"], 'include_users'>) {
-        return await this.client.request('POST', `/channels/${id}/search` as '/channels/id/search', { params }) as Message[];
+    async search(id: string, params: Omit<Route<'POST', '/channels/id/search'>["data"], 'include_users'>) {
+        return await this.client.req('POST', `/channels/${id}/search` as '/channels/id/search', params) as Message[];
     }
 
     /**
@@ -248,8 +248,8 @@ export default class Channels extends Collection<Channel> {
      * @param params Message searching route data
      * @returns The messages
      */
-    async searchWithUsers(id: string, params?: Omit<Route<'POST', '/channels/id/search'>["data"], 'include_users'>, processUsers?: boolean) {
-        let res = await this.client.request('GET', `/channels/${id}/search` as '/channels/id/search', { params: { ...params, include_users: true } }) as { messages: Message[], users: User[], members: Servers.Member[] };
+    async searchWithUsers(id: string, params: Omit<Route<'POST', '/channels/id/search'>["data"], 'include_users'>, processUsers?: boolean) {
+        let res = await this.client.req('POST', `/channels/${id}/search` as '/channels/id/search', { ...params, include_users: true }) as { messages: Message[], users: User[], members: Servers.Member[] };
 
         if (processUsers) {
             for (let user of res.users) {
