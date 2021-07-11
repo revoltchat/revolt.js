@@ -182,8 +182,8 @@ type Routes =
         method: 'PATCH',
         route: `/users/${Id}/username`,
         data: {
-            username?: string,
-            password?: string
+            username: string,
+            password: string
         },
         response: undefined
     }
