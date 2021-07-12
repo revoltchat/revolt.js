@@ -1,5 +1,5 @@
 node_modules
-old_src
-dist
 .vscode
 .env
+dist
+docs
