@@ -4,6 +4,7 @@ export type RemoveUserField = 'ProfileContent' | 'ProfileBackground' | 'StatusTe
 export type RemoveChannelField = 'Icon' | 'Description';
 export type RemoveServerField = 'Icon' | 'Banner' | 'Description';
 export type RemoveMemberField = 'Nickname' | 'Avatar';
+export type RemoveRoleField = 'Colour';
 
 type Id = 'id';
 type Routes =
@@ -584,6 +585,17 @@ type Routes =
             id: string,
             permissions: Servers.PermissionTuple
         }
+    }
+    | {
+        // Edit a role.
+        method: 'PATCH',
+        route: `/servers/${Id}/roles/${Id}`,
+        data: {
+            name?: string,
+            colour?: string,
+            remove?: RemoveRoleField
+        },
+        response: undefined
     }
     | {
         // Delete role

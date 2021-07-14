@@ -162,6 +162,18 @@ export default class Servers extends Collection<Server> {
     }
 
     /**
+     * Edit a role
+     * @param id ID of the target server
+     * @param role_id Role ID
+     * @param data Role editing route data
+     */
+    async editRole(id: string, role_id: string, data: Route<'PATCH', '/servers/id/roles/id'>["data"]) {
+        let server = this.getThrow(id);
+        if (typeof server.roles?.[role_id] === 'undefined') return;
+        await this.client.req('PATCH', `/servers/${id}/roles/${role_id}` as '/servers/id/roles/id', data);
+    }
+
+    /**
      * Delete role
      * @param id Server ID
      * @param role_id Role ID
