@@ -422,6 +422,17 @@ export class Client extends EventEmitter {
     }
 
     /**
+     * Proxy a file through January.
+     * @param url URL to proxy
+     * @returns Proxied media URL
+     */
+    proxyFile(url: string): string | undefined {
+        if (this.configuration?.features.january.enabled) {
+            return `${this.configuration.features.january.url}/proxy?url=${encodeURIComponent(url)}`;
+        }
+    }
+
+    /**
      * Generates a URL to a given file with given options.
      * @param attachment Partial of attachment object
      * @param options Optional query parameters to modify object

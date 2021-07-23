@@ -419,7 +419,7 @@ type Routes =
             limit?: number,
             before?: string,
             after?: string,
-            sort: 'Relevance' | 'Latest' | 'Oldest',
+            sort?: 'Relevance' | 'Latest' | 'Oldest',
             include_users?: boolean
         },
         response: Channels.Message[] | {
