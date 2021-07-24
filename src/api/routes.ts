@@ -553,7 +553,10 @@ type Routes =
         method: 'GET',
         route: `/servers/${Id}/bans`,
         data: undefined,
-        response: Servers.Ban[]
+        response: {
+            users: Pick<Users.User, '_id' | 'username' | 'avatar'>[],
+            bans: Servers.Ban[]
+        }
     }
     | {
         // Create a new server channel
