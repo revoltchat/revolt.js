@@ -492,6 +492,8 @@ type Routes =
             description?: string,
             icon?: string,
             banner?: string,
+            categories?: Servers.Category[],
+            system_messages?: Servers.SystemMessageChannels,
             remove?: RemoveServerField
         },
         response: undefined

@@ -2,7 +2,7 @@ export * from './Client';
 export { Channel, User, Message } from './api/objects';
 export { PermissionCalculator } from './api/permissions';
 
-export const LIBRARY_VERSION = '4.3.3-alpha.17';
+export const LIBRARY_VERSION = '4.3.3-alpha.18';
 
 export const defaultConfig = {
     apiURL: 'https://api.revolt.chat',
