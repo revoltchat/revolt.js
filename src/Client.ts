@@ -11,6 +11,7 @@ import { ClientboundNotification } from './websocket/notifications';
 
 import Users from './maps/Users';
 import Servers from './maps/Servers';
+import Members from './maps/Members';
 import Channels from './maps/Channels';
 
 /**
@@ -75,6 +76,7 @@ export class Client extends EventEmitter {
 
     users: Users;
     servers: Servers;
+    members: Members;
     channels: Channels;
     messages: string[];
 
@@ -92,6 +94,7 @@ export class Client extends EventEmitter {
 
         this.users = new Users(this);
         this.servers = new Servers(this);
+        this.members = new Members(this);
         this.channels = new Channels(this);
         this.messages = [];
 
@@ -137,7 +140,7 @@ export class Client extends EventEmitter {
         await this.users.restore(user => { return { ...user, online: false } });
         await this.channels.restore();
         await this.servers.restore();
-        await this.servers.members.restore();
+        await this.members.restore();
         this.users.set({
             _id: SYSTEM_USER_ID,
             username: 'REVOLT'
@@ -378,7 +381,7 @@ export class Client extends EventEmitter {
         this.users.clear();
         this.channels.clear();
         this.servers.clear();
-        this.servers.members.clear();
+        this.members.clear();
 
         this.users = new Users(this);
         this.channels = new Channels(this);

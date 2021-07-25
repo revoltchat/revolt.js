@@ -54,14 +54,14 @@ openDB('Test', 1, {
                     async () => await client.fetchInvite(invite),
                     async () => await client2.joinInvite(invite),
                     async () => await client2.channels.sendMessage(server.channels[0], 'message 2'),
-                    async () => await client.servers.members.fetchMembers(server._id),
-                    async () => await client2.servers.members.fetchMembers(server._id),
-                    async () => await client.servers.members.editMember(server._id, client.user?._id as string, { nickname: 'gamer' }),
-                    async () => await client.servers.members.fetchMember(server._id, client.user?._id as string),
+                    async () => await client.members.fetchMembers(server._id),
+                    async () => await client2.members.fetchMembers(server._id),
+                    async () => await client.members.editMember(server._id, client.user?._id as string, { nickname: 'gamer' }),
+                    async () => await client.members.fetchMember(server._id, client.user?._id as string),
 
-                    async () => console.log(client.servers.members.toArray()),
+                    async () => console.log(client.members.toArray()),
 
-                    async () => await client.servers.members.kickMember(server._id, client2.user!._id),           
+                    async () => await client.members.kickMember(server._id, client2.user!._id),           
                     async () => await client2.joinInvite(invite),                                                 
                     async () => await client.servers.banUser(server._id, client2.user!._id, { reason: 'bad' }),  
                     async () => await client2.joinInvite(invite).catch(() => console.log('Failed succesfully.')),
@@ -73,8 +73,8 @@ openDB('Test', 1, {
                     async () => await client2.servers.delete(server._id),      
 
                     () => new Promise(r => setTimeout(r, 200)),
-                    async () => console.log('c1', client.servers.members.toArray()),
-                    async () => console.log('c2', client2.servers.members.toArray()),
+                    async () => console.log('c1', client.members.toArray()),
+                    async () => console.log('c2', client2.members.toArray()),
 
                     () => new Promise(r => setTimeout(r, 1000)),
                     async () => await client.channels.sendMessage(server.channels[0], 'message 1'),

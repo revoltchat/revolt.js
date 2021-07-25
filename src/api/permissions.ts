@@ -70,7 +70,7 @@ export class PermissionCalculator {
         if (this.client.channels.toArray().find(channel =>
             (channel.channel_type === 'Group' || channel.channel_type === 'DirectMessage')
                 && channel.recipients.includes(user_id)
-        ) || this.client.servers.members.toArray().find(member =>
+        ) || this.client.members.toArray().find(member =>
              member._id.substr(26) === user_id
         )) {
             permissions |= UserPermission.Access | UserPermission.ViewProfile;
@@ -115,7 +115,7 @@ export class PermissionCalculator {
                 if (server.owner === this.client.user?._id) {
                     return U32_MAX;
                 } else {
-                    let member = this.client.servers.members.get(`${channel.server}${this.client.user!._id}`);
+                    let member = this.client.members.get(`${channel.server}${this.client.user!._id}`);
                     if (!member) return 0;
 
                     let perm = (
@@ -143,7 +143,7 @@ export class PermissionCalculator {
         if (server.owner === this.client.user?._id) {
             return U32_MAX;
         } else {
-            let member = this.client.servers.members.get(`${server._id}${this.client.user!._id}`);
+            let member = this.client.members.get(`${server._id}${this.client.user!._id}`);
             if (!member) return 0;
 
             let perm = server.default_permissions[0] >>> 0;

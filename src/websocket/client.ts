@@ -228,7 +228,7 @@ export class WebSocketClient {
                         await this.client.servers.fetchMutable(packet.id);
                         await this.client.users.fetchMutable(packet.user);
 
-                        this.client.servers.members.set({
+                        this.client.members.set({
                             _id: objectToFlatKey({ server: packet.id, user: packet.user })
                         });
 
@@ -238,19 +238,19 @@ export class WebSocketClient {
                         const id = objectToFlatKey(packet.id);
                         if (packet.clear) {
                             switch (packet.clear) {
-                                case 'Avatar': this.client.servers.members.removeField(id, 'avatar'); break;
-                                case 'Nickname': this.client.servers.members.removeField(id, 'nickname'); break;
+                                case 'Avatar': this.client.members.removeField(id, 'avatar'); break;
+                                case 'Nickname': this.client.members.removeField(id, 'nickname'); break;
                             }
                         }
 
-                        this.client.servers.members.patch(id, packet.data as Partial<MemberFlatKey>);
+                        this.client.members.patch(id, packet.data as Partial<MemberFlatKey>);
                         break;
                     }
                     case 'ServerMemberLeave': {
                         if (packet.user === this.client.user?._id) {
                             this.client.servers.delete(packet.id, true);
                         } else {
-                            this.client.servers.members.delete(objectToFlatKey({ server: packet.id, user: packet.user }));
+                            this.client.members.delete(objectToFlatKey({ server: packet.id, user: packet.user }));
                         }
 
                         break;

@@ -1,16 +1,11 @@
 import { Autumn, Channels, Server, Servers as ServersNS } from '../api/objects';
 import { Route } from '../api/routes';
 import Collection from './Collection';
-import Members from './Members';
 import { Client } from '..';
 
 export default class Servers extends Collection<Server> {
-    members: Members;
-
     constructor(client: Client) {
         super(client, 'servers');
-        
-        this.members = new Members(client);
     }
 
     /**
@@ -100,8 +95,8 @@ export default class Servers extends Collection<Server> {
             }
         }
 
-        this.client.servers.members.findMembers(id)
-            .forEach(member => this.client.servers.members.delete(member._id));
+        this.client.members.findMembers(id)
+            .forEach(member => this.client.members.delete(member._id));
         
         super.delete(id);
     }

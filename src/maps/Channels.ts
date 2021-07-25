@@ -224,7 +224,7 @@ export default class Channels extends Collection<Channel> {
 
             if (res.members) {
                 for (let member of res.members) {
-                    this.client.servers.members.set(flattenMember(member));
+                    this.client.members.set(flattenMember(member));
                 }
             }
         }
@@ -258,7 +258,7 @@ export default class Channels extends Collection<Channel> {
 
             if (res.members) {
                 for (let member of res.members) {
-                    this.client.servers.members.set(flattenMember(member));
+                    this.client.members.set(flattenMember(member));
                 }
             }
         }
