@@ -203,14 +203,6 @@ export class WebSocketClient {
                         break;
                     }
 
-                    case 'ServerCreate': {
-                        for (let channel of packet.channels) {
-                            await this.client.channels.fetchMutable(channel);
-                        }
-
-                        this.client.servers.set(packet);
-                        break;
-                    }
                     case 'ServerUpdate': {
                         if (packet.clear) {
                             switch (packet.clear) {

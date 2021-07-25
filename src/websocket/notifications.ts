@@ -33,7 +33,6 @@ export type ClientboundNotification = (
     { type: 'ChannelStopTyping', id: string, user: string } |
     { type: 'ChannelAck', id: string, user: string, message_id: string } |
 
-    ({ type: 'ServerCreate' } & Servers.Server) |
     ({ type: 'ServerUpdate', id: string, data: Partial<Servers.Server>, clear?: RemoveServerField }) |
     ({ type: 'ServerDelete', id: string }) |
     ({ type: 'ServerMemberUpdate', id: Servers.MemberCompositeKey, data: Partial<Servers.Member>, clear?: RemoveMemberField }) |
