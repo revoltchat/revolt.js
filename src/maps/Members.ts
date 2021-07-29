@@ -98,7 +98,7 @@ export default class Members extends Collection<MemberFlatKey> {
     /**
      * Fetch a server's members.
      * @param id Server ID
-     * @returns An array of the server's members.
+     * @returns An array of the server's members and their user objects.
      */
     async fetchMembers(id: string) {
         let res = await this.client.req('GET', `/servers/${id}/members` as '/servers/id/members');
@@ -111,6 +111,6 @@ export default class Members extends Collection<MemberFlatKey> {
             this.set(flattenMember(member));
         }
 
-        return res.members;
+        return res;
     }
 }
