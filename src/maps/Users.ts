@@ -2,13 +2,13 @@ import type { Status, User as UserI } from 'revolt-api/types/Users';
 import type { RemoveUserField, Route } from '../api/routes';
 import type { Attachment } from 'revolt-api/types/Autumn';
 
-import { makeAutoObservable, action, runInAction } from 'mobx';
+import { makeAutoObservable, action, runInAction, computed } from 'mobx';
 import isEqual from 'lodash.isequal';
 
 import { U32_MAX, UserPermission } from '../api/permissions';
 import { toNullable, Nullable } from '../util/null';
 import Collection from './Collection';
-import { Client } from '..';
+import { Client, FileArgs } from '..';
 
 enum RelationshipStatus {
     None = "None",
@@ -139,16 +139,8 @@ export class User {
         return `${this.client.apiURL}/users/${this._id}/default_avatar`;
     }
 
-    /**
-     * Get this user's avatar URL
-     * ! FIXME
-     */
-    get avatarURL() {
-        if (this.avatar) {
-            return this.client.generateFileURL(this.avatar);
-        } else {
-            return this.defaultAvatarURL;
-        }
+    @computed generateAvatarURL(...args: FileArgs) {
+        return this.client.generateFileURL(this.avatar ?? undefined, ...args) ?? this.defaultAvatarURL;
     }
 
     get permission() {

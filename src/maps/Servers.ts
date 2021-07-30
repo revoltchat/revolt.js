@@ -2,14 +2,14 @@ import type { Category, PermissionTuple, Role, Server as ServerI, SystemMessageC
 import type { RemoveServerField, Route } from '../api/routes';
 import type { Attachment } from 'revolt-api/types/Autumn';
 
-import { makeAutoObservable, action, runInAction } from 'mobx';
+import { makeAutoObservable, action, runInAction, computed } from 'mobx';
 import isEqual from 'lodash.isequal';
 
 import { Nullable, toNullable } from '../util/null';
 import { U32_MAX } from '../api/permissions';
 import Collection from './Collection';
 import { User } from './Users';
-import { Client } from '..';
+import { Client, FileArgs } from '..';
 
 export class Server {
     client: Client;
@@ -197,6 +197,14 @@ export class Server {
      */
     async fetchMembers() {
         return await this.client.req('GET', `/servers/${this._id}/members` as '/servers/id/members');
+    }
+
+    @computed generateIconURL(...args: FileArgs) {
+        return this.client.generateFileURL(this.icon ?? undefined, ...args);
+    }
+
+    @computed generateBannerURL(...args: FileArgs) {
+        return this.client.generateFileURL(this.banner ?? undefined, ...args);
     }
 
     get permission() {

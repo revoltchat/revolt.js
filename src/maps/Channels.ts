@@ -11,7 +11,7 @@ import { ulid } from 'ulid';
 import { Nullable, toNullable } from '../util/null';
 import Collection from './Collection';
 import { Message } from './Messages';
-import { Client } from '..';
+import { Client, FileArgs } from '..';
 import { DEFAULT_PERMISSION_DM, U32_MAX, UserPermission } from '../api/permissions';
 
 export class Channel {
@@ -399,6 +399,10 @@ export class Channel {
      */
     async setPermissions(role_id: string = 'default', permissions?: number) {
         return await this.client.req('PUT', `/channels/${this._id}/permissions/${role_id}` as '/channels/id/permissions/id', { permissions });
+    }
+
+    generateIconURL(...args: FileArgs) {
+        return this.client.generateFileURL(this.icon ?? undefined, ...args);
     }
 
     get permission() {

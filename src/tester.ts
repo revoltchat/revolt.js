@@ -15,6 +15,12 @@ client.on('ready', async () => {
     [...client.users.values()].forEach(x => console.info(`perm against ${x.username} is ${x.permission}`));
     [...client.servers.values()].forEach(x => console.info(`perm against ${x.name} is ${x.permission}`));
     [...client.channels.values()].forEach(x => console.info(`perm against ${x.name} is ${x.permission}`));
+
+    setTimeout(() => {
+        client.users.edit({
+            remove: 'Avatar'
+        });
+    }, 10_000);
 });
 
 client.on('message', async message => {
@@ -40,6 +46,10 @@ mbr ids: ${[...client.members.values()].map(x => x._id).length}
 client.once('ready', () => {
     autorun(() => {
         console.log(`Changed username to ${client.user!.username}!`);
+    });
+
+    autorun(() => {
+        console.log(`Avatar URL: ${client.user!.generateAvatarURL()}!`);
     });
 
     let server_id = [...client.servers.keys()][0];

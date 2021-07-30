@@ -57,6 +57,8 @@ export const RE_MENTIONS = /<@([A-z0-9]{26})>/g;
  */
 export const RE_SPOILER = /!!.+!!/g;
 
+export type FileArgs = [ options?: SizeOptions, allowAnimation?: boolean, fallback?: string ];
+
 export class Client extends EventEmitter {
     heartbeat: number;
     
@@ -396,7 +398,9 @@ export class Client extends EventEmitter {
      * @param fallback Fallback URL
      * @returns Generated URL or nothing
      */
-    generateFileURL(attachment?: { tag: string, _id: string, content_type?: string }, options?: SizeOptions, allowAnimation?: boolean, fallback?: string) {
+    generateFileURL(attachment?: { tag: string, _id: string, content_type?: string }, ...args: FileArgs) {
+        const [ options, allowAnimation, fallback ] = args;
+
         let autumn = this.configuration?.features.autumn;
         if (!autumn?.enabled) return fallback;
         if (!attachment) return fallback;

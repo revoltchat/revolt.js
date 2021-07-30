@@ -2,12 +2,12 @@ import type { Member as MemberI, MemberCompositeKey } from 'revolt-api/types/Ser
 import type { RemoveMemberField, Route } from '../api/routes';
 import type { Attachment } from 'revolt-api/types/Autumn';
 
-import { makeAutoObservable, runInAction, action } from 'mobx';
+import { makeAutoObservable, runInAction, action, computed } from 'mobx';
 import isEqual from 'lodash.isequal';
 
 import { Nullable, toNullable } from '../util/null';
 import Collection from './Collection';
-import { Client } from '..';
+import { Client, FileArgs } from '..';
 
 export class Member {
     client: Client;
@@ -71,6 +71,10 @@ export class Member {
      */
     async kick() {
         return await this.client.req('DELETE', `/servers/${this._id.server}/members/${this._id.user}` as '/servers/id/members/id');
+    }
+
+    @computed generateAvatarURL(...args: FileArgs) {
+        return this.client.generateFileURL(this.avatar ?? undefined, ...args);
     }
 }
 
