@@ -5,8 +5,10 @@ import { EventEmitter } from 'eventemitter3';
 import { defaultConfig } from '.';
 import { WebSocketClient } from './websocket/client';
 import { Route, RoutePath, RouteMethod } from './api/routes';
-import { ClientboundNotification, ReadyPacket } from './websocket/notifications';
+import { ClientboundNotification } from './websocket/notifications';
 
+import type { RevoltConfiguration } from 'revolt-api/types/Core';
+import type { SizeOptions } from 'revolt-api/types/Autumn';
 import type { Session } from 'revolt-api/types/Auth';
 
 import Users, { User } from './maps/Users';
@@ -14,9 +16,6 @@ import Channels from './maps/Channels';
 import Servers from './maps/Servers';
 import Members from './maps/Members';
 import Messages, { Message } from './maps/Messages';
-
-import { RevoltConfiguration } from 'revolt-api/types/Core';
-import { SizeOptions } from 'revolt-api/types/Autumn';
 
 import { makeObservable, observable } from 'mobx';
 

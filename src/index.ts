@@ -1,5 +1,5 @@
 export * from './Client';
-// export { PermissionCalculator } from './api/permissions';
+export { UserPermission, ChannelPermission, ServerPermission } from './api/permissions';
 
 export const LIBRARY_VERSION = '5.0.0-alpha.0';
 

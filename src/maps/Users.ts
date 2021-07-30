@@ -1,13 +1,24 @@
-import type { RelationshipStatus, Status, User as UserI } from 'revolt-api/types/Users';
+import type { Status, User as UserI } from 'revolt-api/types/Users';
 import type { RemoveUserField, Route } from '../api/routes';
 import type { Attachment } from 'revolt-api/types/Autumn';
 
 import { makeAutoObservable, action, runInAction } from 'mobx';
 import isEqual from 'lodash.isequal';
 
+import { U32_MAX, UserPermission } from '../api/permissions';
 import { toNullable, Nullable } from '../util/null';
 import Collection from './Collection';
 import { Client } from '..';
+
+enum RelationshipStatus {
+    None = "None",
+    User = "User",
+    Friend = "Friend",
+    Outgoing = "Outgoing",
+    Incoming = "Incoming",
+    Blocked = "Blocked",
+    BlockedOther = "BlockedOther"
+}
 
 export class User {
     client: Client;
@@ -130,6 +141,7 @@ export class User {
 
     /**
      * Get this user's avatar URL
+     * ! FIXME
      */
     get avatarURL() {
         if (this.avatar) {
@@ -137,6 +149,32 @@ export class User {
         } else {
             return this.defaultAvatarURL;
         }
+    }
+
+    get permission() {
+        let permissions = 0;
+        switch (this.relationship) {
+            case RelationshipStatus.Friend:
+            case RelationshipStatus.User:
+                return U32_MAX;
+            case RelationshipStatus.Blocked:
+            case RelationshipStatus.BlockedOther:
+                return UserPermission.Access;
+            case RelationshipStatus.Incoming:
+            case RelationshipStatus.Outgoing:
+                permissions = UserPermission.Access;
+        }
+
+        if ([...this.client.channels.values()].find(channel =>
+            (channel.channel_type === 'Group' || channel.channel_type === 'DirectMessage')
+                && channel.recipient_ids?.includes(this.client.user!._id)
+        ) || [...this.client.members.values()].find(member =>
+             member._id.user === this.client.user!._id
+        )) {
+            permissions |= UserPermission.Access | UserPermission.ViewProfile;
+        }
+
+        return permissions;
     }
 }
 

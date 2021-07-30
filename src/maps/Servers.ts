@@ -6,6 +6,7 @@ import { makeAutoObservable, action, runInAction } from 'mobx';
 import isEqual from 'lodash.isequal';
 
 import { Nullable, toNullable } from '../util/null';
+import { U32_MAX } from '../api/permissions';
 import Collection from './Collection';
 import { User } from './Users';
 import { Client } from '..';
@@ -196,6 +197,28 @@ export class Server {
      */
     async fetchMembers() {
         return await this.client.req('GET', `/servers/${this._id}/members` as '/servers/id/members');
+    }
+
+    get permission() {
+        if (this.owner === this.client.user?._id) {
+            return U32_MAX;
+        } else {
+            let member = this.client.members.get({
+                user: this.client.user!._id,
+                server: this._id
+            });
+
+            if (!member) return 0;
+
+            let perm = this.default_permissions[0] >>> 0;
+            if (member.roles) {
+                for (let role of member.roles) {
+                    perm |= (this.roles?.[role].permissions[0] ?? 0) >>> 0;
+                }
+            }
+
+            return perm;
+        }
     }
 }
 

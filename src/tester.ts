@@ -9,9 +9,13 @@ let client = new Client({
     apiURL: process.env.API_URL
 });
 
-client.on('ready', async () =>
-    console.info(`Logged in as ${client.user!.username}!`)
-);
+client.on('ready', async () => {
+    console.info(`Logged in as ${client.user!.username}!`);
+
+    [...client.users.values()].forEach(x => console.info(`perm against ${x.username} is ${x.permission}`));
+    [...client.servers.values()].forEach(x => console.info(`perm against ${x.name} is ${x.permission}`));
+    [...client.channels.values()].forEach(x => console.info(`perm against ${x.name} is ${x.permission}`));
+});
 
 client.on('message', async message => {
     if (message.content === 'sus') {

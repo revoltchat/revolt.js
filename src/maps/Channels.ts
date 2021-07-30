@@ -12,6 +12,7 @@ import { Nullable, toNullable } from '../util/null';
 import Collection from './Collection';
 import { Message } from './Messages';
 import { Client } from '..';
+import { DEFAULT_PERMISSION_DM, U32_MAX, UserPermission } from '../api/permissions';
 
 export class Channel {
     client: Client;
@@ -398,6 +399,58 @@ export class Channel {
      */
     async setPermissions(role_id: string = 'default', permissions?: number) {
         return await this.client.req('PUT', `/channels/${this._id}/permissions/${role_id}` as '/channels/id/permissions/id', { permissions });
+    }
+
+    get permission() {
+        switch (this.channel_type) {
+            case 'SavedMessages': return U32_MAX;
+            case 'DirectMessage': {
+                let user_permissions = this.recipient?.permission || 0;
+
+                if (user_permissions & UserPermission.SendMessage) {
+                    return DEFAULT_PERMISSION_DM;
+                } else {
+                    return 0;
+                }
+            }
+            case 'Group': {
+                if (this.owner_id === this.client.user!._id) {
+                    return DEFAULT_PERMISSION_DM;
+                } else {
+                    return this.permissions ?? DEFAULT_PERMISSION_DM;
+                }
+            }
+            case 'TextChannel':
+            case 'VoiceChannel': {
+                let server = this.server;
+                if (typeof server === 'undefined') return 0;
+
+                if (server.owner === this.client.user?._id) {
+                    return U32_MAX;
+                } else {
+                    let member = this.client.members.get({
+                        user: this.client.user!._id,
+                        server: server._id
+                    });
+
+                    if (!member) return 0;
+
+                    let perm = (
+                        this.default_permissions ??
+                        server.default_permissions[1]
+                    ) >>> 0;
+
+                    if (member.roles) {
+                        for (let role of member.roles) {
+                            perm |= (this.role_permissions?.[role] ?? 0) >>> 0;
+                            perm |= (server.roles?.[role].permissions[1] ?? 0) >>> 0;
+                        }
+                    }
+
+                    return perm;
+                }
+            }
+        }
     }
 }
 
