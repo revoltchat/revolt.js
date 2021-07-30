@@ -1,10 +1,9 @@
 import WebSocket from 'isomorphic-ws';
 import { backOff } from 'exponential-backoff';
 
-import { Auth, Servers, User } from '../api/objects';
 import { Client, SYSTEM_USER_ID } from '..';
-import { flattenMember, MemberFlatKey, objectToFlatKey } from '../maps/Members';
 import { ServerboundNotification, ClientboundNotification } from './notifications';
+import { Session } from 'revolt-api/types/Auth';
 
 export class WebSocketClient {
     client: Client;
@@ -76,7 +75,7 @@ export class WebSocketClient {
             this.ws = ws;
 
             ws.onopen = () => {
-                this.send({ type: 'Authenticate', ...this.client.session as Auth.Session });
+                this.send({ type: 'Authenticate', ...this.client.session as Session });
             };
 
             let handle = async (msg: WebSocket.MessageEvent) => {
@@ -98,26 +97,8 @@ export class WebSocketClient {
                         break;
                     }
                     case 'Ready': {
-                        for (let user of packet.users) {
-                            this.client.users.setOverride(user);
-                        }
-
-                        // INFO:
-                        // Our user object should be included in this
-                        // payload so we can just take it out of the map.
-                        this.client.user = this.client.users.get(this.client.session?.user_id as string) as User;
-
-                        this.client.channels.clear();
-                        for (let channel of packet.channels) {
-                            this.client.channels.setOverride(channel);
-                        }
-
-                        this.client.servers.clear();
-                        for (let server of packet.servers) {
-                            this.client.servers.setOverride(server);
-                        }
-
-                        this.client.emit('ready');
+                        this.client.user_id = this.client.session!.user_id;
+                        this.client.emit('ready', packet);
                         this.ready = true;
                         resolve();
 
@@ -128,163 +109,6 @@ export class WebSocketClient {
                             ) as any;
                         }
                         
-                        break;
-                    }
-
-                    case 'Message': {
-                        if (!this.client.messages.includes(packet._id)) {
-                            if (packet.author === SYSTEM_USER_ID) {
-                                if (typeof packet.content === 'object') {
-                                    switch (packet.content.type) {
-                                        case 'user_added':
-                                        case 'user_remove':
-                                            await this.client.users.fetch(packet.content.by);
-                                        case 'user_left':
-                                            await this.client.users.fetch(packet.content.id);
-                                    }
-                                }
-                            } else {
-                                await this.client.users.fetch(packet.author);
-                            }
-
-                            if (!this.client.messages.includes(packet._id)) {
-                                this.client.messages.push(packet._id);
-                                this.client.emit('message', packet);
-                            }
-                        }
-                        break;
-                    }
-                    case 'MessageUpdate': this.client.emit('message/update', packet.id, packet.data); break;
-                    case 'MessageDelete': this.client.emit('message/delete', packet.id); break;
-
-                    case 'ChannelCreate': {
-                        if (packet.channel_type === 'TextChannel' ||
-                            packet.channel_type === 'VoiceChannel') {
-                            let id = packet._id;
-                            let server = await this.client.servers.fetchMutable(packet.server);
-                            server.channels = [
-                                ...server.channels.filter(x => x !== id),
-                                id
-                            ];
-                        }
-
-                        this.client.channels.set(packet);
-                        break;
-                    }
-                    case 'ChannelUpdate': {
-                        if (packet.clear) {
-                            switch (packet.clear) {
-                                case 'Icon': this.client.channels.removeField(packet.id, 'icon'); break;
-                                case 'Description': this.client.channels.removeField(packet.id, 'description'); break;
-                            }
-                        }
-
-                        this.client.channels.patch(packet.id, packet.data);
-                        break;
-                    }
-                    case 'ChannelDelete': this.client.channels.delete(packet.id, true); break;
-                    case 'ChannelGroupJoin': {
-                        let channel = await this.client.channels.fetchMutable(packet.id);
-                        if (channel.channel_type !== 'Group') throw "Not a group channel.";
-                        let user_id = packet.user;
-                        await this.client.users.fetch(user_id);
-
-                        channel.recipients = [
-                            ...channel.recipients.filter(user => user !== user_id),
-                            user_id
-                        ];
-                        break;
-                    }
-                    case 'ChannelGroupLeave': {
-                        let channel = await this.client.channels.fetchMutable(packet.id);
-                        if (channel.channel_type !== 'Group') throw "Not a group channel.";
-                        let user_id = packet.user;
-                        channel.recipients = channel.recipients.filter(user => user !== user_id);
-                        break;
-                    }
-
-                    case 'ServerUpdate': {
-                        if (packet.clear) {
-                            switch (packet.clear) {
-                                case 'Icon': this.client.servers.removeField(packet.id, 'icon'); break;
-                                case 'Banner': this.client.servers.removeField(packet.id, 'banner'); break;
-                                case 'Description': this.client.servers.removeField(packet.id, 'description'); break;
-                            }
-                        }
-
-                        this.client.servers.patch(packet.id, packet.data);
-                        break;
-                    }
-                    case 'ServerDelete': this.client.servers.delete(packet.id, true); break;
-                    case 'ServerMemberJoin': {
-                        await this.client.servers.fetchMutable(packet.id);
-                        await this.client.users.fetchMutable(packet.user);
-
-                        this.client.members.set({
-                            _id: objectToFlatKey({ server: packet.id, user: packet.user })
-                        });
-
-                        break;
-                    }
-                    case 'ServerMemberUpdate': {
-                        const id = objectToFlatKey(packet.id);
-                        if (packet.clear) {
-                            switch (packet.clear) {
-                                case 'Avatar': this.client.members.removeField(id, 'avatar'); break;
-                                case 'Nickname': this.client.members.removeField(id, 'nickname'); break;
-                            }
-                        }
-
-                        this.client.members.patch(id, packet.data as Partial<MemberFlatKey>);
-                        break;
-                    }
-                    case 'ServerMemberLeave': {
-                        if (packet.user === this.client.user?._id) {
-                            this.client.servers.delete(packet.id, true);
-                        } else {
-                            this.client.members.delete(objectToFlatKey({ server: packet.id, user: packet.user }));
-                        }
-
-                        break;
-                    }
-                    case 'ServerRoleUpdate': {
-                        let server = await this.client.servers.fetchMutable(packet.id);
-                        server.roles = {
-                            ...server.roles,
-                            [packet.role_id]: {
-                                ...server.roles?.[packet.role_id],
-                                ...packet.data
-                            } as Servers.Role
-                        };
-
-                        break;
-                    }
-                    case 'ServerRoleDelete': {
-                        let server = await this.client.servers.fetchMutable(packet.id);
-                        let { [packet.role_id]: _, ...roles } = server.roles ?? {};
-                        server.roles = roles;
-
-                        break;
-                    }
-
-                    case 'UserUpdate': {
-                        if (packet.clear) {
-                            switch (packet.clear) {
-                                case 'Avatar': this.client.users.removeField(packet.id, 'avatar'); break;
-                                case 'StatusText': this.client.users.removeField(packet.id, 'status', 'text'); break;
-                            }
-                        }
-
-                        this.client.users.patch(packet.id, packet.data);
-                        break;
-                    }
-                    case 'UserRelationship': {
-                        this.client.users.setOverride(packet.user);
-                        break;
-                    }
-                    case 'UserPresence': {
-                        let user = await this.client.users.fetchMutable(packet.id);
-                        user.online = packet.online;
                         break;
                     }
                 }
@@ -312,9 +136,6 @@ export class WebSocketClient {
                 this.client.emit('dropped');
                 this.connected = false;
                 this.ready = false;
-
-                this.client.users.toMutableArray()
-                    .forEach(user => user.online = false);
 
                 if (!disallowReconnect && this.client.autoReconnect) {
                     backOff(() => this.connect(true)).catch(reject);

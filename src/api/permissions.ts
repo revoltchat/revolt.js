@@ -1,5 +1,5 @@
+import { RelationshipStatus } from 'revolt-api/types/Users';
 import { Client } from '../Client';
-import { Users } from './objects';
 
 export const UserPermission = {
     Access: 0b00000000000000000000000000000001,      // 1
@@ -56,14 +56,14 @@ export class PermissionCalculator {
 
         let permissions = 0;
         switch (user.relationship) {
-            case Users.Relationship.Friend:
-            case Users.Relationship.User:
+            case RelationshipStatus.Friend:
+            case RelationshipStatus.User:
                 return U32_MAX;
-            case Users.Relationship.Blocked:
-            case Users.Relationship.BlockedOther:
+            case RelationshipStatus.Blocked:
+            case RelationshipStatus.BlockedOther:
                 return UserPermission.Access;
-            case Users.Relationship.Incoming:
-            case Users.Relationship.Outgoing:
+            case RelationshipStatus.Incoming:
+            case RelationshipStatus.Outgoing:
                 permissions = UserPermission.Access;
         }
 
@@ -134,6 +134,8 @@ export class PermissionCalculator {
                 }
             }
         }
+
+        return 0;
     }
 
     forServer(server_id: string): number {

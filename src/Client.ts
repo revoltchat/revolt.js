@@ -1,52 +1,40 @@
 import Axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import defaultsDeep from 'lodash.defaultsdeep';
 import { EventEmitter } from 'eventemitter3';
-import { IDBPDatabase } from 'idb';
 
 import { defaultConfig } from '.';
 import { WebSocketClient } from './websocket/client';
 import { Route, RoutePath, RouteMethod } from './api/routes';
-import { Core, Auth, User, Message, Autumn } from './api/objects';
-import { ClientboundNotification } from './websocket/notifications';
+import { ClientboundNotification, ReadyPacket } from './websocket/notifications';
+
+import type { User } from 'revolt-api/types/Users';
+import type { Session } from 'revolt-api/types/Auth';
 
 import Users from './maps/Users';
 import Servers from './maps/Servers';
 import Members from './maps/Members';
 import Channels from './maps/Channels';
+import { RevoltConfiguration } from 'revolt-api/types/Core';
+import { SizeOptions } from 'revolt-api/types/Autumn';
 
 /**
  * Client options object
  */
 export interface ClientOptions {
     apiURL: string
-    autoReconnect: boolean
-    heartbeat: number
     debug: boolean
-    db: IDBPDatabase
+    cache: boolean
+
+    heartbeat: number
+    autoReconnect: boolean
 }
 
 export declare interface Client {
-	// WebSocket related events.
-
-    // Event that gets fired on a successful WebSocket connection.
 	on(event: 'connected', listener: () => void): this;
-    // Event that gets fired when the WebSocket connection is pending connection.
 	on(event: 'connecting', listener: () => void): this;
-    // Event that gets fired when the WebSocket connection is dropped.
     on(event: 'dropped', listener: () => void): this;
-    // Event that gets fired when the WebSocket connection is ready.
-    on(event: 'ready', listener: () => void): this;
-    // Event that gets fired on a new clientbound packet.
+    on(event: 'ready', listener: (packet: ReadyPacket) => void): this;
     on(event: 'packet', listener: (packet: ClientboundNotification) => void): this;
-
-    // Message events.
-
-    // Event that gets fired on a new message.
-    on(event: 'message', listener: (message: Message) => void): this;
-    // Event that gets fired on an update (for example, edit) of a message.
-    on(event: 'message/update', listener: (id: string, patch: Partial<Message>) => void): this;
-    // Event that gets fired on the deletion of a message.
-    on(event: 'message/delete', listener: (id: string) => void): this;
 }
 
 /**
@@ -65,38 +53,34 @@ export const RE_MENTIONS = /<@([A-z0-9]{26})>/g;
 export const RE_SPOILER = /!!.+!!/g;
 
 export class Client extends EventEmitter {
-    db?: IDBPDatabase;
     heartbeat: number;
-    user?: Readonly<User>;
-    session?: Auth.Session;
+    
+    session?: Session;
+    user_id?: Readonly<string>;
+
     websocket: WebSocketClient;
     private Axios: AxiosInstance;
     private options: ClientOptions;
-    configuration?: Core.RevoltNodeConfiguration;
+    configuration?: RevoltConfiguration;
 
     users: Users;
     servers: Servers;
     members: Members;
     channels: Channels;
-    messages: string[];
 
     constructor(options: Partial<ClientOptions> = {}) {
         super();
-
         this.options = defaultsDeep(options, defaultConfig);
+        if (this.options.cache) throw "Cache is not supported yet.";
+
         this.Axios = Axios.create({ baseURL: this.apiURL });
         this.websocket = new WebSocketClient(this);
         this.heartbeat = this.options.heartbeat;
-
-        if (options.db) {
-            this.db = options.db;
-        }
 
         this.users = new Users(this);
         this.servers = new Servers(this);
         this.members = new Members(this);
         this.channels = new Channels(this);
-        this.messages = [];
 
         if (options.debug) {
             this.Axios.interceptors.request.use(request => {
@@ -109,43 +93,6 @@ export class Client extends EventEmitter {
                 return response
             })
         }
-
-        // Internal loopback.
-        this.on('message', async message => {
-            let channel = await this.channels.fetchMutable(message.channel);
-            if (channel.channel_type === 'DirectMessage') {
-                channel.active = true;
-            }
-
-            if (channel.channel_type === 'DirectMessage' ||
-                channel.channel_type === 'Group') {
-                if (typeof message.content === 'string') {
-                    channel.last_message = {
-                        _id: message._id,
-                        author: message.author,
-                        short: this.markdownToText(message.content).substr(0, 128)
-                    }
-                }
-            } else if (channel.channel_type === 'TextChannel') {
-                channel.last_message = message._id;
-            }
-        });
-    }
-
-    /**
-     * Restore users, channels, set the system user and specify the current user.
-     * @param user_id Current user ID
-     */
-    async restore(user_id?: string) {
-        await this.users.restore(user => { return { ...user, online: false } });
-        await this.channels.restore();
-        await this.servers.restore();
-        await this.members.restore();
-        this.users.set({
-            _id: SYSTEM_USER_ID,
-            username: 'REVOLT'
-        });
-        if (user_id) this.user = this.users.get(user_id);
     }
 
     /**
@@ -228,7 +175,7 @@ export class Client extends EventEmitter {
             await this.connect();
     }
 
-    private $generateHeaders(session: Auth.Session | undefined = this.session) {
+    private $generateHeaders(session: Session | undefined = this.session) {
         return {
             'x-user-id': session?.user_id,
             'x-session-token': session?.session_token
@@ -252,7 +199,7 @@ export class Client extends EventEmitter {
      * @param session Session data object
      * @returns An onboarding function if onboarding is required, undefined otherwise
      */
-    async useExistingSession(session: Auth.Session) {
+    async useExistingSession(session: Session) {
         this.fetchConfiguration();
         await this.request('GET', '/auth/check', { headers: this.$generateHeaders(session) });
         this.session = session;
@@ -302,17 +249,7 @@ export class Client extends EventEmitter {
      * @returns Data provided by invite.
      */
     async joinInvite(code: string) {
-        let res = await this.req('POST', `/invites/${code}` as '/invites/id');
-
-        switch (res.type) {
-            case 'Server': {
-                await this.channels.fetch(res.channel._id, res.channel);
-                await this.servers.fetch(res.server._id, res.server);
-                break;
-            }
-        }
-
-        return res;
+        return await this.req('POST', `/invites/${code}` as '/invites/id');
     }
 
     /**
@@ -375,13 +312,8 @@ export class Client extends EventEmitter {
      */
     reset() {
         this.websocket.disconnect();
-        delete this.user;
+        delete this.user_id;
         delete this.session;
-
-        this.users.clear();
-        this.channels.clear();
-        this.servers.clear();
-        this.members.clear();
 
         this.users = new Users(this);
         this.channels = new Channels(this);
@@ -404,8 +336,9 @@ export class Client extends EventEmitter {
      * @returns Modified plain text
      */
     markdownToText(source: string) {
+        console.warn('revolt.js: Client.markdownToText() is deprecated, please stop using it.');
         return source
-        .replace(
+        /*.replace(
             RE_MENTIONS,
             (sub: string, ...args: any[]) => {
                 const id = args[0],
@@ -417,7 +350,7 @@ export class Client extends EventEmitter {
 
                 return sub;
             }
-        )
+        )*/
         .replace(
             RE_SPOILER,
             '<spoiler>'
@@ -443,7 +376,7 @@ export class Client extends EventEmitter {
      * @param fallback Fallback URL
      * @returns Generated URL or nothing
      */
-    generateFileURL(attachment?: { tag: string, _id: string, content_type?: string }, options?: Autumn.SizeOptions, allowAnimation?: boolean, fallback?: string) {
+    generateFileURL(attachment?: { tag: string, _id: string, content_type?: string }, options?: SizeOptions, allowAnimation?: boolean, fallback?: string) {
         let autumn = this.configuration?.features.autumn;
         if (!autumn?.enabled) return fallback;
         if (!attachment) return fallback;

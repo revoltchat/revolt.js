@@ -1,11 +1,12 @@
-import Collection from './Collection';
-import { Autumn, User, Users as UsersI } from '../api/objects';
+import type { User } from 'revolt-api/types/Users';
+
 import { Client } from '..';
+import Collection from './Collection';
 import { Route } from '../api/routes';
 
 export default class Users extends Collection<User> {
     constructor(client: Client) {
-        super(client, 'users');
+        super(client);
     }
 
     /**
@@ -13,20 +14,8 @@ export default class Users extends Collection<User> {
      * @param id User ID
      * @returns The user
      */
-    async fetchMutable(id: string) {
-        if (this.map[id]) return this.get(id) as User;
-        let res = await this.client.req('GET', `/users/${id}` as '/users/id');
-        this.set(res);
-        return this.get(id) as User;
-    }
-
-    /**
-     * Fetch a user and make the return value read-only
-     * @param id User ID
-     * @returns The user in read-only state 
-     */
     async fetch(id: string) {
-        return await this.fetchMutable(id) as Readonly<User>;
+        return await this.client.req('GET', `/users/${id}` as '/users/id');
     }
 
     /**
@@ -35,30 +24,7 @@ export default class Users extends Collection<User> {
      * @returns The DM channel
      */
     async openDM(id: string) {
-        this.getThrow(id);
-
-        let channel;
-        if (id === this.client.user?._id) {
-            channel = this.client
-                .channels
-                .toArray()
-                .find(channel => channel.channel_type === 'SavedMessages');
-        } else {
-            channel = this.client
-                .channels
-                .toArray()
-                .find(channel =>
-                    (channel.channel_type === 'DirectMessage'
-                    && channel.recipients.find(user => user === id))
-                );
-        }
-        
-        if (typeof channel === 'undefined') {
-            channel = await this.client.req('GET', `/users/${id}/dm` as '/users/id/dm');
-            this.client.channels.set(channel);
-        }
-        
-        return this.client.channels.get(channel._id);
+        return await this.client.req('GET', `/users/${id}/dm` as '/users/id/dm');
     }
 
     /**
@@ -66,11 +32,7 @@ export default class Users extends Collection<User> {
      * @param username Username of the target user
      */
     async addFriend(username: string) {
-        await this.client.req('PUT', `/users/${username}/friend` as '/users/id/friend');
-        // ! FIXME
-        // ! WE NEED TO GET THE ID HERE SOMEHOW
-        // ! IDEALLY WE WANT TO CHANGE THE ONES BELOW
-        // ! TO USE USERNAME AS WELL
+        return await this.client.req('PUT', `/users/${username}/friend` as '/users/id/friend');
     }
 
     /**
@@ -78,7 +40,7 @@ export default class Users extends Collection<User> {
      * @param id ID of the target user
      */
     async removeFriend(id: string) {
-        await this.client.req('DELETE', `/users/${id}/friend` as '/users/id/friend');
+        return await this.client.req('DELETE', `/users/${id}/friend` as '/users/id/friend');
     }
 
     /**
@@ -86,7 +48,7 @@ export default class Users extends Collection<User> {
      * @param id ID of the target user
      */
     async blockUser(id: string) {
-        await this.client.req('PUT', `/users/${id}/block` as '/users/id/block');
+        return await this.client.req('PUT', `/users/${id}/block` as '/users/id/block');
     }
 
     /**
@@ -94,7 +56,7 @@ export default class Users extends Collection<User> {
      * @param id ID of the target user
      */
     async unblockUser(id: string) {
-        await this.client.req('DELETE', `/users/${id}/block` as '/users/id/block');
+        return await this.client.req('DELETE', `/users/${id}/block` as '/users/id/block');
     }
 
     /**
@@ -120,7 +82,7 @@ export default class Users extends Collection<User> {
      * @param data User edit data object
      */
     async editUser(data: Route<'PATCH', '/users/id'>["data"]) {
-        await this.client.req('PATCH', '/users/id', data);
+        return await this.client.req('PATCH', '/users/id', data);
     }
 
     /**
@@ -129,19 +91,7 @@ export default class Users extends Collection<User> {
      * @param password Current password
      */
     async changeUsername(username: string, password: string) {
-        await this.client.req('PATCH', '/users/id/username', { username, password });
-    }
-
-    /**
-     * Get the avatar URL of a user
-     * @param id ID of the target user
-     * @param options Optional query parameters to modify object
-     * @param allowAnimation Whether to allow GIFs to play
-     * @param disableFallback Don't return default avatar if no avatar
-     */
-    getAvatarURL(id: string, options?: Autumn.SizeOptions, allowAnimation?: boolean, disableFallback?: boolean) {
-        let attachment = this.getMutable(id)?.avatar;
-        return this.client.generateFileURL(attachment, options, allowAnimation, disableFallback ? undefined : this.getDefaultAvatarURL(id));
+        return await this.client.req('PATCH', '/users/id/username', { username, password });
     }
 
     /**
@@ -150,15 +100,5 @@ export default class Users extends Collection<User> {
      */
     getDefaultAvatarURL(id: string) {
         return `${this.client.apiURL}/users/${id}/default_avatar`;
-    }
-
-    /**
-     * Get the background URL of a user
-     * @param profile Profile to use
-     * @param options Optional query parameters to modify object
-     */
-    getBackgroundURL(profile: UsersI.Profile, options?: Autumn.SizeOptions, allowAnimation?: boolean) {
-        let attachment = profile?.background;
-        return this.client.generateFileURL(attachment, options, allowAnimation);
     }
 }

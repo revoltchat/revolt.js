@@ -1,4 +1,9 @@
-import { Channels, Core, Invites, Servers, Sync, Users } from './objects';
+import type { RevoltConfiguration } from 'revolt-api/types/Core';
+import type { UserSettings, ChannelUnread } from 'revolt-api/types/Sync';
+import type { RetrievedInvite, ServerInvite } from 'revolt-api/types/Invites'
+import type { Profile, Relationship, RelationshipOnly, Status, User } from 'revolt-api/types/Users';
+import type { Ban, Category, Member, PermissionTuple, Server, SystemMessageChannels } from 'revolt-api/types/Servers';
+import type { Channel, DirectMessageChannel, GroupChannel, Message, TextChannel, VoiceChannel } from 'revolt-api/types/Channels';
 
 export type RemoveUserField = 'ProfileContent' | 'ProfileBackground' | 'StatusText' | 'Avatar';
 export type RemoveChannelField = 'Icon' | 'Description';
@@ -16,7 +21,7 @@ type Routes =
         method: 'GET',
         route: `/`,
         data: undefined,
-        response: Core.RevoltNodeConfiguration
+        response: RevoltConfiguration
     }
     /**
      * Auth
@@ -161,14 +166,14 @@ type Routes =
         method: 'GET',
         route: `/users/${Id}`,
         data: undefined,
-        response: Users.User
+        response: User
     }
     | {
         // Edit user.
         method: 'PATCH',
         route: `/users/${Id}`,
         data: {
-            status?: Users.Status,
+            status?: Status,
             profile?: {
                 content?: string,
                 background?: string
@@ -193,37 +198,35 @@ type Routes =
         method: 'GET',
         route: `/users/${Id}/profile`,
         data: undefined,
-        response: Users.Profile
+        response: Profile
     }
     | {
         // Fetch all your DM conversations.
         method: 'GET',
         route: `/users/dms`,
         data: undefined,
-        response: (Channels.DirectMessageChannel | Channels.GroupChannel)[]
+        response: (DirectMessageChannel | GroupChannel)[]
     }
     | {
         // Open a DM with another user.
         method: 'GET',
         route: `/users/${Id}/dm`,
         data: undefined,
-        response: Channels.DirectMessageChannel
+        response: DirectMessageChannel
     }
     | {
         // Fetch all of your relationships with other users.
         method: 'GET',
         route: `/users/relationships`,
         data: undefined,
-        response: Users.Relationships
+        response: Relationship[]
     }
     | {
         // Fetch your relationship with another other user.
         method: 'GET',
         route: `/users/${Id}/relationship`,
         data: undefined,
-        response: {
-            status: Users.Relationship
-        }
+        response: RelationshipOnly
     }
     | {
         // Fetch your mutual relationships with another user.
@@ -239,36 +242,28 @@ type Routes =
         method: 'PUT',
         route: `/users/${Id}/friend`,
         data: undefined,
-        response: {
-            status: Users.Relationship
-        }
+        response: RelationshipOnly
     }
     | {
         // Delete a friend request / remove a friend.
         method: 'DELETE',
         route: `/users/${Id}/friend`,
         data: undefined,
-        response: {
-            status: Users.Relationship
-        }
+        response: RelationshipOnly
     }
     | {
         // Block a user.
         method: 'PUT',
         route: `/users/${Id}/block`,
         data: undefined,
-        response: {
-            status: Users.Relationship
-        }
+        response: RelationshipOnly
     }
     | {
         // Unblock a user.
         method: 'DELETE',
         route: `/users/${Id}/block`,
         data: undefined,
-        response: {
-            status: Users.Relationship
-        }
+        response: RelationshipOnly
     }
     | {
         // Fetch a user's avatar.
@@ -292,14 +287,14 @@ type Routes =
         method: 'GET',
         route: `/channels/${Id}`,
         data: undefined,
-        response: Channels.Channel
+        response: Channel
     }
     | {
         // Fetch a channel's members by ID.
         method: 'GET',
         route: `/channels/${Id}/members`,
         data: undefined,
-        response: Users.User[]
+        response: User[]
     }
     | {
         // Edit a group channel.
@@ -330,7 +325,7 @@ type Routes =
             nonce: string,
             users: string[]
         },
-        response: Channels.GroupChannel
+        response: GroupChannel
     }
     | {
         // Create an invite to a channel.
@@ -382,14 +377,14 @@ type Routes =
             attachments?: string[],
             replies?: { id: string, mention: boolean }[]
         },
-        response: Channels.Message
+        response: Message
     }
     | {
         // Fetch message from channel.
         method: 'GET',
         route: `/channels/${Id}/messages/${Id}`,
         data: undefined,
-        response: Channels.Message
+        response: Message
     }
     | {
         // Query messages from channel (optionally include users as well).
@@ -403,10 +398,10 @@ type Routes =
             nearby?: string,
             include_users?: boolean
         },
-        response: Channels.Message[] | {
-            messages: Channels.Message[],
-            users: Users.User[],
-            members?: Servers.Member[]
+        response: Message[] | {
+            messages: Message[],
+            users: User[],
+            members?: Member[]
         }
     }
     | {
@@ -422,10 +417,10 @@ type Routes =
             sort?: 'Relevance' | 'Latest' | 'Oldest',
             include_users?: boolean
         },
-        response: Channels.Message[] | {
-            messages: Channels.Message[],
-            users: Users.User[],
-            members?: Servers.Member[]
+        response: Message[] | {
+            messages: Message[],
+            users: User[],
+            members?: Member[]
         }
     }
     | {
@@ -436,7 +431,7 @@ type Routes =
             ids: string[]
         },
         response: {
-            updated: Channels.Message[],
+            updated: Message[],
             deleted: string[]
         }
     }
@@ -467,14 +462,14 @@ type Routes =
             name: string,
             nonce: string
         },
-        response: Servers.Server
+        response: Server
     }
     | {
         // Fetch a server by ID.
         method: 'GET',
         route: `/servers/${Id}`,
         data: undefined,
-        response: Servers.Server
+        response: Server
     }
     | {
         // Delete or leave a server.
@@ -492,8 +487,8 @@ type Routes =
             description?: string,
             icon?: string,
             banner?: string,
-            categories?: Servers.Category[],
-            system_messages?: Servers.SystemMessageChannels,
+            categories?: Category[],
+            system_messages?: SystemMessageChannels,
             remove?: RemoveServerField
         },
         response: undefined
@@ -504,8 +499,8 @@ type Routes =
         route: `/servers/${Id}/members`,
         data: undefined,
         response: {
-            members: Servers.Member[],
-            users: Users.User[]
+            members: Member[],
+            users: User[]
         }
     }
     | {
@@ -513,7 +508,7 @@ type Routes =
         method: 'GET',
         route: `/servers/${Id}/members/${Id}`,
         data: undefined,
-        response: Servers.Member
+        response: Member
     }
     | {
         // Edit a server member
@@ -556,8 +551,8 @@ type Routes =
         route: `/servers/${Id}/bans`,
         data: undefined,
         response: {
-            users: Pick<Users.User, '_id' | 'username' | 'avatar'>[],
-            bans: Servers.Ban[]
+            users: Pick<User, '_id' | 'username' | 'avatar'>[],
+            bans: Ban[]
         }
     }
     | {
@@ -570,14 +565,14 @@ type Routes =
             description?: string,
             nonce: string
         },
-        response: Channels.TextChannel | Channels.VoiceChannel
+        response: TextChannel | VoiceChannel
     }
     | {
         // Fetch a server's invites
         method: 'GET',
         route: `/servers/${Id}/invites`,
         data: undefined,
-        response: Invites.ServerInvite[]
+        response: ServerInvite[]
     }
     | {
         // Create role
@@ -588,7 +583,7 @@ type Routes =
         },
         response: {
             id: string,
-            permissions: Servers.PermissionTuple
+            permissions: PermissionTuple
         }
     }
     | {
@@ -629,7 +624,7 @@ type Routes =
         method: 'GET',
         route: `/invites/${Id}`,
         data: undefined,
-        response: Invites.RetrievedInvite
+        response: RetrievedInvite
     }
     | {
         // Use an invite.
@@ -639,8 +634,8 @@ type Routes =
         response: (
             {
                 type: 'Server',
-                channel: Channels.TextChannel,
-                server: Servers.Server
+                channel: TextChannel,
+                server: Server
             }
         )
     }
@@ -661,7 +656,7 @@ type Routes =
         data: {
             keys: string[]
         },
-        response: Sync.UserSettings
+        response: UserSettings
     }
     | {
         // Set user settings.
@@ -677,7 +672,7 @@ type Routes =
         method: 'GET',
         route: `/sync/unreads`,
         data: undefined,
-        response: Sync.ChannelUnread[]
+        response: ChannelUnread[]
     }
     /**
      * Push API

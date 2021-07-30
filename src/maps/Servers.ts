@@ -1,11 +1,12 @@
-import { Autumn, Channels, Server, Servers as ServersNS } from '../api/objects';
+import type { Server } from 'revolt-api/types/Servers';
+
+import { Client } from '..';
 import { Route } from '../api/routes';
 import Collection from './Collection';
-import { Client } from '..';
 
 export default class Servers extends Collection<Server> {
     constructor(client: Client) {
-        super(client, 'servers');
+        super(client);
     }
 
     /**
@@ -13,27 +14,8 @@ export default class Servers extends Collection<Server> {
      * @param id Server ID
      * @returns The server
      */
-    async fetchMutable(id: string, data?: Server): Promise<Server> {
-        if (this.map[id]) return this.get(id) as Server;
-        let res = data ?? await this.client.req('GET', `/servers/${id}` as '/servers/id');
-
-        // Fetch channel information.
-        for (let channel of res.channels) {
-            // ! FIXME: add route for fetching all channels in future, copy code for fetching group recipients
-            await this.client.channels.fetch(channel);
-        }
-
-        this.set(res);
-        return this.get(id) as Server;
-    }
-
-    /**
-     * Fetch a server and make the return value read-only
-     * @param id Server ID
-     * @returns The server in read-only state 
-     */
-    async fetch(id: string, data?: Server) {
-        return await this.fetchMutable(id, data) as Readonly<Server>;
+    async fetch(id: string): Promise<Server> {
+        return await this.client.req('GET', `/servers/${id}` as '/servers/id');
     }
 
     /**
@@ -42,9 +24,7 @@ export default class Servers extends Collection<Server> {
      * @returns The newly-created server
      */
     async createServer(data: Route<'POST', '/servers/create'>["data"]) {
-        let res = await this.client.req('POST', `/servers/create`, data);
-        this.set(res);
-        return this.get(res._id) as Readonly<ServersNS.Server>;
+        return await this.client.req('POST', `/servers/create`, data);
     }
 
     /**
@@ -54,18 +34,7 @@ export default class Servers extends Collection<Server> {
      * @returns The newly-created channel
      */
     async createChannel(id: string, data: Route<'POST', '/servers/id/channels'>["data"]) {
-        let server = this.client.servers.getMutable(id);
-        if (!server) throw "Server does not exist!";
-
-        let res = await this.client.req('POST', `/servers/${id}/channels` as '/servers/id/channels', data);
-        this.client.channels.set(res);
-        
-        server.channels = [
-            ...server.channels.filter(x => x !== res._id),
-            res._id
-        ];
-
-        return this.client.channels.get(res._id) as Readonly<Channels.TextChannel | Channels.VoiceChannel>;
+        return await this.client.req('POST', `/servers/${id}/channels` as '/servers/id/channels', data);
     }
 
     /**
@@ -74,31 +43,15 @@ export default class Servers extends Collection<Server> {
      * @param data Server editing route data
      */
     async edit(id: string, data: Route<'PATCH', '/servers/id'>["data"]) {
-        let server = this.getThrow(id);
-        await this.client.req('PATCH', `/servers/${id}` as '/servers/id', data);
-        
-        if (data.name) server.name = data.name;
-        if (data.description) server.description = data.description;
+        return await this.client.req('PATCH', `/servers/${id}` as '/servers/id', data);
     }
 
     /**
      * Delete a guild
      * @param id ID of the target server
      */
-    async delete(id: string, avoidRequest?: boolean) {
-        if (!avoidRequest)
-            await this.client.req('DELETE', `/servers/${id}` as '/servers/id');
-        
-        for (let channel of this.client.channels.toArray()) {
-            if ((channel.channel_type === 'TextChannel' || channel.channel_type === 'VoiceChannel') && channel.server === id) {
-                this.client.channels.delete(channel._id, true); 
-            }
-        }
-
-        this.client.members.findMembers(id)
-            .forEach(member => this.client.members.delete(member._id));
-        
-        super.delete(id);
+    async delete(id: string) {
+        return await this.client.req('DELETE', `/servers/${id}` as '/servers/id');
     }
 
     /**
@@ -107,7 +60,7 @@ export default class Servers extends Collection<Server> {
      * @param user_id User ID
      */
     async banUser(id: string, user_id: string, data: Route<'PUT', '/servers/id/bans/id'>["data"]) {
-        await this.client.req('PUT', `/servers/${id}/bans/${user_id}` as '/servers/id/bans/id', data);
+        return await this.client.req('PUT', `/servers/${id}/bans/${user_id}` as '/servers/id/bans/id', data);
     }
 
     /**
@@ -116,7 +69,7 @@ export default class Servers extends Collection<Server> {
      * @param user_id User ID
      */
     async unbanUser(id: string, user_id: string) {
-        await this.client.req('DELETE', `/servers/${id}/bans/${user_id}` as '/servers/id/bans/id');
+        return await this.client.req('DELETE', `/servers/${id}/bans/${user_id}` as '/servers/id/bans/id');
     }
 
     /**
@@ -163,9 +116,7 @@ export default class Servers extends Collection<Server> {
      * @param data Role editing route data
      */
     async editRole(id: string, role_id: string, data: Route<'PATCH', '/servers/id/roles/id'>["data"]) {
-        let server = this.getThrow(id);
-        if (typeof server.roles?.[role_id] === 'undefined') return;
-        await this.client.req('PATCH', `/servers/${id}/roles/${role_id}` as '/servers/id/roles/id', data);
+        return await this.client.req('PATCH', `/servers/${id}/roles/${role_id}` as '/servers/id/roles/id', data);
     }
 
     /**
@@ -174,28 +125,6 @@ export default class Servers extends Collection<Server> {
      * @param role_id Role ID
      */
     async deleteRole(id: string, role_id: string) {
-        await this.client.req('DELETE', `/servers/${id}/roles/${role_id}` as '/servers/id/roles/id');
-    }
-
-    /**
-     * Get the icon URL of a server
-     * @param id ID of the target server
-     * @param options Optional query parameters to modify object
-     * @param allowAnimation Whether to allow links to the original GIFs to be returned
-     */
-    getIconURL(id: string, options?: Autumn.SizeOptions, allowAnimation?: boolean) {
-        let server = this.getMutable(id);
-        return this.client.generateFileURL(server?.icon, options, allowAnimation);
-    }
-
-    /**
-     * Get the banner URL of a server
-     * @param id ID of the target server
-     * @param options Optional query parameters to modify object
-     * @param allowAnimation Whether to allow links to the original GIFs to be returned
-     */
-    getBannerURL(id: string, options?: Autumn.SizeOptions, allowAnimation?: boolean) {
-        let server = this.getMutable(id);
-        return this.client.generateFileURL(server?.banner, options, allowAnimation);
+        return await this.client.req('DELETE', `/servers/${id}/roles/${role_id}` as '/servers/id/roles/id');
     }
 }
