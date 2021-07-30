@@ -1,88 +1,185 @@
-import type { User } from 'revolt-api/types/Users';
+import type { RelationshipStatus, Status, User as UserI } from 'revolt-api/types/Users';
+import type { RemoveUserField, Route } from '../api/routes';
+import type { Attachment } from 'revolt-api/types/Autumn';
 
-import { Client } from '..';
+import { makeAutoObservable, action, runInAction } from 'mobx';
+import isEqual from 'lodash.isequal';
+
+import { toNullable, Nullable } from '../util/null';
 import Collection from './Collection';
-import { Route } from '../api/routes';
+import { Client } from '..';
 
-export default class Users extends Collection<User> {
-    constructor(client: Client) {
-        super(client);
+export class User {
+    client: Client;
+
+    _id: string;
+    username: string;
+
+    avatar: Nullable<Attachment>;
+    badges: Nullable<number>;
+    status: Nullable<Status>;
+    relationship: Nullable<RelationshipStatus>;
+    online: Nullable<boolean>;
+
+    constructor(client: Client, data: UserI) {
+        this.client = client;
+
+        this._id = data._id;
+        this.username = data.username;
+
+        this.avatar = toNullable(data.avatar);
+        this.badges = toNullable(data.badges);
+        this.status = toNullable(data.status);
+        this.relationship = toNullable(data.relationship);
+        this.online = toNullable(data.online);
+
+        makeAutoObservable(this, {
+            _id: false,
+            client: false,
+        });
     }
 
-    /**
-     * Fetch a user, but do not make the return value read-only
-     * @param id User ID
-     * @returns The user
-     */
-    async fetch(id: string) {
-        return await this.client.req('GET', `/users/${id}` as '/users/id');
+    @action update(data: Partial<UserI>, clear?: RemoveUserField) {
+        const apply = (key: string) => {
+            // This code has been tested.
+            // @ts-expect-error
+            if (data[key] && !isEqual(this[key], data[key])) {
+                // @ts-expect-error
+                this[key] = data[key];
+            }
+        };
+
+        switch (clear) {
+            case "Avatar":
+                this.avatar = null;
+                break;
+            case "StatusText": {
+                if (this.status) {
+                    this.status.text = undefined;
+                }
+            }
+        }
+
+        apply("username");
+        apply("avatar");
+        apply("badges");
+        apply("status");
+        apply("relationship");
+        apply("online");
     }
 
     /**
      * Open a DM with a user
-     * @param id Target user ID
-     * @returns The DM channel
+     * @returns DM Channel
      */
-    async openDM(id: string) {
-        return await this.client.req('GET', `/users/${id}/dm` as '/users/id/dm');
+    async openDM() {
+        const dm = await this.client.req('GET', `/users/${this._id}/dm` as '/users/id/dm');
+        return (await this.client.channels.fetch(dm._id, dm))!;
     }
 
     /**
      * Send a friend request to a user
-     * @param username Username of the target user
      */
-    async addFriend(username: string) {
-        return await this.client.req('PUT', `/users/${username}/friend` as '/users/id/friend');
+    async addFriend() {
+        await this.client.req('PUT', `/users/${this.username}/friend` as '/users/id/friend');
     }
 
     /**
      * Remove a user from the friend list
-     * @param id ID of the target user
      */
-    async removeFriend(id: string) {
-        return await this.client.req('DELETE', `/users/${id}/friend` as '/users/id/friend');
+    async removeFriend() {
+        await this.client.req('DELETE', `/users/${this._id}/friend` as '/users/id/friend');
     }
 
     /**
      * Block a user
-     * @param id ID of the target user
      */
-    async blockUser(id: string) {
-        return await this.client.req('PUT', `/users/${id}/block` as '/users/id/block');
+    async blockUser() {
+        await this.client.req('PUT', `/users/${this._id}/block` as '/users/id/block');
     }
 
     /**
      * Unblock a user
-     * @param id ID of the target user
      */
-    async unblockUser(id: string) {
-        return await this.client.req('DELETE', `/users/${id}/block` as '/users/id/block');
+    async unblockUser() {
+        await this.client.req('DELETE', `/users/${this._id}/block` as '/users/id/block');
     }
 
     /**
      * Fetch the profile of a user
-     * @param id ID of the target user
      * @returns The profile of the user
      */
-    async fetchProfile(id: string) {
-        return await this.client.req('GET', `/users/${id}/profile` as '/users/id/profile');
+    async fetchProfile() {
+        return await this.client.req('GET', `/users/${this._id}/profile` as '/users/id/profile');
     }
 
     /**
      * Fetch the mutual connections of the current user and a target user
-     * @param id ID of the target user
      * @returns The mutual connections of the current user and a target user
      */
-    async fetchMutual(id: string) {
-        return await this.client.req('GET', `/users/${id}/mutual` as '/users/id/mutual');
+    async fetchMutual() {
+        return await this.client.req('GET', `/users/${this._id}/mutual` as '/users/id/mutual');
+    }
+
+    /**
+     * Get the default avatar URL of a user
+     */
+    get defaultAvatarURL() {
+        return `${this.client.apiURL}/users/${this._id}/default_avatar`;
+    }
+
+    /**
+     * Get this user's avatar URL
+     */
+    get avatarURL() {
+        if (this.avatar) {
+            return this.client.generateFileURL(this.avatar);
+        } else {
+            return this.defaultAvatarURL;
+        }
+    }
+}
+
+export default class Users extends Collection<string, User> {
+    constructor(client: Client) {
+        super(client);
+        this.createObj = this.createObj.bind(this);
+    }
+
+    /**
+     * Fetch a user
+     * @param id User ID
+     * @returns User
+     */
+    async fetch(id: string, data?: UserI) {
+        if (this.has(id)) return this.get(id)!;
+        let res = data ?? await this.client.req('GET', `/users/${id}` as '/users/id');
+        return this.createObj(res);
+    }
+
+    /**
+     * Create a user object.
+     * This is meant for internal use only.
+     * @param data: User Data
+     * @returns User
+     */
+    createObj(data: UserI) {
+        if (this.has(data._id)) return this.get(data._id)!;
+        let user = new User(this.client, data);
+
+        runInAction(() => {
+            this.set(data._id, user);
+        });
+
+        return user;
     }
 
     /**
      * Edit the current user
      * @param data User edit data object
      */
-    async editUser(data: Route<'PATCH', '/users/id'>["data"]) {
-        return await this.client.req('PATCH', '/users/id', data);
+    async edit(data: Route<'PATCH', '/users/id'>["data"]) {
+        await this.client.req('PATCH', '/users/id', data);
     }
 
     /**
@@ -92,13 +189,5 @@ export default class Users extends Collection<User> {
      */
     async changeUsername(username: string, password: string) {
         return await this.client.req('PATCH', '/users/id/username', { username, password });
-    }
-
-    /**
-     * Get the default avatar URL of a user
-     * @param id ID of the target user
-     */
-    getDefaultAvatarURL(id: string) {
-        return `${this.client.apiURL}/users/${id}/default_avatar`;
     }
 }

@@ -7,15 +7,18 @@ import { WebSocketClient } from './websocket/client';
 import { Route, RoutePath, RouteMethod } from './api/routes';
 import { ClientboundNotification, ReadyPacket } from './websocket/notifications';
 
-import type { User } from 'revolt-api/types/Users';
 import type { Session } from 'revolt-api/types/Auth';
 
-import Users from './maps/Users';
+import Users, { User } from './maps/Users';
+import Channels from './maps/Channels';
 import Servers from './maps/Servers';
 import Members from './maps/Members';
-import Channels from './maps/Channels';
+import Messages, { Message } from './maps/Messages';
+
 import { RevoltConfiguration } from 'revolt-api/types/Core';
 import { SizeOptions } from 'revolt-api/types/Autumn';
+
+import { makeObservable, observable } from 'mobx';
 
 /**
  * Client options object
@@ -33,8 +36,11 @@ export declare interface Client {
 	on(event: 'connected', listener: () => void): this;
 	on(event: 'connecting', listener: () => void): this;
     on(event: 'dropped', listener: () => void): this;
-    on(event: 'ready', listener: (packet: ReadyPacket) => void): this;
+    on(event: 'ready', listener: () => void): this;
     on(event: 'packet', listener: (packet: ClientboundNotification) => void): this;
+
+    on(event: 'message', listener: (message: Message) => void): this;
+    on(event: 'message/delete', listener: (id: string) => void): this;
 }
 
 /**
@@ -56,7 +62,7 @@ export class Client extends EventEmitter {
     heartbeat: number;
     
     session?: Session;
-    user_id?: Readonly<string>;
+    user?: User;
 
     websocket: WebSocketClient;
     private Axios: AxiosInstance;
@@ -64,23 +70,36 @@ export class Client extends EventEmitter {
     configuration?: RevoltConfiguration;
 
     users: Users;
+    channels: Channels;
     servers: Servers;
     members: Members;
-    channels: Channels;
+    messages: Messages;
 
     constructor(options: Partial<ClientOptions> = {}) {
         super();
+
+        this.users = new Users(this);
+        this.channels = new Channels(this);
+        this.servers = new Servers(this);
+        this.members = new Members(this);
+        this.messages = new Messages(this);
+
+        makeObservable(this, {
+            users: observable,
+            channels: observable,
+            servers: observable,
+            members: observable,
+            messages: observable
+        }, {
+            proxy: false
+        });
+
         this.options = defaultsDeep(options, defaultConfig);
         if (this.options.cache) throw "Cache is not supported yet.";
 
         this.Axios = Axios.create({ baseURL: this.apiURL });
         this.websocket = new WebSocketClient(this);
         this.heartbeat = this.options.heartbeat;
-
-        this.users = new Users(this);
-        this.servers = new Servers(this);
-        this.members = new Members(this);
-        this.channels = new Channels(this);
 
         if (options.debug) {
             this.Axios.interceptors.request.use(request => {
@@ -312,12 +331,14 @@ export class Client extends EventEmitter {
      */
     reset() {
         this.websocket.disconnect();
-        delete this.user_id;
+        delete this.user;
         delete this.session;
 
         this.users = new Users(this);
         this.channels = new Channels(this);
         this.servers = new Servers(this);
+        this.members = new Members(this);
+        this.messages = new Messages(this);
     }
 
     /**

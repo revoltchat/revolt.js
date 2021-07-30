@@ -5,6 +5,9 @@ import { Client, SYSTEM_USER_ID } from '..';
 import { ServerboundNotification, ClientboundNotification } from './notifications';
 import { Session } from 'revolt-api/types/Auth';
 
+import { runInAction } from 'mobx';
+import { Role } from 'revolt-api/types/Servers';
+
 export class WebSocketClient {
     client: Client;
     ws?: WebSocket;
@@ -90,15 +93,34 @@ export class WebSocketClient {
                         reject(packet.error);
                         break;
                     }
+
                     case 'Authenticated': {
                         disallowReconnect = false;
                         this.client.emit('connected');
                         this.connected = true;
                         break;
                     }
+
                     case 'Ready': {
-                        this.client.user_id = this.client.session!.user_id;
-                        this.client.emit('ready', packet);
+                        runInAction(() => {
+                            if (packet.type !== 'Ready') throw 0;
+
+                            for (let user of packet.users) {
+                                this.client.users.createObj(user);
+                            }
+
+                            for (let channel of packet.channels) {
+                                this.client.channels.createObj(channel);
+                            }
+
+                            for (let server of packet.servers) {
+                                this.client.servers.createObj(server);
+                            }
+                        });
+
+                        this.client.user = this.client.users.get(this.client.session!.user_id)!;
+
+                        this.client.emit('ready');
                         this.ready = true;
                         resolve();
 
@@ -109,6 +131,176 @@ export class WebSocketClient {
                             ) as any;
                         }
                         
+                        break;
+                    }
+
+                    case "Message": {
+                        if (!this.client.messages.has(packet._id)) {
+                            if (packet.author === SYSTEM_USER_ID) {
+                                if (typeof packet.content === 'object') {
+                                    switch (packet.content.type) {
+                                        case 'user_added':
+                                        case 'user_remove':
+                                            await this.client.users.fetch(packet.content.by);
+                                        case 'user_left':
+                                            await this.client.users.fetch(packet.content.id);
+                                            break;
+                                        case 'user_joined':
+                                        case 'user_left':
+                                        case 'user_banned':
+                                        case 'user_kicked':
+                                            await this.client.users.fetch(packet.content.id);
+                                            break;
+                                        case 'channel_description_changed':
+                                        case 'channel_icon_changed':
+                                        case 'channel_renamed':
+                                            await this.client.users.fetch(packet.content.by);
+                                            break;
+                                    }
+                                }
+                            } else {
+                                await this.client.users.fetch(packet.author);
+                            }
+
+                            let channel = await this.client.channels.fetch(packet.channel);
+                            if (channel.channel_type === 'TextChannel') {
+                                let server = await this.client.servers.fetch(channel.server_id!);
+                                await server.fetchMember(packet.author);
+                            }
+
+                            let message = this.client.messages.createObj(packet);
+                            this.client.emit('message', message);
+                        }
+                        break;
+                    }
+
+                    case "MessageUpdate": {
+                        this.client.messages.get(packet.id)?.update(packet.data);
+                        break;
+                    }
+
+                    case "MessageDelete": {
+                        this.client.messages.delete(packet.id);
+                        this.client.emit('message/delete', packet.id);
+                        break;
+                    }
+
+                    case "ChannelCreate": {
+                        runInAction(async () => {
+                            if (packet.type !== 'ChannelCreate') throw 0;
+
+                            if (packet.channel_type === 'TextChannel' || packet.channel_type === 'VoiceChannel') {
+                                let server = await this.client.servers.fetch(packet.server);
+                                server.channels.push(packet._id);
+                            }
+
+                            this.client.channels.createObj(packet);
+                        });
+                        break;
+                    }
+
+                    case "ChannelUpdate": {
+                        this.client.channels.get(packet.id)?.update(packet.data, packet.clear);
+                        break;
+                    }
+
+                    case "ChannelDelete": {
+                        this.client.channels.get(packet.id)?.delete(true);
+                        break;
+                    }
+
+                    case "ChannelGroupJoin": {
+                        this.client.channels.get(packet.id)?.updateGroupJoin(packet.user);
+                        break;
+                    }
+
+                    case "ChannelGroupLeave": {
+                        this.client.channels.get(packet.id)?.updateGroupLeave(packet.user);
+                        break;
+                    }
+
+                    case "ServerUpdate": {
+                        this.client.servers.get(packet.id)?.update(packet.data, packet.clear);
+                        break;
+                    }
+
+                    case "ServerDelete": {
+                        this.client.servers.get(packet.id)?.delete(true);
+                        break;
+                    }
+
+                    case "ServerMemberJoin": {
+                        await this.client.servers.fetch(packet.id);
+                        await this.client.users.fetch(packet.user);
+
+                        this.client.members.createObj({
+                            _id: {
+                                server: packet.id,
+                                user: packet.user
+                            }
+                        });
+
+                        break;
+                    }
+
+                    case "ServerMemberLeave": {
+                        if (packet.user === this.client.user!._id) {
+                            const server_id = packet.id
+                            runInAction(() => {
+                                this.client.servers.get(server_id)?.delete(true);
+                                [...this.client.members.keys()]
+                                    .forEach(key => {
+                                        if (key.server === server_id) {
+                                            this.client.members.delete(key);
+                                        }
+                                    });
+                            });
+                        } else {
+                            this.client.members.delete({
+                                server: packet.id,
+                                user: packet.user
+                            });
+                        }
+
+                        break;
+                    }
+
+                    case "ServerRoleUpdate": {
+                        let server = this.client.servers.get(packet.id);
+                        if (server) {
+                            server.roles = {
+                                ...server.roles,
+                                [packet.role_id]: {
+                                    ...server.roles?.[packet.role_id],
+                                    ...packet.data
+                                } as Role
+                            }
+                        }
+                        break;
+                    }
+
+                    case "ServerRoleDelete": {
+                        let server = this.client.servers.get(packet.id);
+                        if (server) {
+                            let { [packet.role_id]: _, ...roles } = server.roles ?? {};
+                            server.roles = roles;
+                        }
+                        break;
+                    }
+
+                    case "UserUpdate": {
+                        this.client.users.get(packet.id)?.update(packet.data, packet.clear);
+                        break;
+                    }
+
+                    case "UserRelationship": {
+                        let user = this.client.users.get(packet.user._id)
+                        if (user) {
+                            user.update({ relationship: packet.status });
+                        } else {
+                            this.client.users.createObj(packet.user);
+                        }
+
                         break;
                     }
                 }

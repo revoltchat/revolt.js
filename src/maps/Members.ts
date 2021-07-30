@@ -1,60 +1,99 @@
-import type { Member } from 'revolt-api/types/Servers';
+import type { Member as MemberI, MemberCompositeKey } from 'revolt-api/types/Servers';
+import type { RemoveMemberField, Route } from '../api/routes';
+import type { Attachment } from 'revolt-api/types/Autumn';
 
-import { Client } from '..';
+import { makeAutoObservable, runInAction, action } from 'mobx';
+import isEqual from 'lodash.isequal';
+
+import { Nullable, toNullable } from '../util/null';
 import Collection from './Collection';
-import { Route } from '../api/routes';
+import { Client } from '..';
 
-export default class Members extends Collection<Member> {
-    constructor(client: Client) {
-        super(client);
+export class Member {
+    client: Client;
+
+    _id: MemberCompositeKey;
+
+    nickname: Nullable<string> = null;
+    avatar: Nullable<Attachment> = null;
+    roles: Nullable<string[]> = null;
+
+    constructor(client: Client, data: MemberI) {
+        this.client = client;
+        this._id = data._id;
+
+        this.nickname = toNullable(data.nickname);
+        this.avatar = toNullable(data.avatar);
+        this.roles = toNullable(data.roles);
+
+        makeAutoObservable(this, {
+            _id: false,
+            client: false,
+        });
     }
 
-    /**
-     * Fetch a member
-     * @param id Server ID
-     * @param user_id User ID
-     * @returns The member
-     */
-    async fetch(id: string, user_id: string): Promise<Member> {
-        return await this.client.req('GET', `/servers/${id}/members/${user_id}` as '/servers/id/members/id');
-    }
+    @action update(data: Partial<MemberI>, clear?: RemoveMemberField) {
+        const apply = (key: string) => {
+            // This code has been tested.
+            // @ts-expect-error
+            if (data[key] && !isEqual(this[key], data[key])) {
+                // @ts-expect-error
+                this[key] = data[key];
+            }
+        };
 
-    /**
-     * Fetch a server member
-     * @param id Server ID
-     * @param user_id User ID
-     * @returns Server member object
-     */
-    async fetchMember(id: string, user_id: string) {
-        return await this.client.req('GET', `/servers/${id}/members/${user_id}` as '/servers/id/members/id');
+        switch (clear) {
+            case "Nickname":
+                this.nickname = null;
+                break;
+            case "Avatar":
+                this.avatar = null;
+                break;
+        }
+
+        apply("nickname");
+        apply("avatar");
+        apply("roles");
     }
 
     /**
      * Edit a server member
-     * @param id Server ID
-     * @param user_id User ID
      * @param data Member editing route data
      * @returns Server member object
      */
-    async editMember(id: string, user_id: string, data: Route<'PATCH', '/servers/id/members/id'>["data"]) {
-        return await this.client.req('PATCH', `/servers/${id}/members/${user_id}` as '/servers/id/members/id', data);
+    async edit(data: Route<'PATCH', '/servers/id/members/id'>["data"]) {
+        return await this.client.req('PATCH', `/servers/${this._id.server}/members/${this._id.user}` as '/servers/id/members/id', data);
     }
 
     /**
      * Kick server member
-     * @param id Server ID
      * @param user_id User ID
      */
-    async kickMember(id: string, user_id: string) {
-        return await this.client.req('DELETE', `/servers/${id}/members/${user_id}` as '/servers/id/members/id');
+    async kick() {
+        return await this.client.req('DELETE', `/servers/${this._id.server}/members/${this._id.user}` as '/servers/id/members/id');
+    }
+}
+
+export default class Members extends Collection<MemberCompositeKey, Member> {
+    constructor(client: Client) {
+        super(client);
+        this.createObj = this.createObj.bind(this);
     }
 
     /**
-     * Fetch a server's members.
-     * @param id Server ID
-     * @returns An array of the server's members and their user objects.
+     * Create a member object.
+     * This is meant for internal use only.
+     * @param data: Member Data
+     * @returns Member
      */
-    async fetchMembers(id: string) {
-        return await this.client.req('GET', `/servers/${id}/members` as '/servers/id/members');
+    createObj(data: MemberI) {
+        if (this.has(data._id)) return this.get(data._id)!;
+        let message = new Member(this.client, data);
+
+        runInAction(() => {
+            this.set(data._id, message);
+        });
+
+        return message;
     }
 }

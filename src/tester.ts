@@ -9,29 +9,45 @@ let client = new Client({
     apiURL: process.env.API_URL
 });
 
-let username: string;
-client.on('ready', (packet) => {
-    let user = packet.users.find(x => client.user_id! === x._id)!;
-    username = user.username;
-    console.info(`Logged in as ${username}!`);
-});
+client.on('ready', async () =>
+    console.info(`Logged in as ${client.user!.username}!`)
+);
 
-client.on('packet', (packet) => {
-    if (packet.type === 'Message') {
-        if (packet.content === 'ping') {
-            client.channels.sendMessage(packet.channel, 'pong!');
-        }
-
-        if (packet.content === 'who are you') {
-            client.channels.sendMessage(packet.channel, `<@${packet.author}> I am ${username}`);
-        }
-    } else if (packet.type === 'UserUpdate') {
-        if (packet.id === client.user_id!) {
-            if (packet.data.username) {
-                username = packet.data.username;
-            }
-        }
+client.on('message', async message => {
+    if (message.content === 'sus') {
+        message.channel!.sendMessage('sus!');
     }
 });
 
+import { autorun } from 'mobx';
+
+autorun(() => {
+    console.log(`
+BATCH UPDATE
+----
+srv ids: ${[...client.servers.values()].map(x => x._id).length}
+chn ids: ${[...client.channels.values()].map(x => x._id).length}
+usr ids: ${[...client.users.values()].map(x => x._id).length}
+msg ids: ${[...client.messages.values()].map(x => x._id).length}
+mbr ids: ${[...client.members.values()].map(x => x._id).length}
+----`);
+});
+
+client.once('ready', () => {
+    autorun(() => {
+        console.log(`Changed username to ${client.user!.username}!`);
+    });
+
+    let server_id = [...client.servers.keys()][0];
+    autorun(() => {
+        console.log(`
+
+Server
+------
+Name: ${client.servers.get(server_id)!.name}
+`);
+    });
+});
+
 client.login({ email: process.env.EMAIL as string, password: process.env.PASSWORD as string })
+// client.useExistingSession({ user_id: process.env.USER_ID as string, session_token: process.env.SESSION_TOKEN as string });
