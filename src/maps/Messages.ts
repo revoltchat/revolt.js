@@ -36,7 +36,7 @@ export class Message {
     get member() {
         const channel = this.channel;
         if (channel?.channel_type === 'TextChannel') {
-            return this.client.members.get({
+            return this.client.members.getKey({
                 server: channel.server_id!,
                 user: this.author_id
             });

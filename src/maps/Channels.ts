@@ -432,7 +432,7 @@ export class Channel {
                 if (server.owner === this.client.user?._id) {
                     return U32_MAX;
                 } else {
-                    let member = this.client.members.get({
+                    let member = this.client.members.getKey({
                         user: this.client.user!._id,
                         server: server._id
                     });

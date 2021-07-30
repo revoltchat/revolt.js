@@ -250,13 +250,13 @@ export class WebSocketClient {
                                 this.client.servers.get(server_id)?.delete(true);
                                 [...this.client.members.keys()]
                                     .forEach(key => {
-                                        if (key.server === server_id) {
+                                        if (JSON.parse(key).server === server_id) {
                                             this.client.members.delete(key);
                                         }
                                     });
                             });
                         } else {
-                            this.client.members.delete({
+                            this.client.members.deleteKey({
                                 server: packet.id,
                                 user: packet.user
                             });

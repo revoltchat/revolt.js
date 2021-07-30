@@ -78,10 +78,26 @@ export class Member {
     }
 }
 
-export default class Members extends Collection<MemberCompositeKey, Member> {
+export default class Members extends Collection<string, Member> {
     constructor(client: Client) {
         super(client);
         this.createObj = this.createObj.bind(this);
+    }
+
+    hasKey(id: MemberCompositeKey) {
+        return super.has(JSON.stringify(id));
+    }
+
+    getKey(id: MemberCompositeKey) {
+        return super.get(JSON.stringify(id));
+    }
+
+    setKey(id: MemberCompositeKey, member: Member) {
+        return super.set(JSON.stringify(id), member);
+    }
+
+    deleteKey(id: MemberCompositeKey) {
+        return super.delete(JSON.stringify(id));
     }
 
     /**
@@ -91,11 +107,11 @@ export default class Members extends Collection<MemberCompositeKey, Member> {
      * @returns Member
      */
     createObj(data: MemberI) {
-        if (this.has(data._id)) return this.get(data._id)!;
+        if (this.hasKey(data._id)) return this.getKey(data._id)!;
         let message = new Member(this.client, data);
 
         runInAction(() => {
-            this.set(data._id, message);
+            this.setKey(data._id, message);
         });
 
         return message;
