@@ -192,7 +192,8 @@ export class Server {
      * @returns Server member object
      */
     async fetchMember(user: User | string) {
-        return await this.client.req('GET', `/servers/${this._id}/members/${typeof user === 'string' ? user : user._id}` as '/servers/id/members/id');
+        let member = await this.client.req('GET', `/servers/${this._id}/members/${typeof user === 'string' ? user : user._id}` as '/servers/id/members/id');
+        return this.client.members.createObj(member);
     }
 
     /**
@@ -200,7 +201,13 @@ export class Server {
      * @returns An array of the server's members and their user objects.
      */
     async fetchMembers() {
-        return await this.client.req('GET', `/servers/${this._id}/members` as '/servers/id/members');
+        let data = await this.client.req('GET', `/servers/${this._id}/members` as '/servers/id/members');
+        return runInAction(() => {
+            return {
+                members: data.members.map(this.client.members.createObj),
+                users: data.users.map(this.client.users.createObj)
+            }
+        });
     }
 
     @computed generateIconURL(...args: FileArgs) {
