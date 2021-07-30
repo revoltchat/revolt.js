@@ -168,8 +168,7 @@ export class WebSocketClient {
                                 await server.fetchMember(packet.author);
                             }
 
-                            let message = this.client.messages.createObj(packet);
-                            this.client.emit('message', message);
+                            this.client.messages.createObj(packet);
                         }
                         break;
                     }

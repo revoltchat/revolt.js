@@ -120,6 +120,7 @@ export default class Messages extends Collection<string, Message> {
             this.set(data._id, message);
         });
 
+        this.client.emit('message', message);
         return message;
     }
 }
