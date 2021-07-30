@@ -249,7 +249,7 @@ export class Channel {
             if (this.channel_type === 'TextChannel' || this.channel_type === 'VoiceChannel') {
                 let server = this.server;
                 if (server) {
-                    server.channels = server.channels.filter(x => x !== this._id);
+                    server.channel_ids = server.channel_ids.filter(x => x !== this._id);
                 }
             }
 

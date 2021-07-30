@@ -19,7 +19,7 @@ export class Server {
     name: string;
     description: Nullable<string> = null;
 
-    channels: string[] = [];
+    channel_ids: string[] = [];
     categories: Nullable<Category[]> = null;
     system_messages: Nullable<SystemMessageChannels> = null;
 
@@ -29,6 +29,10 @@ export class Server {
     icon: Nullable<Attachment> = null;
     banner: Nullable<Attachment> = null;
 
+    get channels() {
+        return this.channel_ids.map(x => this.client.channels.get(x));
+    }
+
     constructor(client: Client, data: ServerI) {
         this.client = client;
         
@@ -37,7 +41,7 @@ export class Server {
         this.name = data.name;
         this.description = toNullable(data.description);
 
-        this.channels = data.channels;
+        this.channel_ids = data.channels;
         this.categories = toNullable(data.categories);
         this.system_messages = toNullable(data.system_messages);
 
@@ -54,12 +58,12 @@ export class Server {
     }
 
     @action update(data: Partial<ServerI>, clear?: RemoveServerField) {
-        const apply = (key: string) => {
+        const apply = (key: string, target?: string) => {
             // This code has been tested.
             // @ts-expect-error
-            if (data[key] && !isEqual(this[key], data[key])) {
+            if (data[key] && !isEqual(this[target ?? key], data[key])) {
                 // @ts-expect-error
-                this[key] = data[key];
+                this[target ?? key] = data[key];
             }
         };
 
@@ -78,7 +82,7 @@ export class Server {
         apply("owner");
         apply("name");
         apply("description");
-        apply("channels");
+        apply("channels", "channel_ids");
         apply("categories");
         apply("system_messages");
         apply("roles");

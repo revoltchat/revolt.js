@@ -191,7 +191,7 @@ export class WebSocketClient {
 
                             if (packet.channel_type === 'TextChannel' || packet.channel_type === 'VoiceChannel') {
                                 let server = await this.client.servers.fetch(packet.server);
-                                server.channels.push(packet._id);
+                                server.channel_ids.push(packet._id);
                             }
 
                             this.client.channels.createObj(packet);
