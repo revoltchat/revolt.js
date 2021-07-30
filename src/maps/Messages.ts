@@ -30,7 +30,7 @@ export class Message {
     }
 
     get author() {
-        return this.client.channels.get(this.author_id);
+        return this.client.users.get(this.author_id);
     }
 
     get member() {
