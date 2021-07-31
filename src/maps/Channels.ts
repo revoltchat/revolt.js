@@ -409,7 +409,7 @@ export class Channel {
      * @returns Join call response data
      */
     async ack(message: Message | string) {
-        return await this.client.req('POST', `/channels/${this._id}/ack/${typeof message === 'string' ? message : message._id}` as '/channels/id/ack/id');
+        return await this.client.req('PUT', `/channels/${this._id}/ack/${typeof message === 'string' ? message : message._id}` as '/channels/id/ack/id');
     }
 
     /**
