@@ -88,14 +88,14 @@ export class Message {
      * Edit a message
      * @param data Message edit route data
      */
-     async editMessage(data: Route<'PATCH', '/channels/id/messages/id'>["data"]) {
+     async edit(data: Route<'PATCH', '/channels/id/messages/id'>["data"]) {
         return await this.client.req('PATCH', `/channels/${this.channel_id}/messages/${this._id}` as '/channels/id/messages/id', data);
     }
 
     /**
      * Delete a message
      */
-    async deleteMessage() {
+    async delete() {
         return await this.client.req('DELETE', `/channels/${this.channel_id}/messages/${this._id}` as '/channels/id/messages/id');
     }
 }
@@ -110,9 +110,10 @@ export default class Messages extends Collection<string, Message> {
      * Create a message object.
      * This is meant for internal use only.
      * @param data Message Data
+     * @param emit Whether to emit creation event
      * @returns Message
      */
-    createObj(data: MessageI) {
+    createObj(data: MessageI, emit?: boolean | number) {
         if (this.has(data._id)) return this.get(data._id)!;
         let message = new Message(this.client, data);
 
@@ -120,7 +121,7 @@ export default class Messages extends Collection<string, Message> {
             this.set(data._id, message);
         });
 
-        this.client.emit('message', message);
+        if (emit === true) this.client.emit('message', message);
         return message;
     }
 }

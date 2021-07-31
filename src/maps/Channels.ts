@@ -285,7 +285,7 @@ export class Channel {
         };
 
         let message = await this.client.req('POST', `/channels/${this._id}/messages` as '/channels/id/messages', msg);
-        return this.client.messages.createObj(message);
+        return this.client.messages.createObj(message, true);
     }
 
     /**
