@@ -81,6 +81,7 @@ export class WebSocketClient {
                 this.send({ type: 'Authenticate', ...this.client.session as Session });
             };
 
+            let timeouts: Record<string, any> = {};
             let handle = async (msg: WebSocket.MessageEvent) => {
                 let data = msg.data;
                 if (typeof data !== 'string') return;
@@ -317,12 +318,24 @@ export class WebSocketClient {
                     }
 
                     case "ChannelStartTyping": {
-                        this.client.channels.get(packet.id)?.updateStartTyping(packet.user);
+                        let channel = this.client.channels.get(packet.id);
+                        let user = packet.user;
+
+                        if (channel) {
+                            channel.updateStartTyping(user);
+
+                            clearInterval(timeouts[packet.id+user]);
+                            timeouts[packet.id+user] = setTimeout(() => {
+                                channel!.updateStopTyping(user);
+                            }, 3000);
+                        }
+
                         break;
                     }
 
                     case "ChannelStopTyping": {
                         this.client.channels.get(packet.id)?.updateStopTyping(packet.user);
+                        clearInterval(timeouts[packet.id+packet.user]);
                         break;
                     }
 
@@ -354,6 +367,13 @@ export class WebSocketClient {
                 this.client.emit('dropped');
                 this.connected = false;
                 this.ready = false;
+
+                Object.keys(timeouts).map(k => timeouts[k]).forEach(clearTimeout);
+
+                runInAction(() => {
+                    [...this.client.users.values()].forEach(user => user.online = false);
+                    [...this.client.channels.values()].forEach(channel => channel.typing_ids.clear());
+                });
 
                 if (!disallowReconnect && this.client.autoReconnect) {
                     backOff(() => this.connect(true)).catch(reject);
