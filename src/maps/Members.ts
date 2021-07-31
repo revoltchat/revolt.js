@@ -84,20 +84,24 @@ export default class Members extends Collection<string, Member> {
         this.createObj = this.createObj.bind(this);
     }
 
+    static toKey(id: MemberCompositeKey) {
+        return JSON.stringify(id, Object.keys(id).sort())
+    }
+
     hasKey(id: MemberCompositeKey) {
-        return super.has(JSON.stringify(id));
+        return super.has(Members.toKey(id));
     }
 
     getKey(id: MemberCompositeKey) {
-        return super.get(JSON.stringify(id));
+        return super.get(Members.toKey(id));
     }
 
     setKey(id: MemberCompositeKey, member: Member) {
-        return super.set(JSON.stringify(id), member);
+        return super.set(Members.toKey(id), member);
     }
 
     deleteKey(id: MemberCompositeKey) {
-        return super.delete(JSON.stringify(id));
+        return super.delete(Members.toKey(id));
     }
 
     /**
