@@ -4,7 +4,7 @@ import type { Attachment } from 'revolt-api/types/Autumn';
 import type { Member } from 'revolt-api/types/Servers';
 import type { User } from 'revolt-api/types/Users';
 
-import { action, makeAutoObservable, runInAction } from 'mobx';
+import { action, computed, makeAutoObservable, runInAction } from 'mobx';
 import isEqual from 'lodash.isequal';
 import { ulid } from 'ulid';
 
@@ -405,7 +405,7 @@ export class Channel {
         return this.client.generateFileURL(this.icon ?? undefined, ...args);
     }
 
-    get permission() {
+    @computed get permission() {
         switch (this.channel_type) {
             case 'SavedMessages': return U32_MAX;
             case 'DirectMessage': {

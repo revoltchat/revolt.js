@@ -147,7 +147,7 @@ export class User {
         return this.client.generateFileURL(this.avatar ?? undefined, ...args) ?? this.defaultAvatarURL;
     }
 
-    get permission() {
+    @computed get permission() {
         let permissions = 0;
         switch (this.relationship) {
             case RelationshipStatus.Friend:
@@ -205,6 +205,7 @@ export default class Users extends Collection<string, User> {
             this.set(data._id, user);
         });
 
+        this.client.emit('user/relationship', user);
         return user;
     }
 

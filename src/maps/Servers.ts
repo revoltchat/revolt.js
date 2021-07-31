@@ -218,7 +218,7 @@ export class Server {
         return this.client.generateFileURL(this.banner ?? undefined, ...args);
     }
 
-    get permission() {
+    @computed get permission() {
         if (this.owner === this.client.user?._id) {
             return U32_MAX;
         } else {
