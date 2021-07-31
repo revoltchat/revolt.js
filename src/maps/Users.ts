@@ -8,7 +8,7 @@ import isEqual from 'lodash.isequal';
 import { U32_MAX, UserPermission } from '../api/permissions';
 import { toNullable, Nullable } from '../util/null';
 import Collection from './Collection';
-import { Client, FileArgs } from '..';
+import { Client, FileArgs, SYSTEM_USER_ID } from '..';
 
 enum RelationshipStatus {
     None = "None",
@@ -178,6 +178,10 @@ export default class Users extends Collection<string, User> {
     constructor(client: Client) {
         super(client);
         this.createObj = this.createObj.bind(this);
+        this.set(SYSTEM_USER_ID, new User(client, {
+            _id: SYSTEM_USER_ID,
+            username: 'Revolt'
+        }));
     }
 
     /**
