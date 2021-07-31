@@ -116,6 +116,10 @@ export class WebSocketClient {
                             for (let server of packet.servers) {
                                 this.client.servers.createObj(server);
                             }
+
+                            for (let member of packet.members) {
+                                this.client.members.createObj(member);
+                            }
                         });
 
                         this.client.user = this.client.users.get(this.client.session!.user_id)!;

@@ -22,7 +22,8 @@ export type ReadyPacket = {
     type: 'Ready',
     users: User[],
     servers: Server[],
-    channels: Channel[]
+    channels: Channel[],
+    members: Member[]
 }
 
 export type ClientboundNotification = (
