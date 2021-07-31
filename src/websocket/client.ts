@@ -238,14 +238,18 @@ export class WebSocketClient {
                     }
 
                     case "ServerMemberJoin": {
-                        await this.client.servers.fetch(packet.id);
-                        await this.client.users.fetch(packet.user);
+                        runInAction(async () => {
+                            if (packet.type !== 'ServerMemberJoin') return 0;
 
-                        this.client.members.createObj({
-                            _id: {
-                                server: packet.id,
-                                user: packet.user
-                            }
+                            await this.client.servers.fetch(packet.id);
+                            await this.client.users.fetch(packet.user);
+
+                            this.client.members.createObj({
+                                _id: {
+                                    server: packet.id,
+                                    user: packet.user
+                                }
+                            });
                         });
 
                         break;

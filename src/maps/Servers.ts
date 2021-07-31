@@ -255,7 +255,19 @@ export default class Servers extends Collection<string, Server> {
     async fetch(id: string, data?: ServerI) {
         if (this.has(id)) return this.get(id)!;
         let res = data ?? await this.client.req('GET', `/servers/${id}` as '/servers/id');
-        return this.createObj(res);
+
+        return runInAction(async () => {
+            for (let channel of res.channels) {
+                // ! FIXME: add route for fetching all channels
+                // ! FIXME: OR the WHOLE server
+                try {
+                    await this.client.channels.fetch(channel);
+                // future proofing for when not
+                } catch (err) {}
+            }
+
+            return this.createObj(res);
+        });
     }
 
     /**
