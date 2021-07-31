@@ -40,6 +40,7 @@ export declare interface Client {
 
     on(event: 'message', listener: (message: Message) => void): this;
     on(event: 'message/delete', listener: (id: string) => void): this;
+    on(event: 'user/relationship', listener: (user: User) => void): this;
 }
 
 /**

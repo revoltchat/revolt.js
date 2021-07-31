@@ -57,6 +57,10 @@ export class User {
             if (data[key] && !isEqual(this[key], data[key])) {
                 // @ts-expect-error
                 this[key] = data[key];
+
+                if (key === 'relationship') {
+                    this.client.emit('user/relationship', this);
+                }
             }
         };
 
