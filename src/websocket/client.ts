@@ -169,7 +169,7 @@ export class WebSocketClient {
                             let channel = await this.client.channels.fetch(packet.channel);
                             if (channel.channel_type === 'TextChannel') {
                                 let server = await this.client.servers.fetch(channel.server_id!);
-                                await server.fetchMember(packet.author);
+                                if (packet.author !== SYSTEM_USER_ID) await server.fetchMember(packet.author);
                             }
 
                             this.client.messages.createObj(packet, true);
