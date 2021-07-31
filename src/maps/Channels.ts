@@ -435,7 +435,7 @@ export class Channel {
                     let member = this.client.members.getKey({
                         user: this.client.user!._id,
                         server: server._id
-                    });
+                    }) ?? { roles: null };
 
                     if (!member) return 0;
 

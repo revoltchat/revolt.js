@@ -225,7 +225,7 @@ export class Server {
             let member = this.client.members.getKey({
                 user: this.client.user!._id,
                 server: this._id
-            });
+            }) ?? { roles: null };
 
             if (!member) return 0;
 
