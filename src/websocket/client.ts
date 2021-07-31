@@ -232,6 +232,11 @@ export class WebSocketClient {
                         break;
                     }
 
+                    case "ServerMemberUpdate": {
+                        this.client.members.getKey(packet.id)?.update(packet.data, packet.clear);
+                        break;
+                    }
+
                     case "ServerMemberJoin": {
                         await this.client.servers.fetch(packet.id);
                         await this.client.users.fetch(packet.user);
@@ -306,6 +311,8 @@ export class WebSocketClient {
 
                         break;
                     }
+
+                    default: console.warn(`Warning: Unhandled packet! ${packet.type}`);
                 }
             }
             
