@@ -312,6 +312,16 @@ export class WebSocketClient {
                         break;
                     }
 
+                    case "ChannelStartTyping": {
+                        this.client.channels.get(packet.id)?.updateStartTyping(packet.user);
+                        break;
+                    }
+
+                    case "ChannelStopTyping": {
+                        this.client.channels.get(packet.id)?.updateStopTyping(packet.user);
+                        break;
+                    }
+
                     case "ChannelAck": break;
 
                     default: console.warn(`Warning: Unhandled packet! ${packet.type}`);
