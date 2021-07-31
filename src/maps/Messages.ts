@@ -98,6 +98,13 @@ export class Message {
     async delete() {
         return await this.client.req('DELETE', `/channels/${this.channel_id}/messages/${this._id}` as '/channels/id/messages/id');
     }
+
+    /**
+     * Acknowledge this message as read
+     */
+    ack() {
+        this.channel?.ack(this);
+    }
 }
 
 export default class Messages extends Collection<string, Message> {

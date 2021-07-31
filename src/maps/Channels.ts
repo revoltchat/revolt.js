@@ -87,6 +87,11 @@ export class Channel {
     last_message: Nullable<string | LastMessage> = null;
 
     /**
+     * Users typing in channel.
+     */
+    typing_ids: Set<string> = new Set();
+
+    /**
      * The group owner.
      * @requires `Group`
      */
@@ -121,6 +126,13 @@ export class Channel {
      */
     get recipients() {
         return this.recipient_ids?.map(id => this.client.users.get(id));
+    }
+
+    /**
+     * Users typing.
+     */
+    get typing() {
+        return Array.from(this.typing_ids).map(id => this.client.users.get(id));
     }
 
     constructor(client: Client, data: ChannelI) {
@@ -211,6 +223,14 @@ export class Channel {
         this.recipient_ids = toNullable(
             this.recipient_ids?.filter((x) => x !== user),
         );
+    }
+
+    @action updateStartTyping(id: string) {
+        this.typing_ids.add(id);
+    }
+
+    @action updateStopTyping(id: string) {
+        this.typing_ids.delete(id);
     }
 
     /**
@@ -388,7 +408,7 @@ export class Channel {
      * @param message Last read message or its ID
      * @returns Join call response data
      */
-    async markAsRead(message: Message | string) {
+    async ack(message: Message | string) {
         return await this.client.req('POST', `/channels/${this._id}/ack/${typeof message === 'string' ? message : message._id}` as '/channels/id/ack/id');
     }
 
@@ -399,6 +419,20 @@ export class Channel {
      */
     async setPermissions(role_id: string = 'default', permissions?: number) {
         return await this.client.req('PUT', `/channels/${this._id}/permissions/${role_id}` as '/channels/id/permissions/id', { permissions });
+    }
+
+    /**
+     * Start typing in this channel
+     */
+    startTyping() {
+        this.client.websocket.send({ type: 'BeginTyping', channel: this._id });
+    }
+
+    /**
+     * Stop typing in this channel
+     */
+    stopTyping() {
+        this.client.websocket.send({ type: 'EndTyping', channel: this._id });
     }
 
     generateIconURL(...args: FileArgs) {

@@ -312,6 +312,8 @@ export class WebSocketClient {
                         break;
                     }
 
+                    case "ChannelAck": break;
+
                     default: console.warn(`Warning: Unhandled packet! ${packet.type}`);
                 }
             }
