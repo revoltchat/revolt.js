@@ -68,18 +68,18 @@ export class Message {
     }
 
     @action update(data: Partial<MessageI>) {
-        const apply = (key: string, target?: string) => {
+        const apply = (key: string, target?: string, transform?: (obj: unknown) => unknown) => {
             // This code has been tested.
             // @ts-expect-error
             if (data[key] && !isEqual(this[target ?? key], data[key])) {
                 // @ts-expect-error
-                this[target ?? key] = data[key];
+                this[target ?? key] = transform ? transform(data[key]) : data[key];
             }
         };
 
         apply("content");
         apply("attachments");
-        apply("edited");
+        apply("edited", undefined, toNullableDate as (obj: unknown) => unknown);
         apply("embeds");
         apply("mentions", "mention_ids");
     }
