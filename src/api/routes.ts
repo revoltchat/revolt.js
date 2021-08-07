@@ -494,6 +494,13 @@ type Routes =
         response: undefined
     }
     | {
+        // Mark an entire server as read.
+        method: 'PUT',
+        route: `/servers/${Id}/ack`,
+        data: undefined,
+        response: undefined
+    }
+    | {
         // Fetch a server's members
         method: 'GET',
         route: `/servers/${Id}/members`,
