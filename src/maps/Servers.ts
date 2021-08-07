@@ -121,6 +121,13 @@ export class Server {
     }
 
     /**
+     * Mark a server as read
+     */
+    async ack() {
+        return await this.client.req('PUT', `/servers/${this._id}/ack` as '/servers/id/ack');
+    }
+
+    /**
      * Ban user
      * @param user_id User ID
      */

@@ -406,10 +406,10 @@ export class Channel {
     /**
      * Mark a channel as read
      * @param message Last read message or its ID
-     * @returns Join call response data
      */
-    async ack(message: Message | string) {
-        return await this.client.req('PUT', `/channels/${this._id}/ack/${typeof message === 'string' ? message : message._id}` as '/channels/id/ack/id');
+    async ack(message?: Message | string) {
+        const id = (typeof message === 'string' ? message : message?._id) ?? ulid();
+        return await this.client.req('PUT', `/channels/${this._id}/ack/${id}` as '/channels/id/ack/id');
     }
 
     /**
