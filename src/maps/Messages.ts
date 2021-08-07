@@ -3,7 +3,7 @@ import type { Attachment } from 'revolt-api/types/Autumn';
 import type { Embed } from 'revolt-api/types/January';
 import type { Route } from '../api/routes';
 
-import { makeAutoObservable, runInAction, action } from 'mobx';
+import { makeAutoObservable, runInAction, action, computed } from 'mobx';
 import isEqual from 'lodash.isequal';
 
 import { Nullable, toNullable, toNullableDate } from '../util/null';
@@ -45,6 +45,27 @@ export class Message {
 
     get mentions() {
         return this.mention_ids?.map(id => this.client.users.get(id));
+    }
+
+    @computed
+    get asSystemMessage() {
+        const content = this.content;
+        if (typeof content === 'string') return { type: 'text', content };
+
+        const { type } = content;
+        const get = (id: string) => this.client.users.get(id);
+        switch (content.type) {
+            case 'text': return content;
+            case 'user_added': return { type, user: get(content.id), by: get(content.by) };
+            case 'user_remove': return { type, user: get(content.id), by: get(content.by) };
+            case 'user_joined': return { type, user: get(content.id) };
+            case 'user_left': return { type, user: get(content.id) };
+            case 'user_kicked': return { type, user: get(content.id) };
+            case 'user_banned': return { type, user: get(content.id) };
+            case 'channel_renamed': return { type, name: content.name, by: get(content.by) };
+            case 'channel_description_changed': return { type, by: get(content.by) };
+            case 'channel_icon_changed': return { type, by: get(content.by) };
+        }
     }
 
     constructor(client: Client, data: MessageI) {
