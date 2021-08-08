@@ -92,7 +92,7 @@ export class Message {
         const apply = (key: string, target?: string, transform?: (obj: unknown) => unknown) => {
             // This code has been tested.
             // @ts-expect-error
-            if (data[key] && !isEqual(this[target ?? key], data[key])) {
+            if (typeof data[key] !== 'undefined' && !isEqual(this[target ?? key], data[key])) {
                 // @ts-expect-error
                 this[target ?? key] = transform ? transform(data[key]) : data[key];
             }

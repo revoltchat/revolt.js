@@ -54,7 +54,7 @@ export class User {
         const apply = (key: string) => {
             // This code has been tested.
             // @ts-expect-error
-            if (data[key] && !isEqual(this[key], data[key])) {
+            if (typeof data[key] !== 'undefined' && !isEqual(this[key], data[key])) {
                 // @ts-expect-error
                 this[key] = data[key];
 
