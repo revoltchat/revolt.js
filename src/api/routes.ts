@@ -236,7 +236,8 @@ type Routes =
         route: `/users/${Id}/mutual`,
         data: undefined,
         response: {
-            users: string[]
+            users: string[],
+            servers: string[]
         }
     }
     | {
