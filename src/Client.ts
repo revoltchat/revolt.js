@@ -63,7 +63,7 @@ export type FileArgs = [ options?: SizeOptions, allowAnimation?: boolean, fallba
 export class Client extends EventEmitter {
     heartbeat: number;
     
-    session?: Session;
+    session?: Session | string;
     user?: User;
 
     websocket: WebSocketClient;
@@ -217,10 +217,16 @@ export class Client extends EventEmitter {
             await this.connect();
     }
 
-    private $generateHeaders(session: Session | undefined = this.session) {
-        return {
-            'x-user-id': session?.user_id,
-            'x-session-token': session?.session_token
+    private $generateHeaders(session: Session | string | undefined = this.session) {
+        if (typeof session === 'string') {
+            return {
+                'x-bot-token': session
+            }
+        } else {
+            return {
+                'x-user-id': session?.user_id,
+                'x-session-token': session?.session_token
+            }
         }
     }
 
@@ -230,22 +236,33 @@ export class Client extends EventEmitter {
      * @returns An onboarding function if onboarding is required, undefined otherwise
      */
     async login(details: Route<'POST', '/auth/login'>["data"]) {
-        this.fetchConfiguration();
+        await this.fetchConfiguration();
         this.session = await this.req('POST', '/auth/login', details);
         
         return await this.$connect();
     }
 
     /**
-     * Use an existing session to log into REVOLT.
+     * Use an existing session to log into Revolt.
      * @param session Session data object
      * @returns An onboarding function if onboarding is required, undefined otherwise
      */
     async useExistingSession(session: Session) {
-        this.fetchConfiguration();
+        await this.fetchConfiguration();
         await this.request('GET', '/auth/check', { headers: this.$generateHeaders(session) });
         this.session = session;
         return await this.$connect();
+    }
+
+    /**
+     * Log in as a bot.
+     * @param token Bot token
+     */
+    async loginBot(token: string) {
+        await this.fetchConfiguration();
+        this.session = token;
+        this.Axios.defaults.headers = this.$generateHeaders();
+        return await this.websocket.connect();
     }
 
     // Check onboarding status and connect to notifications service.
@@ -380,9 +397,8 @@ export class Client extends EventEmitter {
      * @returns Modified plain text
      */
     markdownToText(source: string) {
-        console.warn('revolt.js: Client.markdownToText() is deprecated, please stop using it.');
         return source
-        /*.replace(
+        .replace(
             RE_MENTIONS,
             (sub: string, ...args: any[]) => {
                 const id = args[0],
@@ -394,7 +410,7 @@ export class Client extends EventEmitter {
 
                 return sub;
             }
-        )*/
+        )
         .replace(
             RE_SPOILER,
             '<spoiler>'

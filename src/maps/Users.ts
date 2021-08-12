@@ -1,4 +1,4 @@
-import type { Status, User as UserI } from 'revolt-api/types/Users';
+import type { BotInformation, Status, User as UserI } from 'revolt-api/types/Users';
 import type { RemoveUserField, Route } from '../api/routes';
 import type { Attachment } from 'revolt-api/types/Autumn';
 
@@ -9,6 +9,7 @@ import { U32_MAX, UserPermission } from '../api/permissions';
 import { toNullable, Nullable } from '../util/null';
 import Collection from './Collection';
 import { Client, FileArgs, SYSTEM_USER_ID } from '..';
+import _ from 'lodash';
 
 enum RelationshipStatus {
     None = "None",
@@ -31,6 +32,8 @@ export class User {
     status: Nullable<Status>;
     relationship: Nullable<RelationshipStatus>;
     online: Nullable<boolean>;
+    flags: Nullable<number>;
+    bot: Nullable<BotInformation>;
 
     constructor(client: Client, data: UserI) {
         this.client = client;
@@ -43,6 +46,8 @@ export class User {
         this.status = toNullable(data.status);
         this.relationship = toNullable(data.relationship);
         this.online = toNullable(data.online);
+        this.flags = toNullable(data.flags);
+        this.bot = toNullable(data.bot);
 
         makeAutoObservable(this, {
             _id: false,
@@ -81,6 +86,8 @@ export class User {
         apply("status");
         apply("relationship");
         apply("online");
+        apply("flags");
+        apply("bot");
     }
 
     /**

@@ -14,6 +14,7 @@ export type ServerboundNotification = (
     { type: 'Ping', time: number } |
     { type: 'Pong', time: number } |
     ({ type: 'Authenticate' } & Session) |
+    ({ type: 'Authenticate', token: string }) |
     ({ type: 'BeginTyping', channel: string }) |
     ({ type: 'EndTyping', channel: string })
 );

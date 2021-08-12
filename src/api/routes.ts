@@ -1,3 +1,4 @@
+import type { Bot, PublicBot } from 'revolt-api/types/Bots';
 import type { RevoltConfiguration } from 'revolt-api/types/Core';
 import type { UserSettings, ChannelUnread } from 'revolt-api/types/Sync';
 import type { RetrievedInvite, ServerInvite } from 'revolt-api/types/Invites'
@@ -144,7 +145,8 @@ type Routes =
         route: `/onboard/hello`,
         data: undefined,
         response: {
-            onboarding: boolean
+            onboarding: boolean,
+            id?: string
         }
     }
     | {
@@ -600,6 +602,8 @@ type Routes =
         data: {
             name?: string,
             colour?: string,
+            hoist?: boolean,
+            rank?: number,
             remove?: RemoveRoleField
         },
         response: undefined
@@ -621,6 +625,68 @@ type Routes =
                 channel: number
             }
         },
+        response: undefined
+    }
+    /**
+     * Bots
+     */
+    | {
+        // Create Bot
+        method: 'POST',
+        route: `/bots/create`,
+        data: {
+            name: string
+        },
+        response: Bot
+    }
+    | {
+        // Fetch Owned Bots
+        method: 'GET',
+        route: `/bots/@me`,
+        data: undefined,
+        response: Bot[]
+    }
+    | {
+        // Fetch Bot
+        method: 'GET',
+        route: `/bots/${Id}`,
+        data: undefined,
+        response: Bot
+    }
+    | {
+        // Edit Bot
+        method: 'PATCH',
+        route: `/bots/${Id}`,
+        data: {
+            name?: string,
+            public?: boolean,
+            interactionsURL?: string,
+            remove?: 'InteractionsURL'
+        },
+        response: undefined
+    }
+    | {
+        // Delete Bot
+        method: 'DELETE',
+        route: `/bots/${Id}`,
+        data: undefined,
+        response: undefined
+    }
+    | {
+        // Fetch Public Bot
+        method: 'GET',
+        route: `/bots/${Id}/invite`,
+        data: undefined,
+        response: PublicBot
+    }
+    | {
+        // Invite Public Bot
+        method: 'POST',
+        route: `/bots/${Id}/invite`,
+        data: (
+            { server: string } |
+            { group: string }
+        ),
         response: undefined
     }
     /**

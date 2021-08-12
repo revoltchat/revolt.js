@@ -3,9 +3,9 @@ import { backOff } from 'exponential-backoff';
 
 import { Client, SYSTEM_USER_ID } from '..';
 import { ServerboundNotification, ClientboundNotification } from './notifications';
-import { Session } from 'revolt-api/types/Auth';
 
 import { runInAction } from 'mobx';
+
 import { Role } from 'revolt-api/types/Servers';
 
 export class WebSocketClient {
@@ -78,7 +78,11 @@ export class WebSocketClient {
             this.ws = ws;
 
             ws.onopen = () => {
-                this.send({ type: 'Authenticate', ...this.client.session as Session });
+                if (typeof this.client.session === 'string') {
+                    this.send({ type: 'Authenticate', token: this.client.session! });
+                } else {
+                    this.send({ type: 'Authenticate', ...this.client.session! });
+                }
             };
 
             let timeouts: Record<string, any> = {};
@@ -123,7 +127,9 @@ export class WebSocketClient {
                             }
                         });
 
-                        this.client.user = this.client.users.get(this.client.session!.user_id)!;
+                        this.client.user = this.client.users.get(
+                            packet.users.find(x => x.relationship === 'User')!._id
+                        )!;
 
                         this.client.emit('ready');
                         this.ready = true;

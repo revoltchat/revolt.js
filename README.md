@@ -21,7 +21,11 @@ client.on('message', async message => {
     }
 });
 
-// Either create a new session:
+// To login as a bot:
+client.loginBot('..');
+
+// To login as a user,
+// either create a new session:
 client.login({ email: '..', password: '..' });
 
 // Or use an existing session:
