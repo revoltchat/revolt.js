@@ -644,14 +644,20 @@ type Routes =
         method: 'GET',
         route: `/bots/@me`,
         data: undefined,
-        response: Bot[]
+        response: {
+            bots: Bot[],
+            users: User[]
+        }
     }
     | {
         // Fetch Bot
         method: 'GET',
         route: `/bots/${Id}`,
         data: undefined,
-        response: Bot
+        response: {
+            bot: Bot,
+            user: User
+        }
     }
     | {
         // Edit Bot
