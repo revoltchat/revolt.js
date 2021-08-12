@@ -16,6 +16,7 @@ import Channels from './maps/Channels';
 import Servers from './maps/Servers';
 import Members from './maps/Members';
 import Messages, { Message } from './maps/Messages';
+import Bots from './maps/Bots';
 
 import { makeObservable, observable } from 'mobx';
 
@@ -76,6 +77,7 @@ export class Client extends EventEmitter {
     servers: Servers;
     members: Members;
     messages: Messages;
+    bots: Bots;
 
     constructor(options: Partial<ClientOptions> = {}) {
         super();
@@ -85,6 +87,7 @@ export class Client extends EventEmitter {
         this.servers = new Servers(this);
         this.members = new Members(this);
         this.messages = new Messages(this);
+        this.bots = new Bots(this);
 
         makeObservable(this, {
             users: observable,
