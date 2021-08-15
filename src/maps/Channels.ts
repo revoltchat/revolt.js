@@ -498,13 +498,19 @@ export default class Channels extends Collection<string, Channel> {
         this.createObj = this.createObj.bind(this);
     }
 
+    @action $get(id: string, data?: ChannelI) {
+        let channel = this.get(id)!;
+        if (data) channel.update(data);
+        return channel;
+    }
+
     /**
      * Fetch a channel
      * @param id Channel ID
      * @returns The channel
      */
     async fetch(id: string, data?: ChannelI) {
-        if (this.has(id)) return this.get(id)!;
+        if (this.has(id)) return this.$get(id);
         let res = data ?? await this.client.req('GET', `/channels/${id}` as '/channels/id');
         return this.createObj(res);
     }
@@ -516,7 +522,7 @@ export default class Channels extends Collection<string, Channel> {
      * @returns Channel
      */
     createObj(data: ChannelI) {
-        if (this.has(data._id)) return this.get(data._id)!;
+        if (this.has(data._id)) return this.$get(data._id);
         let channel = new Channel(this.client, data);
 
         runInAction(() => {

@@ -191,13 +191,19 @@ export default class Users extends Collection<string, User> {
         }));
     }
 
+    @action $get(id: string, data?: UserI) {
+        let user = this.get(id)!;
+        if (data) user.update(data);
+        return user;
+    }
+
     /**
      * Fetch a user
      * @param id User ID
      * @returns User
      */
     async fetch(id: string, data?: UserI) {
-        if (this.has(id)) return this.get(id)!;
+        if (this.has(id)) this.$get(id, data);
         let res = data ?? await this.client.req('GET', `/users/${id}` as '/users/id');
         return this.createObj(res);
     }
@@ -209,7 +215,7 @@ export default class Users extends Collection<string, User> {
      * @returns User
      */
     createObj(data: UserI) {
-        if (this.has(data._id)) return this.get(data._id)!;
+        if (this.has(data._id)) return this.$get(data._id, data);
         let user = new User(this.client, data);
 
         runInAction(() => {

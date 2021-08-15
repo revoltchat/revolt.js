@@ -134,6 +134,12 @@ export default class Messages extends Collection<string, Message> {
         this.createObj = this.createObj.bind(this);
     }
 
+    @action $get(id: string, data?: MessageI) {
+        let msg = this.get(id)!;
+        if (data) msg.update(data);
+        return msg;
+    }
+
     /**
      * Create a message object.
      * This is meant for internal use only.
@@ -142,7 +148,7 @@ export default class Messages extends Collection<string, Message> {
      * @returns Message
      */
     createObj(data: MessageI, emit?: boolean | number) {
-        if (this.has(data._id)) return this.get(data._id)!;
+        if (this.has(data._id)) return this.$get(data._id);
         let message = new Message(this.client, data);
 
         runInAction(() => {

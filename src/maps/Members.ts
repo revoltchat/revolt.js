@@ -104,6 +104,12 @@ export default class Members extends Collection<string, Member> {
         return super.delete(Members.toKey(id));
     }
 
+    @action $get(id: MemberCompositeKey, data?: MemberI) {
+        let member = this.getKey(id)!;
+        if (data) member.update(data);
+        return member;
+    }
+
     /**
      * Create a member object.
      * This is meant for internal use only.
@@ -111,7 +117,8 @@ export default class Members extends Collection<string, Member> {
      * @returns Member
      */
     createObj(data: MemberI) {
-        if (this.hasKey(data._id)) return this.getKey(data._id)!;
+        if (this.hasKey(data._id)) return this.$get(data._id, data);
+
         let message = new Member(this.client, data);
 
         runInAction(() => {

@@ -199,7 +199,11 @@ export class Server {
      * @returns Server member object
      */
     async fetchMember(user: User | string) {
-        let member = await this.client.req('GET', `/servers/${this._id}/members/${typeof user === 'string' ? user : user._id}` as '/servers/id/members/id');
+        const user_id = typeof user === 'string' ? user : user._id;
+        const existing = this.client.members.getKey({ server: this._id, user: user_id });
+        if (existing) return existing;
+
+        const member = await this.client.req('GET', `/servers/${this._id}/members/${user_id}` as '/servers/id/members/id');
         return this.client.members.createObj(member);
     }
 
@@ -254,13 +258,19 @@ export default class Servers extends Collection<string, Server> {
         this.createObj = this.createObj.bind(this);
     }
 
+    @action $get(id: string, data?: ServerI) {
+        let server = this.get(id)!;
+        if (data) server.update(data);
+        return server;
+    }
+
     /**
      * Fetch a server
      * @param id Server ID
      * @returns The server
      */
     async fetch(id: string, data?: ServerI) {
-        if (this.has(id)) return this.get(id)!;
+        if (this.has(id)) return this.$get(id, data);
         let res = data ?? await this.client.req('GET', `/servers/${id}` as '/servers/id');
 
         return runInAction(async () => {
@@ -284,7 +294,7 @@ export default class Servers extends Collection<string, Server> {
      * @returns Server
      */
     createObj(data: ServerI) {
-        if (this.has(data._id)) return this.get(data._id)!;
+        if (this.has(data._id)) return this.$get(data._id, data);
         let server = new Server(this.client, data);
 
         runInAction(() => {
