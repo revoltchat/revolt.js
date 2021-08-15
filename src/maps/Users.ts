@@ -203,7 +203,7 @@ export default class Users extends Collection<string, User> {
      * @returns User
      */
     async fetch(id: string, data?: UserI) {
-        if (this.has(id)) this.$get(id, data);
+        if (this.has(id)) return this.$get(id, data);
         let res = data ?? await this.client.req('GET', `/users/${id}` as '/users/id');
         return this.createObj(res);
     }
