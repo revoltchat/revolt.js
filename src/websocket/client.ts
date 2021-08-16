@@ -185,7 +185,11 @@ export class WebSocketClient {
                     }
 
                     case "MessageUpdate": {
-                        this.client.messages.get(packet.id)?.update(packet.data);
+                        let message = this.client.messages.get(packet.id);
+                        if (message) {
+                            message.update(packet.data);
+                            this.client.emit('message/edit', message);
+                        }
                         break;
                     }
 
