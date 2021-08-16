@@ -40,6 +40,7 @@ export declare interface Client {
     on(event: 'packet', listener: (packet: ClientboundNotification) => void): this;
 
     on(event: 'message', listener: (message: Message) => void): this;
+    on(event: 'message/update', listener: (message: Message) => void): this;
     on(event: 'message/delete', listener: (id: string) => void): this;
     on(event: 'user/relationship', listener: (user: User) => void): this;
 }
