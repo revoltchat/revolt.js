@@ -126,6 +126,22 @@ export class Message {
     ack() {
         this.channel?.ack(this);
     }
+    
+    /**
+     * Reply to Message
+     */
+    
+    reply(data: string | (Omit<Route<'POST', '/channels/id/messages'>["data"], 'nonce'> & { nonce?: string })) {
+        let msg: Route<'POST', '/channels/id/messages'>["data"] = {
+            nonce: ulid(),
+            ...(typeof data === 'string' ? { content: data } : data)
+        };
+        
+        console.log(msg)
+
+        let message = await this.client.req('POST', `/channels/${this._id}/messages` as '/channels/id/messages', msg);
+        return this.client.messages.createObj(message, true);
+    }
 }
 
 export default class Messages extends Collection<string, Message> {
