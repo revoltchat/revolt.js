@@ -2,7 +2,6 @@ import Axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import defaultsDeep from 'lodash.defaultsdeep';
 import { EventEmitter } from 'eventemitter3';
 
-import { defaultConfig } from '.';
 import { WebSocketClient } from './websocket/client';
 import { Route, RoutePath, RouteMethod } from './api/routes';
 import { ClientboundNotification } from './websocket/notifications';
@@ -19,6 +18,7 @@ import Messages, { Message } from './maps/Messages';
 import Bots from './maps/Bots';
 
 import { makeObservable, observable } from 'mobx';
+import { defaultConfig } from './config';
 
 /**
  * Client options object
@@ -44,11 +44,6 @@ export declare interface Client {
     on(event: 'message/delete', listener: (id: string) => void): this;
     on(event: 'user/relationship', listener: (user: User) => void): this;
 }
-
-/**
- * The user ID for system users.
- */
-export const SYSTEM_USER_ID = '00000000000000000000000000';
 
 /**
  * Regular expression for mentions.
