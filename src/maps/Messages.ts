@@ -2,6 +2,7 @@ import type { Message as MessageI, SystemMessage } from 'revolt-api/types/Channe
 import type { Attachment } from 'revolt-api/types/Autumn';
 import type { Embed } from 'revolt-api/types/January';
 import type { Route } from '../api/routes';
+import { ulid } from 'ulid';
 
 import { makeAutoObservable, runInAction, action, computed } from 'mobx';
 import isEqual from 'lodash.isequal';
@@ -109,7 +110,7 @@ export class Message {
      * Edit a message
      * @param data Message edit route data
      */
-     async edit(data: Route<'PATCH', '/channels/id/messages/id'>["data"]) {
+    async edit(data: Route<'PATCH', '/channels/id/messages/id'>["data"]) {
         return await this.client.req('PATCH', `/channels/${this.channel_id}/messages/${this._id}` as '/channels/id/messages/id', data);
     }
 
@@ -126,21 +127,14 @@ export class Message {
     ack() {
         this.channel?.ack(this);
     }
-    
+
     /**
      * Reply to Message
      */
-    
-    reply(data: string | (Omit<Route<'POST', '/channels/id/messages'>["data"], 'nonce'> & { nonce?: string })) {
-        let msg: Route<'POST', '/channels/id/messages'>["data"] = {
-            nonce: ulid(),
-            ...(typeof data === 'string' ? { content: data } : data)
-        };
-        
-        console.log(msg)
 
-        let message = await this.client.req('POST', `/channels/${this._id}/messages` as '/channels/id/messages', msg);
-        return this.client.messages.createObj(message, true);
+    async reply(data: string | (Omit<Route<'POST', '/channels/id/messages'>["data"], 'nonce'> & { nonce?: string }), mention = true) {
+        let obj = typeof data === 'string' ? { content: data } : data;
+        this.channel?.sendMessage({ ...obj, replies: [{ id: this._id, mention }] })
     }
 }
 
