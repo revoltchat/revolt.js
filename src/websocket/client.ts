@@ -1,7 +1,7 @@
 import WebSocket from 'isomorphic-ws';
 import { backOff } from 'exponential-backoff';
 
-import { Client, SYSTEM_USER_ID } from '..';
+import { Client } from '..';
 import { ServerboundNotification, ClientboundNotification } from './notifications';
 
 import { runInAction } from 'mobx';
@@ -147,7 +147,7 @@ export class WebSocketClient {
 
                     case "Message": {
                         if (!this.client.messages.has(packet._id)) {
-                            if (packet.author === SYSTEM_USER_ID) {
+                            if (packet.author === '00000000000000000000000000') {
                                 if (typeof packet.content === 'object') {
                                     switch (packet.content.type) {
                                         case 'user_added':
@@ -176,7 +176,7 @@ export class WebSocketClient {
                             let channel = await this.client.channels.fetch(packet.channel);
                             if (channel.channel_type === 'TextChannel') {
                                 let server = await this.client.servers.fetch(channel.server_id!);
-                                if (packet.author !== SYSTEM_USER_ID) await server.fetchMember(packet.author);
+                                if (packet.author !== '00000000000000000000000000') await server.fetchMember(packet.author);
                             }
 
                             this.client.messages.createObj(packet, true);
