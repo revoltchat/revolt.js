@@ -131,7 +131,7 @@ export class Message {
      * Reply to Message
      */
 
-    async reply(data: string | (Omit<Route<'POST', '/channels/id/messages'>["data"], 'nonce'> & { nonce?: string }), mention = true) {
+    reply(data: string | (Omit<Route<'POST', '/channels/id/messages'>["data"], 'nonce'> & { nonce?: string }), mention = true) {
         let obj = typeof data === 'string' ? { content: data } : data;
         return this.channel?.sendMessage({ ...obj, replies: [{ id: this._id, mention }] })
     }
