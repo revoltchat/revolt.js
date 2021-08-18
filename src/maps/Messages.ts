@@ -2,7 +2,6 @@ import type { Message as MessageI, SystemMessage } from 'revolt-api/types/Channe
 import type { Attachment } from 'revolt-api/types/Autumn';
 import type { Embed } from 'revolt-api/types/January';
 import type { Route } from '../api/routes';
-import { ulid } from 'ulid';
 
 import { makeAutoObservable, runInAction, action, computed } from 'mobx';
 import isEqual from 'lodash.isequal';
