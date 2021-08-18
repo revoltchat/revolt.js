@@ -33,8 +33,8 @@ export interface ClientOptions {
 }
 
 export declare interface Client {
-	on(event: 'connected', listener: () => void): this;
-	on(event: 'connecting', listener: () => void): this;
+    on(event: 'connected', listener: () => void): this;
+    on(event: 'connecting', listener: () => void): this;
     on(event: 'dropped', listener: () => void): this;
     on(event: 'ready', listener: () => void): this;
     on(event: 'packet', listener: (packet: ClientboundNotification) => void): this;
@@ -55,11 +55,11 @@ export const RE_MENTIONS = /<@([A-z0-9]{26})>/g;
  */
 export const RE_SPOILER = /!!.+!!/g;
 
-export type FileArgs = [ options?: SizeOptions, allowAnimation?: boolean, fallback?: string ];
+export type FileArgs = [options?: SizeOptions, allowAnimation?: boolean, fallback?: string];
 
 export class Client extends EventEmitter {
     heartbeat: number;
-    
+
     session?: Session | string;
     user?: User;
 
@@ -107,7 +107,7 @@ export class Client extends EventEmitter {
                 console.debug('[<]', request.method?.toUpperCase(), request.url);
                 return request
             })
-                
+
             this.Axios.interceptors.response.use(response => {
                 console.debug('[>] (' + response.status + ':', response.statusText + ')', JSON.stringify(response.data));
                 return response
@@ -155,7 +155,7 @@ export class Client extends EventEmitter {
     /**
      * ? Axios request wrapper.
      */
-    
+
     req<M extends RouteMethod, T extends RoutePath>(method: M, url: T): Promise<Route<M, T>["response"]>;
     req<M extends RouteMethod, T extends RoutePath>(method: M, url: T, data: Route<M, T>["data"]): Promise<Route<M, T>["response"]>;
 
@@ -196,7 +196,7 @@ export class Client extends EventEmitter {
     /**
      * ? Authentication and connection.
      */
-    
+
     /**
      * Fetches the configuration of the server.
      * 
@@ -237,7 +237,7 @@ export class Client extends EventEmitter {
     async login(details: Route<'POST', '/auth/login'>["data"]) {
         await this.fetchConfiguration();
         this.session = await this.req('POST', '/auth/login', details);
-        
+
         return await this.$connect();
     }
 
@@ -352,6 +352,17 @@ export class Client extends EventEmitter {
     }
 
     /**
+     * 
+     * @param text Presence text which will be set
+     * @param presence Presence type which will be displayed
+     * @returns any
+     */
+
+    async setPresence(text: string, presence: any = 'Online') {
+        return this.req('PATCH', '/users/@me' as '/users/id', { status: { text, presence } })
+    }
+
+    /**
      * ? Utility functions.
      */
 
@@ -397,23 +408,23 @@ export class Client extends EventEmitter {
      */
     markdownToText(source: string) {
         return source
-        .replace(
-            RE_MENTIONS,
-            (sub: string, ...args: any[]) => {
-                const id = args[0],
-                    user = this.users.get(id);
-                
-                if (user) {
-                    return `@${user.username}`;
-                }
+            .replace(
+                RE_MENTIONS,
+                (sub: string, ...args: any[]) => {
+                    const id = args[0],
+                        user = this.users.get(id);
 
-                return sub;
-            }
-        )
-        .replace(
-            RE_SPOILER,
-            '<spoiler>'
-        );
+                    if (user) {
+                        return `@${user.username}`;
+                    }
+
+                    return sub;
+                }
+            )
+            .replace(
+                RE_SPOILER,
+                '<spoiler>'
+            );
     }
 
     /**
@@ -436,7 +447,7 @@ export class Client extends EventEmitter {
      * @returns Generated URL or nothing
      */
     generateFileURL(attachment?: { tag: string, _id: string, content_type?: string }, ...args: FileArgs) {
-        const [ options, allowAnimation, fallback ] = args;
+        const [options, allowAnimation, fallback] = args;
 
         let autumn = this.configuration?.features.autumn;
         if (!autumn?.enabled) return fallback;
