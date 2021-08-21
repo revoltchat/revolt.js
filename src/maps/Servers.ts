@@ -26,6 +26,8 @@ export class Server {
     roles: Nullable<{ [key: string]: Role }> = null;
     default_permissions: PermissionTuple;
 
+    flags: Nullable<number>;
+
     icon: Nullable<Attachment> = null;
     banner: Nullable<Attachment> = null;
 
@@ -47,6 +49,8 @@ export class Server {
 
         this.roles = toNullable(data.roles);
         this.default_permissions = data.default_permissions;
+
+        this.flags = toNullable(data.flags);
 
         this.icon = toNullable(data.icon);
         this.banner = toNullable(data.banner);
@@ -87,6 +91,7 @@ export class Server {
         apply("system_messages");
         apply("roles");
         apply("default_permissions");
+        apply("flags");
         apply("icon");
         apply("banner");
     }
