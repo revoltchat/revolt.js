@@ -87,18 +87,22 @@ export default class Bots {
      * @param data Bot creation data
      */
     async create(data: Route<'POST', '/bots/create'>["data"]) {
-        let bot = await this.client.req('POST', '/bots/create', data);
-        let user = await this.client.users.fetch(bot._id, {
-            _id: bot._id,
-            username: data.name,
-            bot: {
-                owner: this.client.user!._id
-            }
-        });
-
-        return {
-            bot,
-            user
-        };
+        try {
+            let bot = await this.client.req('POST', '/bots/create', data);
+            let user = await this.client.users.fetch(bot._id, {
+                _id: bot._id,
+                username: data.name,
+                bot: {
+                    owner: this.client.user!._id
+                }
+            });
+    
+            return {
+                bot,
+                user
+            };
+        } catch(err) {
+            throw err;
+        }
     }
 }
