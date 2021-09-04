@@ -208,18 +208,23 @@ export class WebSocketClient {
                                 server.channel_ids.push(packet._id);
                             }
 
-                            this.client.channels.createObj(packet);
+                            this.client.channels.createObj(packet, true);
                         });
                         break;
                     }
 
                     case "ChannelUpdate": {
-                        this.client.channels.get(packet.id)?.update(packet.data, packet.clear);
+                        let channel = this.client.channels.get(packet.id);
+                        if (channel) {
+                            channel.update(packet.data, packet.clear);
+                            this.client.emit('channel/update', channel);
+                        }
                         break;
                     }
 
                     case "ChannelDelete": {
                         this.client.channels.get(packet.id)?.delete(true);
+                        this.client.emit('channel/delete', packet.id);
                         break;
                     }
 
@@ -234,17 +239,26 @@ export class WebSocketClient {
                     }
 
                     case "ServerUpdate": {
-                        this.client.servers.get(packet.id)?.update(packet.data, packet.clear);
+                        let server = this.client.servers.get(packet.id);
+                        if (server) {
+                            server.update(packet.data, packet.clear);
+                            this.client.emit('server/update', server);
+                        }
                         break;
                     }
 
                     case "ServerDelete": {
                         this.client.servers.get(packet.id)?.delete(true);
+                        this.client.emit('server/delete', packet.id);
                         break;
                     }
 
                     case "ServerMemberUpdate": {
-                        this.client.members.getKey(packet.id)?.update(packet.data, packet.clear);
+                        let member = this.client.members.getKey(packet.id);
+                        if (member) {
+                            member.update(packet.data, packet.clear);
+                            this.client.emit('member/update', member);
+                        }
                         break;
                     }
 
@@ -260,7 +274,7 @@ export class WebSocketClient {
                                     server: packet.id,
                                     user: packet.user
                                 }
-                            });
+                            }, true);
                         });
 
                         break;
@@ -283,6 +297,10 @@ export class WebSocketClient {
                                 server: packet.id,
                                 user: packet.user
                             });
+                            this.client.emit('member/leave', {
+                                server: packet.id,
+                                user: packet.user
+                            });
                         }
 
                         break;
@@ -291,13 +309,15 @@ export class WebSocketClient {
                     case "ServerRoleUpdate": {
                         let server = this.client.servers.get(packet.id);
                         if (server) {
+                            let role = {
+                                ...server.roles?.[packet.role_id],
+                                ...packet.data
+                            } as Role
                             server.roles = {
                                 ...server.roles,
-                                [packet.role_id]: {
-                                    ...server.roles?.[packet.role_id],
-                                    ...packet.data
-                                } as Role
+                                [packet.role_id]: role
                             }
+                            this.client.emit('role/update', packet.role_id, role, packet.id);
                         }
                         break;
                     }
@@ -307,6 +327,7 @@ export class WebSocketClient {
                         if (server) {
                             let { [packet.role_id]: _, ...roles } = server.roles ?? {};
                             server.roles = roles;
+                            this.client.emit('role/delete', packet.role_id, packet.id);
                         }
                         break;
                     }

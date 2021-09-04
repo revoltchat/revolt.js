@@ -114,17 +114,19 @@ export default class Members extends Collection<string, Member> {
      * Create a member object.
      * This is meant for internal use only.
      * @param data: Member Data
+     * @param emit Whether to emit creation event
      * @returns Member
      */
-    createObj(data: MemberI) {
+    createObj(data: MemberI, emit?: boolean | number) {
         if (this.hasKey(data._id)) return this.$get(data._id, data);
 
-        let message = new Member(this.client, data);
+        let member = new Member(this.client, data);
 
         runInAction(() => {
-            this.setKey(data._id, message);
+            this.setKey(data._id, member);
         });
 
-        return message;
+        if (emit === true) this.client.emit('member/join', member);
+        return member;
     }
 }
