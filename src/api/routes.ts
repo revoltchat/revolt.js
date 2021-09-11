@@ -5,6 +5,7 @@ import type { RetrievedInvite, ServerInvite } from 'revolt-api/types/Invites'
 import type { Profile, Relationship, RelationshipOnly, Status, User } from 'revolt-api/types/Users';
 import type { Ban, Category, Member, PermissionTuple, Server, SystemMessageChannels } from 'revolt-api/types/Servers';
 import type { Channel, DirectMessageChannel, GroupChannel, Message, TextChannel, VoiceChannel } from 'revolt-api/types/Channels';
+import { SessionInfo } from 'revolt-api/types/Auth';
 
 export type RemoveUserField = 'ProfileContent' | 'ProfileBackground' | 'StatusText' | 'Avatar';
 export type RemoveChannelField = 'Icon' | 'Description';
@@ -28,63 +29,28 @@ type Routes =
      * Auth
      */
     | {
-        method: 'POST',
-        route: `/auth/create`,
-        data: {
-            email: string,
-            password: string,
-            invite?: string,
-            captcha?: string
-        }
+        method: 'GET',
+        route: `/auth/account`,
+        data: undefined,
         response: {
+            _id: string,
             user_id: string
         }
     }
     | {
         method: 'POST',
-        route: `/auth/login`,
+        route: `/auth/account/create`,
         data: {
             email: string,
             password: string,
-            device_name?: string,
+            invite?: string,
             captcha?: string
-        }
-        response: {
-            id: string,
-            user_id: string,
-            session_token: string
-        }
-    }
-    | {
-        method: 'GET',
-        route: `/auth/user`,
-        data: undefined
-        response: {
-            id: string,
-            email: string
-        }
-    }
-    | {
-        method: 'POST',
-        route: `/auth/change/password`,
-        data: {
-            password: string,
-            new_password: string
         },
         response: undefined
     }
     | {
         method: 'POST',
-        route: `/auth/change/email`,
-        data: {
-            password: string,
-            new_email: string
-        },
-        response: undefined
-    }
-    | {
-        method: 'POST',
-        route: `/auth/resend`,
+        route: `/auth/account/reverify`,
         data: {
             email: string,
             captcha?: string
@@ -93,7 +59,13 @@ type Routes =
     }
     | {
         method: 'POST',
-        route: `/auth/send_reset`,
+        route: `/auth/account/verify/:code`,
+        data: undefined,
+        response: undefined
+    }
+    | {
+        method: 'POST',
+        route: `/auth/account/reset_password`,
         data: {
             email: string,
             captcha?: string
@@ -101,8 +73,8 @@ type Routes =
         response: undefined
     }
     | {
-        method: 'POST',
-        route: `/auth/reset`,
+        method: 'PATCH',
+        route: `/auth/account/reset_password`,
         data: {
             password: string,
             token: string
@@ -111,29 +83,64 @@ type Routes =
     }
     | {
         method: 'POST',
-        route: `/auth/check`,
-        data: undefined
+        route: `/auth/account/change/password`,
+        data: {
+            password: string,
+            current_password: string
+        },
+        response: undefined
+    }
+    | {
+        method: 'POST',
+        route: `/auth/account/change/email`,
+        data: {
+            email: string,
+            current_password: string
+        },
+        response: undefined
+    }
+    | {
+        method: 'POST',
+        route: `/auth/session/login`,
+        data: {
+            email: string,
+            password?: string,
+            challenge?: string,
+            friendly_name?: string,
+            captcha?: string
+        },
+        response: undefined
+    }
+    | {
+        method: 'POST',
+        route: `/auth/session/logout`,
+        data: undefined,
+        response: undefined
+    }
+    | {
+        method: 'PATCH',
+        route: `/auth/session/${Id}`,
+        data: {
+            friendly_name: string
+        },
         response: undefined
     }
     | {
         method: 'DELETE',
-        route: `/auth/sessions/${Id}`,
-        data: undefined
+        route: `/auth/session/${Id}`,
+        data: undefined,
         response: undefined
     }
     | {
         method: 'GET',
-        route: `/auth/sessions`,
-        data: undefined
-        response: {
-            id: string,
-            friendly_name: string
-        }[]
+        route: `/auth/session/all`,
+        data: undefined,
+        response: SessionInfo[]
     }
     | {
-        method: 'GET',
-        route: `/auth/logout`,
-        data: undefined
+        method: 'DELETE',
+        route: `/auth/session/all`,
+        data: undefined,
         response: undefined
     }
     /**

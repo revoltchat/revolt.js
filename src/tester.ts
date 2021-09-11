@@ -7,7 +7,8 @@ config();
 
 function user() {
     let client = new Client({
-        apiURL: process.env.API_URL
+        apiURL: process.env.API_URL,
+        debug: true
     });
 
     client.on('ready', async () => {
@@ -39,7 +40,7 @@ function user() {
         }
     });
 
-    client.login({ email: process.env.EMAIL as string, password: process.env.PASSWORD as string })
+    // client.login({ email: process.env.EMAIL as string, password: process.env.PASSWORD as string })
 }
 
 function bot() {

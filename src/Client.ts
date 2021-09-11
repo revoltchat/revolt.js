@@ -223,8 +223,7 @@ export class Client extends EventEmitter {
             }
         } else {
             return {
-                'x-user-id': session?.user_id,
-                'x-session-token': session?.session_token
+                'x-session-token': session?.token
             }
         }
     }
@@ -234,9 +233,9 @@ export class Client extends EventEmitter {
      * @param details Login data object
      * @returns An onboarding function if onboarding is required, undefined otherwise
      */
-    async login(details: Route<'POST', '/auth/login'>["data"]) {
+    async login(details: Route<'POST', '/auth/session/login'>["data"]) {
         await this.fetchConfiguration();
-        this.session = await this.req('POST', '/auth/login', details);
+        this.session = await this.req('POST', '/auth/session/login', details);
         
         return await this.$connect();
     }
@@ -248,7 +247,6 @@ export class Client extends EventEmitter {
      */
     async useExistingSession(session: Session) {
         await this.fetchConfiguration();
-        await this.request('GET', '/auth/check', { headers: this.$generateHeaders(session) });
         this.session = session;
         return await this.$connect();
     }
@@ -360,7 +358,7 @@ export class Client extends EventEmitter {
      */
     async logout() {
         this.websocket.disconnect();
-        await this.req('GET', '/auth/logout');
+        await this.req('POST', '/auth/session/logout');
         this.reset();
     }
 
@@ -382,12 +380,11 @@ export class Client extends EventEmitter {
 
     /**
      * Register for a new account.
-     * @param apiURL Base URL for the API of the server, such as https://api.revolt.example
      * @param data Registration data object
      * @returns A promise containing a registration response object
      */
-    register(apiURL: string, data: Route<'POST', '/auth/create'>["data"]) {
-        return this.request('POST', '/auth/create', { data, baseURL: apiURL });
+    register(data: Route<'POST', '/auth/account/create'>["data"]) {
+        return this.request('POST', '/auth/account/create', { data });
     }
 
     /**
