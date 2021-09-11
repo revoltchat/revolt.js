@@ -5,7 +5,7 @@ import type { RetrievedInvite, ServerInvite } from 'revolt-api/types/Invites'
 import type { Profile, Relationship, RelationshipOnly, Status, User } from 'revolt-api/types/Users';
 import type { Ban, Category, Member, PermissionTuple, Server, SystemMessageChannels } from 'revolt-api/types/Servers';
 import type { Channel, DirectMessageChannel, GroupChannel, Message, TextChannel, VoiceChannel } from 'revolt-api/types/Channels';
-import { SessionInfo } from 'revolt-api/types/Auth';
+import { Account, SessionInfo } from 'revolt-api/types/Auth';
 
 export type RemoveUserField = 'ProfileContent' | 'ProfileBackground' | 'StatusText' | 'Avatar';
 export type RemoveChannelField = 'Icon' | 'Description';
@@ -32,10 +32,7 @@ type Routes =
         method: 'GET',
         route: `/auth/account`,
         data: undefined,
-        response: {
-            _id: string,
-            user_id: string
-        }
+        response: Account,
     }
     | {
         method: 'POST',
