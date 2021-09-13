@@ -79,7 +79,7 @@ type Routes =
         response: undefined
     }
     | {
-        method: 'POST',
+        method: 'PATCH',
         route: `/auth/account/change/password`,
         data: {
             password: string,
@@ -88,7 +88,7 @@ type Routes =
         response: undefined
     }
     | {
-        method: 'POST',
+        method: 'PATCH',
         route: `/auth/account/change/email`,
         data: {
             email: string,

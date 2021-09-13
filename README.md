@@ -29,7 +29,7 @@ client.loginBot('..');
 client.login({ email: '..', password: '..' });
 
 // Or use an existing session:
-client.useExistingSession({ user_id: '..', session_token: '..' });
+client.useExistingSession({ token: '..' });
 ```
 
 ## MobX
