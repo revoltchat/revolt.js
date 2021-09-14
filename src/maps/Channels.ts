@@ -1,4 +1,4 @@
-import type { Channel as ChannelI, LastMessage, Message as MessageI, SystemMessage } from 'revolt-api/types/Channels';
+import type { Channel as ChannelI, Message as MessageI, SystemMessage } from 'revolt-api/types/Channels';
 import type { RemoveChannelField, Route } from '../api/routes';
 import type { Attachment } from 'revolt-api/types/Autumn';
 import type { Member } from 'revolt-api/types/Servers';
@@ -81,10 +81,10 @@ export class Channel {
     recipient_ids: Nullable<string[]> = null;
 
     /**
-     * Last message in channel.
+     * Id of last message in channel.
      * @requires `Group`, `DM`, `TextChannel`, `VoiceChannel`
      */
-    last_message: Nullable<string | LastMessage> = null;
+    last_message_id: Nullable<string> = null;
 
     /**
      * Users typing in channel.
@@ -121,6 +121,17 @@ export class Channel {
     }
 
     /**
+     * Last message sent in this channel.
+     * @requires `Group`, `DM`, `TextChannel`, `VoiceChannel`
+     */
+    get last_message() {
+        const id = this.last_message_id;
+        if (!id) return;
+        
+        return this.client.messages.get(id);
+    }
+
+    /**
      * Group recipients.
      * @requires `Group`
      */
@@ -145,7 +156,7 @@ export class Channel {
             case "DirectMessage": {
                 this.active = toNullable(data.active);
                 this.recipient_ids = toNullable(data.recipients);
-                this.last_message = toNullable(data.last_message);
+                this.last_message_id = toNullable(data.last_message_id);
                 break;
             }
             case "Group": {
@@ -153,7 +164,7 @@ export class Channel {
                 this.name = toNullable(data.name);
                 this.owner_id = toNullable(data.owner);
                 this.description = toNullable(data.description);
-                this.last_message = toNullable(data.last_message);
+                this.last_message_id = toNullable(data.last_message_id);
                 this.icon = toNullable(data.icon);
                 this.permissions = toNullable(data.permissions);
                 break;
@@ -168,7 +179,7 @@ export class Channel {
                 this.role_permissions = toNullable(data.role_permissions);
 
                 if (data.channel_type === "TextChannel") {
-                    this.last_message = toNullable(data.last_message);
+                    this.last_message_id = toNullable(data.last_message_id);
                 }
 
                 break;

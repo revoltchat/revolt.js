@@ -121,18 +121,7 @@ export class Client extends EventEmitter {
                 channel.active = true;
             }
 
-            if (channel.channel_type === 'DirectMessage' ||
-                channel.channel_type === 'Group') {
-                if (typeof message.content === 'string') {
-                    channel.last_message = {
-                        _id: message._id,
-                        author: message.author_id,
-                        short: this.markdownToText(message.content).substr(0, 128)
-                    }
-                }
-            } else if (channel.channel_type === 'TextChannel') {
-                channel.last_message = message._id;
-            }
+            channel.last_message_id = message._id;
         });
     }
 
