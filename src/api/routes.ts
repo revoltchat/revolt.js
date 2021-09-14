@@ -304,13 +304,14 @@ type Routes =
         response: User[]
     }
     | {
-        // Edit a group channel.
+        // Edit a channel.
         method: 'PATCH',
         route: `/channels/${Id}`,
         data: {
             name?: string,
             description?: string,
             icon?: string,
+            nsfw?: boolean,
             remove?: RemoveChannelField
         },
         response: undefined

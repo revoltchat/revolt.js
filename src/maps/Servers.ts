@@ -29,6 +29,9 @@ export class Server {
     icon: Nullable<Attachment> = null;
     banner: Nullable<Attachment> = null;
 
+    nsfw: Nullable<boolean> = null;
+    flags: Nullable<number> = null;
+
     get channels() {
         return this.channel_ids.map(x => this.client.channels.get(x));
     }
@@ -50,6 +53,9 @@ export class Server {
 
         this.icon = toNullable(data.icon);
         this.banner = toNullable(data.banner);
+
+        this.nsfw = toNullable(data.nsfw);
+        this.flags = toNullable(data.flags);
 
         makeAutoObservable(this, {
             _id: false,
@@ -89,6 +95,8 @@ export class Server {
         apply("default_permissions");
         apply("icon");
         apply("banner");
+        apply("nsfw");
+        apply("flags");
     }
 
     /**

@@ -223,7 +223,7 @@ export class Channel {
         apply("icon");
         apply("description");
         apply("recipients", "recipient_ids");
-        apply("last_message");
+        apply("last_message_id");
     }
 
     @action updateGroupJoin(user: string) {
