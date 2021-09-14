@@ -40,7 +40,7 @@ function user() {
         }
     });
 
-    // client.login({ email: process.env.EMAIL as string, password: process.env.PASSWORD as string })
+    client.login({ email: process.env.EMAIL as string, password: process.env.PASSWORD as string })
 }
 
 function bot() {
@@ -58,7 +58,7 @@ function bot() {
         }
     });
 
-    client.loginBot(process.env.BOT_TOKEN as string)
+    // client.loginBot(process.env.BOT_TOKEN as string)
 }
 
 user();

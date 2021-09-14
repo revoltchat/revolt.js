@@ -414,13 +414,33 @@ export class Channel {
         return await this.client.req('POST', `/channels/${this._id}/join_call` as '/channels/id/join_call');
     }
 
+    private ackTimeout?: number;
+    private ackLimit?: number;
+
     /**
      * Mark a channel as read
      * @param message Last read message or its ID
      */
     async ack(message?: Message | string) {
-        const id = (typeof message === 'string' ? message : message?._id) ?? ulid();
-        return await this.client.req('PUT', `/channels/${this._id}/ack/${id}` as '/channels/id/ack/id');
+        const id = (typeof message === 'string' ? message : message?._id) ?? this.last_message_id ?? ulid();
+        const performAck = () => {
+            delete this.ackLimit;
+            this.client.req('PUT', `/channels/${this._id}/ack/${id}` as '/channels/id/ack/id');
+        }
+
+        if (!this.client.options.ackRateLimiter) return performAck();
+        
+        clearTimeout(this.ackTimeout);
+        if (this.ackLimit && + new Date() > this.ackLimit) {
+            performAck();
+        }
+        
+        // We need to use setTimeout here for both Node.js and browser.
+        this.ackTimeout = setTimeout(performAck, 5000) as unknown as number;
+        
+        if (!this.ackLimit) {
+            this.ackLimit = + new Date() + 15e3;
+        }
     }
 
     /**

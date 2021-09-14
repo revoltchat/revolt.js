@@ -30,6 +30,8 @@ export interface ClientOptions {
 
     heartbeat: number
     autoReconnect: boolean
+
+    ackRateLimiter: boolean
 }
 
 export declare interface Client {
@@ -63,9 +65,9 @@ export class Client extends EventEmitter {
     session?: Session | string;
     user?: User;
 
+    options: ClientOptions;
     websocket: WebSocketClient;
     private Axios: AxiosInstance;
-    private options: ClientOptions;
     configuration?: RevoltConfiguration;
 
     users: Users;

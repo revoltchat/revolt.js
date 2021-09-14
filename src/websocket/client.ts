@@ -16,6 +16,8 @@ export class WebSocketClient {
     connected: boolean;
     ready: boolean;
 
+    ping?: number;
+
     constructor(client: Client) {
         this.client = client;
 
@@ -136,8 +138,9 @@ export class WebSocketClient {
                         resolve();
 
                         if (this.client.heartbeat > 0) {
+                            this.send({ type: 'Ping', data: + new Date() });
                             this.heartbeat = setInterval(
-                                () => this.send({ type: 'Ping', time: + new Date() }),
+                                () => this.send({ type: 'Ping', data: + new Date() }),
                                 this.client.heartbeat * 1e3
                             ) as any;
                         }
@@ -351,7 +354,12 @@ export class WebSocketClient {
 
                     case "ChannelAck": break;
 
-                    default: console.warn(`Warning: Unhandled packet! ${packet.type}`);
+                    case "Pong": {
+                        this.ping = + new Date() - packet.data;
+                        break;
+                    }
+
+                    default: this.client.debug && console.warn(`Warning: Unhandled packet! ${packet.type}`);
                 }
             }
             

@@ -497,6 +497,7 @@ type Routes =
             banner?: string,
             categories?: Category[],
             system_messages?: SystemMessageChannels,
+            nsfw?: boolean,
             remove?: RemoveServerField
         },
         response: undefined

@@ -11,8 +11,8 @@ type WebSocketError = {
 };
 
 export type ServerboundNotification = (
-    { type: 'Ping', time: number } |
-    { type: 'Pong', time: number } |
+    { type: 'Ping', data: number } |
+    { type: 'Pong', data: number } |
     ({ type: 'Authenticate' } & Session) |
     ({ type: 'Authenticate', token: string }) |
     ({ type: 'BeginTyping', channel: string }) |
@@ -28,8 +28,8 @@ export type ReadyPacket = {
 }
 
 export type ClientboundNotification = (
-    { type: 'Ping', time: number } |
-    { type: 'Pong', time: number } |
+    { type: 'Ping', data: number } |
+    { type: 'Pong', data: number } |
     ({ type: 'Error' } & WebSocketError) |
     { type: 'Authenticated' } |
     ReadyPacket |
