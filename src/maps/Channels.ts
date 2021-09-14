@@ -420,15 +420,16 @@ export class Channel {
     /**
      * Mark a channel as read
      * @param message Last read message or its ID
+     * @param skipRateLimiter Whether to skip the internal rate limiter
      */
-    async ack(message?: Message | string) {
+    async ack(message?: Message | string, skipRateLimiter?: boolean) {
         const id = (typeof message === 'string' ? message : message?._id) ?? this.last_message_id ?? ulid();
         const performAck = () => {
             delete this.ackLimit;
             this.client.req('PUT', `/channels/${this._id}/ack/${id}` as '/channels/id/ack/id');
         }
 
-        if (!this.client.options.ackRateLimiter) return performAck();
+        if (!this.client.options.ackRateLimiter || skipRateLimiter) return performAck();
         
         clearTimeout(this.ackTimeout);
         if (this.ackLimit && + new Date() > this.ackLimit) {
