@@ -550,9 +550,10 @@ export default class Channels extends Collection<string, Channel> {
      * Create a channel object.
      * This is meant for internal use only.
      * @param data: Channel Data
+     * @param emit Whether to emit creation event
      * @returns Channel
      */
-    createObj(data: ChannelI) {
+    createObj(data: ChannelI, emit?: boolean | number) {
         if (this.has(data._id)) return this.$get(data._id);
         let channel = new Channel(this.client, data);
 
@@ -560,6 +561,7 @@ export default class Channels extends Collection<string, Channel> {
             this.set(data._id, channel);
         });
 
+        if (emit === true) this.client.emit('channel/create', channel);
         return channel;
     }
 

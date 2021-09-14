@@ -11,14 +11,15 @@ import type { SizeOptions } from 'revolt-api/types/Autumn';
 import type { Session } from 'revolt-api/types/Auth';
 
 import Users, { User } from './maps/Users';
-import Channels from './maps/Channels';
-import Servers from './maps/Servers';
-import Members from './maps/Members';
+import Channels, { Channel } from './maps/Channels';
+import Servers, { Server } from './maps/Servers';
+import Members, { Member } from './maps/Members';
 import Messages, { Message } from './maps/Messages';
 import Bots from './maps/Bots';
 
 import { makeObservable, observable } from 'mobx';
 import { defaultConfig } from './config';
+import { MemberCompositeKey, Role } from 'revolt-api/types/Servers';
 
 /**
  * Client options object
@@ -35,8 +36,8 @@ export interface ClientOptions {
 }
 
 export declare interface Client {
-	on(event: 'connected', listener: () => void): this;
-	on(event: 'connecting', listener: () => void): this;
+    on(event: 'connected', listener: () => void): this;
+    on(event: 'connecting', listener: () => void): this;
     on(event: 'dropped', listener: () => void): this;
     on(event: 'ready', listener: () => void): this;
     on(event: 'packet', listener: (packet: ClientboundNotification) => void): this;
@@ -44,6 +45,21 @@ export declare interface Client {
     on(event: 'message', listener: (message: Message) => void): this;
     on(event: 'message/update', listener: (message: Message) => void): this;
     on(event: 'message/delete', listener: (id: string) => void): this;
+
+    on(event: 'channel/create', listener: (channel: Channel) => void): this;
+    on(event: 'channel/update', listener: (channel: Channel) => void): this;
+    on(event: 'channel/delete', listener: (id: string) => void): this;
+
+    on(event: 'server/update', listener: (server: Server) => void): this;
+    on(event: 'server/delete', listener: (id: string) => void): this;
+
+    on(event: 'role/update', listener: (roleId: string, role: Role, serverId: string) => void): this;
+    on(event: 'role/delete', listener: (id: string, serverId: string) => void): this;
+
+    on(event: 'member/join', listener: (member: Member) => void): this;
+    on(event: 'member/update', listener: (member: Member) => void): this;
+    on(event: 'member/leave', listener: (id: MemberCompositeKey) => void): this;
+
     on(event: 'user/relationship', listener: (user: User) => void): this;
 }
 
@@ -61,7 +77,7 @@ export type FileArgs = [ options?: SizeOptions, allowAnimation?: boolean, fallba
 
 export class Client extends EventEmitter {
     heartbeat: number;
-    
+
     session?: Session | string;
     user?: User;
 
