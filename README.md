@@ -7,9 +7,7 @@
 ## Example Usage
 
 ```typescript
-let client = new Client({
-    apiURL: process.env.API_URL
-});
+let client = new Client();
 
 client.on('ready', async () =>
     console.info(`Logged in as ${client.user!.username}!`)
