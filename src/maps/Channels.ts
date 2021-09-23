@@ -90,6 +90,12 @@ export class Channel {
      * Users typing in channel.
      */
     typing_ids: Set<string> = new Set();
+    
+    /**
+     * Channel is not safe for work.
+     * @requires `Group`, `TextChannel`, `VoiceChannel`
+     */
+    nsfw: Nullable<boolean> = null;
 
     /**
      * The group owner.
@@ -167,6 +173,7 @@ export class Channel {
                 this.last_message_id = toNullable(data.last_message_id);
                 this.icon = toNullable(data.icon);
                 this.permissions = toNullable(data.permissions);
+                this.nsfw = toNullable(data.nsfw);
                 break;
             }
             case "TextChannel":
@@ -180,6 +187,7 @@ export class Channel {
 
                 if (data.channel_type === "TextChannel") {
                     this.last_message_id = toNullable(data.last_message_id);
+                    this.nsfw = toNullable(data.nsfw);
                 }
 
                 break;
@@ -224,6 +232,7 @@ export class Channel {
         apply("description");
         apply("recipients", "recipient_ids");
         apply("last_message_id");
+        apply("nsfw");
     }
 
     @action updateGroupJoin(user: string) {
