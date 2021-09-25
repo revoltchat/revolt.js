@@ -18,6 +18,20 @@ export class Member {
     avatar: Nullable<Attachment> = null;
     roles: Nullable<string[]> = null;
 
+    /**
+     * Associated user.
+     */
+    get user() {
+        return this.client.users.get(this._id.user);
+    }
+
+    /**
+     * Associated server.
+     */
+    get server() {
+        return this.client.servers.get(this._id.server);
+    }
+
     constructor(client: Client, data: MemberI) {
         this.client = client;
         this._id = data._id;
