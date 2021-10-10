@@ -10,6 +10,7 @@ import { U32_MAX } from '../api/permissions';
 import Collection from './Collection';
 import { User } from './Users';
 import { Client, FileArgs } from '..';
+import { decodeTime } from 'ulid';
 
 export class Server {
     client: Client;
@@ -34,6 +35,13 @@ export class Server {
 
     get channels() {
         return this.channel_ids.map(x => this.client.channels.get(x));
+    }
+
+    /**
+     * Get timestamp when this server was created.
+     */
+    get createdAt() {
+        return decodeTime(this._id);
     }
 
     constructor(client: Client, data: ServerI) {

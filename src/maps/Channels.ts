@@ -6,7 +6,7 @@ import type { User } from 'revolt-api/types/Users';
 
 import { action, computed, makeAutoObservable, runInAction } from 'mobx';
 import isEqual from 'lodash.isequal';
-import { ulid } from 'ulid';
+import { decodeTime, ulid } from 'ulid';
 
 import { Nullable, toNullable } from '../util/null';
 import Collection from './Collection';
@@ -150,6 +150,13 @@ export class Channel {
      */
     get typing() {
         return Array.from(this.typing_ids).map(id => this.client.users.get(id));
+    }
+
+    /**
+     * Get timestamp when this channel was created.
+     */
+    get createdAt() {
+        return decodeTime(this._id);
     }
 
     constructor(client: Client, data: ChannelI) {

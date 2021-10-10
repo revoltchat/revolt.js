@@ -10,6 +10,7 @@ import { toNullable, Nullable } from '../util/null';
 import Collection from './Collection';
 import { Client, FileArgs } from '..';
 import _ from 'lodash';
+import { decodeTime } from 'ulid';
 
 enum RelationshipStatus {
     None = "None",
@@ -34,6 +35,13 @@ export class User {
     online: Nullable<boolean>;
     flags: Nullable<number>;
     bot: Nullable<BotInformation>;
+
+    /**
+     * Get timestamp when this user was created.
+     */
+    get createdAt() {
+        return decodeTime(this._id);
+    }
 
     constructor(client: Client, data: UserI) {
         this.client = client;

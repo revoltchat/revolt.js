@@ -9,6 +9,7 @@ import isEqual from 'lodash.isequal';
 import { Nullable, toNullable, toNullableDate } from '../util/null';
 import Collection from './Collection';
 import { Client } from "..";
+import { decodeTime } from 'ulid';
 
 export class Message {
     client: Client;
@@ -45,6 +46,13 @@ export class Message {
 
     get mentions() {
         return this.mention_ids?.map(id => this.client.users.get(id));
+    }
+
+    /**
+     * Get timestamp when this message was created.
+     */
+    get createdAt() {
+        return decodeTime(this._id);
     }
 
     @computed
