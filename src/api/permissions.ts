@@ -14,6 +14,7 @@ export const ChannelPermission = {
     InviteOthers: 1 << 5,
     EmbedLinks: 1 << 6,
     UploadFiles: 1 << 7,
+    Masquerade: 1 << 8,
 }
 
 export const ServerPermission = {
@@ -38,4 +39,5 @@ export const DEFAULT_PERMISSION_DM =
     + ChannelPermission.VoiceCall
     + ChannelPermission.InviteOthers
     + ChannelPermission.EmbedLinks
-    + ChannelPermission.UploadFiles;
+    + ChannelPermission.UploadFiles
+    + ChannelPermission.Masquerade;

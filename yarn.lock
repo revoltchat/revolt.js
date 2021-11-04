@@ -2005,10 +2005,10 @@ ret@~0.1.10:
   resolved "https://registry.yarnpkg.com/ret/-/ret-0.1.15.tgz#b8a4825d5bdb1fc3f6f53c2bc33f81388681c7bc"
   integrity sha512-TTlYpa+OL+vMMNG24xSlQGEJ3B/RzEfUlLct7b5G/ytav+wPrplCpVMFuwzXbkecJrb6IYo1iFb0S9v37754mg==
 
-revolt-api@0.5.3-alpha.2:
-  version "0.5.3-alpha.2"
-  resolved "https://registry.yarnpkg.com/revolt-api/-/revolt-api-0.5.3-alpha.2.tgz#b2ffcacbc0302c4876c2ca62e7c6ac088db4c053"
-  integrity sha512-Fa1lARPJoey+8mlEml4fEJqr0H5zUmorLd8fEZ/boOB/JCSJU4/S6O3FKFLGp1FYadmpY4LGeETZlvuFbHADwg==
+revolt-api@^0.5.3-alpha.8-patch.0:
+  version "0.5.3-alpha.8-patch.0"
+  resolved "https://registry.yarnpkg.com/revolt-api/-/revolt-api-0.5.3-alpha.8-patch.0.tgz#3c9f981f8100a89aec1299bc110453cf01c51f89"
+  integrity sha512-ghupcB1nJS7fCiD41L4u+QudFoBWGE381uW4s8cuHsQS3bFXgzAH1lgtjYNoFgrVUekqQAcHWote8Kn2sOABAQ==
 
 rimraf@^3.0.2:
   version "3.0.2"

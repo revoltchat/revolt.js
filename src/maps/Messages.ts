@@ -1,4 +1,4 @@
-import type { Message as MessageI, SystemMessage } from 'revolt-api/types/Channels';
+import type { Masquerade, Message as MessageI, SystemMessage } from 'revolt-api/types/Channels';
 import type { Attachment } from 'revolt-api/types/Autumn';
 import type { Embed } from 'revolt-api/types/January';
 import type { Route } from '../api/routes';
@@ -25,6 +25,7 @@ export class Message {
     embeds: Nullable<Embed[]>;
     mention_ids: Nullable<string[]>;
     reply_ids: Nullable<string[]>;
+    masquerade: Nullable<Masquerade>;
 
     get channel() {
         return this.client.channels.get(this.channel_id);
@@ -53,6 +54,11 @@ export class Message {
      */
     get createdAt() {
         return decodeTime(this._id);
+    }
+
+    @computed generateMasqAvatarURL() {
+        const avatar = this.masquerade?.avatar;
+        return avatar ? this.client.proxyFile(avatar) : undefined;
     }
 
     @computed
@@ -89,6 +95,7 @@ export class Message {
         this.embeds = toNullable(data.embeds);
         this.mention_ids = toNullable(data.mentions);
         this.reply_ids = toNullable(data.replies);
+        this.masquerade = toNullable(data.masquerade);
 
         makeAutoObservable(this, {
             _id: false,
