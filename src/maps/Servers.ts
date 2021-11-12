@@ -1,16 +1,22 @@
-import type { Category, PermissionTuple, Role, Server as ServerI, SystemMessageChannels } from 'revolt-api/types/Servers';
-import type { RemoveServerField, Route } from '../api/routes';
-import type { Attachment } from 'revolt-api/types/Autumn';
+import type {
+    Category,
+    PermissionTuple,
+    Role,
+    Server as ServerI,
+    SystemMessageChannels,
+} from "revolt-api/types/Servers";
+import type { RemoveServerField, Route } from "../api/routes";
+import type { Attachment } from "revolt-api/types/Autumn";
 
-import { makeAutoObservable, action, runInAction, computed } from 'mobx';
-import isEqual from 'lodash.isequal';
+import { makeAutoObservable, action, runInAction, computed } from "mobx";
+import isEqual from "lodash.isequal";
 
-import { Nullable, toNullable } from '../util/null';
-import { U32_MAX } from '../api/permissions';
-import Collection from './Collection';
-import { User } from './Users';
-import { Client, FileArgs } from '..';
-import { decodeTime } from 'ulid';
+import { Nullable, toNullable } from "../util/null";
+import { U32_MAX } from "../api/permissions";
+import Collection from "./Collection";
+import { User } from "./Users";
+import { Client, FileArgs } from "..";
+import { decodeTime } from "ulid";
 
 export class Server {
     client: Client;
@@ -34,7 +40,7 @@ export class Server {
     flags: Nullable<number> = null;
 
     get channels() {
-        return this.channel_ids.map(x => this.client.channels.get(x));
+        return this.channel_ids.map((x) => this.client.channels.get(x));
     }
 
     /**
@@ -46,7 +52,7 @@ export class Server {
 
     constructor(client: Client, data: ServerI) {
         this.client = client;
-        
+
         this._id = data._id;
         this.owner = data.owner;
         this.name = data.name;
@@ -74,8 +80,12 @@ export class Server {
     @action update(data: Partial<ServerI>, clear?: RemoveServerField) {
         const apply = (key: string, target?: string) => {
             // This code has been tested.
-            // @ts-expect-error
-            if (typeof data[key] !== 'undefined' && !isEqual(this[target ?? key], data[key])) {
+            if (
+                // @ts-expect-error
+                typeof data[key] !== "undefined" &&
+                // @ts-expect-error
+                !isEqual(this[target ?? key], data[key])
+            ) {
                 // @ts-expect-error
                 this[target ?? key] = data[key];
             }
@@ -112,16 +122,24 @@ export class Server {
      * @param data Channel create route data
      * @returns The newly-created channel
      */
-    async createChannel(data: Route<'POST', '/servers/id/channels'>["data"]) {
-        return await this.client.req('POST', `/servers/${this._id}/channels` as '/servers/id/channels', data);
+    async createChannel(data: Route<"POST", "/servers/id/channels">["data"]) {
+        return await this.client.req(
+            "POST",
+            `/servers/${this._id}/channels` as "/servers/id/channels",
+            data,
+        );
     }
 
     /**
      * Edit a server
      * @param data Server editing route data
      */
-    async edit(data: Route<'PATCH', '/servers/id'>["data"]) {
-        return await this.client.req('PATCH', `/servers/${this._id}` as '/servers/id', data);
+    async edit(data: Route<"PATCH", "/servers/id">["data"]) {
+        return await this.client.req(
+            "PATCH",
+            `/servers/${this._id}` as "/servers/id",
+            data,
+        );
     }
 
     /**
@@ -129,7 +147,10 @@ export class Server {
      */
     async delete(avoidReq?: boolean) {
         if (!avoidReq)
-            await this.client.req('DELETE', `/servers/${this._id}` as '/servers/id');
+            await this.client.req(
+                "DELETE",
+                `/servers/${this._id}` as "/servers/id",
+            );
 
         runInAction(() => {
             this.client.servers.delete(this._id);
@@ -140,15 +161,25 @@ export class Server {
      * Mark a server as read
      */
     async ack() {
-        return await this.client.req('PUT', `/servers/${this._id}/ack` as '/servers/id/ack');
+        return await this.client.req(
+            "PUT",
+            `/servers/${this._id}/ack` as "/servers/id/ack",
+        );
     }
 
     /**
      * Ban user
      * @param user_id User ID
      */
-    async banUser(user_id: string, data: Route<'PUT', '/servers/id/bans/id'>["data"]) {
-        return await this.client.req('PUT', `/servers/${this._id}/bans/${user_id}` as '/servers/id/bans/id', data);
+    async banUser(
+        user_id: string,
+        data: Route<"PUT", "/servers/id/bans/id">["data"],
+    ) {
+        return await this.client.req(
+            "PUT",
+            `/servers/${this._id}/bans/${user_id}` as "/servers/id/bans/id",
+            data,
+        );
     }
 
     /**
@@ -156,7 +187,10 @@ export class Server {
      * @param user_id User ID
      */
     async unbanUser(user_id: string) {
-        return await this.client.req('DELETE', `/servers/${this._id}/bans/${user_id}` as '/servers/id/bans/id');
+        return await this.client.req(
+            "DELETE",
+            `/servers/${this._id}/bans/${user_id}` as "/servers/id/bans/id",
+        );
     }
 
     /**
@@ -164,7 +198,10 @@ export class Server {
      * @returns An array of the server's invites
      */
     async fetchInvites() {
-        return await this.client.req('GET', `/servers/${this._id}/invites` as '/servers/id/invites');
+        return await this.client.req(
+            "GET",
+            `/servers/${this._id}/invites` as "/servers/id/invites",
+        );
     }
 
     /**
@@ -172,7 +209,10 @@ export class Server {
      * @returns An array of the server's bans.
      */
     async fetchBans() {
-        return await this.client.req('GET', `/servers/${this._id}/bans` as '/servers/id/bans');
+        return await this.client.req(
+            "GET",
+            `/servers/${this._id}/bans` as "/servers/id/bans",
+        );
     }
 
     /**
@@ -180,8 +220,15 @@ export class Server {
      * @param role_id Role Id, set to 'default' to affect all users
      * @param permissions Permission number, removes permission if unset
      */
-    async setPermissions(role_id: string = 'default', permissions?: { server: number, channel: number }) {
-        return await this.client.req('PUT', `/servers/${this._id}/permissions/${role_id}` as '/servers/id/permissions/id', { permissions });
+    async setPermissions(
+        role_id: string = "default",
+        permissions?: { server: number; channel: number },
+    ) {
+        return await this.client.req(
+            "PUT",
+            `/servers/${this._id}/permissions/${role_id}` as "/servers/id/permissions/id",
+            { permissions },
+        );
     }
 
     /**
@@ -189,7 +236,11 @@ export class Server {
      * @param name Role name
      */
     async createRole(name: string) {
-        return await this.client.req('POST', `/servers/${this._id}/roles` as '/servers/id/roles', { name });
+        return await this.client.req(
+            "POST",
+            `/servers/${this._id}/roles` as "/servers/id/roles",
+            { name },
+        );
     }
 
     /**
@@ -197,8 +248,15 @@ export class Server {
      * @param role_id Role ID
      * @param data Role editing route data
      */
-    async editRole(role_id: string, data: Route<'PATCH', '/servers/id/roles/id'>["data"]) {
-        return await this.client.req('PATCH', `/servers/${this._id}/roles/${role_id}` as '/servers/id/roles/id', data);
+    async editRole(
+        role_id: string,
+        data: Route<"PATCH", "/servers/id/roles/id">["data"],
+    ) {
+        return await this.client.req(
+            "PATCH",
+            `/servers/${this._id}/roles/${role_id}` as "/servers/id/roles/id",
+            data,
+        );
     }
 
     /**
@@ -206,7 +264,10 @@ export class Server {
      * @param role_id Role ID
      */
     async deleteRole(role_id: string) {
-        return await this.client.req('DELETE', `/servers/${this._id}/roles/${role_id}` as '/servers/id/roles/id');
+        return await this.client.req(
+            "DELETE",
+            `/servers/${this._id}/roles/${role_id}` as "/servers/id/roles/id",
+        );
     }
 
     /**
@@ -215,11 +276,17 @@ export class Server {
      * @returns Server member object
      */
     async fetchMember(user: User | string) {
-        const user_id = typeof user === 'string' ? user : user._id;
-        const existing = this.client.members.getKey({ server: this._id, user: user_id });
+        const user_id = typeof user === "string" ? user : user._id;
+        const existing = this.client.members.getKey({
+            server: this._id,
+            user: user_id,
+        });
         if (existing) return existing;
 
-        const member = await this.client.req('GET', `/servers/${this._id}/members/${user_id}` as '/servers/id/members/id');
+        const member = await this.client.req(
+            "GET",
+            `/servers/${this._id}/members/${user_id}` as "/servers/id/members/id",
+        );
         return this.client.members.createObj(member);
     }
 
@@ -228,12 +295,15 @@ export class Server {
      * @returns An array of the server's members and their user objects.
      */
     async fetchMembers() {
-        let data = await this.client.req('GET', `/servers/${this._id}/members` as '/servers/id/members');
+        let data = await this.client.req(
+            "GET",
+            `/servers/${this._id}/members` as "/servers/id/members",
+        );
         return runInAction(() => {
             return {
                 members: data.members.map(this.client.members.createObj),
-                users: data.users.map(this.client.users.createObj)
-            }
+                users: data.users.map(this.client.users.createObj),
+            };
         });
     }
 
@@ -251,7 +321,7 @@ export class Server {
         } else {
             let member = this.client.members.getKey({
                 user: this.client.user!._id,
-                server: this._id
+                server: this._id,
             }) ?? { roles: null };
 
             if (!member) return 0;
@@ -287,7 +357,9 @@ export default class Servers extends Collection<string, Server> {
      */
     async fetch(id: string, data?: ServerI) {
         if (this.has(id)) return this.$get(id, data);
-        let res = data ?? await this.client.req('GET', `/servers/${id}` as '/servers/id');
+        let res =
+            data ??
+            (await this.client.req("GET", `/servers/${id}` as "/servers/id"));
 
         return runInAction(async () => {
             for (let channel of res.channels) {
@@ -295,7 +367,7 @@ export default class Servers extends Collection<string, Server> {
                 // ! FIXME: OR the WHOLE server
                 try {
                     await this.client.channels.fetch(channel);
-                // future proofing for when not
+                    // future proofing for when not
                 } catch (err) {}
             }
 
@@ -325,8 +397,8 @@ export default class Servers extends Collection<string, Server> {
      * @param data Server create route data
      * @returns The newly-created server
      */
-    async createServer(data: Route<'POST', '/servers/create'>["data"]) {
-        let server = await this.client.req('POST', `/servers/create`, data);
+    async createServer(data: Route<"POST", "/servers/create">["data"]) {
+        let server = await this.client.req("POST", `/servers/create`, data);
         return this.fetch(server._id, server);
     }
 }

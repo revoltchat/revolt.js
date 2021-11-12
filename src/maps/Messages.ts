@@ -1,15 +1,19 @@
-import type { Masquerade, Message as MessageI, SystemMessage } from 'revolt-api/types/Channels';
-import type { Attachment } from 'revolt-api/types/Autumn';
-import type { Embed } from 'revolt-api/types/January';
-import type { Route } from '../api/routes';
+import type {
+    Masquerade,
+    Message as MessageI,
+    SystemMessage,
+} from "revolt-api/types/Channels";
+import type { Attachment } from "revolt-api/types/Autumn";
+import type { Embed } from "revolt-api/types/January";
+import type { Route } from "../api/routes";
 
-import { makeAutoObservable, runInAction, action, computed } from 'mobx';
-import isEqual from 'lodash.isequal';
+import { makeAutoObservable, runInAction, action, computed } from "mobx";
+import isEqual from "lodash.isequal";
 
-import { Nullable, toNullable, toNullableDate } from '../util/null';
-import Collection from './Collection';
+import { Nullable, toNullable, toNullableDate } from "../util/null";
+import Collection from "./Collection";
 import { Client } from "..";
-import { decodeTime } from 'ulid';
+import { decodeTime } from "ulid";
 
 export class Message {
     client: Client;
@@ -37,16 +41,16 @@ export class Message {
 
     get member() {
         const channel = this.channel;
-        if (channel?.channel_type === 'TextChannel') {
+        if (channel?.channel_type === "TextChannel") {
             return this.client.members.getKey({
                 server: channel.server_id!,
-                user: this.author_id
+                user: this.author_id,
             });
         }
     }
 
     get mentions() {
-        return this.mention_ids?.map(id => this.client.users.get(id));
+        return this.mention_ids?.map((id) => this.client.users.get(id));
     }
 
     /**
@@ -64,21 +68,31 @@ export class Message {
     @computed
     get asSystemMessage() {
         const content = this.content;
-        if (typeof content === 'string') return { type: 'text', content };
+        if (typeof content === "string") return { type: "text", content };
 
         const { type } = content;
         const get = (id: string) => this.client.users.get(id);
         switch (content.type) {
-            case 'text': return content;
-            case 'user_added': return { type, user: get(content.id), by: get(content.by) };
-            case 'user_remove': return { type, user: get(content.id), by: get(content.by) };
-            case 'user_joined': return { type, user: get(content.id) };
-            case 'user_left': return { type, user: get(content.id) };
-            case 'user_kicked': return { type, user: get(content.id) };
-            case 'user_banned': return { type, user: get(content.id) };
-            case 'channel_renamed': return { type, name: content.name, by: get(content.by) };
-            case 'channel_description_changed': return { type, by: get(content.by) };
-            case 'channel_icon_changed': return { type, by: get(content.by) };
+            case "text":
+                return content;
+            case "user_added":
+                return { type, user: get(content.id), by: get(content.by) };
+            case "user_remove":
+                return { type, user: get(content.id), by: get(content.by) };
+            case "user_joined":
+                return { type, user: get(content.id) };
+            case "user_left":
+                return { type, user: get(content.id) };
+            case "user_kicked":
+                return { type, user: get(content.id) };
+            case "user_banned":
+                return { type, user: get(content.id) };
+            case "channel_renamed":
+                return { type, name: content.name, by: get(content.by) };
+            case "channel_description_changed":
+                return { type, by: get(content.by) };
+            case "channel_icon_changed":
+                return { type, by: get(content.by) };
         }
     }
 
@@ -104,12 +118,24 @@ export class Message {
     }
 
     @action update(data: Partial<MessageI>) {
-        const apply = (key: string, target?: string, transform?: (obj: unknown) => unknown) => {
+        const apply = (
+            key: string,
+            target?: string,
+            transform?: (obj: unknown) => unknown,
+        ) => {
             // This code has been tested.
-            // @ts-expect-error
-            if (typeof data[key] !== 'undefined' && !isEqual(this[target ?? key], data[key])) {
+            if (
                 // @ts-expect-error
-                this[target ?? key] = transform ? transform(data[key]) : data[key];
+                typeof data[key] !== "undefined" &&
+                // @ts-expect-error
+                !isEqual(this[target ?? key], data[key])
+            ) {
+                // @ts-expect-error
+                this[target ?? key] = transform
+                    ? // @ts-expect-error
+                      transform(data[key])
+                    : // @ts-expect-error
+                      data[key];
             }
         };
 
@@ -124,15 +150,22 @@ export class Message {
      * Edit a message
      * @param data Message edit route data
      */
-    async edit(data: Route<'PATCH', '/channels/id/messages/id'>["data"]) {
-        return await this.client.req('PATCH', `/channels/${this.channel_id}/messages/${this._id}` as '/channels/id/messages/id', data);
+    async edit(data: Route<"PATCH", "/channels/id/messages/id">["data"]) {
+        return await this.client.req(
+            "PATCH",
+            `/channels/${this.channel_id}/messages/${this._id}` as "/channels/id/messages/id",
+            data,
+        );
     }
 
     /**
      * Delete a message
      */
     async delete() {
-        return await this.client.req('DELETE', `/channels/${this.channel_id}/messages/${this._id}` as '/channels/id/messages/id');
+        return await this.client.req(
+            "DELETE",
+            `/channels/${this.channel_id}/messages/${this._id}` as "/channels/id/messages/id",
+        );
     }
 
     /**
@@ -145,9 +178,19 @@ export class Message {
     /**
      * Reply to Message
      */
-    reply(data: string | (Omit<Route<'POST', '/channels/id/messages'>["data"], 'nonce'> & { nonce?: string }), mention = true) {
-        let obj = typeof data === 'string' ? { content: data } : data;
-        return this.channel?.sendMessage({ ...obj, replies: [{ id: this._id, mention }] })
+    reply(
+        data:
+            | string
+            | (Omit<Route<"POST", "/channels/id/messages">["data"], "nonce"> & {
+                  nonce?: string;
+              }),
+        mention = true,
+    ) {
+        let obj = typeof data === "string" ? { content: data } : data;
+        return this.channel?.sendMessage({
+            ...obj,
+            replies: [{ id: this._id, mention }],
+        });
     }
 }
 
@@ -178,7 +221,7 @@ export default class Messages extends Collection<string, Message> {
             this.set(data._id, message);
         });
 
-        if (emit === true) this.client.emit('message', message);
+        if (emit === true) this.client.emit("message", message);
         return message;
     }
 }

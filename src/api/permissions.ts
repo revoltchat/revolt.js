@@ -3,7 +3,7 @@ export const UserPermission = {
     ViewProfile: 1 << 1,
     SendMessage: 1 << 2,
     Invite: 1 << 3,
-}
+};
 
 export const ChannelPermission = {
     View: 1 << 0,
@@ -15,7 +15,7 @@ export const ChannelPermission = {
     EmbedLinks: 1 << 6,
     UploadFiles: 1 << 7,
     Masquerade: 1 << 8,
-}
+};
 
 export const ServerPermission = {
     View: 1 << 0,
@@ -28,16 +28,16 @@ export const ServerPermission = {
     ManageNicknames: 1 << 13,
     ChangeAvatar: 1 << 14,
     RemoveAvatars: 1 << 15,
-}
+};
 
-export const U32_MAX = 2**32 - 1; // 4294967295
+export const U32_MAX = 2 ** 32 - 1; // 4294967295
 
 export const DEFAULT_PERMISSION_DM =
-    ChannelPermission.View
-    + ChannelPermission.SendMessage
-    + ChannelPermission.ManageChannel
-    + ChannelPermission.VoiceCall
-    + ChannelPermission.InviteOthers
-    + ChannelPermission.EmbedLinks
-    + ChannelPermission.UploadFiles
-    + ChannelPermission.Masquerade;
+    ChannelPermission.View +
+    ChannelPermission.SendMessage +
+    ChannelPermission.ManageChannel +
+    ChannelPermission.VoiceCall +
+    ChannelPermission.InviteOthers +
+    ChannelPermission.EmbedLinks +
+    ChannelPermission.UploadFiles +
+    ChannelPermission.Masquerade;

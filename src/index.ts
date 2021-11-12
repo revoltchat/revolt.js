@@ -1,3 +1,7 @@
-export * from './Client';
-export * from './config';
-export { UserPermission, ChannelPermission, ServerPermission } from './api/permissions';
+export * from "./Client";
+export * from "./config";
+export {
+    UserPermission,
+    ChannelPermission,
+    ServerPermission,
+} from "./api/permissions";

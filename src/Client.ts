@@ -1,66 +1,75 @@
-import Axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
-import defaultsDeep from 'lodash.defaultsdeep';
-import { EventEmitter } from 'eventemitter3';
+import Axios, { AxiosInstance, AxiosRequestConfig } from "axios";
+import { EventEmitter } from "eventemitter3";
+import defaultsDeep from "lodash.defaultsdeep";
+import { makeObservable, observable } from "mobx";
+import type { Session } from "revolt-api/types/Auth";
+import type { SizeOptions } from "revolt-api/types/Autumn";
+import type { RevoltConfiguration } from "revolt-api/types/Core";
+import { MemberCompositeKey, Role } from "revolt-api/types/Servers";
 
-import { WebSocketClient } from './websocket/client';
-import { Route, RoutePath, RouteMethod } from './api/routes';
-import { ClientboundNotification } from './websocket/notifications';
+import { Route, RoutePath, RouteMethod } from "./api/routes";
 
-import type { RevoltConfiguration } from 'revolt-api/types/Core';
-import type { SizeOptions } from 'revolt-api/types/Autumn';
-import type { Session } from 'revolt-api/types/Auth';
+import Bots from "./maps/Bots";
+import Channels, { Channel } from "./maps/Channels";
+import Members, { Member } from "./maps/Members";
+import Messages, { Message } from "./maps/Messages";
+import Servers, { Server } from "./maps/Servers";
+import Users, { User } from "./maps/Users";
 
-import Users, { User } from './maps/Users';
-import Channels, { Channel } from './maps/Channels';
-import Servers, { Server } from './maps/Servers';
-import Members, { Member } from './maps/Members';
-import Messages, { Message } from './maps/Messages';
-import Bots from './maps/Bots';
+import { WebSocketClient } from "./websocket/client";
+import { ClientboundNotification } from "./websocket/notifications";
 
-import { makeObservable, observable } from 'mobx';
-import { defaultConfig } from './config';
-import { MemberCompositeKey, Role } from 'revolt-api/types/Servers';
+import { defaultConfig } from "./config";
 
 /**
  * Client options object
  */
 export interface ClientOptions {
-    apiURL: string
-    debug: boolean
-    cache: boolean
+    apiURL: string;
+    debug: boolean;
+    cache: boolean;
 
-    heartbeat: number
-    autoReconnect: boolean
+    heartbeat: number;
+    autoReconnect: boolean;
 
-    ackRateLimiter: boolean
+    ackRateLimiter: boolean;
 }
 
 export declare interface Client {
-    on(event: 'connected', listener: () => void): this;
-    on(event: 'connecting', listener: () => void): this;
-    on(event: 'dropped', listener: () => void): this;
-    on(event: 'ready', listener: () => void): this;
-    on(event: 'packet', listener: (packet: ClientboundNotification) => void): this;
+    on(event: "connected", listener: () => void): this;
+    on(event: "connecting", listener: () => void): this;
+    on(event: "dropped", listener: () => void): this;
+    on(event: "ready", listener: () => void): this;
+    on(
+        event: "packet",
+        listener: (packet: ClientboundNotification) => void,
+    ): this;
 
-    on(event: 'message', listener: (message: Message) => void): this;
-    on(event: 'message/update', listener: (message: Message) => void): this;
-    on(event: 'message/delete', listener: (id: string) => void): this;
+    on(event: "message", listener: (message: Message) => void): this;
+    on(event: "message/update", listener: (message: Message) => void): this;
+    on(event: "message/delete", listener: (id: string) => void): this;
 
-    on(event: 'channel/create', listener: (channel: Channel) => void): this;
-    on(event: 'channel/update', listener: (channel: Channel) => void): this;
-    on(event: 'channel/delete', listener: (id: string) => void): this;
+    on(event: "channel/create", listener: (channel: Channel) => void): this;
+    on(event: "channel/update", listener: (channel: Channel) => void): this;
+    on(event: "channel/delete", listener: (id: string) => void): this;
 
-    on(event: 'server/update', listener: (server: Server) => void): this;
-    on(event: 'server/delete', listener: (id: string) => void): this;
+    on(event: "server/update", listener: (server: Server) => void): this;
+    on(event: "server/delete", listener: (id: string) => void): this;
 
-    on(event: 'role/update', listener: (roleId: string, role: Role, serverId: string) => void): this;
-    on(event: 'role/delete', listener: (id: string, serverId: string) => void): this;
+    on(
+        event: "role/update",
+        listener: (roleId: string, role: Role, serverId: string) => void,
+    ): this;
+    on(
+        event: "role/delete",
+        listener: (id: string, serverId: string) => void,
+    ): this;
 
-    on(event: 'member/join', listener: (member: Member) => void): this;
-    on(event: 'member/update', listener: (member: Member) => void): this;
-    on(event: 'member/leave', listener: (id: MemberCompositeKey) => void): this;
+    on(event: "member/join", listener: (member: Member) => void): this;
+    on(event: "member/update", listener: (member: Member) => void): this;
+    on(event: "member/leave", listener: (id: MemberCompositeKey) => void): this;
 
-    on(event: 'user/relationship', listener: (user: User) => void): this;
+    on(event: "user/relationship", listener: (user: User) => void): this;
 }
 
 /**
@@ -73,7 +82,11 @@ export const RE_MENTIONS = /<@([A-z0-9]{26})>/g;
  */
 export const RE_SPOILER = /!!.+!!/g;
 
-export type FileArgs = [ options?: SizeOptions, allowAnimation?: boolean, fallback?: string ];
+export type FileArgs = [
+    options?: SizeOptions,
+    allowAnimation?: boolean,
+    fallback?: string,
+];
 
 export class Client extends EventEmitter {
     heartbeat: number;
@@ -103,15 +116,19 @@ export class Client extends EventEmitter {
         this.messages = new Messages(this);
         this.bots = new Bots(this);
 
-        makeObservable(this, {
-            users: observable,
-            channels: observable,
-            servers: observable,
-            members: observable,
-            messages: observable
-        }, {
-            proxy: false
-        });
+        makeObservable(
+            this,
+            {
+                users: observable,
+                channels: observable,
+                servers: observable,
+                members: observable,
+                messages: observable,
+            },
+            {
+                proxy: false,
+            },
+        );
 
         this.options = defaultsDeep(options, defaultConfig);
         if (this.options.cache) throw "Cache is not supported yet.";
@@ -121,21 +138,29 @@ export class Client extends EventEmitter {
         this.heartbeat = this.options.heartbeat;
 
         if (options.debug) {
-            this.Axios.interceptors.request.use(request => {
-                console.debug('[<]', request.method?.toUpperCase(), request.url);
-                return request
-            })
-                
-            this.Axios.interceptors.response.use(response => {
-                console.debug('[>] (' + response.status + ':', response.statusText + ')', JSON.stringify(response.data));
-                return response
-            })
+            this.Axios.interceptors.request.use((request) => {
+                console.debug(
+                    "[<]",
+                    request.method?.toUpperCase(),
+                    request.url,
+                );
+                return request;
+            });
+
+            this.Axios.interceptors.response.use((response) => {
+                console.debug(
+                    "[>] (" + response.status + ":",
+                    response.statusText + ")",
+                    JSON.stringify(response.data),
+                );
+                return response;
+            });
         }
 
-        this.on('message', async message => {
+        this.on("message", async (message) => {
             let channel = message.channel;
             if (!channel) return;
-            if (channel.channel_type === 'DirectMessage') {
+            if (channel.channel_type === "DirectMessage") {
                 channel.active = true;
             }
 
@@ -162,9 +187,16 @@ export class Client extends EventEmitter {
     /**
      * ? Axios request wrapper.
      */
-    
-    req<M extends RouteMethod, T extends RoutePath>(method: M, url: T): Promise<Route<M, T>["response"]>;
-    req<M extends RouteMethod, T extends RoutePath>(method: M, url: T, data: Route<M, T>["data"]): Promise<Route<M, T>["response"]>;
+
+    req<M extends RouteMethod, T extends RoutePath>(
+        method: M,
+        url: T,
+    ): Promise<Route<M, T>["response"]>;
+    req<M extends RouteMethod, T extends RoutePath>(
+        method: M,
+        url: T,
+        data: Route<M, T>["data"],
+    ): Promise<Route<M, T>["response"]>;
 
     /**
      * Perform an HTTP request using Axios, specifying a route data object.
@@ -173,11 +205,15 @@ export class Client extends EventEmitter {
      * @param data Route data object
      * @returns The response body
      */
-    async req<M extends RouteMethod, T extends RoutePath>(method: M, url: T, data?: Route<M, T>["data"]): Promise<Route<M, T>["response"]> {
+    async req<M extends RouteMethod, T extends RoutePath>(
+        method: M,
+        url: T,
+        data?: Route<M, T>["data"],
+    ): Promise<Route<M, T>["response"]> {
         let res = await this.Axios.request({
             method,
             data,
-            url
+            url,
         });
 
         return res.data;
@@ -190,7 +226,11 @@ export class Client extends EventEmitter {
      * @param data Axios request config object
      * @returns The response body
      */
-    async request<M extends RouteMethod, T extends RoutePath>(method: M, url: T, data: AxiosRequestConfig): Promise<Route<M, T>["response"]> {
+    async request<M extends RouteMethod, T extends RoutePath>(
+        method: M,
+        url: T,
+        data: AxiosRequestConfig,
+    ): Promise<Route<M, T>["response"]> {
         let res = await this.Axios.request({
             ...data,
             method,
@@ -203,35 +243,36 @@ export class Client extends EventEmitter {
     /**
      * ? Authentication and connection.
      */
-    
+
     /**
      * Fetches the configuration of the server.
-     * 
+     *
      * @remarks
      * Unlike `fetchConfiguration`, this function also fetches the
      * configuration if it has already been fetched before.
      */
     async connect() {
-        this.configuration = await this.req('GET', '/');
+        this.configuration = await this.req("GET", "/");
     }
 
     /**
      * Fetches the configuration of the server if it has not been already fetched.
      */
     async fetchConfiguration() {
-        if (!this.configuration)
-            await this.connect();
+        if (!this.configuration) await this.connect();
     }
 
-    private $generateHeaders(session: Session | string | undefined = this.session) {
-        if (typeof session === 'string') {
+    private $generateHeaders(
+        session: Session | string | undefined = this.session,
+    ) {
+        if (typeof session === "string") {
             return {
-                'x-bot-token': session
-            }
+                "x-bot-token": session,
+            };
         } else {
             return {
-                'x-session-token': session?.token
-            }
+                "x-session-token": session?.token,
+            };
         }
     }
 
@@ -240,10 +281,10 @@ export class Client extends EventEmitter {
      * @param details Login data object
      * @returns An onboarding function if onboarding is required, undefined otherwise
      */
-    async login(details: Route<'POST', '/auth/session/login'>["data"]) {
+    async login(details: Route<"POST", "/auth/session/login">["data"]) {
         await this.fetchConfiguration();
-        this.session = await this.req('POST', '/auth/session/login', details);
-        
+        this.session = await this.req("POST", "/auth/session/login", details);
+
         return await this.$connect();
     }
 
@@ -272,7 +313,7 @@ export class Client extends EventEmitter {
     // Check onboarding status and connect to notifications service.
     private async $connect() {
         this.Axios.defaults.headers = this.$generateHeaders();
-        let { onboarding } = await this.req('GET', '/onboard/hello');
+        let { onboarding } = await this.req("GET", "/onboard/hello");
         if (onboarding) {
             return (username: string, loginAfterSuccess?: boolean) =>
                 this.completeOnboarding({ username }, loginAfterSuccess);
@@ -286,8 +327,11 @@ export class Client extends EventEmitter {
      * @param data Onboarding data object
      * @param loginAfterSuccess Defines whether to automatically log in and connect after onboarding finishes
      */
-    async completeOnboarding(data: Route<'POST', '/onboard/complete'>["data"], loginAfterSuccess?: boolean) {
-        await this.req('POST', '/onboard/complete', data);
+    async completeOnboarding(
+        data: Route<"POST", "/onboard/complete">["data"],
+        loginAfterSuccess?: boolean,
+    ) {
+        await this.req("POST", "/onboard/complete", data);
         if (loginAfterSuccess) {
             await this.$connect();
         }
@@ -303,7 +347,7 @@ export class Client extends EventEmitter {
      * @returns Invite information.
      */
     async fetchInvite(code: string) {
-        return await this.req('GET', `/invites/${code}` as '/invites/id');
+        return await this.req("GET", `/invites/${code}` as "/invites/id");
     }
 
     /**
@@ -312,7 +356,7 @@ export class Client extends EventEmitter {
      * @returns Data provided by invite.
      */
     async joinInvite(code: string) {
-        return await this.req('POST', `/invites/${code}` as '/invites/id');
+        return await this.req("POST", `/invites/${code}` as "/invites/id");
     }
 
     /**
@@ -320,7 +364,7 @@ export class Client extends EventEmitter {
      * @param code The invite code.
      */
     async deleteInvite(code: string) {
-        await this.req('DELETE', `/invites/${code}` as '/invites/id');
+        await this.req("DELETE", `/invites/${code}` as "/invites/id");
     }
 
     /**
@@ -329,7 +373,7 @@ export class Client extends EventEmitter {
      * @returns Key-value object of settings.
      */
     async syncFetchSettings(keys: string[]) {
-        return await this.req('POST', '/sync/settings/fetch', { keys });
+        return await this.req("POST", "/sync/settings/fetch", { keys });
     }
 
     /**
@@ -337,15 +381,23 @@ export class Client extends EventEmitter {
      * @param data Data to set as an object. Any non-string values will be automatically serialised.
      * @param timestamp Timestamp to use for the current revision.
      */
-    async syncSetSettings(data: { [key: string]: object | string }, timestamp?: number) {
+    async syncSetSettings(
+        data: { [key: string]: object | string },
+        timestamp?: number,
+    ) {
         let requestData: { [key: string]: string } = {};
         for (let key of Object.keys(data)) {
             let value = data[key];
-            requestData[key] = typeof value === 'string' ? value : JSON.stringify(value);
+            requestData[key] =
+                typeof value === "string" ? value : JSON.stringify(value);
         }
 
-        let query = timestamp ? `?timestamp=${timestamp}` : '';
-        await this.req('POST', `/sync/settings/set${query}` as '/sync/settings/set', requestData);
+        let query = timestamp ? `?timestamp=${timestamp}` : "";
+        await this.req(
+            "POST",
+            `/sync/settings/set${query}` as "/sync/settings/set",
+            requestData,
+        );
     }
 
     /**
@@ -353,7 +405,7 @@ export class Client extends EventEmitter {
      * @returns Array of channel unreads.
      */
     async syncFetchUnreads() {
-        return await this.req('GET', '/sync/unreads');
+        return await this.req("GET", "/sync/unreads");
     }
 
     /**
@@ -365,7 +417,7 @@ export class Client extends EventEmitter {
      */
     async logout() {
         this.websocket.disconnect();
-        await this.req('POST', '/auth/session/logout');
+        await this.req("POST", "/auth/session/logout");
         this.reset();
     }
 
@@ -390,8 +442,8 @@ export class Client extends EventEmitter {
      * @param data Registration data object
      * @returns A promise containing a registration response object
      */
-    register(data: Route<'POST', '/auth/account/create'>["data"]) {
-        return this.request('POST', '/auth/account/create', { data });
+    register(data: Route<"POST", "/auth/account/create">["data"]) {
+        return this.request("POST", "/auth/account/create", { data });
     }
 
     /**
@@ -401,23 +453,17 @@ export class Client extends EventEmitter {
      */
     markdownToText(source: string) {
         return source
-        .replace(
-            RE_MENTIONS,
-            (sub: string, ...args: any[]) => {
+            .replace(RE_MENTIONS, (sub: string, ...args: any[]) => {
                 const id = args[0],
                     user = this.users.get(id);
-                
+
                 if (user) {
                     return `@${user.username}`;
                 }
 
                 return sub;
-            }
-        )
-        .replace(
-            RE_SPOILER,
-            '<spoiler>'
-        );
+            })
+            .replace(RE_SPOILER, "<spoiler>");
     }
 
     /**
@@ -427,7 +473,9 @@ export class Client extends EventEmitter {
      */
     proxyFile(url: string): string | undefined {
         if (this.configuration?.features.january.enabled) {
-            return `${this.configuration.features.january.url}/proxy?url=${encodeURIComponent(url)}`;
+            return `${
+                this.configuration.features.january.url
+            }/proxy?url=${encodeURIComponent(url)}`;
         }
     }
 
@@ -439,8 +487,11 @@ export class Client extends EventEmitter {
      * @param fallback Fallback URL
      * @returns Generated URL or nothing
      */
-    generateFileURL(attachment?: { tag: string, _id: string, content_type?: string }, ...args: FileArgs) {
-        const [ options, allowAnimation, fallback ] = args;
+    generateFileURL(
+        attachment?: { tag: string; _id: string; content_type?: string },
+        ...args: FileArgs
+    ) {
+        const [options, allowAnimation, fallback] = args;
 
         let autumn = this.configuration?.features.autumn;
         if (!autumn?.enabled) return fallback;
@@ -448,10 +499,14 @@ export class Client extends EventEmitter {
 
         let { tag, _id, content_type } = attachment;
 
-        let query = '';
+        let query = "";
         if (options) {
-            if (!allowAnimation || content_type !== 'image/gif') {
-                query = '?' + Object.keys(options).map(k => `${k}=${(options as any)[k]}`).join('&');
+            if (!allowAnimation || content_type !== "image/gif") {
+                query =
+                    "?" +
+                    Object.keys(options)
+                        .map((k) => `${k}=${(options as any)[k]}`)
+                        .join("&");
             }
         }
 

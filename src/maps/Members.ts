@@ -1,13 +1,16 @@
-import type { Member as MemberI, MemberCompositeKey } from 'revolt-api/types/Servers';
-import type { RemoveMemberField, Route } from '../api/routes';
-import type { Attachment } from 'revolt-api/types/Autumn';
+import type {
+    Member as MemberI,
+    MemberCompositeKey,
+} from "revolt-api/types/Servers";
+import type { RemoveMemberField, Route } from "../api/routes";
+import type { Attachment } from "revolt-api/types/Autumn";
 
-import { makeAutoObservable, runInAction, action, computed } from 'mobx';
-import isEqual from 'lodash.isequal';
+import { makeAutoObservable, runInAction, action, computed } from "mobx";
+import isEqual from "lodash.isequal";
 
-import { Nullable, toNullable } from '../util/null';
-import Collection from './Collection';
-import { Client, FileArgs } from '..';
+import { Nullable, toNullable } from "../util/null";
+import Collection from "./Collection";
+import { Client, FileArgs } from "..";
 
 export class Member {
     client: Client;
@@ -49,8 +52,12 @@ export class Member {
     @action update(data: Partial<MemberI>, clear?: RemoveMemberField) {
         const apply = (key: string) => {
             // This code has been tested.
-            // @ts-expect-error
-            if (typeof data[key] !== 'undefined' && !isEqual(this[key], data[key])) {
+            if (
+                // @ts-expect-error
+                typeof data[key] !== "undefined" &&
+                // @ts-expect-error
+                !isEqual(this[key], data[key])
+            ) {
                 // @ts-expect-error
                 this[key] = data[key];
             }
@@ -75,8 +82,12 @@ export class Member {
      * @param data Member editing route data
      * @returns Server member object
      */
-    async edit(data: Route<'PATCH', '/servers/id/members/id'>["data"]) {
-        return await this.client.req('PATCH', `/servers/${this._id.server}/members/${this._id.user}` as '/servers/id/members/id', data);
+    async edit(data: Route<"PATCH", "/servers/id/members/id">["data"]) {
+        return await this.client.req(
+            "PATCH",
+            `/servers/${this._id.server}/members/${this._id.user}` as "/servers/id/members/id",
+            data,
+        );
     }
 
     /**
@@ -84,7 +95,10 @@ export class Member {
      * @param user_id User ID
      */
     async kick() {
-        return await this.client.req('DELETE', `/servers/${this._id.server}/members/${this._id.user}` as '/servers/id/members/id');
+        return await this.client.req(
+            "DELETE",
+            `/servers/${this._id.server}/members/${this._id.user}` as "/servers/id/members/id",
+        );
     }
 
     @computed generateAvatarURL(...args: FileArgs) {
@@ -99,7 +113,7 @@ export default class Members extends Collection<string, Member> {
     }
 
     static toKey(id: MemberCompositeKey) {
-        return JSON.stringify(id, Object.keys(id).sort())
+        return JSON.stringify(id, Object.keys(id).sort());
     }
 
     hasKey(id: MemberCompositeKey) {
@@ -140,7 +154,7 @@ export default class Members extends Collection<string, Member> {
             this.setKey(data._id, member);
         });
 
-        if (emit === true) this.client.emit('member/join', member);
+        if (emit === true) this.client.emit("member/join", member);
         return member;
     }
 }

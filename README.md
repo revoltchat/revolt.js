@@ -9,25 +9,17 @@
 ```typescript
 let client = new Client();
 
-client.on('ready', async () =>
-    console.info(`Logged in as ${client.user!.username}!`)
+client.on("ready", async () =>
+    console.info(`Logged in as ${client.user!.username}!`),
 );
 
-client.on('message', async message => {
-    if (message.content === 'sus') {
-        message.channel!.sendMessage('sus!');
+client.on("message", async (message) => {
+    if (message.content === "sus") {
+        message.channel!.sendMessage("sus!");
     }
 });
 
-// To login as a bot:
-client.loginBot('..');
-
-// To login as a user,
-// either create a new session:
-client.login({ email: '..', password: '..' });
-
-// Or use an existing session:
-client.useExistingSession({ token: '..' });
+client.loginBot("..");
 ```
 
 ## MobX
