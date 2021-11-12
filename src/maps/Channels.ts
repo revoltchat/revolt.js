@@ -220,14 +220,13 @@ export class Channel {
 
     @action update(data: Partial<ChannelI>, clear?: RemoveChannelField) {
         const apply = (key: string, target?: string) => {
-            // This code has been tested.
             if (
-                // @ts-expect-error
+                // @ts-expect-error TODO: clean up types here
                 typeof data[key] !== "undefined" &&
-                // @ts-expect-error
+                // @ts-expect-error TODO: clean up types here
                 !isEqual(this[target ?? key], data[key])
             ) {
-                // @ts-expect-error
+                // @ts-expect-error TODO: clean up types here
                 this[target ?? key] = data[key];
             }
         };
@@ -278,7 +277,7 @@ export class Channel {
      * @returns An array of the channel's members.
      */
     async fetchMembers() {
-        let members = await this.client.req(
+        const members = await this.client.req(
             "GET",
             `/channels/${this._id}/members` as "/channels/id/members",
         );
@@ -319,7 +318,7 @@ export class Channel {
                 this.channel_type === "TextChannel" ||
                 this.channel_type === "VoiceChannel"
             ) {
-                let server = this.server;
+                const server = this.server;
                 if (server) {
                     server.channel_ids = server.channel_ids.filter(
                         (x) => x !== this._id,
@@ -365,12 +364,12 @@ export class Channel {
                   nonce?: string;
               }),
     ) {
-        let msg: Route<"POST", "/channels/id/messages">["data"] = {
+        const msg: Route<"POST", "/channels/id/messages">["data"] = {
             nonce: ulid(),
             ...(typeof data === "string" ? { content: data } : data),
         };
 
-        let message = await this.client.req(
+        const message = await this.client.req(
             "POST",
             `/channels/${this._id}/messages` as "/channels/id/messages",
             msg,
@@ -384,7 +383,7 @@ export class Channel {
      * @returns The message
      */
     async fetchMessage(message_id: string) {
-        let message = await this.client.req(
+        const message = await this.client.req(
             "GET",
             `/channels/${this._id}/messages/${message_id}` as "/channels/id/messages/id",
         );
@@ -402,7 +401,7 @@ export class Channel {
             "include_users"
         >,
     ) {
-        let messages = (await this.client.request(
+        const messages = (await this.client.request(
             "GET",
             `/channels/${this._id}/messages` as "/channels/id/messages",
             { params },
@@ -421,7 +420,7 @@ export class Channel {
             "include_users"
         >,
     ) {
-        let data = (await this.client.request(
+        const data = (await this.client.request(
             "GET",
             `/channels/${this._id}/messages` as "/channels/id/messages",
             { params: { ...params, include_users: true } },
@@ -446,7 +445,7 @@ export class Channel {
             "include_users"
         >,
     ) {
-        let messages = (await this.client.req(
+        const messages = (await this.client.req(
             "POST",
             `/channels/${this._id}/search` as "/channels/id/search",
             params,
@@ -465,7 +464,7 @@ export class Channel {
             "include_users"
         >,
     ) {
-        let data = (await this.client.req(
+        const data = (await this.client.req(
             "POST",
             `/channels/${this._id}/search` as "/channels/id/search",
             { ...params, include_users: true },
@@ -485,7 +484,7 @@ export class Channel {
      * @returns The stale messages
      */
     async fetchStale(ids: string[]) {
-        let data = await this.client.req(
+        const data = await this.client.req(
             "POST",
             `/channels/${this._id}/messages/stale` as "/channels/id/messages/stale",
             { ids },
@@ -506,7 +505,7 @@ export class Channel {
      * @returns Newly created invite code
      */
     async createInvite() {
-        let res = await this.client.req(
+        const res = await this.client.req(
             "POST",
             `/channels/${this._id}/invites` as "/channels/id/invites",
         );
@@ -566,7 +565,7 @@ export class Channel {
      * @param role_id Role Id, set to 'default' to affect all users
      * @param permissions Permission number, removes permission if unset
      */
-    async setPermissions(role_id: string = "default", permissions?: number) {
+    async setPermissions(role_id = "default", permissions?: number) {
         return await this.client.req(
             "PUT",
             `/channels/${this._id}/permissions/${role_id}` as "/channels/id/permissions/id",
@@ -597,7 +596,7 @@ export class Channel {
             case "SavedMessages":
                 return U32_MAX;
             case "DirectMessage": {
-                let user_permissions = this.recipient?.permission || 0;
+                const user_permissions = this.recipient?.permission || 0;
 
                 if (user_permissions & UserPermission.SendMessage) {
                     return DEFAULT_PERMISSION_DM;
@@ -614,13 +613,13 @@ export class Channel {
             }
             case "TextChannel":
             case "VoiceChannel": {
-                let server = this.server;
+                const server = this.server;
                 if (typeof server === "undefined") return 0;
 
                 if (server.owner === this.client.user?._id) {
                     return U32_MAX;
                 } else {
-                    let member = this.client.members.getKey({
+                    const member = this.client.members.getKey({
                         user: this.client.user!._id,
                         server: server._id,
                     }) ?? { roles: null };
@@ -632,7 +631,7 @@ export class Channel {
                             server.default_permissions[1]) >>> 0;
 
                     if (member.roles) {
-                        for (let role of member.roles) {
+                        for (const role of member.roles) {
                             perm |= (this.role_permissions?.[role] ?? 0) >>> 0;
                             perm |=
                                 (server.roles?.[role].permissions[1] ?? 0) >>>
@@ -654,7 +653,7 @@ export default class Channels extends Collection<string, Channel> {
     }
 
     @action $get(id: string, data?: ChannelI) {
-        let channel = this.get(id)!;
+        const channel = this.get(id)!;
         if (data) channel.update(data);
         return channel;
     }
@@ -666,7 +665,7 @@ export default class Channels extends Collection<string, Channel> {
      */
     async fetch(id: string, data?: ChannelI) {
         if (this.has(id)) return this.$get(id);
-        let res =
+        const res =
             data ??
             (await this.client.req("GET", `/channels/${id}` as "/channels/id"));
         return this.createObj(res);
@@ -681,7 +680,7 @@ export default class Channels extends Collection<string, Channel> {
      */
     createObj(data: ChannelI, emit?: boolean | number) {
         if (this.has(data._id)) return this.$get(data._id);
-        let channel = new Channel(this.client, data);
+        const channel = new Channel(this.client, data);
 
         runInAction(() => {
             this.set(data._id, channel);
@@ -697,7 +696,7 @@ export default class Channels extends Collection<string, Channel> {
      * @returns The newly-created group
      */
     async createGroup(data: Route<"POST", "/channels/create">["data"]) {
-        let group = await this.client.req("POST", `/channels/create`, data);
+        const group = await this.client.req("POST", `/channels/create`, data);
         return (await this.fetch(group._id, group))!;
     }
 }

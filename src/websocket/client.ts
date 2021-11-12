@@ -53,7 +53,7 @@ export class WebSocketClient {
         )
             return;
 
-        let data = JSON.stringify(notification);
+        const data = JSON.stringify(notification);
         if (this.client.debug) console.debug("[<] PACKET", data);
         this.ws.send(data);
     }
@@ -67,7 +67,7 @@ export class WebSocketClient {
 
         return new Promise((resolve, $reject) => {
             let thrown = false;
-            const reject = (err: any) => {
+            const reject = (err: unknown) => {
                 if (!thrown) {
                     thrown = true;
                     $reject(err);
@@ -88,7 +88,7 @@ export class WebSocketClient {
                 );
             }
 
-            let ws = new WebSocket(this.client.configuration.ws);
+            const ws = new WebSocket(this.client.configuration.ws);
             this.ws = ws;
 
             ws.onopen = () => {
@@ -105,13 +105,13 @@ export class WebSocketClient {
                 }
             };
 
-            let timeouts: Record<string, any> = {};
-            let handle = async (msg: WebSocket.MessageEvent) => {
-                let data = msg.data;
+            const timeouts: Record<string, number> = {};
+            const handle = async (msg: WebSocket.MessageEvent) => {
+                const data = msg.data;
                 if (typeof data !== "string") return;
 
                 if (this.client.debug) console.debug("[>] PACKET", data);
-                let packet = JSON.parse(data) as ClientboundNotification;
+                const packet = JSON.parse(data) as ClientboundNotification;
                 this.client.emit("packet", packet);
                 switch (packet.type) {
                     case "Error": {
@@ -130,19 +130,19 @@ export class WebSocketClient {
                         runInAction(() => {
                             if (packet.type !== "Ready") throw 0;
 
-                            for (let user of packet.users) {
+                            for (const user of packet.users) {
                                 this.client.users.createObj(user);
                             }
 
-                            for (let channel of packet.channels) {
+                            for (const channel of packet.channels) {
                                 this.client.channels.createObj(channel);
                             }
 
-                            for (let server of packet.servers) {
+                            for (const server of packet.servers) {
                                 this.client.servers.createObj(server);
                             }
 
-                            for (let member of packet.members) {
+                            for (const member of packet.members) {
                                 this.client.members.createObj(member);
                             }
                         });
@@ -165,7 +165,7 @@ export class WebSocketClient {
                                         data: +new Date(),
                                     }),
                                 this.client.heartbeat * 1e3,
-                            ) as any;
+                            ) as unknown as number;
                         }
 
                         break;
@@ -209,11 +209,11 @@ export class WebSocketClient {
                                 await this.client.users.fetch(packet.author);
                             }
 
-                            let channel = await this.client.channels.fetch(
+                            const channel = await this.client.channels.fetch(
                                 packet.channel,
                             );
                             if (channel.channel_type === "TextChannel") {
-                                let server = await this.client.servers.fetch(
+                                const server = await this.client.servers.fetch(
                                     channel.server_id!,
                                 );
                                 if (
@@ -229,7 +229,7 @@ export class WebSocketClient {
                     }
 
                     case "MessageUpdate": {
-                        let message = this.client.messages.get(packet.id);
+                        const message = this.client.messages.get(packet.id);
                         if (message) {
                             message.update(packet.data);
                             this.client.emit("message/update", message);
@@ -251,7 +251,7 @@ export class WebSocketClient {
                                 packet.channel_type === "TextChannel" ||
                                 packet.channel_type === "VoiceChannel"
                             ) {
-                                let server = await this.client.servers.fetch(
+                                const server = await this.client.servers.fetch(
                                     packet.server,
                                 );
                                 server.channel_ids.push(packet._id);
@@ -263,7 +263,7 @@ export class WebSocketClient {
                     }
 
                     case "ChannelUpdate": {
-                        let channel = this.client.channels.get(packet.id);
+                        const channel = this.client.channels.get(packet.id);
                         if (channel) {
                             channel.update(packet.data, packet.clear);
                             this.client.emit("channel/update", channel);
@@ -292,7 +292,7 @@ export class WebSocketClient {
                     }
 
                     case "ServerUpdate": {
-                        let server = this.client.servers.get(packet.id);
+                        const server = this.client.servers.get(packet.id);
                         if (server) {
                             server.update(packet.data, packet.clear);
                             this.client.emit("server/update", server);
@@ -307,7 +307,7 @@ export class WebSocketClient {
                     }
 
                     case "ServerMemberUpdate": {
-                        let member = this.client.members.getKey(packet.id);
+                        const member = this.client.members.getKey(packet.id);
                         if (member) {
                             member.update(packet.data, packet.clear);
                             this.client.emit("member/update", member);
@@ -368,9 +368,9 @@ export class WebSocketClient {
                     }
 
                     case "ServerRoleUpdate": {
-                        let server = this.client.servers.get(packet.id);
+                        const server = this.client.servers.get(packet.id);
                         if (server) {
-                            let role = {
+                            const role = {
                                 ...server.roles?.[packet.role_id],
                                 ...packet.data,
                             } as Role;
@@ -389,9 +389,9 @@ export class WebSocketClient {
                     }
 
                     case "ServerRoleDelete": {
-                        let server = this.client.servers.get(packet.id);
+                        const server = this.client.servers.get(packet.id);
                         if (server) {
-                            let { [packet.role_id]: _, ...roles } =
+                            const { [packet.role_id]: _, ...roles } =
                                 server.roles ?? {};
                             server.roles = roles;
                             this.client.emit(
@@ -411,7 +411,7 @@ export class WebSocketClient {
                     }
 
                     case "UserRelationship": {
-                        let user = this.client.users.get(packet.user._id);
+                        const user = this.client.users.get(packet.user._id);
                         if (user) {
                             user.update({ relationship: packet.status });
                         } else {
@@ -422,8 +422,8 @@ export class WebSocketClient {
                     }
 
                     case "ChannelStartTyping": {
-                        let channel = this.client.channels.get(packet.id);
-                        let user = packet.user;
+                        const channel = this.client.channels.get(packet.id);
+                        const user = packet.user;
 
                         if (channel) {
                             channel.updateStartTyping(user);
@@ -431,7 +431,7 @@ export class WebSocketClient {
                             clearInterval(timeouts[packet.id + user]);
                             timeouts[packet.id + user] = setTimeout(() => {
                                 channel!.updateStopTyping(user);
-                            }, 3000);
+                            }, 3000) as unknown as number;
                         }
 
                         break;
@@ -462,14 +462,14 @@ export class WebSocketClient {
             };
 
             let processing = false;
-            let queue: WebSocket.MessageEvent[] = [];
+            const queue: WebSocket.MessageEvent[] = [];
             ws.onmessage = async (data) => {
                 queue.push(data);
 
                 if (!processing) {
                     processing = true;
                     while (queue.length > 0) {
-                        await handle(queue.shift() as any);
+                        await handle(queue.shift()!);
                     }
                     processing = false;
                 }

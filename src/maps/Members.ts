@@ -53,12 +53,12 @@ export class Member {
         const apply = (key: string) => {
             // This code has been tested.
             if (
-                // @ts-expect-error
+                // @ts-expect-error TODO: clean up types here
                 typeof data[key] !== "undefined" &&
-                // @ts-expect-error
+                // @ts-expect-error TODO: clean up types here
                 !isEqual(this[key], data[key])
             ) {
-                // @ts-expect-error
+                // @ts-expect-error TODO: clean up types here
                 this[key] = data[key];
             }
         };
@@ -133,7 +133,7 @@ export default class Members extends Collection<string, Member> {
     }
 
     @action $get(id: MemberCompositeKey, data?: MemberI) {
-        let member = this.getKey(id)!;
+        const member = this.getKey(id)!;
         if (data) member.update(data);
         return member;
     }
@@ -148,7 +148,7 @@ export default class Members extends Collection<string, Member> {
     createObj(data: MemberI, emit?: boolean | number) {
         if (this.hasKey(data._id)) return this.$get(data._id, data);
 
-        let member = new Member(this.client, data);
+        const member = new Member(this.client, data);
 
         runInAction(() => {
             this.setKey(data._id, member);

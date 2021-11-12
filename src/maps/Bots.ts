@@ -17,7 +17,7 @@ export default class Bots {
      * @returns Bot and User object
      */
     async fetch(id: string) {
-        let { bot, user } = await this.client.req(
+        const { bot, user } = await this.client.req(
             "GET",
             `/bots/${id}` as "/bots/id",
         );
@@ -74,7 +74,7 @@ export default class Bots {
             `/bots/@me`,
         );
 
-        let users = [];
+        const users = [];
         for (const obj of userObjects) {
             users.push(await this.client.users.fetch(obj._id, obj));
         }
@@ -91,7 +91,7 @@ export default class Bots {
         await this.client.req("PATCH", `/bots/${id}` as "/bots/id", data);
 
         if (data.name) {
-            let user = this.client.users.get(id);
+            const user = this.client.users.get(id);
             if (user) {
                 runInAction(() => {
                     user!.username = data.name!;
@@ -105,8 +105,8 @@ export default class Bots {
      * @param data Bot creation data
      */
     async create(data: Route<"POST", "/bots/create">["data"]) {
-        let bot = await this.client.req("POST", "/bots/create", data);
-        let user = await this.client.users.fetch(bot._id, {
+        const bot = await this.client.req("POST", "/bots/create", data);
+        const user = await this.client.users.fetch(bot._id, {
             _id: bot._id,
             username: data.name,
             bot: {

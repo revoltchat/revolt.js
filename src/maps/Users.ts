@@ -71,12 +71,12 @@ export class User {
         const apply = (key: string) => {
             // This code has been tested.
             if (
-                // @ts-expect-error
+                // @ts-expect-error TODO: clean up types here
                 typeof data[key] !== "undefined" &&
-                // @ts-expect-error
+                // @ts-expect-error TODO: clean up types here
                 !isEqual(this[key], data[key])
             ) {
-                // @ts-expect-error
+                // @ts-expect-error TODO: clean up types here
                 this[key] = data[key];
 
                 if (key === "relationship") {
@@ -240,7 +240,7 @@ export default class Users extends Collection<string, User> {
     }
 
     @action $get(id: string, data?: UserI) {
-        let user = this.get(id)!;
+        const user = this.get(id)!;
         if (data) user.update(data);
         return user;
     }
@@ -252,7 +252,7 @@ export default class Users extends Collection<string, User> {
      */
     async fetch(id: string, data?: UserI) {
         if (this.has(id)) return this.$get(id, data);
-        let res =
+        const res =
             data ??
             (await this.client.req("GET", `/users/${id}` as "/users/id"));
         return this.createObj(res);
@@ -266,7 +266,7 @@ export default class Users extends Collection<string, User> {
      */
     createObj(data: UserI) {
         if (this.has(data._id)) return this.$get(data._id, data);
-        let user = new User(this.client, data);
+        const user = new User(this.client, data);
 
         runInAction(() => {
             this.set(data._id, user);

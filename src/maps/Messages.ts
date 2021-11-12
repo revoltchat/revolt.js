@@ -125,16 +125,16 @@ export class Message {
         ) => {
             // This code has been tested.
             if (
-                // @ts-expect-error
+                // @ts-expect-error TODO: clean up types here
                 typeof data[key] !== "undefined" &&
-                // @ts-expect-error
+                // @ts-expect-error TODO: clean up types here
                 !isEqual(this[target ?? key], data[key])
             ) {
-                // @ts-expect-error
+                // @ts-expect-error TODO: clean up types here
                 this[target ?? key] = transform
-                    ? // @ts-expect-error
+                    ? // @ts-expect-error TODO: clean up types here
                       transform(data[key])
-                    : // @ts-expect-error
+                    : // @ts-expect-error TODO: clean up types here
                       data[key];
             }
         };
@@ -186,7 +186,7 @@ export class Message {
               }),
         mention = true,
     ) {
-        let obj = typeof data === "string" ? { content: data } : data;
+        const obj = typeof data === "string" ? { content: data } : data;
         return this.channel?.sendMessage({
             ...obj,
             replies: [{ id: this._id, mention }],
@@ -201,7 +201,7 @@ export default class Messages extends Collection<string, Message> {
     }
 
     @action $get(id: string, data?: MessageI) {
-        let msg = this.get(id)!;
+        const msg = this.get(id)!;
         if (data) msg.update(data);
         return msg;
     }
@@ -215,7 +215,7 @@ export default class Messages extends Collection<string, Message> {
      */
     createObj(data: MessageI, emit?: boolean | number) {
         if (this.has(data._id)) return this.$get(data._id);
-        let message = new Message(this.client, data);
+        const message = new Message(this.client, data);
 
         runInAction(() => {
             this.set(data._id, message);

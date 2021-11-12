@@ -8,7 +8,7 @@ config();
 // Copy and paste `.env.example` to `.env` and edit accordingly.
 
 function user() {
-    let client = new Client({
+    const client = new Client({
         apiURL: process.env.API_URL,
         debug: true,
     });
@@ -21,7 +21,7 @@ function user() {
         if (message.content === "sus") {
             message.channel!.sendMessage("sus!");
         } else if (message.content === "bot") {
-            let bot = await client.req("POST", "/bots/create", {
+            const bot = await client.req("POST", "/bots/create", {
                 name: "basedbot12",
             });
             message.channel!.sendMessage(JSON.stringify(bot));
@@ -63,7 +63,7 @@ function user() {
 }
 
 function bot() {
-    let client = new Client({
+    const client = new Client({
         apiURL: process.env.API_URL,
     });
 

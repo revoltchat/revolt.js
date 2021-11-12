@@ -158,7 +158,7 @@ export class Client extends EventEmitter {
         }
 
         this.on("message", async (message) => {
-            let channel = message.channel;
+            const channel = message.channel;
             if (!channel) return;
             if (channel.channel_type === "DirectMessage") {
                 channel.active = true;
@@ -210,7 +210,7 @@ export class Client extends EventEmitter {
         url: T,
         data?: Route<M, T>["data"],
     ): Promise<Route<M, T>["response"]> {
-        let res = await this.Axios.request({
+        const res = await this.Axios.request({
             method,
             data,
             url,
@@ -231,7 +231,7 @@ export class Client extends EventEmitter {
         url: T,
         data: AxiosRequestConfig,
     ): Promise<Route<M, T>["response"]> {
-        let res = await this.Axios.request({
+        const res = await this.Axios.request({
             ...data,
             method,
             url,
@@ -313,7 +313,7 @@ export class Client extends EventEmitter {
     // Check onboarding status and connect to notifications service.
     private async $connect() {
         this.Axios.defaults.headers = this.$generateHeaders();
-        let { onboarding } = await this.req("GET", "/onboard/hello");
+        const { onboarding } = await this.req("GET", "/onboard/hello");
         if (onboarding) {
             return (username: string, loginAfterSuccess?: boolean) =>
                 this.completeOnboarding({ username }, loginAfterSuccess);
@@ -385,14 +385,14 @@ export class Client extends EventEmitter {
         data: { [key: string]: object | string },
         timestamp?: number,
     ) {
-        let requestData: { [key: string]: string } = {};
-        for (let key of Object.keys(data)) {
-            let value = data[key];
+        const requestData: { [key: string]: string } = {};
+        for (const key of Object.keys(data)) {
+            const value = data[key];
             requestData[key] =
                 typeof value === "string" ? value : JSON.stringify(value);
         }
 
-        let query = timestamp ? `?timestamp=${timestamp}` : "";
+        const query = timestamp ? `?timestamp=${timestamp}` : "";
         await this.req(
             "POST",
             `/sync/settings/set${query}` as "/sync/settings/set",
@@ -453,9 +453,8 @@ export class Client extends EventEmitter {
      */
     markdownToText(source: string) {
         return source
-            .replace(RE_MENTIONS, (sub: string, ...args: any[]) => {
-                const id = args[0],
-                    user = this.users.get(id);
+            .replace(RE_MENTIONS, (sub: string, id: string) => {
+                const user = this.users.get(id as string);
 
                 if (user) {
                     return `@${user.username}`;
@@ -493,11 +492,11 @@ export class Client extends EventEmitter {
     ) {
         const [options, allowAnimation, fallback] = args;
 
-        let autumn = this.configuration?.features.autumn;
+        const autumn = this.configuration?.features.autumn;
         if (!autumn?.enabled) return fallback;
         if (!attachment) return fallback;
 
-        let { tag, _id, content_type } = attachment;
+        const { tag, _id, content_type } = attachment;
 
         let query = "";
         if (options) {
@@ -505,7 +504,7 @@ export class Client extends EventEmitter {
                 query =
                     "?" +
                     Object.keys(options)
-                        .map((k) => `${k}=${(options as any)[k]}`)
+                        .map((k) => `${k}=${options[k as keyof SizeOptions]}`)
                         .join("&");
             }
         }

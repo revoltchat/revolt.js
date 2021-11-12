@@ -301,14 +301,14 @@ type Routes =
           method: "GET";
           route: `/users/${Id}/avatar`;
           data: undefined;
-          response: any;
+          response: unknown;
       }
     | {
           // Fetch default avatar for user.
           method: "GET";
           route: `/users/${Id}/default_avatar`;
           data: undefined;
-          response: any;
+          response: unknown;
       }
     /**
      * Channels
@@ -837,8 +837,3 @@ export type Route<
     M extends RouteMethod,
     T extends RoutePath,
 > = ExtractMethodParameters<ExtractRouteParameters<Routes, T>, M>;
-
-declare function dispatch<T extends RoutePath>(
-    type: T,
-    args: ExtractRouteParameters<Routes, T>,
-): void;

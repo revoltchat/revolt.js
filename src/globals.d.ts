@@ -1,1 +1,1 @@
-type Tail<T extends any[]> = T extends [infer A, ...infer R] ? R : never;
+type Tail<T extends unknown[]> = T extends [infer _A, ...infer R] ? R : never;

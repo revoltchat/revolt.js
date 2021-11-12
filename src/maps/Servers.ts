@@ -81,12 +81,12 @@ export class Server {
         const apply = (key: string, target?: string) => {
             // This code has been tested.
             if (
-                // @ts-expect-error
+                // @ts-expect-error TODO: clean up types here
                 typeof data[key] !== "undefined" &&
-                // @ts-expect-error
+                // @ts-expect-error TODO: clean up types here
                 !isEqual(this[target ?? key], data[key])
             ) {
-                // @ts-expect-error
+                // @ts-expect-error TODO: clean up types here
                 this[target ?? key] = data[key];
             }
         };
@@ -221,7 +221,7 @@ export class Server {
      * @param permissions Permission number, removes permission if unset
      */
     async setPermissions(
-        role_id: string = "default",
+        role_id = "default",
         permissions?: { server: number; channel: number },
     ) {
         return await this.client.req(
@@ -295,7 +295,7 @@ export class Server {
      * @returns An array of the server's members and their user objects.
      */
     async fetchMembers() {
-        let data = await this.client.req(
+        const data = await this.client.req(
             "GET",
             `/servers/${this._id}/members` as "/servers/id/members",
         );
@@ -319,7 +319,7 @@ export class Server {
         if (this.owner === this.client.user?._id) {
             return U32_MAX;
         } else {
-            let member = this.client.members.getKey({
+            const member = this.client.members.getKey({
                 user: this.client.user!._id,
                 server: this._id,
             }) ?? { roles: null };
@@ -328,7 +328,7 @@ export class Server {
 
             let perm = this.default_permissions[0] >>> 0;
             if (member.roles) {
-                for (let role of member.roles) {
+                for (const role of member.roles) {
                     perm |= (this.roles?.[role].permissions[0] ?? 0) >>> 0;
                 }
             }
@@ -345,7 +345,7 @@ export default class Servers extends Collection<string, Server> {
     }
 
     @action $get(id: string, data?: ServerI) {
-        let server = this.get(id)!;
+        const server = this.get(id)!;
         if (data) server.update(data);
         return server;
     }
@@ -357,12 +357,12 @@ export default class Servers extends Collection<string, Server> {
      */
     async fetch(id: string, data?: ServerI) {
         if (this.has(id)) return this.$get(id, data);
-        let res =
+        const res =
             data ??
             (await this.client.req("GET", `/servers/${id}` as "/servers/id"));
 
         return runInAction(async () => {
-            for (let channel of res.channels) {
+            for (const channel of res.channels) {
                 // ! FIXME: add route for fetching all channels
                 // ! FIXME: OR the WHOLE server
                 try {
@@ -383,7 +383,7 @@ export default class Servers extends Collection<string, Server> {
      */
     createObj(data: ServerI) {
         if (this.has(data._id)) return this.$get(data._id, data);
-        let server = new Server(this.client, data);
+        const server = new Server(this.client, data);
 
         runInAction(() => {
             this.set(data._id, server);
@@ -398,7 +398,7 @@ export default class Servers extends Collection<string, Server> {
      * @returns The newly-created server
      */
     async createServer(data: Route<"POST", "/servers/create">["data"]) {
-        let server = await this.client.req("POST", `/servers/create`, data);
+        const server = await this.client.req("POST", `/servers/create`, data);
         return this.fetch(server._id, server);
     }
 }
