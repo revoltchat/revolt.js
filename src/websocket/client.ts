@@ -158,14 +158,39 @@ export class WebSocketClient {
 
                         if (this.client.heartbeat > 0) {
                             this.send({ type: "Ping", data: +new Date() });
-                            this.heartbeat = setInterval(
-                                () =>
-                                    this.send({
-                                        type: "Ping",
-                                        data: +new Date(),
-                                    }),
-                                this.client.heartbeat * 1e3,
-                            ) as unknown as number;
+                            this.heartbeat = setInterval(() => {
+                                this.send({
+                                    type: "Ping",
+                                    data: +new Date(),
+                                });
+
+                                if (this.client.options.pongTimeout) {
+                                    let pongReceived = false;
+
+                                    this.client.once("packet", (p) => {
+                                        if (p.type == "Pong")
+                                            pongReceived = true;
+                                    });
+
+                                    setTimeout(() => {
+                                        if (!pongReceived) {
+                                            if (
+                                                this.client.options
+                                                    .onPongTimeout == "EXIT"
+                                            ) {
+                                                throw "Client did not receive a pong in time";
+                                            } else {
+                                                console.warn(
+                                                    "Warning: Client did not receive a pong in time; Reconnecting.",
+                                                );
+
+                                                this.disconnect();
+                                                this.connect(disallowReconnect);
+                                            }
+                                        }
+                                    }, this.client.options.pongTimeout * 1000);
+                                }
+                            }, this.client.heartbeat * 1e3) as unknown as number;
                         }
 
                         break;
