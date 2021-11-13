@@ -47,8 +47,13 @@ export type ClientboundNotification =
     | { type: "Authenticated" }
     | ReadyPacket
     | ({ type: "Message" } & Message)
-    | { type: "MessageUpdate"; id: string; data: Partial<Message> }
-    | { type: "MessageDelete"; id: string }
+    | {
+          type: "MessageUpdate";
+          id: string;
+          data: Partial<Message>;
+          channel: string;
+      }
+    | { type: "MessageDelete"; id: string; channel: string }
     | ({ type: "ChannelCreate" } & Channel)
     | {
           type: "ChannelUpdate";
