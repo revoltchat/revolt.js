@@ -1,7 +1,7 @@
 import Axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 import { EventEmitter } from "eventemitter3";
 import defaultsDeep from "lodash.defaultsdeep";
-import { makeObservable, observable } from "mobx";
+import { action, makeObservable, observable } from "mobx";
 import type { Session } from "revolt-api/types/Auth";
 import type { SizeOptions } from "revolt-api/types/Autumn";
 import type { RevoltConfiguration } from "revolt-api/types/Core";
@@ -127,6 +127,7 @@ export class Client extends EventEmitter {
                 servers: observable,
                 members: observable,
                 messages: observable,
+                reset: action,
             },
             {
                 proxy: false,
@@ -426,8 +427,8 @@ export class Client extends EventEmitter {
      * Log out of Revolt. Disconnect the WebSocket, request a session invalidation and reset the client.
      */
     async logout(avoidRequest?: boolean) {
+        this.user = null;
         this.emit("logout");
-        this.websocket.disconnect();
         !avoidRequest && (await this.req("POST", "/auth/session/logout"));
         this.reset();
     }
@@ -437,8 +438,8 @@ export class Client extends EventEmitter {
      * Disconnects the current WebSocket.
      */
     reset() {
-        this.websocket.disconnect();
         this.user = null;
+        this.websocket.disconnect();
         delete this.session;
 
         this.users = new Users(this);
