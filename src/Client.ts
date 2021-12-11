@@ -20,6 +20,7 @@ import { WebSocketClient } from "./websocket/client";
 import { ClientboundNotification } from "./websocket/notifications";
 
 import { defaultConfig } from "./config";
+import { Nullable } from "./util/null";
 
 /**
  * Client options object
@@ -92,7 +93,7 @@ export class Client extends EventEmitter {
     heartbeat: number;
 
     session?: Session | string;
-    user?: User;
+    user: Nullable<User> = null;
 
     options: ClientOptions;
     websocket: WebSocketClient;
@@ -276,6 +277,10 @@ export class Client extends EventEmitter {
         }
     }
 
+    private $updateHeaders() {
+        this.Axios.defaults.headers = this.$generateHeaders();
+    }
+
     /**
      * Log in with auth data, creating a new session in the process.
      * @param details Login data object
@@ -306,13 +311,16 @@ export class Client extends EventEmitter {
     async loginBot(token: string) {
         await this.fetchConfiguration();
         this.session = token;
-        this.Axios.defaults.headers = this.$generateHeaders();
+        this.$updateHeaders();
         return await this.websocket.connect();
     }
 
-    // Check onboarding status and connect to notifications service.
+    /**
+     * Check onboarding status and connect to notifications service.
+     * @returns
+     */
     private async $connect() {
-        this.Axios.defaults.headers = this.$generateHeaders();
+        this.$updateHeaders();
         const { onboarding } = await this.req("GET", "/onboard/hello");
         if (onboarding) {
             return (username: string, loginAfterSuccess?: boolean) =>
@@ -333,7 +341,7 @@ export class Client extends EventEmitter {
     ) {
         await this.req("POST", "/onboard/complete", data);
         if (loginAfterSuccess) {
-            await this.$connect();
+            await this.websocket.connect();
         }
     }
 
@@ -413,7 +421,7 @@ export class Client extends EventEmitter {
      */
 
     /**
-     * Log out of REVOLT. Disconnect the WebSocket, request a session invalidation and reset the client.
+     * Log out of Revolt. Disconnect the WebSocket, request a session invalidation and reset the client.
      */
     async logout() {
         this.websocket.disconnect();
@@ -427,7 +435,7 @@ export class Client extends EventEmitter {
      */
     reset() {
         this.websocket.disconnect();
-        delete this.user;
+        this.user = null;
         delete this.session;
 
         this.users = new Users(this);

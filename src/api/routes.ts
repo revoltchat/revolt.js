@@ -1,4 +1,4 @@
-import { Account, SessionInfo } from "revolt-api/types/Auth";
+import { Account, Session, SessionInfo } from "revolt-api/types/Auth";
 import type { Bot, PublicBot } from "revolt-api/types/Bots";
 import type {
     Channel,
@@ -130,7 +130,7 @@ type Routes =
               friendly_name?: string;
               captcha?: string;
           };
-          response: undefined;
+          response: Session;
       }
     | {
           method: "POST";
