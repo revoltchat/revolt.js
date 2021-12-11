@@ -120,6 +120,7 @@ export class Client extends EventEmitter {
         makeObservable(
             this,
             {
+                user: observable,
                 users: observable,
                 channels: observable,
                 servers: observable,
