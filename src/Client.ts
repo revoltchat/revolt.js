@@ -426,10 +426,10 @@ export class Client extends EventEmitter {
      * Log out of Revolt. Disconnect the WebSocket, request a session invalidation and reset the client.
      */
     async logout(avoidRequest?: boolean) {
+        this.emit("logout");
         this.websocket.disconnect();
         !avoidRequest && (await this.req("POST", "/auth/session/logout"));
         this.reset();
-        this.emit("logout");
     }
 
     /**
