@@ -41,6 +41,7 @@ export declare interface Client {
     on(event: "connecting", listener: () => void): this;
     on(event: "dropped", listener: () => void): this;
     on(event: "ready", listener: () => void): this;
+    on(event: "logout", listener: () => void): this;
     on(
         event: "packet",
         listener: (packet: ClientboundNotification) => void,
@@ -424,10 +425,11 @@ export class Client extends EventEmitter {
     /**
      * Log out of Revolt. Disconnect the WebSocket, request a session invalidation and reset the client.
      */
-    async logout() {
+    async logout(avoidRequest?: boolean) {
         this.websocket.disconnect();
-        await this.req("POST", "/auth/session/logout");
+        !avoidRequest && (await this.req("POST", "/auth/session/logout"));
         this.reset();
+        this.emit("logout");
     }
 
     /**
