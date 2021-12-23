@@ -1,7 +1,7 @@
 import Axios, { AxiosInstance, AxiosRequestConfig } from "axios";
-import { EventEmitter } from "eventemitter3";
+import EventEmitter from "eventemitter3";
 import defaultsDeep from "lodash.defaultsdeep";
-import { action, makeObservable, observable } from "mobx";
+import { action, makeObservable, observable, runInAction } from "mobx";
 import type { Session } from "revolt-api/types/Auth";
 import type { SizeOptions } from "revolt-api/types/Autumn";
 import type { RevoltConfiguration } from "revolt-api/types/Core";
@@ -21,6 +21,7 @@ import { ClientboundNotification } from "./websocket/notifications";
 
 import { defaultConfig } from "./config";
 import { Nullable } from "./util/null";
+import Unreads from "./util/Unreads";
 
 /**
  * Client options object
@@ -28,7 +29,9 @@ import { Nullable } from "./util/null";
 export interface ClientOptions {
     apiURL: string;
     debug: boolean;
+
     cache: boolean;
+    unreads: boolean;
 
     heartbeat: number;
     autoReconnect: boolean;
@@ -108,6 +111,8 @@ export class Client extends EventEmitter {
     messages: Messages;
     bots: Bots;
 
+    unreads?: Unreads;
+
     constructor(options: Partial<ClientOptions> = {}) {
         super();
 
@@ -137,6 +142,10 @@ export class Client extends EventEmitter {
         this.options = defaultsDeep(options, defaultConfig);
         if (this.options.cache) throw "Cache is not supported yet.";
 
+        if (this.options.unreads) {
+            this.unreads = new Unreads(this);
+        }
+
         this.Axios = Axios.create({ baseURL: this.apiURL });
         this.websocket = new WebSocketClient(this);
         this.heartbeat = this.options.heartbeat;
@@ -161,14 +170,23 @@ export class Client extends EventEmitter {
             });
         }
 
+        this.on("ready", () => {
+            if (this.options.unreads) {
+                this.unreads!.sync();
+            }
+        });
+
         this.on("message", async (message) => {
             const channel = message.channel;
             if (!channel) return;
-            if (channel.channel_type === "DirectMessage") {
-                channel.active = true;
-            }
 
-            channel.last_message_id = message._id;
+            runInAction(() => {
+                if (channel.channel_type === "DirectMessage") {
+                    channel.active = true;
+                }
+
+                channel.last_message_id = message._id;
+            });
         });
     }
 

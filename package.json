@@ -1,6 +1,7 @@
 {
+    "type": "module",
     "name": "revolt.js",
-    "version": "5.1.0-alpha.15",
+    "version": "5.2.0",
     "main": "dist/index.js",
     "repository": "https://github.com/revoltchat/revolt.js",
     "author": "Paul Makles <insrt.uk>",
@@ -11,6 +12,7 @@
         "exponential-backoff": "^3.1.0",
         "isomorphic-ws": "^4.0.1",
         "lodash.defaultsdeep": "^4.6.1",
+        "lodash.flatten": "^4.4.0",
         "lodash.isequal": "^4.5.0",
         "mobx": "^6.3.2",
         "revolt-api": "^0.5.3-alpha.9",
@@ -21,6 +23,7 @@
         "@types/events": "^3.0.0",
         "@types/lodash": "^4.14.168",
         "@types/lodash.defaultsdeep": "^4.6.6",
+        "@types/lodash.flatten": "^4.4.6",
         "@types/lodash.isequal": "^4.5.5",
         "@types/node": "^14.14.31",
         "@types/ws": "^7.2.1",
@@ -28,6 +31,7 @@
         "@typescript-eslint/parser": "^5.3.1",
         "dotenv": "^8.2.0",
         "eslint": "^8.2.0",
+        "esm": "^3.2.25",
         "gulp": "^4.0.2",
         "gulp-typedoc": "^3.0.1",
         "in-publish": "^2.0.1",
@@ -68,7 +72,7 @@
         }
     },
     "scripts": {
-        "dev": "tsc-watch --onSuccess \"node dist/tester\"",
+        "dev": "tsc-watch --onSuccess \"node --experimental-specifier-resolution=node dist/tester\"",
         "prepublish": "in-publish && tsc || echo Skipping build.",
         "build": "rimraf dist && tsc",
         "build:watch": "tsc-watch",

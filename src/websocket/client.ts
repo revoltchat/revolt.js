@@ -445,8 +445,13 @@ export class WebSocketClient {
                         break;
                     }
 
-                    case "ChannelAck":
+                    case "ChannelAck": {
+                        this.client.unreads?.markRead(
+                            packet.id,
+                            packet.message_id,
+                        );
                         break;
+                    }
 
                     case "Pong": {
                         this.ping = +new Date() - packet.data;

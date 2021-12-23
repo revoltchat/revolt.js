@@ -5,7 +5,9 @@ export const defaultConfig = {
     autoReconnect: true,
     heartbeat: 30,
     debug: false,
+
     cache: false,
+    unreads: false,
 
     ackRateLimiter: true,
 };

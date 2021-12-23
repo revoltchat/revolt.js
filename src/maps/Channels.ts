@@ -20,6 +20,7 @@ import {
     U32_MAX,
     UserPermission,
 } from "../api/permissions";
+import { INotificationChecker } from "../util/Unreads";
 
 export class Channel {
     client: Client;
@@ -147,6 +148,13 @@ export class Channel {
     }
 
     /**
+     * Get the last message ID if it is present or the origin timestamp.
+     */
+    get last_message_id_or_past() {
+        return this.last_message_id ?? "0";
+    }
+
+    /**
      * Group recipients.
      * @requires `Group`
      */
@@ -168,6 +176,40 @@ export class Channel {
      */
     get createdAt() {
         return decodeTime(this._id);
+    }
+
+    @computed isUnread(permit: INotificationChecker) {
+        if (permit.isMuted(this)) return false;
+        return this.unread;
+    }
+
+    @computed getMentions(permit: INotificationChecker) {
+        if (permit.isMuted(this)) return [];
+        return this.mentions;
+    }
+
+    /**
+     * Get whether this channel is unread.
+     */
+    get unread() {
+        if (!this.last_message_id
+            || this.channel_type === 'SavedMessages'
+            || this.channel_type === 'VoiceChannel') return false;
+        
+        return (
+            (
+                this.client.unreads?.getUnread(this._id)?.last_id ?? "0"
+            ).localeCompare(this.last_message_id) === -1
+        );
+    }
+
+    /**
+     * Get mentions in this channel for user.
+     */
+    get mentions() {
+        if (this.channel_type === 'SavedMessages'
+            || this.channel_type === 'VoiceChannel') return [];
+        return this.client.unreads?.getUnread(this._id)?.mentions ?? [];
     }
 
     constructor(client: Client, data: ChannelI) {

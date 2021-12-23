@@ -17,6 +17,7 @@ import Collection from "./Collection";
 import { User } from "./Users";
 import { Client, FileArgs } from "..";
 import { decodeTime } from "ulid";
+import { INotificationChecker } from "../util/Unreads";
 
 export class Server {
     client: Client;
@@ -48,6 +49,21 @@ export class Server {
      */
     get createdAt() {
         return decodeTime(this._id);
+    }
+
+    @computed isUnread(permit?: INotificationChecker) {
+        if (permit?.isMuted(this)) return false;
+        return this.channels.find((channel) =>
+            !permit?.isMuted(channel) && channel?.unread);
+    }
+
+    @computed getMentions(permit?: INotificationChecker) {
+        if (permit?.isMuted(this)) return [];
+        const arr = this.channels
+            .filter(channel => !permit?.isMuted(channel))
+            .map((channel) => channel?.mentions) as string[][];
+
+        return arr[0].concat(...arr.slice(1));
     }
 
     constructor(client: Client, data: ServerI) {

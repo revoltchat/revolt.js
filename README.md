@@ -2,11 +2,13 @@
 
 ![revolt.js](https://img.shields.io/npm/v/revolt.js) ![revolt-api](https://img.shields.io/npm/v/revolt-api?label=Revolt%20API)
 
-**revolt.js** is a direct implementation of the entire Revolt API and provides a way to authenticate and start communicating with Revolt servers.
+**revolt.js** is a direct implementation of the entire Revolt API and provides a way to authenticate and start communicating with Revolt servers. **This is an ESM library!**
 
 ## Example Usage
 
 ```typescript
+import { Client } from "revolt.js";
+
 let client = new Client();
 
 client.on("ready", async () =>
