@@ -169,25 +169,6 @@ export class Client extends EventEmitter {
                 return response;
             });
         }
-
-        this.on("ready", () => {
-            if (this.options.unreads) {
-                this.unreads!.sync();
-            }
-        });
-
-        this.on("message", async (message) => {
-            const channel = message.channel;
-            if (!channel) return;
-
-            runInAction(() => {
-                if (channel.channel_type === "DirectMessage") {
-                    channel.active = true;
-                }
-
-                channel.last_message_id = message._id;
-            });
-        });
     }
 
     /**

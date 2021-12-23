@@ -156,6 +156,10 @@ export class WebSocketClient {
                         this.ready = true;
                         resolve();
 
+                        // Sync unreads.
+                        this.client.unreads?.sync();
+
+                        // Setup heartbeat.
                         if (this.client.heartbeat > 0) {
                             this.send({ type: "Ping", data: +new Date() });
                             this.heartbeat = setInterval(
@@ -212,6 +216,7 @@ export class WebSocketClient {
                             const channel = await this.client.channels.fetch(
                                 packet.channel,
                             );
+
                             if (channel.channel_type === "TextChannel") {
                                 const server = await this.client.servers.fetch(
                                     channel.server_id!,
@@ -223,7 +228,20 @@ export class WebSocketClient {
                                     await server.fetchMember(packet.author);
                             }
 
-                            this.client.messages.createObj(packet, true);
+                            const message = this.client.messages.createObj(packet, true);
+
+                            runInAction(() => {
+                                if (channel.channel_type === "DirectMessage") {
+                                    channel.active = true;
+                                }
+
+                                channel.last_message_id = message._id;
+
+                                if (this.client.unreads &&
+                                    message.mention_ids?.includes(this.client.user!._id)) {
+                                    this.client.unreads.markMention(message.channel_id, message._id);
+                                }
+                            });
                         }
                         break;
                     }
