@@ -1,7 +1,7 @@
 {
     "type": "module",
     "name": "revolt.js",
-    "version": "5.2.1-patch.0",
+    "version": "5.2.1-patch.1",
     "main": "dist/index.js",
     "repository": "https://github.com/revoltchat/revolt.js",
     "author": "Paul Makles <insrt.uk>",
@@ -9,7 +9,7 @@
     "dependencies": {
         "axios": "^0.21.4",
         "eventemitter3": "^4.0.7",
-        "exponential-backoff": "^3.1.0",
+        "exponential-backoff": "npm:@insertish/exponential-backoff",
         "isomorphic-ws": "npm:@insertish/isomorphic-ws",
         "lodash.defaultsdeep": "^4.6.1",
         "lodash.flatten": "^4.4.0",
@@ -31,7 +31,6 @@
         "@typescript-eslint/parser": "^5.3.1",
         "dotenv": "^8.2.0",
         "eslint": "^8.2.0",
-        "esm": "^3.2.25",
         "gulp": "^4.0.2",
         "gulp-typedoc": "^3.0.1",
         "in-publish": "^2.0.1",
