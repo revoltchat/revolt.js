@@ -1,7 +1,7 @@
 {
     "type": "module",
     "name": "revolt.js",
-    "version": "5.2.1",
+    "version": "5.2.1-patch.0",
     "main": "dist/index.js",
     "repository": "https://github.com/revoltchat/revolt.js",
     "author": "Paul Makles <insrt.uk>",
@@ -10,7 +10,7 @@
         "axios": "^0.21.4",
         "eventemitter3": "^4.0.7",
         "exponential-backoff": "^3.1.0",
-        "isomorphic-ws": "^4.0.1",
+        "isomorphic-ws": "npm:@insertish/isomorphic-ws",
         "lodash.defaultsdeep": "^4.6.1",
         "lodash.flatten": "^4.4.0",
         "lodash.isequal": "^4.5.0",
