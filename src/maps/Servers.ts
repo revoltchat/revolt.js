@@ -63,7 +63,7 @@ export class Server {
             .filter(channel => !permit?.isMuted(channel))
             .map((channel) => channel?.mentions) as string[][];
 
-        return arr[0].concat(...arr.slice(1));
+        return ([] as string[]).concat(...arr);
     }
 
     constructor(client: Client, data: ServerI) {
