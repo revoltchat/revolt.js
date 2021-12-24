@@ -1,4 +1,4 @@
-import { backOff } from "@insertish/exponential-backoff";
+import ExpBackoff from "@insertish/exponential-backoff";
 import WebSocket from "@insertish/isomorphic-ws";
 import { runInAction } from "mobx";
 import { Role } from "revolt-api/types/Servers";
@@ -521,7 +521,7 @@ export class WebSocketClient {
                 });
 
                 if (!disallowReconnect && this.client.autoReconnect) {
-                    backOff(() => this.connect(true)).catch(reject);
+                    ExpBackoff.backOff(() => this.connect(true)).catch(reject);
                 }
             };
         });
