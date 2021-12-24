@@ -1,5 +1,5 @@
-import { backOff } from "exponential-backoff";
-import WebSocket from "isomorphic-ws";
+import { backOff } from "@insertish/exponential-backoff";
+import WebSocket from "@insertish/isomorphic-ws";
 import { runInAction } from "mobx";
 import { Role } from "revolt-api/types/Servers";
 

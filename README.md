@@ -24,6 +24,10 @@ client.on("message", async (message) => {
 client.loginBot("..");
 ```
 
+If you are using Node, you must specify `--experimental-specifier-resolution=node`.
+
+For example, `node --experimental-specifier-resolution=node index.js`.
+
 ## MobX
 
 MobX is used behind the scenes so you can subscribe to any change as you normally would, e.g. with `mobx-react(-lite)` or mobx's utility functions.
