@@ -1,7 +1,7 @@
 import Axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 import EventEmitter from "eventemitter3";
 import defaultsDeep from "lodash.defaultsdeep";
-import { action, makeObservable, observable, runInAction } from "mobx";
+import { action, makeObservable, observable } from "mobx";
 import type { Session } from "revolt-api/types/Auth";
 import type { SizeOptions } from "revolt-api/types/Autumn";
 import type { RevoltConfiguration } from "revolt-api/types/Core";

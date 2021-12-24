@@ -1,4 +1,4 @@
-export const LIBRARY_VERSION = "5.2.1-patch.5";
+export const LIBRARY_VERSION = "5.2.1-patch.6";
 
 export const defaultConfig = {
     apiURL: "https://api.revolt.chat",
