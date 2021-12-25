@@ -3,7 +3,7 @@ import EventEmitter from "eventemitter3";
 import defaultsDeep from "lodash.defaultsdeep";
 import { action, makeObservable, observable } from "mobx";
 import type { Session } from "revolt-api/types/Auth";
-import type { SizeOptions } from "revolt-api/types/Autumn";
+import type { Attachment, AttachmentMetadata, SizeOptions } from "revolt-api/types/Autumn";
 import type { RevoltConfiguration } from "revolt-api/types/Core";
 import { MemberCompositeKey, Role } from "revolt-api/types/Servers";
 
@@ -498,7 +498,7 @@ export class Client extends EventEmitter {
      * @returns Generated URL or nothing
      */
     generateFileURL(
-        attachment?: { tag: string; _id: string; content_type?: string },
+        attachment?: { tag: string; _id: string; content_type?: string, metadata?: AttachmentMetadata },
         ...args: FileArgs
     ) {
         const [options, allowAnimation, fallback] = args;
@@ -507,7 +507,15 @@ export class Client extends EventEmitter {
         if (!autumn?.enabled) return fallback;
         if (!attachment) return fallback;
 
-        const { tag, _id, content_type } = attachment;
+        const { tag, _id, content_type, metadata } = attachment;
+
+        // ! FIXME: These limits should be done on Autumn.
+        if (metadata?.type === 'Image') {
+            if (Math.min(metadata.width, metadata.height) <= 0 || 
+                (content_type === "image/gif"
+                && Math.max(metadata.width, metadata.height) >= 1024))
+                return fallback;
+        }
 
         let query = "";
         if (options) {
