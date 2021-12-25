@@ -4,7 +4,31 @@
 
 **revolt.js** is a direct implementation of the entire Revolt API and provides a way to authenticate and start communicating with Revolt servers. **This is an ESM library!**
 
-## Example Usage
+## Example Usage (Javascript / ES6)
+
+```javascript
+import { Client } from "revolt.js";
+
+let client = new Client();
+
+client.on("ready", async () =>
+    console.info(`Logged in as ${client.user.username}!`),
+);
+
+client.on("message", async (message) => {
+    if (message.content === "hello") {
+        message.channel.sendMessage("world");
+    }
+});
+
+client.loginBot("..");
+```
+
+If you are using Node, you must specify `--experimental-specifier-resolution=node`.
+
+For example, `node --experimental-specifier-resolution=node index.js`.
+
+## Example Usage (Typescript)
 
 ```typescript
 import { Client } from "revolt.js";
@@ -16,17 +40,13 @@ client.on("ready", async () =>
 );
 
 client.on("message", async (message) => {
-    if (message.content === "sus") {
-        message.channel!.sendMessage("sus!");
+    if (message.content === "hello") {
+        message.channel!.sendMessage("world");
     }
 });
 
 client.loginBot("..");
 ```
-
-If you are using Node, you must specify `--experimental-specifier-resolution=node`.
-
-For example, `node --experimental-specifier-resolution=node index.js`.
 
 ## MobX
 
