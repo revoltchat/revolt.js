@@ -1,5 +1,5 @@
-const { task, src } = require('gulp');
-const typedoc = require('gulp-typedoc');
+import { task, src } from 'gulp';
+import typedoc from 'gulp-typedoc';
 
 task("typedoc", () =>
 	src(["src/**/*.ts"])
