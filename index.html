@@ -62,31 +62,46 @@
 					<h1>revolt.js</h1>
 				</a>
 				<p><img src="https://img.shields.io/npm/v/revolt.js" alt="revolt.js"> <img src="https://img.shields.io/npm/v/revolt-api?label=Revolt%20API" alt="revolt-api"></p>
-				<p><strong>revolt.js</strong> is a direct implementation of the entire Revolt API and provides a way to authenticate and start communicating with Revolt servers.</p>
-				<a href="#example-usage" id="example-usage" style="color: inherit; text-decoration: none;">
-					<h2>Example Usage</h2>
+				<p><strong>revolt.js</strong> is a direct implementation of the entire Revolt API and provides a way to authenticate and start communicating with Revolt servers. <strong>This is an ESM library!</strong></p>
+				<a href="#example-usage-javascript--es6" id="example-usage-javascript--es6" style="color: inherit; text-decoration: none;">
+					<h2>Example Usage (Javascript / ES6)</h2>
 				</a>
-				<pre><code class="language-typescript"><span style="color: #0000FF">let</span><span style="color: #000000"> </span><span style="color: #001080">client</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Client</span><span style="color: #000000">();</span>
+				<pre><code class="language-javascript"><span style="color: #AF00DB">import</span><span style="color: #000000"> { </span><span style="color: #001080">Client</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;revolt.js&quot;</span><span style="color: #000000">;</span>
 
-<span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">on</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;ready&#039;</span><span style="color: #000000">, </span><span style="color: #0000FF">async</span><span style="color: #000000"> () </span><span style="color: #0000FF">=&gt;</span>
-<span style="color: #000000">    </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">info</span><span style="color: #000000">(</span><span style="color: #A31515">`Logged in as </span><span style="color: #0000FF">${</span><span style="color: #001080">client</span><span style="color: #000000FF">.</span><span style="color: #001080">user</span><span style="color: #000000">!</span><span style="color: #000000FF">.</span><span style="color: #001080">username</span><span style="color: #0000FF">}</span><span style="color: #A31515">!`</span><span style="color: #000000">)</span>
+<span style="color: #0000FF">let</span><span style="color: #000000"> </span><span style="color: #001080">client</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Client</span><span style="color: #000000">();</span>
+
+<span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">on</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;ready&quot;</span><span style="color: #000000">, </span><span style="color: #0000FF">async</span><span style="color: #000000"> () </span><span style="color: #0000FF">=&gt;</span>
+<span style="color: #000000">    </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">info</span><span style="color: #000000">(</span><span style="color: #A31515">`Logged in as </span><span style="color: #0000FF">${</span><span style="color: #001080">client</span><span style="color: #000000FF">.</span><span style="color: #001080">user</span><span style="color: #000000FF">.</span><span style="color: #001080">username</span><span style="color: #0000FF">}</span><span style="color: #A31515">!`</span><span style="color: #000000">),</span>
 <span style="color: #000000">);</span>
 
-<span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">on</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;message&#039;</span><span style="color: #000000">, </span><span style="color: #0000FF">async</span><span style="color: #000000"> </span><span style="color: #001080">message</span><span style="color: #000000"> </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
-<span style="color: #000000">    </span><span style="color: #AF00DB">if</span><span style="color: #000000"> (</span><span style="color: #001080">message</span><span style="color: #000000">.</span><span style="color: #001080">content</span><span style="color: #000000"> === </span><span style="color: #A31515">&#039;sus&#039;</span><span style="color: #000000">) {</span>
-<span style="color: #000000">        </span><span style="color: #001080">message</span><span style="color: #000000">.</span><span style="color: #001080">channel</span><span style="color: #000000">!.</span><span style="color: #795E26">sendMessage</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;sus!&#039;</span><span style="color: #000000">);</span>
+<span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">on</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;message&quot;</span><span style="color: #000000">, </span><span style="color: #0000FF">async</span><span style="color: #000000"> (</span><span style="color: #001080">message</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">    </span><span style="color: #AF00DB">if</span><span style="color: #000000"> (</span><span style="color: #001080">message</span><span style="color: #000000">.</span><span style="color: #001080">content</span><span style="color: #000000"> === </span><span style="color: #A31515">&quot;hello&quot;</span><span style="color: #000000">) {</span>
+<span style="color: #000000">        </span><span style="color: #001080">message</span><span style="color: #000000">.</span><span style="color: #001080">channel</span><span style="color: #000000">.</span><span style="color: #795E26">sendMessage</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;world&quot;</span><span style="color: #000000">);</span>
 <span style="color: #000000">    }</span>
 <span style="color: #000000">});</span>
 
-<span style="color: #008000">// To login as a bot:</span>
-<span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">loginBot</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;..&#039;</span><span style="color: #000000">);</span>
+<span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">loginBot</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;..&quot;</span><span style="color: #000000">);</span>
+</code></pre>
+				<p>If you are using Node, you must specify <code>--experimental-specifier-resolution=node</code>.</p>
+				<p>For example, <code>node --experimental-specifier-resolution=node index.js</code>.</p>
+				<a href="#example-usage-typescript" id="example-usage-typescript" style="color: inherit; text-decoration: none;">
+					<h2>Example Usage (Typescript)</h2>
+				</a>
+				<pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> { </span><span style="color: #001080">Client</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;revolt.js&quot;</span><span style="color: #000000">;</span>
 
-<span style="color: #008000">// To login as a user,</span>
-<span style="color: #008000">// either create a new session:</span>
-<span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">login</span><span style="color: #000000">({ </span><span style="color: #001080">email:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;..&#039;</span><span style="color: #000000">, </span><span style="color: #001080">password:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;..&#039;</span><span style="color: #000000"> });</span>
+<span style="color: #0000FF">let</span><span style="color: #000000"> </span><span style="color: #001080">client</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Client</span><span style="color: #000000">();</span>
 
-<span style="color: #008000">// Or use an existing session:</span>
-<span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">useExistingSession</span><span style="color: #000000">({ </span><span style="color: #001080">token:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;..&#039;</span><span style="color: #000000"> });</span>
+<span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">on</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;ready&quot;</span><span style="color: #000000">, </span><span style="color: #0000FF">async</span><span style="color: #000000"> () </span><span style="color: #0000FF">=&gt;</span>
+<span style="color: #000000">    </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">info</span><span style="color: #000000">(</span><span style="color: #A31515">`Logged in as </span><span style="color: #0000FF">${</span><span style="color: #001080">client</span><span style="color: #000000FF">.</span><span style="color: #001080">user</span><span style="color: #000000">!</span><span style="color: #000000FF">.</span><span style="color: #001080">username</span><span style="color: #0000FF">}</span><span style="color: #A31515">!`</span><span style="color: #000000">),</span>
+<span style="color: #000000">);</span>
+
+<span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">on</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;message&quot;</span><span style="color: #000000">, </span><span style="color: #0000FF">async</span><span style="color: #000000"> (</span><span style="color: #001080">message</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">    </span><span style="color: #AF00DB">if</span><span style="color: #000000"> (</span><span style="color: #001080">message</span><span style="color: #000000">.</span><span style="color: #001080">content</span><span style="color: #000000"> === </span><span style="color: #A31515">&quot;hello&quot;</span><span style="color: #000000">) {</span>
+<span style="color: #000000">        </span><span style="color: #001080">message</span><span style="color: #000000">.</span><span style="color: #001080">channel</span><span style="color: #000000">!.</span><span style="color: #795E26">sendMessage</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;world&quot;</span><span style="color: #000000">);</span>
+<span style="color: #000000">    }</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">loginBot</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;..&quot;</span><span style="color: #000000">);</span>
 </code></pre>
 				<a href="#mobx" id="mobx" style="color: inherit; text-decoration: none;">
 					<h2>MobX</h2>
@@ -108,60 +123,42 @@
 			<nav class="tsd-navigation primary">
 				<ul>
 					<li class=" ">
-						<a href="modules.html">Modules</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/Client.html">Client</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/api_permissions.html">api/permissions</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/api_routes.html">api/routes</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/config.html">config</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/globals.html">globals</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/index.html">index</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/maps_Bots.html">maps/<wbr>Bots</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/maps_Channels.html">maps/<wbr>Channels</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/maps_Collection.html">maps/<wbr>Collection</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/maps_Members.html">maps/<wbr>Members</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/maps_Messages.html">maps/<wbr>Messages</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/maps_Servers.html">maps/<wbr>Servers</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/maps_Users.html">maps/<wbr>Users</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/util_null.html">util/null</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/websocket_client.html">websocket/client</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="modules/websocket_notifications.html">websocket/notifications</a>
+						<a href="modules.html">Exports</a>
 					</li>
 				</ul>
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
+					<li class=" tsd-kind-class">
+						<a href="classes/Client.html" class="tsd-kind-icon">Client</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/ClientOptions.html" class="tsd-kind-icon">Client<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="modules.html#FileArgs" class="tsd-kind-icon">File<wbr>Args</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ChannelPermission" class="tsd-kind-icon">Channel<wbr>Permission</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#LIBRARY_VERSION" class="tsd-kind-icon">LIBRARY_<wbr>VERSION</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#RE_MENTIONS" class="tsd-kind-icon">RE_<wbr>MENTIONS</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#RE_SPOILER" class="tsd-kind-icon">RE_<wbr>SPOILER</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#ServerPermission" class="tsd-kind-icon">Server<wbr>Permission</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#UserPermission" class="tsd-kind-icon">User<wbr>Permission</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="modules.html#defaultConfig" class="tsd-kind-icon">default<wbr>Config</a>
+					</li>
 				</ul>
 			</nav>
 		</div>
@@ -172,18 +169,16 @@
 		<h2>Legend</h2>
 		<div class="tsd-legend-group">
 			<ul class="tsd-legend">
-				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
-				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
-				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
-				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
-				<li class="tsd-kind-type-alias tsd-has-type-parameter"><span class="tsd-kind-icon">Type alias with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
 			</ul>
 			<ul class="tsd-legend">
-				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
-				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
 			</ul>
 			<ul class="tsd-legend">
-				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
 			</ul>
 		</div>
 	</div>
