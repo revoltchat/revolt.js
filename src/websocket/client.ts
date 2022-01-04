@@ -113,399 +113,397 @@ export class WebSocketClient {
                 if (this.client.debug) console.debug("[>] PACKET", data);
                 const packet = JSON.parse(data) as ClientboundNotification;
                 this.client.emit("packet", packet);
-                switch (packet.type) {
-                    case "Error": {
-                        reject(packet.error);
-                        break;
-                    }
+                try {
+                    switch (packet.type) {
+                        case "Error": {
+                            reject(packet.error);
+                            break;
+                        }
 
-                    case "Authenticated": {
-                        disallowReconnect = false;
-                        this.client.emit("connected");
-                        this.connected = true;
-                        break;
-                    }
+                        case "Authenticated": {
+                            disallowReconnect = false;
+                            this.client.emit("connected");
+                            this.connected = true;
+                            break;
+                        }
 
-                    case "Ready": {
-                        runInAction(() => {
-                            if (packet.type !== "Ready") throw 0;
+                        case "Ready": {
+                            runInAction(() => {
+                                if (packet.type !== "Ready") throw 0;
 
-                            for (const user of packet.users) {
-                                this.client.users.createObj(user);
-                            }
+                                for (const user of packet.users) {
+                                    this.client.users.createObj(user);
+                                }
 
-                            for (const channel of packet.channels) {
-                                this.client.channels.createObj(channel);
-                            }
+                                for (const channel of packet.channels) {
+                                    this.client.channels.createObj(channel);
+                                }
 
-                            for (const server of packet.servers) {
-                                this.client.servers.createObj(server);
-                            }
+                                for (const server of packet.servers) {
+                                    this.client.servers.createObj(server);
+                                }
 
-                            for (const member of packet.members) {
-                                this.client.members.createObj(member);
-                            }
-                        });
+                                for (const member of packet.members) {
+                                    this.client.members.createObj(member);
+                                }
+                            });
 
-                        this.client.user = this.client.users.get(
-                            packet.users.find((x) => x.relationship === "User")!
-                                ._id,
-                        )!;
+                            this.client.user = this.client.users.get(
+                                packet.users.find((x) => x.relationship === "User")!
+                                    ._id,
+                            )!;
 
-                        this.client.emit("ready");
-                        this.ready = true;
-                        resolve();
+                            this.client.emit("ready");
+                            this.ready = true;
+                            resolve();
 
-                        // Sync unreads.
-                        this.client.unreads?.sync();
+                            // Sync unreads.
+                            this.client.unreads?.sync();
 
-                        // Setup heartbeat.
-                        if (this.client.heartbeat > 0) {
-                            this.send({ type: "Ping", data: +new Date() });
-                            this.heartbeat = setInterval(() => {
-                                this.send({
-                                    type: "Ping",
-                                    data: +new Date(),
-                                });
-
-                                if (this.client.options.pongTimeout) {
-                                    let pongReceived = false;
-
-                                    this.client.once("packet", (p) => {
-                                        if (p.type == "Pong")
-                                            pongReceived = true;
+                            // Setup heartbeat.
+                            if (this.client.heartbeat > 0) {
+                                this.send({ type: "Ping", data: +new Date() });
+                                this.heartbeat = setInterval(() => {
+                                    this.send({
+                                        type: "Ping",
+                                        data: +new Date(),
                                     });
 
-                                    setTimeout(() => {
-                                        if (!pongReceived) {
-                                            if (
-                                                this.client.options
-                                                    .onPongTimeout == "EXIT"
-                                            ) {
-                                                throw "Client did not receive a pong in time";
-                                            } else {
-                                                console.warn(
-                                                    "Warning: Client did not receive a pong in time; Reconnecting.",
-                                                );
+                                    if (this.client.options.pongTimeout) {
+                                        let pongReceived = false;
 
-                                                this.disconnect();
-                                                this.connect(disallowReconnect);
+                                        this.client.once("packet", (p) => {
+                                            if (p.type == "Pong")
+                                                pongReceived = true;
+                                        });
+
+                                        setTimeout(() => {
+                                            if (!pongReceived) {
+                                                if (
+                                                    this.client.options
+                                                        .onPongTimeout == "EXIT"
+                                                ) {
+                                                    throw "Client did not receive a pong in time";
+                                                } else {
+                                                    console.warn(
+                                                        "Warning: Client did not receive a pong in time; Reconnecting.",
+                                                    );
+
+                                                    this.disconnect();
+                                                    this.connect(disallowReconnect);
+                                                }
                                             }
-                                        }
-                                    }, this.client.options.pongTimeout * 1000);
-                                }
-                            }, this.client.heartbeat * 1e3) as unknown as number;
-                        }
-
-                        break;
-                    }
-
-                    case "Message": {
-                        if (!this.client.messages.has(packet._id)) {
-                            if (
-                                packet.author === "00000000000000000000000000"
-                            ) {
-                                if (typeof packet.content === "object") {
-                                    switch (packet.content.type) {
-                                        case "user_added":
-                                        case "user_remove":
-                                            await this.client.users.fetch(
-                                                packet.content.by,
-                                            );
-                                        case "user_left":
-                                            await this.client.users.fetch(
-                                                packet.content.id,
-                                            );
-                                            break;
-                                        case "user_joined":
-                                        case "user_left":
-                                        case "user_banned":
-                                        case "user_kicked":
-                                            await this.client.users.fetch(
-                                                packet.content.id,
-                                            );
-                                            break;
-                                        case "channel_description_changed":
-                                        case "channel_icon_changed":
-                                        case "channel_renamed":
-                                            await this.client.users.fetch(
-                                                packet.content.by,
-                                            );
-                                            break;
+                                        }, this.client.options.pongTimeout * 1000);
                                     }
-                                }
-                            } else {
-                                await this.client.users.fetch(packet.author);
+                                }, this.client.heartbeat * 1e3) as unknown as number;
                             }
 
-                            const channel = await this.client.channels.fetch(
-                                packet.channel,
-                            );
+                            break;
+                        }
 
-                            if (channel.channel_type === "TextChannel") {
-                                const server = await this.client.servers.fetch(
-                                    channel.server_id!,
-                                );
+                        case "Message": {
+                            if (!this.client.messages.has(packet._id)) {
                                 if (
-                                    packet.author !==
+                                    packet.author ===
                                     "00000000000000000000000000"
-                                )
-                                    await server.fetchMember(packet.author);
-                            }
-
-                            const message = this.client.messages.createObj(packet, true);
-
-                            runInAction(() => {
-                                if (channel.channel_type === "DirectMessage") {
-                                    channel.active = true;
-                                }
-
-                                channel.last_message_id = message._id;
-
-                                if (this.client.unreads &&
-                                    message.mention_ids?.includes(this.client.user!._id)) {
-                                    this.client.unreads.markMention(message.channel_id, message._id);
-                                }
-                            });
-                        }
-                        break;
-                    }
-
-                    case "MessageUpdate": {
-                        const message = this.client.messages.get(packet.id);
-                        if (message) {
-                            message.update(packet.data);
-                            this.client.emit("message/update", message);
-                        }
-                        break;
-                    }
-
-                    case "MessageDelete": {
-                        this.client.messages.delete(packet.id);
-                        this.client.emit("message/delete", packet.id);
-                        break;
-                    }
-
-                    case "ChannelCreate": {
-                        runInAction(async () => {
-                            if (packet.type !== "ChannelCreate") throw 0;
-
-                            if (
-                                packet.channel_type === "TextChannel" ||
-                                packet.channel_type === "VoiceChannel"
-                            ) {
-                                const server = await this.client.servers.fetch(
-                                    packet.server,
-                                );
-                                server.channel_ids.push(packet._id);
-                            }
-
-                            this.client.channels.createObj(packet, true);
-                        });
-                        break;
-                    }
-
-                    case "ChannelUpdate": {
-                        const channel = this.client.channels.get(packet.id);
-                        if (channel) {
-                            channel.update(packet.data, packet.clear);
-                            this.client.emit("channel/update", channel);
-                        }
-                        break;
-                    }
-
-                    case "ChannelDelete": {
-                        this.client.channels.get(packet.id)?.delete(true);
-                        this.client.emit("channel/delete", packet.id);
-                        break;
-                    }
-
-                    case "ChannelGroupJoin": {
-                        this.client.channels
-                            .get(packet.id)
-                            ?.updateGroupJoin(packet.user);
-                        break;
-                    }
-
-                    case "ChannelGroupLeave": {
-                        this.client.channels
-                            .get(packet.id)
-                            ?.updateGroupLeave(packet.user);
-                        break;
-                    }
-
-                    case "ServerUpdate": {
-                        const server = this.client.servers.get(packet.id);
-                        if (server) {
-                            server.update(packet.data, packet.clear);
-                            this.client.emit("server/update", server);
-                        }
-                        break;
-                    }
-
-                    case "ServerDelete": {
-                        this.client.servers.get(packet.id)?.delete(true);
-                        this.client.emit("server/delete", packet.id);
-                        break;
-                    }
-
-                    case "ServerMemberUpdate": {
-                        const member = this.client.members.getKey(packet.id);
-                        if (member) {
-                            member.update(packet.data, packet.clear);
-                            this.client.emit("member/update", member);
-                        }
-                        break;
-                    }
-
-                    case "ServerMemberJoin": {
-                        runInAction(async () => {
-                            if (packet.type !== "ServerMemberJoin") return 0;
-
-                            await this.client.servers.fetch(packet.id);
-                            await this.client.users.fetch(packet.user);
-
-                            this.client.members.createObj(
-                                {
-                                    _id: {
-                                        server: packet.id,
-                                        user: packet.user,
-                                    },
-                                },
-                                true,
-                            );
-                        });
-
-                        break;
-                    }
-
-                    case "ServerMemberLeave": {
-                        if (packet.user === this.client.user!._id) {
-                            const server_id = packet.id;
-                            runInAction(() => {
-                                this.client.servers
-                                    .get(server_id)
-                                    ?.delete(true);
-                                [...this.client.members.keys()].forEach(
-                                    (key) => {
-                                        if (
-                                            JSON.parse(key).server === server_id
-                                        ) {
-                                            this.client.members.delete(key);
+                                ) {
+                                    if (typeof packet.content === "object") {
+                                        switch (packet.content.type) {
+                                            case "user_added":
+                                            case "user_remove":
+                                                await this.client.users.fetch(
+                                                    packet.content.by,
+                                                );
+                                                break;
+                                            case "user_joined":
+                                                await this.client.users.fetch(
+                                                    packet.content.id,
+                                                );
+                                                break;
+                                            case "channel_description_changed":
+                                            case "channel_icon_changed":
+                                            case "channel_renamed":
+                                                await this.client.users.fetch(
+                                                    packet.content.by,
+                                                );
+                                                break;
                                         }
+                                    }
+                                } else {
+                                    await this.client.users.fetch(packet.author);
+                                }
+
+                                const channel = await this.client.channels.fetch(
+                                    packet.channel,
+                                );
+
+                                if (channel.channel_type === "TextChannel") {
+                                    const server = await this.client.servers.fetch(
+                                        channel.server_id!,
+                                    );
+                                    if (
+                                        packet.author !==
+                                        "00000000000000000000000000"
+                                    )
+                                        await server.fetchMember(packet.author);
+                                }
+
+                                const message = this.client.messages.createObj(packet, true);
+
+                                runInAction(() => {
+                                    if (channel.channel_type === "DirectMessage") {
+                                        channel.active = true;
+                                    }
+
+                                    channel.last_message_id = message._id;
+
+                                    if (this.client.unreads &&
+                                        message.mention_ids?.includes(this.client.user!._id)) {
+                                        this.client.unreads.markMention(message.channel_id, message._id);
+                                    }
+                                });
+                            }
+                            break;
+                        }
+
+                        case "MessageUpdate": {
+                            const message = this.client.messages.get(packet.id);
+                            if (message) {
+                                message.update(packet.data);
+                                this.client.emit("message/update", message);
+                            }
+                            break;
+                        }
+
+                        case "MessageDelete": {
+                            this.client.messages.delete(packet.id);
+                            this.client.emit("message/delete", packet.id);
+                            break;
+                        }
+
+                        case "ChannelCreate": {
+                            runInAction(async () => {
+                                if (packet.type !== "ChannelCreate") throw 0;
+
+                                if (
+                                    packet.channel_type === "TextChannel" ||
+                                    packet.channel_type === "VoiceChannel"
+                                ) {
+                                    const server = await this.client.servers.fetch(
+                                        packet.server,
+                                    );
+                                    server.channel_ids.push(packet._id);
+                                }
+
+                                this.client.channels.createObj(packet, true);
+                            });
+                            break;
+                        }
+
+                        case "ChannelUpdate": {
+                            const channel = this.client.channels.get(packet.id);
+                            if (channel) {
+                                channel.update(packet.data, packet.clear);
+                                this.client.emit("channel/update", channel);
+                            }
+                            break;
+                        }
+
+                        case "ChannelDelete": {
+                            this.client.channels.get(packet.id)?.delete(true);
+                            this.client.emit("channel/delete", packet.id);
+                            break;
+                        }
+
+                        case "ChannelGroupJoin": {
+                            this.client.channels
+                                .get(packet.id)
+                                ?.updateGroupJoin(packet.user);
+                            break;
+                        }
+
+                        case "ChannelGroupLeave": {
+                            this.client.channels
+                                .get(packet.id)
+                                ?.updateGroupLeave(packet.user);
+                            break;
+                        }
+
+                        case "ServerUpdate": {
+                            const server = this.client.servers.get(packet.id);
+                            if (server) {
+                                server.update(packet.data, packet.clear);
+                                this.client.emit("server/update", server);
+                            }
+                            break;
+                        }
+
+                        case "ServerDelete": {
+                            this.client.servers.get(packet.id)?.delete(true);
+                            this.client.emit("server/delete", packet.id);
+                            break;
+                        }
+
+                        case "ServerMemberUpdate": {
+                            const member = this.client.members.getKey(packet.id);
+                            if (member) {
+                                member.update(packet.data, packet.clear);
+                                this.client.emit("member/update", member);
+                            }
+                            break;
+                        }
+
+                        case "ServerMemberJoin": {
+                            runInAction(async () => {
+                                if (packet.type !== "ServerMemberJoin") return 0;
+
+                                await this.client.servers.fetch(packet.id);
+                                await this.client.users.fetch(packet.user);
+
+                                this.client.members.createObj(
+                                    {
+                                        _id: {
+                                            server: packet.id,
+                                            user: packet.user,
+                                        },
                                     },
+                                    true,
                                 );
                             });
-                        } else {
-                            this.client.members.deleteKey({
-                                server: packet.id,
-                                user: packet.user,
-                            });
-                            this.client.emit("member/leave", {
-                                server: packet.id,
-                                user: packet.user,
-                            });
+
+                            break;
                         }
 
-                        break;
-                    }
+                        case "ServerMemberLeave": {
+                            if (packet.user === this.client.user!._id) {
+                                const server_id = packet.id;
+                                runInAction(() => {
+                                    this.client.servers
+                                        .get(server_id)
+                                        ?.delete(true);
+                                    [...this.client.members.keys()].forEach(
+                                        (key) => {
+                                            if (
+                                                JSON.parse(key).server === server_id
+                                            ) {
+                                                this.client.members.delete(key);
+                                            }
+                                        },
+                                    );
+                                });
+                            } else {
+                                this.client.members.deleteKey({
+                                    server: packet.id,
+                                    user: packet.user,
+                                });
+                                this.client.emit("member/leave", {
+                                    server: packet.id,
+                                    user: packet.user,
+                                });
+                            }
 
-                    case "ServerRoleUpdate": {
-                        const server = this.client.servers.get(packet.id);
-                        if (server) {
-                            const role = {
-                                ...server.roles?.[packet.role_id],
-                                ...packet.data,
-                            } as Role;
-                            server.roles = {
-                                ...server.roles,
-                                [packet.role_id]: role,
-                            };
-                            this.client.emit(
-                                "role/update",
-                                packet.role_id,
-                                role,
+                            break;
+                        }
+
+                        case "ServerRoleUpdate": {
+                            const server = this.client.servers.get(packet.id);
+                            if (server) {
+                                const role = {
+                                    ...server.roles?.[packet.role_id],
+                                    ...packet.data,
+                                } as Role;
+                                server.roles = {
+                                    ...server.roles,
+                                    [packet.role_id]: role,
+                                };
+                                this.client.emit(
+                                    "role/update",
+                                    packet.role_id,
+                                    role,
+                                    packet.id,
+                                );
+                            }
+                            break;
+                        }
+
+                        case "ServerRoleDelete": {
+                            const server = this.client.servers.get(packet.id);
+                            if (server) {
+                                const { [packet.role_id]: _, ...roles } =
+                                    server.roles ?? {};
+                                server.roles = roles;
+                                this.client.emit(
+                                    "role/delete",
+                                    packet.role_id,
+                                    packet.id,
+                                );
+                            }
+                            break;
+                        }
+
+                        case "UserUpdate": {
+                            this.client.users
+                                .get(packet.id)
+                                ?.update(packet.data, packet.clear);
+                            break;
+                        }
+
+                        case "UserRelationship": {
+                            const user = this.client.users.get(packet.user._id);
+                            if (user) {
+                                user.update({ relationship: packet.status });
+                            } else {
+                                this.client.users.createObj(packet.user);
+                            }
+
+                            break;
+                        }
+
+                        case "ChannelStartTyping": {
+                            const channel = this.client.channels.get(packet.id);
+                            const user = packet.user;
+
+                            if (channel) {
+                                channel.updateStartTyping(user);
+
+                                clearInterval(timeouts[packet.id + user]);
+                                timeouts[packet.id + user] = setTimeout(() => {
+                                    channel!.updateStopTyping(user);
+                                }, 3000) as unknown as number;
+                            }
+
+                            break;
+                        }
+
+                        case "ChannelStopTyping": {
+                            this.client.channels
+                                .get(packet.id)
+                                ?.updateStopTyping(packet.user);
+                            clearInterval(timeouts[packet.id + packet.user]);
+                            break;
+                        }
+
+                        case "ChannelAck": {
+                            this.client.unreads?.markRead(
                                 packet.id,
+                                packet.message_id,
                             );
-                        }
-                        break;
-                    }
-
-                    case "ServerRoleDelete": {
-                        const server = this.client.servers.get(packet.id);
-                        if (server) {
-                            const { [packet.role_id]: _, ...roles } =
-                                server.roles ?? {};
-                            server.roles = roles;
-                            this.client.emit(
-                                "role/delete",
-                                packet.role_id,
-                                packet.id,
-                            );
-                        }
-                        break;
-                    }
-
-                    case "UserUpdate": {
-                        this.client.users
-                            .get(packet.id)
-                            ?.update(packet.data, packet.clear);
-                        break;
-                    }
-
-                    case "UserRelationship": {
-                        const user = this.client.users.get(packet.user._id);
-                        if (user) {
-                            user.update({ relationship: packet.status });
-                        } else {
-                            this.client.users.createObj(packet.user);
+                            break;
                         }
 
-                        break;
-                    }
-
-                    case "ChannelStartTyping": {
-                        const channel = this.client.channels.get(packet.id);
-                        const user = packet.user;
-
-                        if (channel) {
-                            channel.updateStartTyping(user);
-
-                            clearInterval(timeouts[packet.id + user]);
-                            timeouts[packet.id + user] = setTimeout(() => {
-                                channel!.updateStopTyping(user);
-                            }, 3000) as unknown as number;
+                        case "Pong": {
+                            this.ping = +new Date() - packet.data;
+                            break;
                         }
 
-                        break;
+                        default:
+                            this.client.debug &&
+                                console.warn(
+                                    `Warning: Unhandled packet! ${packet.type}`,
+                                );
                     }
-
-                    case "ChannelStopTyping": {
-                        this.client.channels
-                            .get(packet.id)
-                            ?.updateStopTyping(packet.user);
-                        clearInterval(timeouts[packet.id + packet.user]);
-                        break;
-                    }
-
-                    case "ChannelAck": {
-                        this.client.unreads?.markRead(
-                            packet.id,
-                            packet.message_id,
-                        );
-                        break;
-                    }
-
-                    case "Pong": {
-                        this.ping = +new Date() - packet.data;
-                        break;
-                    }
-
-                    default:
-                        this.client.debug &&
-                            console.warn(
-                                `Warning: Unhandled packet! ${packet.type}`,
-                            );
+                } catch(e) {
+                    console.error(e);
                 }
             };
 
