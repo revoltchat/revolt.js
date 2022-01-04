@@ -93,6 +93,8 @@
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ClientOptions.html#cache" class="tsd-kind-icon">cache</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ClientOptions.html#debug" class="tsd-kind-icon">debug</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ClientOptions.html#heartbeat" class="tsd-kind-icon">heartbeat</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ClientOptions.html#onPongTimeout" class="tsd-kind-icon">on<wbr>Pong<wbr>Timeout</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ClientOptions.html#pongTimeout" class="tsd-kind-icon">pong<wbr>Timeout</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="ClientOptions.html#unreads" class="tsd-kind-icon">unreads</a></li>
 							</ul>
 						</section>
@@ -107,7 +109,7 @@
 					<div class="tsd-signature tsd-kind-icon">ack<wbr>Rate<wbr>Limiter<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/8775cfc/src/Client.ts#L39">src/Client.ts:39</a></li>
+							<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/d1f2492/src/Client.ts#L53">src/Client.ts:53</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -117,7 +119,7 @@
 					<div class="tsd-signature tsd-kind-icon">apiURL<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/8775cfc/src/Client.ts#L30">src/Client.ts:30</a></li>
+							<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/d1f2492/src/Client.ts#L30">src/Client.ts:30</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -127,7 +129,7 @@
 					<div class="tsd-signature tsd-kind-icon">auto<wbr>Reconnect<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/8775cfc/src/Client.ts#L37">src/Client.ts:37</a></li>
+							<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/d1f2492/src/Client.ts#L37">src/Client.ts:37</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -137,7 +139,7 @@
 					<div class="tsd-signature tsd-kind-icon">cache<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/8775cfc/src/Client.ts#L33">src/Client.ts:33</a></li>
+							<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/d1f2492/src/Client.ts#L33">src/Client.ts:33</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -147,7 +149,7 @@
 					<div class="tsd-signature tsd-kind-icon">debug<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/8775cfc/src/Client.ts#L31">src/Client.ts:31</a></li>
+							<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/d1f2492/src/Client.ts#L31">src/Client.ts:31</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -157,9 +159,43 @@
 					<div class="tsd-signature tsd-kind-icon">heartbeat<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/8775cfc/src/Client.ts#L36">src/Client.ts:36</a></li>
+							<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/d1f2492/src/Client.ts#L36">src/Client.ts:36</a></li>
 						</ul>
 					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="onPongTimeout" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> on<wbr>Pong<wbr>Timeout</h3>
+					<div class="tsd-signature tsd-kind-icon">on<wbr>Pong<wbr>Timeout<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;EXIT&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;RECONNECT&quot;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/d1f2492/src/Client.ts#L51">src/Client.ts:51</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>If <code>pongTimeout</code> is set, this decides what to do when
+							the timeout is triggered. Default is <code>RECONNECT</code>.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="pongTimeout" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> pong<wbr>Timeout</h3>
+					<div class="tsd-signature tsd-kind-icon">pong<wbr>Timeout<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/d1f2492/src/Client.ts#L45">src/Client.ts:45</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Automatically reconnect the client if no
+								<code>pong</code> is received after X seconds of sending a <code>ping</code>.
+								This is a temporary fix for an issue where the client
+							would randomly stop receiving websocket messages.</p>
+						</div>
+					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
 					<a name="unreads" class="tsd-anchor"></a>
@@ -167,7 +203,7 @@
 					<div class="tsd-signature tsd-kind-icon">unreads<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/8775cfc/src/Client.ts#L34">src/Client.ts:34</a></li>
+							<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/d1f2492/src/Client.ts#L34">src/Client.ts:34</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -208,6 +244,12 @@
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="ClientOptions.html#heartbeat" class="tsd-kind-icon">heartbeat</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="ClientOptions.html#onPongTimeout" class="tsd-kind-icon">on<wbr>Pong<wbr>Timeout</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="ClientOptions.html#pongTimeout" class="tsd-kind-icon">pong<wbr>Timeout</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface">
 								<a href="ClientOptions.html#unreads" class="tsd-kind-icon">unreads</a>
