@@ -36,6 +36,20 @@ export interface ClientOptions {
     heartbeat: number;
     autoReconnect: boolean;
 
+    /**
+     * Automatically reconnect the client if no
+     * `pong` is received after X seconds of sending a `ping`.
+     * This is a temporary fix for an issue where the client
+     * would randomly stop receiving websocket messages.
+     */
+    pongTimeout?: number;
+
+    /**
+     * If `pongTimeout` is set, this decides what to do when
+     * the timeout is triggered. Default is `RECONNECT`.
+     */
+    onPongTimeout?: "EXIT" | "RECONNECT";
+
     ackRateLimiter: boolean;
 }
 
