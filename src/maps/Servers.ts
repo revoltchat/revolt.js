@@ -310,7 +310,7 @@ export class Server {
      * Optimised member fetch route.
      * ! OPTIMISATION
      */
-    async syncMembers() {
+    async syncMembers(skipOffline?: boolean) {
         const data = await this.client.req(
             "GET",
             `/servers/${this._id}/members` as "/servers/id/members",
@@ -329,6 +329,8 @@ export class Server {
                     this.client.members.createObj(data.members[i]);
                 }
             }
+
+            if (skipOffline) return;
 
             let j = 0;
             // Each batch takes between 70 and 90ms.
