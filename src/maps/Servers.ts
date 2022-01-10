@@ -307,6 +307,53 @@ export class Server {
     }
 
     /**
+     * Optimised member fetch route.
+     * ! OPTIMISATION
+     */
+    async syncMembers() {
+        const data = await this.client.req(
+            "GET",
+            `/servers/${this._id}/members` as "/servers/id/members",
+        );
+
+        // ! FIXME: if we do this on the server, we can save 7ms locally
+        // 7ms to sort both lists.
+        data.users.sort((a,b)=>b._id.localeCompare(a._id));
+        data.members.sort((a,b)=>b._id.user.localeCompare(a._id.user));
+
+        // This takes roughly 23ms.
+        runInAction(() => {
+            for (let i=0;i<data.users.length;i++) {
+                if (data.users[i].online) {
+                    this.client.users.createObj(data.users[i]);
+                    this.client.members.createObj(data.members[i]);
+                }
+            }
+
+            let j = 0;
+            // Each batch takes between 70 and 90ms.
+            const batch = () => {
+                const offset = j * 100;
+                runInAction(() => {
+                    for (let i=offset;i<data.users.length&&i<offset+100;i++) {
+                        if (!data.users[i].online) {
+                            this.client.users.createObj(data.users[i]);
+                            this.client.members.createObj(data.members[i]);
+                        }
+                    }
+                });
+
+                if (offset<data.users.length) {
+                    j++;
+                    setTimeout(batch, 0);
+                }
+            }
+
+            setTimeout(batch, 0);
+        });
+    }
+
+    /**
      * Fetch a server's members.
      * @returns An array of the server's members and their user objects.
      */
@@ -315,6 +362,8 @@ export class Server {
             "GET",
             `/servers/${this._id}/members` as "/servers/id/members",
         );
+
+        // Note: this takes 986 ms (Testers server)
         return runInAction(() => {
             return {
                 members: data.members.map(this.client.members.createObj),
