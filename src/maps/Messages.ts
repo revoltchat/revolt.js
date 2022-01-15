@@ -1,10 +1,10 @@
 import type {
+    Embed,
     Masquerade,
     Message as MessageI,
     SystemMessage,
 } from "revolt-api/types/Channels";
 import type { Attachment } from "revolt-api/types/Autumn";
-import type { Embed } from "revolt-api/types/January";
 import type { Route } from "../api/routes";
 
 import { makeAutoObservable, runInAction, action, computed } from "mobx";

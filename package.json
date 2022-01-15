@@ -1,7 +1,7 @@
 {
     "type": "module",
     "name": "revolt.js",
-    "version": "5.2.5",
+    "version": "5.2.6",
     "main": "dist/index.js",
     "repository": "https://github.com/revoltchat/revolt.js",
     "author": "Paul Makles <insrt.uk>",
@@ -15,7 +15,7 @@
         "lodash.flatten": "^4.4.0",
         "lodash.isequal": "^4.5.0",
         "mobx": "^6.3.2",
-        "revolt-api": "^0.5.3-alpha.9",
+        "revolt-api": "0.5.3-alpha.12",
         "ulid": "^2.3.0",
         "ws": "^8.2.2"
     },

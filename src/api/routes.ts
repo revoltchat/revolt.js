@@ -7,6 +7,7 @@ import type {
     Message,
     TextChannel,
     VoiceChannel,
+    SendableEmbed
 } from "revolt-api/types/Channels";
 import type { RevoltConfiguration } from "revolt-api/types/Core";
 import type { RetrievedInvite, ServerInvite } from "revolt-api/types/Invites";
@@ -408,6 +409,7 @@ type Routes =
               nonce: string;
               attachments?: string[];
               replies?: { id: string; mention: boolean }[];
+              embeds?: SendableEmbed[];
           };
           response: Message;
       }
@@ -476,7 +478,8 @@ type Routes =
           method: "PATCH";
           route: `/channels/${Id}/messages/${Id}`;
           data: {
-              content: string;
+              content?: string;
+              embeds?: SendableEmbed[];
           };
           response: undefined;
       }

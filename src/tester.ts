@@ -7,7 +7,7 @@ config();
 // To run this example, you need to have a local Revolt server running and an existing account.
 // Copy and paste `.env.example` to `.env` and edit accordingly.
 
-function user() {
+async function user() {
     const client = new Client({
         apiURL: process.env.API_URL,
         debug: true,
@@ -15,6 +15,26 @@ function user() {
 
     client.on("ready", async () => {
         console.info(`Logged in as ${client.user!.username}!`);
+
+        const group = await client.channels.createGroup({
+            name: 'sussy',
+            nonce: ''+Math.random(),
+            users: []
+        });
+
+        const msg = await group.sendMessage({
+            content: "embed test",
+            embeds: [
+                {
+                    type: 'Text',
+                    title: 'We do a little!'
+                }
+            ]
+        });
+
+        await msg.edit({
+            embeds: [{ type: 'Text', title: 'sus' }]
+        });
     });
 
     client.on("message", async (message) => {
@@ -56,13 +76,22 @@ function user() {
         }
     });
 
-    client.login({
+    try {
+        await client.register({
+            email: process.env.EMAIL as string,
+            password: process.env.PASSWORD as string,
+        });
+    } catch (err) {}
+
+    const onboarding = await client.login({
         email: process.env.EMAIL as string,
         password: process.env.PASSWORD as string,
     });
+
+    onboarding?.('sus', true);
 }
 
-function bot() {
+/*function bot() {
     const client = new Client({
         apiURL: process.env.API_URL,
     });
@@ -80,7 +109,7 @@ function bot() {
     });
 
     // client.loginBot(process.env.BOT_TOKEN as string)
-}
+}*/
 
 user();
-bot();
+// bot();
