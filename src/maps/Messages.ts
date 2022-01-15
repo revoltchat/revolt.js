@@ -60,6 +60,20 @@ export class Message {
         return decodeTime(this._id);
     }
 
+    /**
+     * Absolute pathname to this message in the client.
+     */
+    get path() {
+        return this.channel?.path + '/' + this._id;
+    }
+
+    /**
+     * Get URL to this message.
+     */
+    get url() {
+        return this.client.configuration?.app + this.path;
+    }
+
     @computed generateMasqAvatarURL() {
         const avatar = this.masquerade?.avatar;
         return avatar ? this.client.proxyFile(avatar) : undefined;

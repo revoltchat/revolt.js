@@ -51,6 +51,20 @@ export class Server {
         return decodeTime(this._id);
     }
 
+    /**
+     * Absolute pathname to this server in the client.
+     */
+    get path() {
+        return `/server/${this._id}`;
+    }
+
+    /**
+     * Get URL to this server.
+     */
+    get url() {
+        return this.client.configuration?.app + this.path;
+    }
+
     @computed isUnread(permit?: INotificationChecker) {
         if (permit?.isMuted(this)) return false;
         return this.channels.find((channel) =>

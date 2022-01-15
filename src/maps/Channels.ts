@@ -178,6 +178,24 @@ export class Channel {
         return decodeTime(this._id);
     }
 
+    /**
+     * Absolute pathname to this channel in the client.
+     */
+    get path() {
+        if (this.server_id) {
+            return `/server/${this.server_id}/channel/${this._id}`;
+        } else {
+            return `/channel/${this._id}`;
+        }
+    }
+
+    /**
+     * Get URL to this channel.
+     */
+    get url() {
+        return this.client.configuration?.app + this.path;
+    }
+
     @computed isUnread(permit: INotificationChecker) {
         if (permit.isMuted(this)) return false;
         return this.unread;
