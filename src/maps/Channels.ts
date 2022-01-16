@@ -21,6 +21,7 @@ import {
     UserPermission,
 } from "../api/permissions";
 import { INotificationChecker } from "../util/Unreads";
+import Ratelimiter from '../util/ratelimiter';
 
 export class Channel {
     client: Client;
@@ -104,6 +105,11 @@ export class Channel {
      * @requires `Group`, `TextChannel`, `VoiceChannel`
      */
     nsfw: Nullable<boolean> = null;
+
+    /**
+     * Internal rate limiter for message sending.
+     */
+    #msgRatelimiter: Ratelimiter;
 
     /**
      * The group owner.
@@ -235,6 +241,7 @@ export class Channel {
 
         this._id = data._id;
         this.channel_type = data.channel_type;
+        this.#msgRatelimiter = new Ratelimiter(this.client, "POST", `/channels/${this._id}/messages` as "/channels/id/messages");
 
         switch (data.channel_type) {
             case "DirectMessage": {
@@ -422,6 +429,7 @@ export class Channel {
             | string
             | (Omit<Route<"POST", "/channels/id/messages">["data"], "nonce"> & {
                   nonce?: string;
+                  noRatelimiter?: boolean;
               }),
     ) {
         const msg: Route<"POST", "/channels/id/messages">["data"] = {
@@ -429,11 +437,17 @@ export class Channel {
             ...(typeof data === "string" ? { content: data } : data),
         };
 
-        const message = await this.client.req(
-            "POST",
-            `/channels/${this._id}/messages` as "/channels/id/messages",
-            msg,
-        );
+        let message: MessageI;
+        if (typeof data != 'string' && data.noRatelimiter == true) {
+            message = await this.client.req(
+                "POST",
+                `/channels/${this._id}/messages` as "/channels/id/messages",
+                msg,
+            );
+        } else {
+            message = await this.#msgRatelimiter.send("POST", `/channels/${this._id}/messages` as "/channels/id/messages", msg);
+        }
+
         return this.client.messages.createObj(message, true);
     }
 
