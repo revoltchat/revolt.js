@@ -1,5 +1,6 @@
 import type {
     Category,
+    Member,
     PermissionTuple,
     Role,
     Server as ServerI,
@@ -332,41 +333,44 @@ export class Server {
 
         // ! FIXME: if we do this on the server, we can save 7ms locally
         // 7ms to sort both lists.
-        data.users.sort((a,b)=>b._id.localeCompare(a._id));
-        data.members.sort((a,b)=>b._id.user.localeCompare(a._id.user));
+        // data.users.sort((a,b)=>b._id.localeCompare(a._id));
+        // data.members.sort((a,b)=>b._id.user.localeCompare(a._id.user));
 
         // This takes roughly 23ms.
         runInAction(() => {
+            // This adds roughly 15ms to 23ms above.
+            const mapping: Record<string, Member> = {};
+            data.members.forEach(x => mapping[x._id.user] = x);
+
             for (let i=0;i<data.users.length;i++) {
                 if (data.users[i].online) {
+                    const user = data.users[i];
+                    this.client.users.createObj(user);
+                    this.client.members.createObj(mapping[user._id]);
+                }
+            }
+        });
+
+        if (skipOffline) return;
+
+        let j = 0;
+        // Each batch takes between 70 and 90ms.
+        const batch = () => {
+            const offset = j * 100;
+            runInAction(() => {
+                for (let i=offset;i<data.users.length&&i<offset+100;i++) {
                     this.client.users.createObj(data.users[i]);
                     this.client.members.createObj(data.members[i]);
                 }
+            });
+
+            if (offset<data.users.length) {
+                j++;
+                setTimeout(batch, 0);
             }
+        }
 
-            if (skipOffline) return;
-
-            let j = 0;
-            // Each batch takes between 70 and 90ms.
-            const batch = () => {
-                const offset = j * 100;
-                runInAction(() => {
-                    for (let i=offset;i<data.users.length&&i<offset+100;i++) {
-                        if (!data.users[i].online) {
-                            this.client.users.createObj(data.users[i]);
-                            this.client.members.createObj(data.members[i]);
-                        }
-                    }
-                });
-
-                if (offset<data.users.length) {
-                    j++;
-                    setTimeout(batch, 0);
-                }
-            }
-
-            setTimeout(batch, 0);
-        });
+        setTimeout(batch, 0);
     }
 
     /**
