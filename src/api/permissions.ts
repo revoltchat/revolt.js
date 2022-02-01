@@ -15,6 +15,7 @@ export const ChannelPermission = {
     EmbedLinks: 1 << 6,
     UploadFiles: 1 << 7,
     Masquerade: 1 << 8,
+    BypassBlock : 1 << 9
 };
 
 export const ServerPermission = {
