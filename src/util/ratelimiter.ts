@@ -48,11 +48,14 @@ export default class Ratelimiter {
 
                 // Revolt doesn't return a Retry-After header as of now
                 setTimeout(() => this.#nextQueueItem(), this.retryTimeout);
-            } else queueItem.reject(e);
+            } else {
+                queueItem.reject(e);
+                setTimeout(() => this.#nextQueueItem(), 0);
+            }
         }
     }
 
-    send<M extends RouteMethod, T extends RoutePath>(method: M, path: T, data: Route<M, T>["data"]): Promise<Route<M, T>["response"]> {
+    send<M extends RouteMethod, T extends RoutePath>(_method: M, _path: T, data: Route<M, T>["data"]): Promise<Route<M, T>["response"]> {
         return this.#insertQueueItem(data);
     }
 }
