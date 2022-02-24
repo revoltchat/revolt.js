@@ -1,4 +1,4 @@
-import Axios, { AxiosInstance, AxiosRequestConfig } from "axios";
+import Axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 import EventEmitter from "eventemitter3";
 import defaultsDeep from "lodash.defaultsdeep";
 import { action, makeObservable, observable } from "mobx";
@@ -234,6 +234,20 @@ export class Client extends EventEmitter {
         });
 
         return res.data;
+    }
+
+    async reqRaw<M extends RouteMethod, T extends RoutePath>(
+        method: M,
+        url: T,
+        data?: Route<M, T>["data"],
+    ): Promise<AxiosResponse<Route<M, T>["response"]>> {
+        const res = await this.Axios.request({
+            method,
+            data,
+            url,
+        });
+
+        return res as AxiosResponse<Route<M, T>["response"]>;
     }
 
     /**

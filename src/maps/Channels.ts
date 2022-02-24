@@ -445,7 +445,12 @@ export class Channel {
                 msg,
             );
         } else {
-            message = await this.#msgRatelimiter.send("POST", `/channels/${this._id}/messages` as "/channels/id/messages", msg);
+            message = await this.#msgRatelimiter.send(
+                "POST",
+                `/channels/${this._id}/messages` as "/channels/id/messages",
+                msg,
+                this._id
+            );
         }
 
         return this.client.messages.createObj(message, true);
