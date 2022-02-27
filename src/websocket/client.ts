@@ -105,16 +105,17 @@ export class WebSocketClient {
                 }
             };
 
-            const timeouts: Record<string, number> = {};
-            const handle = async (msg: WebSocket.MessageEvent) => {
-                const data = msg.data;
-                if (typeof data !== "string") return;
-
-                if (this.client.debug) console.debug("[>] PACKET", data);
-                const packet = JSON.parse(data) as ClientboundNotification;
+            const process = async (packet: ClientboundNotification) => {
                 this.client.emit("packet", packet);
                 try {
                     switch (packet.type) {
+                        case "Bulk": {
+                            for (const entry of packet.v) {
+                                await process(entry);
+                            }
+                            break;
+                        }
+
                         case "Error": {
                             reject(packet.error);
                             break;
@@ -505,6 +506,16 @@ export class WebSocketClient {
                 } catch(e) {
                     console.error(e);
                 }
+            };
+
+            const timeouts: Record<string, number> = {};
+            const handle = async (msg: WebSocket.MessageEvent) => {
+                const data = msg.data;
+                if (typeof data !== "string") return;
+
+                if (this.client.debug) console.debug("[>] PACKET", data);
+                const packet = JSON.parse(data) as ClientboundNotification;
+                await process(packet);
             };
 
             let processing = false;

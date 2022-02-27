@@ -5,39 +5,106 @@ export const UserPermission = {
     Invite: 1 << 3,
 };
 
-export const ChannelPermission = {
-    View: 1 << 0,
-    SendMessage: 1 << 1,
-    ManageMessages: 1 << 2,
-    ManageChannel: 1 << 3,
-    VoiceCall: 1 << 4,
-    InviteOthers: 1 << 5,
-    EmbedLinks: 1 << 6,
-    UploadFiles: 1 << 7,
-    Masquerade: 1 << 8,
-};
+export const Permission = {
+    // * Generic permissions
+    /// Manage the channel or channels on the server
+    ManageChannel: 2**0,
+    /// Manage the server
+    ManageServer: 2**1,
+    /// Manage permissions on servers or channels
+    ManagePermissions: 2**2,
+    /// Manage roles on server
+    ManageRole: 2**3,
 
-export const ServerPermission = {
-    View: 1 << 0,
-    ManageRoles: 1 << 1,
-    ManageChannels: 1 << 2,
-    ManageServer: 1 << 3,
-    KickMembers: 1 << 4,
-    BanMembers: 1 << 5,
-    ChangeNickname: 1 << 12,
-    ManageNicknames: 1 << 13,
-    ChangeAvatar: 1 << 14,
-    RemoveAvatars: 1 << 15,
+    // % 3 bits reserved
+
+    // * Member permissions
+    /// Kick other members below their ranking
+    KickMembers: 2**6,
+    /// Ban other members below their ranking
+    BanMembers: 2**7,
+    /// Timeout other members below their ranking
+    TimeoutMembers: 2**8,
+    /// Assign roles to members below their ranking
+    AssignRoles: 2**9,
+    /// Change own nickname
+    ChangeNickname: 2**10,
+    /// Change or remove other's nicknames below their ranking
+    ManageNicknames: 2**11,
+    /// Change own avatar
+    ChangeAvatar: 2**12,
+    /// Remove other's avatars below their ranking
+    RemoveAvatars: 2**13,
+
+    // % 7 bits reserved
+
+    // * Channel permissions
+    /// View a channel
+    ViewChannel: 2**20,
+    /// Read a channel's past message history
+    ReadMessageHistory: 2**21,
+    /// Send a message in a channel
+    SendMessage: 2**22,
+    /// Delete messages in a channel
+    ManageMessages: 2**23,
+    /// Manage webhook entries on a channel
+    ManageWebhooks: 2**24,
+    /// Create invites to this channel
+    InviteOthers: 2**25,
+    /// Send embedded content in this channel
+    SendEmbeds: 2**26,
+    /// Send attachments and media in this channel
+    UploadFiles: 2**27,
+    /// Masquerade messages using custom nickname and avatar
+    Masquerade: 2**28,
+
+    // % 1 bits reserved
+
+    // * Voice permissions
+    /// Connect to a voice channel
+    Connect: 2**30,
+    /// Speak in a voice call
+    Speak: 2**31,
+    /// Share video in a voice call
+    Video: 2**32,
+    /// Mute other members with lower ranking in a voice call
+    MuteMembers: 2**33,
+    /// Deafen other members with lower ranking in a voice call
+    DeafenMembers: 2**34,
+    /// Move members between voice channels
+    MoveMembers: 2**35,
+
+    // * Misc. permissions
+    // % Bits 36 to 52: free area
+    // % Bits 53 to 64: do not use
+
+    // * Grant all permissions
+    /// Safely grant all permissions
+    GrantAllSafe: 0x000F_FFFF_FFFF_FFFF,
 };
 
 export const U32_MAX = 2 ** 32 - 1; // 4294967295
 
-export const DEFAULT_PERMISSION_DM =
-    ChannelPermission.View +
-    ChannelPermission.SendMessage +
-    ChannelPermission.ManageChannel +
-    ChannelPermission.VoiceCall +
-    ChannelPermission.InviteOthers +
-    ChannelPermission.EmbedLinks +
-    ChannelPermission.UploadFiles +
-    ChannelPermission.Masquerade;
+export const DEFAULT_PERMISSION_VIEW_ONLY =
+    Permission.ViewChannel +
+    Permission.ReadMessageHistory;
+
+export const DEFAULT_PERMISSION =
+    DEFAULT_PERMISSION_VIEW_ONLY +
+    Permission.SendMessage +
+    Permission.InviteOthers +
+    Permission.SendEmbeds +
+    Permission.UploadFiles +
+    Permission.Connect +
+    Permission.Speak;
+
+export const DEFAULT_PERMISSION_SAVED_MESSAGES = Permission.GrantAllSafe;
+
+export const DEFAULT_PERMISSION_DIRECT_MESSAGE =
+    DEFAULT_PERMISSION +
+    Permission.ManageChannel;
+
+export const DEFAULT_PERMISSION_SERVER =
+    DEFAULT_PERMISSION +
+    Permission.ChangeNickname +
+    Permission.ChangeAvatar;

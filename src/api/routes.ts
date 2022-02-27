@@ -15,7 +15,7 @@ import type {
     Ban,
     Category,
     Member,
-    PermissionTuple,
+    Role,
     Server,
     SystemMessageChannels,
 } from "revolt-api/types/Servers";
@@ -27,6 +27,7 @@ import type {
     Status,
     User,
 } from "revolt-api/types/Users";
+import { Override } from "revolt-api/types/_common";
 
 export type RemoveUserField =
     | "ProfileContent"
@@ -389,11 +390,20 @@ type Routes =
           response: undefined;
       }
     | {
+        // Set default permissions for channel.
+        method: "PUT";
+        route: `/channels/${Id}/permissions/default`;
+        data: {
+            permissions?: Override | number;
+        };
+        response: undefined;
+    }
+    | {
           // Set role permission for channel.
           method: "PUT";
           route: `/channels/${Id}/permissions/${Id}`;
           data: {
-              permissions?: number;
+              permissions?: Override | number;
           };
           response: undefined;
       }
@@ -630,7 +640,7 @@ type Routes =
           };
           response: {
               id: string;
-              permissions: PermissionTuple;
+              role: Role;
           };
       }
     | {
@@ -654,14 +664,20 @@ type Routes =
           response: undefined;
       }
     | {
+          // Set default permission for server.
+          method: "PUT";
+          route: `/servers/${Id}/permissions/default`;
+          data: {
+              permissions: number;
+          };
+          response: undefined;
+      }
+    | {
           // Set role permission for server.
           method: "PUT";
           route: `/servers/${Id}/permissions/${Id}`;
           data: {
-              permissions?: {
-                  server: number;
-                  channel: number;
-              };
+              permissions: Override | number;
           };
           response: undefined;
       }

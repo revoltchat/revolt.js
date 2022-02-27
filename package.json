@@ -14,6 +14,7 @@
         "lodash.defaultsdeep": "^4.6.1",
         "lodash.flatten": "^4.4.0",
         "lodash.isequal": "^4.5.0",
+        "long": "^5.2.0",
         "mobx": "^6.3.2",
         "revolt-api": "0.5.3-alpha.12",
         "ulid": "^2.3.0",

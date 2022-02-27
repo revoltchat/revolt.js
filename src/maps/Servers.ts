@@ -1,7 +1,6 @@
 import type {
     Category,
     Member,
-    PermissionTuple,
     Role,
     Server as ServerI,
     SystemMessageChannels,
@@ -13,12 +12,14 @@ import { makeAutoObservable, action, runInAction, computed } from "mobx";
 import isEqual from "lodash.isequal";
 
 import { Nullable, toNullable } from "../util/null";
-import { U32_MAX } from "../api/permissions";
+import { Permission } from "../api/permissions";
 import Collection from "./Collection";
 import { User } from "./Users";
 import { Client, FileArgs } from "..";
 import { decodeTime } from "ulid";
 import { INotificationChecker } from "../util/Unreads";
+import { Override } from "revolt-api/types/_common";
+import Long from "long";
 
 export class Server {
     client: Client;
@@ -33,7 +34,7 @@ export class Server {
     system_messages: Nullable<SystemMessageChannels> = null;
 
     roles: Nullable<{ [key: string]: Role }> = null;
-    default_permissions: PermissionTuple;
+    default_permissions: number;
 
     icon: Nullable<Attachment> = null;
     banner: Nullable<Attachment> = null;
@@ -42,7 +43,7 @@ export class Server {
     flags: Nullable<number> = null;
 
     get channels() {
-        return this.channel_ids.map((x) => this.client.channels.get(x));
+        return this.channel_ids.map((x) => this.client.channels.get(x)).filter(x => x);
     }
 
     /**
@@ -64,6 +65,23 @@ export class Server {
      */
     get url() {
         return this.client.configuration?.app + this.path;
+    }
+
+    /**
+     * Get an ordered array of roles with their IDs attached.
+     * The highest ranking roles will be first followed by lower
+     * ranking roles. This is dictated by the "rank" property
+     * which is smaller for higher priority roles.
+     */
+    @computed get orderedRoles() {
+        return Object.keys(this.roles ?? {})
+            .map(id => {
+                return {
+                    id,
+                    ...this.roles![id]
+                }
+            })
+            .sort((b, a) => (b.rank || 0) - (a.rank || 0));
     }
 
     @computed isUnread(permit?: INotificationChecker) {
@@ -249,11 +267,11 @@ export class Server {
     /**
      * Set role permissions
      * @param role_id Role Id, set to 'default' to affect all users
-     * @param permissions Permission number, removes permission if unset
+     * @param permissions Permission value
      */
     async setPermissions(
         role_id = "default",
-        permissions?: { server: number; channel: number },
+        permissions: Override | number
     ) {
         return await this.client.req(
             "PUT",
@@ -401,9 +419,11 @@ export class Server {
     }
 
     @computed get permission() {
+        // 1. Check if owner.
         if (this.owner === this.client.user?._id) {
-            return U32_MAX;
+            return Permission.GrantAllSafe;
         } else {
+            // 2. Get member.
             const member = this.client.members.getKey({
                 user: this.client.user!._id,
                 server: this._id,
@@ -411,15 +431,34 @@ export class Server {
 
             if (!member) return 0;
 
-            let perm = this.default_permissions[0] >>> 0;
-            if (member.roles) {
-                for (const role of member.roles) {
-                    perm |= (this.roles?.[role].permissions[0] ?? 0) >>> 0;
+            // 3. Apply allows from default_permissions.
+            let perm = this.default_permissions;
+
+            // 4. If user has roles, iterate in order.
+            if (member.roles && this.roles) {
+                // 5. Apply allows and denies from roles.
+                const permissions = member
+                    .orderedRoles
+                    .map(([, role]) => role.permissions);
+
+                for (const permission of permissions) {
+                    perm |= permission.a;
+                    perm &= ~permission.d;
                 }
             }
 
             return perm;
         }
+    }
+
+    /**
+     * Check if we have a certain permission in a server.
+     * @param permission Relevant permission string
+     */
+    havePermission(permission: keyof typeof Permission) {
+        return Long.fromNumber(this.permission)
+            .and(Permission[permission])
+            .eq(Permission[permission]);
     }
 }
 

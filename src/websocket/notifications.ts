@@ -41,6 +41,7 @@ export type ReadyPacket = {
 };
 
 export type ClientboundNotification =
+    | { type: "Bulk"; v: ClientboundNotification[] }
     | { type: "Ping"; data: number }
     | { type: "Pong"; data: number }
     | ({ type: "Error" } & WebSocketError)

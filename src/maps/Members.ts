@@ -1,6 +1,7 @@
 import type {
     Member as MemberI,
     MemberCompositeKey,
+    Role,
 } from "revolt-api/types/Servers";
 import type { RemoveMemberField, Route } from "../api/routes";
 import type { Attachment } from "revolt-api/types/Autumn";
@@ -99,6 +100,25 @@ export class Member {
             "DELETE",
             `/servers/${this._id.server}/members/${this._id.user}` as "/servers/id/members/id",
         );
+    }
+
+    @computed get orderedRoles() {
+        const member_roles = new Set(this.roles);
+        const server = this.server!;
+
+        return Object.keys(server.roles ?? {})
+            .filter(x => member_roles.has(x))
+            .map(role_id => [role_id, server.roles![role_id]] as [ string, Role ])
+            .sort(([, a], [, b]) => (b.rank || 0) - (a.rank || 0));
+    }
+
+    @computed get hoistedRole() {
+        const roles = this.orderedRoles;
+        if (roles.length > 0) {
+            return roles[roles.length - 1];
+        } else {
+            return null;
+        }
     }
 
     @computed generateAvatarURL(...args: FileArgs) {

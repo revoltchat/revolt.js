@@ -16,11 +16,12 @@ import Collection from "./Collection";
 import { Message } from "./Messages";
 import { Client, FileArgs } from "..";
 import {
-    DEFAULT_PERMISSION_DM,
-    U32_MAX,
-    UserPermission,
+    DEFAULT_PERMISSION_DIRECT_MESSAGE,
+    DEFAULT_PERMISSION_VIEW_ONLY,
+    Permission, UserPermission
 } from "../api/permissions";
 import { INotificationChecker } from "../util/Unreads";
+import { Override, OverrideField } from "revolt-api/types/_common";
 
 export class Channel {
     client: Client;
@@ -56,13 +57,13 @@ export class Channel {
      * Default server channel permissions.
      * @requires `TextChannel`, `VoiceChannel`
      */
-    default_permissions: Nullable<number> = null;
+    default_permissions: Nullable<OverrideField> = null;
 
     /**
      * Channel permissions for each role.
      * @requires `TextChannel`, `VoiceChannel`
      */
-    role_permissions: Nullable<{ [key: string]: number }> = null;
+    role_permissions: Nullable<{ [key: string]: OverrideField }> = null;
 
     /**
      * Channel name.
@@ -623,9 +624,9 @@ export class Channel {
     /**
      * Set role permissions
      * @param role_id Role Id, set to 'default' to affect all users
-     * @param permissions Permission number, removes permission if unset
+     * @param permissions Permission value
      */
-    async setPermissions(role_id = "default", permissions?: number) {
+    async setPermissions(role_id = "default", permissions: Override) {
         return await this.client.req(
             "PUT",
             `/channels/${this._id}/permissions/${role_id}` as "/channels/id/permissions/id",
@@ -652,33 +653,41 @@ export class Channel {
     }
 
     @computed get permission() {
+        // 1. Check channel type.
         switch (this.channel_type) {
             case "SavedMessages":
-                return U32_MAX;
+                return Permission.GrantAllSafe;
             case "DirectMessage": {
+                // 2. Determine user permissions.
                 const user_permissions = this.recipient?.permission || 0;
 
+                // 3. Check if the user can send messages.
                 if (user_permissions & UserPermission.SendMessage) {
-                    return DEFAULT_PERMISSION_DM;
+                    return DEFAULT_PERMISSION_DIRECT_MESSAGE;
                 } else {
-                    return 0;
+                    return DEFAULT_PERMISSION_VIEW_ONLY;
                 }
             }
             case "Group": {
+                // 2. Check if user is owner.
                 if (this.owner_id === this.client.user!._id) {
-                    return DEFAULT_PERMISSION_DM;
+                    return DEFAULT_PERMISSION_DIRECT_MESSAGE;
                 } else {
-                    return this.permissions ?? DEFAULT_PERMISSION_DM;
+                    // 3. Pull out group permissions.
+                    return this.permissions ?? DEFAULT_PERMISSION_DIRECT_MESSAGE;
                 }
             }
             case "TextChannel":
             case "VoiceChannel": {
+                // 2. Get server.
                 const server = this.server;
                 if (typeof server === "undefined") return 0;
 
+                // 3. If server owner, just grant all permissions.
                 if (server.owner === this.client.user?._id) {
-                    return U32_MAX;
+                    return Permission.GrantAllSafe;
                 } else {
+                    // 4. Get member.
                     const member = this.client.members.getKey({
                         user: this.client.user!._id,
                         server: server._id,
@@ -686,16 +695,28 @@ export class Channel {
 
                     if (!member) return 0;
 
-                    let perm =
-                        (this.default_permissions ??
-                            server.default_permissions[1]) >>> 0;
+                    // 5. Calculate server base permissions.
+                    let perm = server.permission;
 
-                    if (member.roles) {
-                        for (const role of member.roles) {
-                            perm |= (this.role_permissions?.[role] ?? 0) >>> 0;
-                            perm |=
-                                (server.roles?.[role].permissions[1] ?? 0) >>>
-                                0;
+                    // 6. Apply default allows and denies for channel.
+                    if (this.default_permissions) {
+                        perm |= this.default_permissions.a;
+                        perm &= ~this.default_permissions.d;
+                    }
+
+                    // 7. If user has roles, iterate in order.
+                    if (member.roles && this.role_permissions && server.roles) {
+                        // 5. Apply allows and denies from roles.
+                        const roles = member
+                            .orderedRoles
+                            .map(([id]) => id);
+
+                        for (const id of roles) {
+                            const override = this.role_permissions[id];
+                            if (override) {
+                                perm |= override.a;
+                                perm &= ~override.d;
+                            }
                         }
                     }
 
