@@ -39,6 +39,13 @@ export type RemoveServerField = "Icon" | "Banner" | "Description";
 export type RemoveMemberField = "Nickname" | "Avatar";
 export type RemoveRoleField = "Colour";
 
+export type BulkMessageResponse = Message[]
+| {
+      messages: Message[];
+      users: User[];
+      members?: Member[];
+  };
+
 type Id = "id";
 type Routes =
     /**
@@ -213,7 +220,7 @@ type Routes =
               avatar?: string;
               remove?: RemoveUserField;
           };
-          response: undefined;
+          response: User;
       }
     | {
           // Change username.
@@ -223,7 +230,7 @@ type Routes =
               username: string;
               password: string;
           };
-          response: undefined;
+          response: User;
       }
     | {
           // Retrieve a user's profile.
@@ -340,7 +347,7 @@ type Routes =
               nsfw?: boolean;
               remove?: RemoveChannelField;
           };
-          response: undefined;
+          response: Channel;
       }
     | {
           // Close DM channel or leave group channel.
@@ -396,7 +403,7 @@ type Routes =
         data: {
             permissions?: Override | number;
         };
-        response: undefined;
+        response: Channel;
     }
     | {
           // Set role permission for channel.
@@ -405,7 +412,7 @@ type Routes =
           data: {
               permissions?: Override | number;
           };
-          response: undefined;
+          response: Channel;
       }
     /**
      * Messaging
@@ -442,13 +449,7 @@ type Routes =
               nearby?: string;
               include_users?: boolean;
           };
-          response:
-              | Message[]
-              | {
-                    messages: Message[];
-                    users: User[];
-                    members?: Member[];
-                };
+          response: BulkMessageResponse;
       }
     | {
           // Search messages in a channel (optionally include users as well).
@@ -463,13 +464,7 @@ type Routes =
               sort?: "Relevance" | "Latest" | "Oldest";
               include_users?: boolean;
           };
-          response:
-              | Message[]
-              | {
-                    messages: Message[];
-                    users: User[];
-                    members?: Member[];
-                };
+          response: BulkMessageResponse;
       }
     | {
           // Query updated messages from channel.
@@ -491,7 +486,7 @@ type Routes =
               content?: string;
               embeds?: SendableEmbed[];
           };
-          response: undefined;
+          response: Message;
       }
     | {
           // Delete message.
@@ -541,7 +536,7 @@ type Routes =
               nsfw?: boolean;
               remove?: RemoveServerField;
           };
-          response: undefined;
+          response: Server;
       }
     | {
           // Mark an entire server as read.
@@ -577,7 +572,7 @@ type Routes =
               roles?: string[];
               remove?: RemoveMemberField;
           };
-          response: undefined;
+          response: Member;
       }
     | {
           // Kick a server member
@@ -593,7 +588,7 @@ type Routes =
           data: {
               reason?: string;
           };
-          response: undefined;
+          response: Ban;
       }
     | {
           // Unban a user from the server
@@ -654,7 +649,7 @@ type Routes =
               rank?: number;
               remove?: RemoveRoleField;
           };
-          response: undefined;
+          response: Role;
       }
     | {
           // Delete role
@@ -670,7 +665,7 @@ type Routes =
           data: {
               permissions: number;
           };
-          response: undefined;
+          response: Server;
       }
     | {
           // Set role permission for server.
@@ -679,7 +674,7 @@ type Routes =
           data: {
               permissions: Override | number;
           };
-          response: undefined;
+          response: Server;
       }
     /**
      * Bots
@@ -723,7 +718,7 @@ type Routes =
               interactionsURL?: string;
               remove?: "InteractionsURL";
           };
-          response: undefined;
+          response: Bot;
       }
     | {
           // Delete Bot
