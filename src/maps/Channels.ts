@@ -371,7 +371,7 @@ export class Channel {
 
         runInAction(() => {
             if (this.channel_type === "DirectMessage") {
-                this.active = true;
+                this.active = false;
                 return;
             }
 
@@ -737,6 +737,23 @@ export default class Channels extends Collection<string, Channel> {
         const channel = this.get(id)!;
         if (data) channel.update(data);
         return channel;
+    }
+
+    /**
+     * Check whether a channel should currently exist
+     * @param id Channel ID
+     * @returns Whether it should current exist
+     */
+    exists(id: string) {
+        const channel = this.get(id);
+        if (channel) {
+            switch (channel.channel_type) {
+                case 'DirectMessage': return channel.active;
+                default: return true;
+            }
+        } else {
+            return false;
+        }
     }
 
     /**
