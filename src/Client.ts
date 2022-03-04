@@ -3,7 +3,7 @@ import EventEmitter from "eventemitter3";
 import defaultsDeep from "lodash.defaultsdeep";
 import { action, makeObservable, observable } from "mobx";
 import type { Session } from "revolt-api/types/Auth";
-import type { Attachment, AttachmentMetadata, SizeOptions } from "revolt-api/types/Autumn";
+import type { AttachmentMetadata, SizeOptions } from "revolt-api/types/Autumn";
 import type { RevoltConfiguration } from "revolt-api/types/Core";
 import { MemberCompositeKey, Role } from "revolt-api/types/Servers";
 
@@ -66,14 +66,14 @@ export declare interface Client {
 
     on(event: "message", listener: (message: Message) => void): this;
     on(event: "message/update", listener: (message: Message) => void): this;
-    on(event: "message/delete", listener: (id: string) => void): this;
+    on(event: "message/delete", listener: (id: string, message?: Message) => void): this;
 
     on(event: "channel/create", listener: (channel: Channel) => void): this;
     on(event: "channel/update", listener: (channel: Channel) => void): this;
-    on(event: "channel/delete", listener: (id: string) => void): this;
+    on(event: "channel/delete", listener: (id: string, channel?: Channel) => void): this;
 
     on(event: "server/update", listener: (server: Server) => void): this;
-    on(event: "server/delete", listener: (id: string) => void): this;
+    on(event: "server/delete", listener: (id: string, server?: Server) => void): this;
 
     on(
         event: "role/update",

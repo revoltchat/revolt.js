@@ -277,8 +277,9 @@ export class WebSocketClient {
                         }
 
                         case "MessageDelete": {
+                            const msg = this.client.messages.get(packet.id);
                             this.client.messages.delete(packet.id);
-                            this.client.emit("message/delete", packet.id);
+                            this.client.emit("message/delete", packet.id, msg);
                             break;
                         }
 
@@ -311,8 +312,9 @@ export class WebSocketClient {
                         }
 
                         case "ChannelDelete": {
-                            this.client.channels.get(packet.id)?.delete(true);
-                            this.client.emit("channel/delete", packet.id);
+                            const channel = this.client.channels.get(packet.id);
+                            channel?.delete(true);
+                            this.client.emit("channel/delete", packet.id, channel);
                             break;
                         }
 
@@ -340,8 +342,9 @@ export class WebSocketClient {
                         }
 
                         case "ServerDelete": {
-                            this.client.servers.get(packet.id)?.delete(true);
-                            this.client.emit("server/delete", packet.id);
+                            const server = this.client.servers.get(packet.id);
+                            server?.delete(true);
+                            this.client.emit("server/delete", packet.id, server);
                             break;
                         }
 
@@ -452,7 +455,10 @@ export class WebSocketClient {
                         case "UserRelationship": {
                             const user = this.client.users.get(packet.user._id);
                             if (user) {
-                                user.update({ relationship: packet.status });
+                                user.update({
+                                    ...packet.user,
+                                    relationship: packet.status
+                                });
                             } else {
                                 this.client.users.createObj(packet.user);
                             }
