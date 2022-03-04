@@ -111,11 +111,22 @@ export class User {
      * @returns DM Channel
      */
     async openDM() {
-        const dm = await this.client.req(
-            "GET",
-            `/users/${this._id}/dm` as "/users/id/dm",
-        );
-        return (await this.client.channels.fetch(dm._id, dm))!;
+        let dm = [...this.client.channels.values()].find(x => x.channel_type === 'DirectMessage' && x.recipient == this);
+
+        if (!dm) {
+            const data = await this.client.req(
+                "GET",
+                `/users/${this._id}/dm` as "/users/id/dm",
+            );
+
+            dm = await this.client.channels.fetch(data._id, data)!;
+        }
+
+        runInAction(() => {
+            dm!.active = true;
+        });
+
+        return dm;
     }
 
     /**
