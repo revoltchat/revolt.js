@@ -7,7 +7,8 @@ import type {
     Message,
     TextChannel,
     VoiceChannel,
-    SendableEmbed
+    SendableEmbed,
+    Masquerade
 } from "revolt-api/types/Channels";
 import type { RevoltConfiguration } from "revolt-api/types/Core";
 import type { RetrievedInvite, ServerInvite } from "revolt-api/types/Invites";
@@ -410,6 +411,7 @@ type Routes =
               attachments?: string[];
               replies?: { id: string; mention: boolean }[];
               embeds?: SendableEmbed[];
+              masquerade?: Masquerade;
           };
           response: Message;
       }
