@@ -10,7 +10,7 @@ import type {
     SendableEmbed
 } from "revolt-api/types/Channels";
 import type { RevoltConfiguration } from "revolt-api/types/Core";
-import type { RetrievedInvite, ServerInvite } from "revolt-api/types/Invites";
+import type { Invite, RetrievedInvite, ServerInvite } from "revolt-api/types/Invites";
 import type {
     Ban,
     Category,
@@ -210,7 +210,7 @@ type Routes =
     | {
           // Edit user.
           method: "PATCH";
-          route: `/users/${Id}`;
+          route: `/users/@me`;
           data: {
               status?: Status;
               profile?: {
@@ -225,7 +225,7 @@ type Routes =
     | {
           // Change username.
           method: "PATCH";
-          route: `/users/${Id}/username`;
+          route: `/users/@me/username`;
           data: {
               username: string;
               password: string;
@@ -373,7 +373,7 @@ type Routes =
           method: "POST";
           route: `/channels/${Id}/invites`;
           data: undefined;
-          response: { code: string };
+          response: Invite;
       }
     | {
           // Add member to group.

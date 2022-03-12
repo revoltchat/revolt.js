@@ -291,8 +291,8 @@ export default class Users extends Collection<string, User> {
      * Edit the current user
      * @param data User edit data object
      */
-    async edit(data: Route<"PATCH", "/users/id">["data"]) {
-        await this.client.req("PATCH", "/users/id", data);
+    async edit(data: Route<"PATCH", "/users/@me">["data"]) {
+        await this.client.req("PATCH", "/users/@me", data);
     }
 
     /**
@@ -301,7 +301,7 @@ export default class Users extends Collection<string, User> {
      * @param password Current password
      */
     async changeUsername(username: string, password: string) {
-        return await this.client.req("PATCH", "/users/id/username", {
+        return await this.client.req("PATCH", "/users/@me/username", {
             username,
             password,
         });

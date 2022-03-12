@@ -566,11 +566,10 @@ export class Channel {
      * @returns Newly created invite code
      */
     async createInvite() {
-        const res = await this.client.req(
+        return await this.client.req(
             "POST",
             `/channels/${this._id}/invites` as "/channels/id/invites",
         );
-        return res.code;
     }
 
     /**
