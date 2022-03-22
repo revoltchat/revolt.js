@@ -1,11 +1,12 @@
 import type {
+    DataEditMessage,
+    DataMessageSend,
     Embed,
     Masquerade,
     Message as MessageI,
     SystemMessage,
-} from "revolt-api/types/Channels";
-import type { Attachment } from "revolt-api/types/Autumn";
-import type { Route } from "../api/routes";
+} from "revolt-api";
+import type { File } from "revolt-api";
 
 import { makeAutoObservable, runInAction, action, computed } from "mobx";
 import isEqual from "lodash.isequal";
@@ -24,7 +25,7 @@ export class Message {
     author_id: string;
 
     content: string | SystemMessage;
-    attachments: Nullable<Attachment[]>;
+    attachments: Nullable<File[]>;
     edited: Nullable<Date>;
     embeds: Nullable<Embed[]>;
     mention_ids: Nullable<string[]>;
@@ -113,13 +114,13 @@ export class Message {
     constructor(client: Client, data: MessageI) {
         this.client = client;
         this._id = data._id;
-        this.nonce = data.nonce;
+        this.nonce = data.nonce ?? undefined;
         this.channel_id = data.channel;
         this.author_id = data.author;
 
         this.content = data.content;
         this.attachments = toNullable(data.attachments);
-        this.edited = toNullableDate(data.edited);
+        this.edited = toNullableDate(data.edited as any);
         this.embeds = toNullable(data.embeds);
         this.mention_ids = toNullable(data.mentions);
         this.reply_ids = toNullable(data.replies);
@@ -164,10 +165,9 @@ export class Message {
      * Edit a message
      * @param data Message edit route data
      */
-    async edit(data: Route<"PATCH", "/channels/id/messages/id">["data"]) {
-        return await this.client.req(
-            "PATCH",
-            `/channels/${this.channel_id}/messages/${this._id}` as "/channels/id/messages/id",
+    async edit(data: DataEditMessage) {
+        return await this.client.api.patch(
+            `/channels/${this.channel_id}/messages/${this._id as ''}`,
             data,
         );
     }
@@ -176,9 +176,8 @@ export class Message {
      * Delete a message
      */
     async delete() {
-        return await this.client.req(
-            "DELETE",
-            `/channels/${this.channel_id}/messages/${this._id}` as "/channels/id/messages/id",
+        return await this.client.api.delete(
+            `/channels/${this.channel_id}/messages/${this._id as ''}`,
         );
     }
 
@@ -195,7 +194,7 @@ export class Message {
     reply(
         data:
             | string
-            | (Omit<Route<"POST", "/channels/id/messages">["data"], "nonce"> & {
+            | (Omit<DataMessageSend, "nonce"> & {
                   nonce?: string;
               }),
         mention = true,

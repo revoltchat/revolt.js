@@ -1,7 +1,7 @@
 import { backOff } from "@insertish/exponential-backoff";
 import WebSocket from "@insertish/isomorphic-ws";
 import { runInAction } from "mobx";
-import { Role } from "revolt-api/types/Servers";
+import { Role } from "revolt-api";
 
 import { Client } from "..";
 import {
@@ -105,16 +105,17 @@ export class WebSocketClient {
                 }
             };
 
-            const timeouts: Record<string, number> = {};
-            const handle = async (msg: WebSocket.MessageEvent) => {
-                const data = msg.data;
-                if (typeof data !== "string") return;
-
-                if (this.client.debug) console.debug("[>] PACKET", data);
-                const packet = JSON.parse(data) as ClientboundNotification;
+            const process = async (packet: ClientboundNotification) => {
                 this.client.emit("packet", packet);
                 try {
                     switch (packet.type) {
+                        case "Bulk": {
+                            for (const entry of packet.v) {
+                                await process(entry);
+                            }
+                            break;
+                        }
+
                         case "Error": {
                             reject(packet.error);
                             break;
@@ -276,8 +277,9 @@ export class WebSocketClient {
                         }
 
                         case "MessageDelete": {
+                            const msg = this.client.messages.get(packet.id);
                             this.client.messages.delete(packet.id);
-                            this.client.emit("message/delete", packet.id);
+                            this.client.emit("message/delete", packet.id, msg);
                             break;
                         }
 
@@ -310,8 +312,9 @@ export class WebSocketClient {
                         }
 
                         case "ChannelDelete": {
-                            this.client.channels.get(packet.id)?.delete(true);
-                            this.client.emit("channel/delete", packet.id);
+                            const channel = this.client.channels.get(packet.id);
+                            channel?.delete(true);
+                            this.client.emit("channel/delete", packet.id, channel);
                             break;
                         }
 
@@ -339,8 +342,9 @@ export class WebSocketClient {
                         }
 
                         case "ServerDelete": {
-                            this.client.servers.get(packet.id)?.delete(true);
-                            this.client.emit("server/delete", packet.id);
+                            const server = this.client.servers.get(packet.id);
+                            server?.delete(true);
+                            this.client.emit("server/delete", packet.id, server);
                             break;
                         }
 
@@ -451,7 +455,10 @@ export class WebSocketClient {
                         case "UserRelationship": {
                             const user = this.client.users.get(packet.user._id);
                             if (user) {
-                                user.update({ relationship: packet.status });
+                                user.update({
+                                    ...packet.user,
+                                    relationship: packet.status
+                                });
                             } else {
                                 this.client.users.createObj(packet.user);
                             }
@@ -505,6 +512,16 @@ export class WebSocketClient {
                 } catch(e) {
                     console.error(e);
                 }
+            };
+
+            const timeouts: Record<string, number> = {};
+            const handle = async (msg: WebSocket.MessageEvent) => {
+                const data = msg.data;
+                if (typeof data !== "string") return;
+
+                if (this.client.debug) console.debug("[>] PACKET", data);
+                const packet = JSON.parse(data) as ClientboundNotification;
+                await process(packet);
             };
 
             let processing = false;

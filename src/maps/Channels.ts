@@ -1,11 +1,15 @@
 import type {
     Channel as ChannelI,
+    DataCreateGroup,
+    DataEditChannel,
+    DataMessageSend,
+    FieldsChannel,
     Message as MessageI,
-} from "revolt-api/types/Channels";
-import type { RemoveChannelField, Route } from "../api/routes";
-import type { Attachment } from "revolt-api/types/Autumn";
-import type { Member } from "revolt-api/types/Servers";
-import type { User } from "revolt-api/types/Users";
+    OptionsMessageSearch,
+} from "revolt-api";
+import type { File } from "revolt-api";
+import type { Member } from "revolt-api";
+import type { User } from "revolt-api";
 
 import { action, computed, makeAutoObservable, runInAction } from "mobx";
 import isEqual from "lodash.isequal";
@@ -16,11 +20,13 @@ import Collection from "./Collection";
 import { Message } from "./Messages";
 import { Client, FileArgs } from "..";
 import {
-    DEFAULT_PERMISSION_DM,
-    U32_MAX,
-    UserPermission,
+    DEFAULT_PERMISSION_DIRECT_MESSAGE,
+    DEFAULT_PERMISSION_VIEW_ONLY,
+    Permission, UserPermission
 } from "../api/permissions";
 import { INotificationChecker } from "../util/Unreads";
+import { Override, OverrideField } from "revolt-api";
+import { APIRoutes } from "revolt-api/dist/routes";
 
 export class Channel {
     client: Client;
@@ -56,13 +62,13 @@ export class Channel {
      * Default server channel permissions.
      * @requires `TextChannel`, `VoiceChannel`
      */
-    default_permissions: Nullable<number> = null;
+    default_permissions: Nullable<OverrideField> = null;
 
     /**
      * Channel permissions for each role.
      * @requires `TextChannel`, `VoiceChannel`
      */
-    role_permissions: Nullable<{ [key: string]: number }> = null;
+    role_permissions: Nullable<{ [key: string]: OverrideField }> = null;
 
     /**
      * Channel name.
@@ -74,7 +80,7 @@ export class Channel {
      * Channel icon.
      * @requires `Group`, `TextChannel`, `VoiceChannel`
      */
-    icon: Nullable<Attachment> = null;
+    icon: Nullable<File> = null;
 
     /**
      * Channel description.
@@ -278,7 +284,7 @@ export class Channel {
         });
     }
 
-    @action update(data: Partial<ChannelI>, clear?: RemoveChannelField) {
+    @action update(data: Partial<ChannelI>, clear: FieldsChannel[] = []) {
         const apply = (key: string, target?: string) => {
             if (
                 // @ts-expect-error TODO: clean up types here
@@ -291,13 +297,15 @@ export class Channel {
             }
         };
 
-        switch (clear) {
-            case "Description":
-                this.description = null;
-                break;
-            case "Icon":
-                this.icon = null;
-                break;
+        for (const entry of clear) {
+            switch (entry) {
+                case "Description":
+                    this.description = null;
+                    break;
+                case "Icon":
+                    this.icon = null;
+                    break;
+            }
         }
 
         apply("active");
@@ -337,24 +345,19 @@ export class Channel {
      * @returns An array of the channel's members.
      */
     async fetchMembers() {
-        const members = await this.client.req(
-            "GET",
-            `/channels/${this._id}/members` as "/channels/id/members",
+        const members = await this.client.api.get(
+            `/channels/${this._id as ''}/members`
         );
+
         return members.map(this.client.users.createObj);
     }
 
     /**
      * Edit a channel
-     * @param data Channel editing route data
+     * @param data Edit data
      */
-    async edit(data: Route<"PATCH", "/channels/id">["data"]) {
-        return await this.client.req(
-            "PATCH",
-            `/channels/${this._id}` as "/channels/id",
-            data,
-        );
-        // ! FIXME: return $set in req
+    async edit(data: DataEditChannel) {
+        this.update(await this.client.api.patch(`/channels/${this._id}`, data));
     }
 
     /**
@@ -363,14 +366,13 @@ export class Channel {
      */
     async delete(avoidReq?: boolean) {
         if (!avoidReq)
-            await this.client.req(
-                "DELETE",
-                `/channels/${this._id}` as "/channels/id",
+            await this.client.api.delete(
+                `/channels/${this._id}`
             );
 
         runInAction(() => {
             if (this.channel_type === "DirectMessage") {
-                this.active = true;
+                this.active = false;
                 return;
             }
 
@@ -395,9 +397,8 @@ export class Channel {
      * @param user_id ID of the target user
      */
     async addMember(user_id: string) {
-        return await this.client.req(
-            "PUT",
-            `/channels/${this._id}/recipients/${user_id}` as "/channels/id/recipients/id",
+        return await this.client.api.put(
+            `/channels/${this._id}/recipients/${user_id as ''}`
         );
     }
 
@@ -406,9 +407,8 @@ export class Channel {
      * @param user_id ID of the target user
      */
     async removeMember(user_id: string) {
-        return await this.client.req(
-            "DELETE",
-            `/channels/${this._id}/recipients/${user_id}` as "/channels/id/recipients/id",
+        return await this.client.api.delete(
+            `/channels/${this._id}/recipients/${user_id as ''}`
         );
     }
 
@@ -420,20 +420,20 @@ export class Channel {
     async sendMessage(
         data:
             | string
-            | (Omit<Route<"POST", "/channels/id/messages">["data"], "nonce"> & {
+            | (Omit<DataMessageSend, "nonce"> & {
                   nonce?: string;
               }),
     ) {
-        const msg: Route<"POST", "/channels/id/messages">["data"] = {
+        const msg: DataMessageSend = {
             nonce: ulid(),
             ...(typeof data === "string" ? { content: data } : data),
         };
 
-        const message = await this.client.req(
-            "POST",
-            `/channels/${this._id}/messages` as "/channels/id/messages",
+        const message = await this.client.api.post(
+            `/channels/${this._id as ''}/messages`,
             msg,
         );
+
         return this.client.messages.createObj(message, true);
     }
 
@@ -443,10 +443,10 @@ export class Channel {
      * @returns The message
      */
     async fetchMessage(message_id: string) {
-        const message = await this.client.req(
-            "GET",
-            `/channels/${this._id}/messages/${message_id}` as "/channels/id/messages/id",
+        const message = await this.client.api.get(
+            `/channels/${this._id as ''}/messages/${message_id as ''}`,
         );
+        
         return this.client.messages.createObj(message);
     }
 
@@ -457,14 +457,13 @@ export class Channel {
      */
     async fetchMessages(
         params?: Omit<
-            Route<"GET", "/channels/id/messages">["data"],
+            (APIRoutes & { method: 'get', path: '/channels/{target}/messages' })['params'],
             "include_users"
         >,
     ) {
-        const messages = (await this.client.request(
-            "GET",
-            `/channels/${this._id}/messages` as "/channels/id/messages",
-            { params },
+        const messages = (await this.client.api.get(
+            `/channels/${this._id}/messages`,
+            { ...params },
         )) as MessageI[];
         return runInAction(() => messages.map(this.client.messages.createObj));
     }
@@ -476,14 +475,13 @@ export class Channel {
      */
     async fetchMessagesWithUsers(
         params?: Omit<
-            Route<"GET", "/channels/id/messages">["data"],
+            (APIRoutes & { method: 'get', path: '/channels/{target}/messages' })['params'],
             "include_users"
         >,
     ) {
-        const data = (await this.client.request(
-            "GET",
-            `/channels/${this._id}/messages` as "/channels/id/messages",
-            { params: { ...params, include_users: true } },
+        const data = (await this.client.api.get(
+            `/channels/${this._id}/messages`,
+            { ...params, include_users: true },
         )) as { messages: MessageI[]; users: User[]; members?: Member[] };
         return runInAction(() => {
             return {
@@ -501,13 +499,12 @@ export class Channel {
      */
     async search(
         params: Omit<
-            Route<"POST", "/channels/id/search">["data"],
+            OptionsMessageSearch,
             "include_users"
         >,
     ) {
-        const messages = (await this.client.req(
-            "POST",
-            `/channels/${this._id}/search` as "/channels/id/search",
+        const messages = (await this.client.api.post(
+            `/channels/${this._id}/search`,
             params,
         )) as MessageI[];
         return runInAction(() => messages.map(this.client.messages.createObj));
@@ -520,13 +517,12 @@ export class Channel {
      */
     async searchWithUsers(
         params: Omit<
-            Route<"POST", "/channels/id/search">["data"],
+            OptionsMessageSearch,
             "include_users"
         >,
     ) {
-        const data = (await this.client.req(
-            "POST",
-            `/channels/${this._id}/search` as "/channels/id/search",
+        const data = (await this.client.api.post(
+            `/channels/${this._id}/search`,
             { ...params, include_users: true },
         )) as { messages: MessageI[]; users: User[]; members?: Member[] };
         return runInAction(() => {
@@ -544,9 +540,8 @@ export class Channel {
      * @returns The stale messages
      */
     async fetchStale(ids: string[]) {
-        const data = await this.client.req(
-            "POST",
-            `/channels/${this._id}/messages/stale` as "/channels/id/messages/stale",
+        /*const data = await this.client.api.post(
+            `/channels/${this._id}/messages/stale`,
             { ids },
         );
 
@@ -557,7 +552,8 @@ export class Channel {
             );
         });
 
-        return data;
+        return data;*/
+        return { deprecated: ids };
     }
 
     /**
@@ -565,11 +561,9 @@ export class Channel {
      * @returns Newly created invite code
      */
     async createInvite() {
-        const res = await this.client.req(
-            "POST",
-            `/channels/${this._id}/invites` as "/channels/id/invites",
+        return await this.client.api.post(
+            `/channels/${this._id}/invites`,
         );
-        return res.code;
     }
 
     /**
@@ -577,9 +571,8 @@ export class Channel {
      * @returns Join call response data
      */
     async joinCall() {
-        return await this.client.req(
-            "POST",
-            `/channels/${this._id}/join_call` as "/channels/id/join_call",
+        return await this.client.api.post(
+            `/channels/${this._id as ''}/join_call`,
         );
     }
 
@@ -598,9 +591,8 @@ export class Channel {
             ulid();
         const performAck = () => {
             delete this.ackLimit;
-            this.client.req(
-                "PUT",
-                `/channels/${this._id}/ack/${id}` as "/channels/id/ack/id",
+            this.client.api.put(
+                `/channels/${this._id}/ack/${id as ''}`,
             );
         };
 
@@ -623,12 +615,11 @@ export class Channel {
     /**
      * Set role permissions
      * @param role_id Role Id, set to 'default' to affect all users
-     * @param permissions Permission number, removes permission if unset
+     * @param permissions Permission value
      */
-    async setPermissions(role_id = "default", permissions?: number) {
-        return await this.client.req(
-            "PUT",
-            `/channels/${this._id}/permissions/${role_id}` as "/channels/id/permissions/id",
+    async setPermissions(role_id = "default", permissions: Override) {
+        return await this.client.api.put(
+            `/channels/${this._id}/permissions/${role_id as ''}`,
             { permissions },
         );
     }
@@ -652,33 +643,41 @@ export class Channel {
     }
 
     @computed get permission() {
+        // 1. Check channel type.
         switch (this.channel_type) {
             case "SavedMessages":
-                return U32_MAX;
+                return Permission.GrantAllSafe;
             case "DirectMessage": {
+                // 2. Determine user permissions.
                 const user_permissions = this.recipient?.permission || 0;
 
+                // 3. Check if the user can send messages.
                 if (user_permissions & UserPermission.SendMessage) {
-                    return DEFAULT_PERMISSION_DM;
+                    return DEFAULT_PERMISSION_DIRECT_MESSAGE;
                 } else {
-                    return 0;
+                    return DEFAULT_PERMISSION_VIEW_ONLY;
                 }
             }
             case "Group": {
+                // 2. Check if user is owner.
                 if (this.owner_id === this.client.user!._id) {
-                    return DEFAULT_PERMISSION_DM;
+                    return DEFAULT_PERMISSION_DIRECT_MESSAGE;
                 } else {
-                    return this.permissions ?? DEFAULT_PERMISSION_DM;
+                    // 3. Pull out group permissions.
+                    return this.permissions ?? DEFAULT_PERMISSION_DIRECT_MESSAGE;
                 }
             }
             case "TextChannel":
             case "VoiceChannel": {
+                // 2. Get server.
                 const server = this.server;
                 if (typeof server === "undefined") return 0;
 
+                // 3. If server owner, just grant all permissions.
                 if (server.owner === this.client.user?._id) {
-                    return U32_MAX;
+                    return Permission.GrantAllSafe;
                 } else {
+                    // 4. Get member.
                     const member = this.client.members.getKey({
                         user: this.client.user!._id,
                         server: server._id,
@@ -686,16 +685,28 @@ export class Channel {
 
                     if (!member) return 0;
 
-                    let perm =
-                        (this.default_permissions ??
-                            server.default_permissions[1]) >>> 0;
+                    // 5. Calculate server base permissions.
+                    let perm = server.permission;
 
-                    if (member.roles) {
-                        for (const role of member.roles) {
-                            perm |= (this.role_permissions?.[role] ?? 0) >>> 0;
-                            perm |=
-                                (server.roles?.[role].permissions[1] ?? 0) >>>
-                                0;
+                    // 6. Apply default allows and denies for channel.
+                    if (this.default_permissions) {
+                        perm |= this.default_permissions.a;
+                        perm &= ~this.default_permissions.d;
+                    }
+
+                    // 7. If user has roles, iterate in order.
+                    if (member.roles && this.role_permissions && server.roles) {
+                        // 5. Apply allows and denies from roles.
+                        const roles = member
+                            .orderedRoles
+                            .map(([id]) => id);
+
+                        for (const id of roles) {
+                            const override = this.role_permissions[id];
+                            if (override) {
+                                perm |= override.a;
+                                perm &= ~override.d;
+                            }
                         }
                     }
 
@@ -719,6 +730,23 @@ export default class Channels extends Collection<string, Channel> {
     }
 
     /**
+     * Check whether a channel should currently exist
+     * @param id Channel ID
+     * @returns Whether it should current exist
+     */
+    exists(id: string) {
+        const channel = this.get(id);
+        if (channel) {
+            switch (channel.channel_type) {
+                case 'DirectMessage': return channel.active;
+                default: return true;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * Fetch a channel
      * @param id Channel ID
      * @returns The channel
@@ -727,7 +755,7 @@ export default class Channels extends Collection<string, Channel> {
         if (this.has(id)) return this.$get(id);
         const res =
             data ??
-            (await this.client.req("GET", `/channels/${id}` as "/channels/id"));
+            (await this.client.api.get(`/channels/${id as ''}`));
         return this.createObj(res);
     }
 
@@ -755,8 +783,8 @@ export default class Channels extends Collection<string, Channel> {
      * @param data Group create route data
      * @returns The newly-created group
      */
-    async createGroup(data: Route<"POST", "/channels/create">["data"]) {
-        const group = await this.client.req("POST", `/channels/create`, data);
+    async createGroup(data: DataCreateGroup) {
+        const group = await this.client.api.post(`/channels/create`, data);
         return (await this.fetch(group._id, group))!;
     }
 }

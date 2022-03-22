@@ -6,7 +6,7 @@ import {
     ObservableMap,
     runInAction,
 } from "mobx";
-import type { ChannelUnread } from "revolt-api/types/Sync";
+import type { ChannelUnread } from "revolt-api";
 import { ulid } from "ulid";
 import { Channel } from "../maps/Channels";
 import { Server } from "../maps/Servers";
