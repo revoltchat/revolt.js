@@ -1,13 +1,9 @@
-import Axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 import EventEmitter from "eventemitter3";
 import defaultsDeep from "lodash.defaultsdeep";
 import { action, makeObservable, observable } from "mobx";
-import type { Session } from "revolt-api/types/Auth";
-import type { AttachmentMetadata, SizeOptions } from "revolt-api/types/Autumn";
-import type { RevoltConfiguration } from "revolt-api/types/Core";
-import { MemberCompositeKey, Role } from "revolt-api/types/Servers";
-
-import { Route, RoutePath, RouteMethod } from "./api/routes";
+import type { DataCreateAccount, DataLogin, DataOnboard, Session } from "revolt-api";
+import type { RevoltConfig, Metadata } from "revolt-api";
+import { API, MemberCompositeKey, Role } from "revolt-api";
 
 import Bots from "./maps/Bots";
 import Channels, { Channel } from "./maps/Channels";
@@ -102,7 +98,12 @@ export const RE_MENTIONS = /<@([A-z0-9]{26})>/g;
 export const RE_SPOILER = /!!.+!!/g;
 
 export type FileArgs = [
-    options?: SizeOptions,
+    options?: {
+        max_side?: number,
+        size?: number,
+        width?: number,
+        height?: number
+    },
     allowAnimation?: boolean,
     fallback?: string,
 ];
@@ -110,13 +111,13 @@ export type FileArgs = [
 export class Client extends EventEmitter {
     heartbeat: number;
 
+    api: API;
     session?: Session | string;
     user: Nullable<User> = null;
 
     options: ClientOptions;
     websocket: WebSocketClient;
-    private Axios: AxiosInstance;
-    configuration?: RevoltConfiguration;
+    configuration?: RevoltConfig;
 
     users: Users;
     channels: Channels;
@@ -160,101 +161,34 @@ export class Client extends EventEmitter {
             this.unreads = new Unreads(this);
         }
 
-        this.Axios = Axios.create({ baseURL: this.apiURL });
+        this.api = new API({ baseURL: this.apiURL });
         this.websocket = new WebSocketClient(this);
         this.heartbeat = this.options.heartbeat;
-
-        if (options.debug) {
-            this.Axios.interceptors.request.use((request) => {
-                console.debug(
-                    "[<]",
-                    request.method?.toUpperCase(),
-                    request.url,
-                );
-                return request;
-            });
-
-            this.Axios.interceptors.response.use((response) => {
-                console.debug(
-                    "[>] (" + response.status + ":",
-                    response.statusText + ")",
-                    JSON.stringify(response.data),
-                );
-                return response;
-            });
-        }
     }
 
     /**
      * ? Configuration.
      */
 
+    /**
+     * Get the current API base URL.
+     */
     get apiURL() {
         return this.options.apiURL;
     }
 
+    /**
+     * Whether debug mode is turned on.
+     */
     get debug() {
         return this.options.debug;
     }
 
+    /**
+     * Whether revolt.js should auto-reconnect
+     */
     get autoReconnect() {
         return this.options.autoReconnect;
-    }
-
-    /**
-     * ? Axios request wrapper.
-     */
-
-    req<M extends RouteMethod, T extends RoutePath>(
-        method: M,
-        url: T,
-    ): Promise<Route<M, T>["response"]>;
-    req<M extends RouteMethod, T extends RoutePath>(
-        method: M,
-        url: T,
-        data: Route<M, T>["data"],
-    ): Promise<Route<M, T>["response"]>;
-
-    /**
-     * Perform an HTTP request using Axios, specifying a route data object.
-     * @param method HTTP method
-     * @param url Target route
-     * @param data Route data object
-     * @returns The response body
-     */
-    async req<M extends RouteMethod, T extends RoutePath>(
-        method: M,
-        url: T,
-        data?: Route<M, T>["data"],
-    ): Promise<Route<M, T>["response"]> {
-        const res = await this.Axios.request({
-            method,
-            data,
-            url,
-        });
-
-        return res.data;
-    }
-
-    /**
-     * Perform an HTTP request using Axios, specifying a request config.
-     * @param method HTTP method
-     * @param url Target route
-     * @param data Axios request config object
-     * @returns The response body
-     */
-    async request<M extends RouteMethod, T extends RoutePath>(
-        method: M,
-        url: T,
-        data: AxiosRequestConfig,
-    ): Promise<Route<M, T>["response"]> {
-        const res = await this.Axios.request({
-            ...data,
-            method,
-            url,
-        });
-
-        return res.data;
     }
 
     /**
@@ -269,7 +203,7 @@ export class Client extends EventEmitter {
      * configuration if it has already been fetched before.
      */
     async connect() {
-        this.configuration = await this.req("GET", "/");
+        this.configuration = await this.api.get("/");
     }
 
     /**
@@ -279,22 +213,16 @@ export class Client extends EventEmitter {
         if (!this.configuration) await this.connect();
     }
 
-    private $generateHeaders(
-        session: Session | string | undefined = this.session,
-    ) {
-        if (typeof session === "string") {
-            return {
-                "x-bot-token": session,
-            };
-        } else {
-            return {
-                "x-session-token": session?.token,
-            };
-        }
-    }
-
+    /**
+     * Update API object to use authentication.
+     */
     private $updateHeaders() {
-        this.Axios.defaults.headers = this.$generateHeaders();
+        this.api = new API({
+            baseURL: this.apiURL,
+            authentication: {
+                revolt: this.session
+            }
+        });
     }
 
     /**
@@ -302,11 +230,15 @@ export class Client extends EventEmitter {
      * @param details Login data object
      * @returns An onboarding function if onboarding is required, undefined otherwise
      */
-    async login(details: Route<"POST", "/auth/session/login">["data"]) {
+    async login(details: DataLogin) {
         await this.fetchConfiguration();
-        this.session = await this.req("POST", "/auth/session/login", details);
-
-        return await this.$connect();
+        const data = await this.api.post("/auth/session/login", details);
+        if (data.result === 'Success') {
+            this.session = data;
+            return await this.$connect();
+        } else {
+            throw "MFA not implemented!";
+        }
     }
 
     /**
@@ -337,7 +269,7 @@ export class Client extends EventEmitter {
      */
     private async $connect() {
         this.$updateHeaders();
-        const { onboarding } = await this.req("GET", "/onboard/hello");
+        const { onboarding } = await this.api.get("/onboard/hello");
         if (onboarding) {
             return (username: string, loginAfterSuccess?: boolean) =>
                 this.completeOnboarding({ username }, loginAfterSuccess);
@@ -352,10 +284,10 @@ export class Client extends EventEmitter {
      * @param loginAfterSuccess Defines whether to automatically log in and connect after onboarding finishes
      */
     async completeOnboarding(
-        data: Route<"POST", "/onboard/complete">["data"],
+        data: DataOnboard,
         loginAfterSuccess?: boolean,
     ) {
-        await this.req("POST", "/onboard/complete", data);
+        await this.api.post("/onboard/complete", data);
         if (loginAfterSuccess) {
             await this.websocket.connect();
         }
@@ -371,7 +303,7 @@ export class Client extends EventEmitter {
      * @returns Invite information.
      */
     async fetchInvite(code: string) {
-        return await this.req("GET", `/invites/${code}` as "/invites/id");
+        return await this.api.get(`/invites/${code}`);
     }
 
     /**
@@ -380,7 +312,7 @@ export class Client extends EventEmitter {
      * @returns Data provided by invite.
      */
     async joinInvite(code: string) {
-        return await this.req("POST", `/invites/${code}` as "/invites/id");
+        return await this.api.post(`/invites/${code}`);
     }
 
     /**
@@ -388,7 +320,7 @@ export class Client extends EventEmitter {
      * @param code The invite code.
      */
     async deleteInvite(code: string) {
-        await this.req("DELETE", `/invites/${code}` as "/invites/id");
+        await this.api.delete(`/invites/${code}`);
     }
 
     /**
@@ -397,7 +329,7 @@ export class Client extends EventEmitter {
      * @returns Key-value object of settings.
      */
     async syncFetchSettings(keys: string[]) {
-        return await this.req("POST", "/sync/settings/fetch", { keys });
+        return await this.api.post("/sync/settings/fetch", { keys });
     }
 
     /**
@@ -416,11 +348,12 @@ export class Client extends EventEmitter {
                 typeof value === "string" ? value : JSON.stringify(value);
         }
 
-        const query = timestamp ? `?timestamp=${timestamp}` : "";
-        await this.req(
-            "POST",
-            `/sync/settings/set${query}` as "/sync/settings/set",
-            requestData,
+        await this.api.post(
+            `/sync/settings/set`,
+            {
+                ...requestData,
+                timestamp
+            }
         );
     }
 
@@ -429,7 +362,7 @@ export class Client extends EventEmitter {
      * @returns Array of channel unreads.
      */
     async syncFetchUnreads() {
-        return await this.req("GET", "/sync/unreads");
+        return await this.api.get("/sync/unreads");
     }
 
     /**
@@ -442,7 +375,7 @@ export class Client extends EventEmitter {
     async logout(avoidRequest?: boolean) {
         this.user = null;
         this.emit("logout");
-        !avoidRequest && (await this.req("POST", "/auth/session/logout"));
+        !avoidRequest && (await this.api.post("/auth/session/logout"));
         this.reset();
     }
 
@@ -467,8 +400,8 @@ export class Client extends EventEmitter {
      * @param data Registration data object
      * @returns A promise containing a registration response object
      */
-    register(data: Route<"POST", "/auth/account/create">["data"]) {
-        return this.request("POST", "/auth/account/create", { data });
+    register(data: DataCreateAccount) {
+        return this.api.post("/auth/account/create", data);
     }
 
     /**
@@ -512,7 +445,7 @@ export class Client extends EventEmitter {
      * @returns Generated URL or nothing
      */
     generateFileURL(
-        attachment?: { tag: string; _id: string; content_type?: string, metadata?: AttachmentMetadata },
+        attachment?: { tag: string; _id: string; content_type?: string, metadata?: Metadata },
         ...args: FileArgs
     ) {
         const [options, allowAnimation, fallback] = args;
@@ -537,7 +470,7 @@ export class Client extends EventEmitter {
                 query =
                     "?" +
                     Object.keys(options)
-                        .map((k) => `${k}=${options[k as keyof SizeOptions]}`)
+                        .map((k) => `${k}=${options[k as keyof FileArgs[0]]}`)
                         .join("&");
             }
         }

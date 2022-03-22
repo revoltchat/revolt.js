@@ -1,12 +1,17 @@
 import type {
     Category,
+    DataBanCreate,
+    DataCreateChannel,
+    DataCreateServer,
+    DataEditRole,
+    DataEditServer,
+    FieldsServer,
     Member,
     Role,
     Server as ServerI,
     SystemMessageChannels,
-} from "revolt-api/types/Servers";
-import type { RemoveServerField, Route } from "../api/routes";
-import type { Attachment } from "revolt-api/types/Autumn";
+} from "revolt-api";
+import type { File } from "revolt-api";
 
 import { makeAutoObservable, action, runInAction, computed } from "mobx";
 import isEqual from "lodash.isequal";
@@ -18,7 +23,7 @@ import { User } from "./Users";
 import { Client, FileArgs } from "..";
 import { decodeTime } from "ulid";
 import { INotificationChecker } from "../util/Unreads";
-import { Override } from "revolt-api/types/_common";
+import { Override } from "revolt-api";
 import Long from "long";
 
 export class Server {
@@ -36,8 +41,8 @@ export class Server {
     roles: Nullable<{ [key: string]: Role }> = null;
     default_permissions: number;
 
-    icon: Nullable<Attachment> = null;
-    banner: Nullable<Attachment> = null;
+    icon: Nullable<File> = null;
+    banner: Nullable<File> = null;
 
     nsfw: Nullable<boolean> = null;
     flags: Nullable<number> = null;
@@ -126,7 +131,7 @@ export class Server {
         });
     }
 
-    @action update(data: Partial<ServerI>, clear?: RemoveServerField) {
+    @action update(data: Partial<ServerI>, clear: FieldsServer[] = []) {
         const apply = (key: string, target?: string) => {
             // This code has been tested.
             if (
@@ -140,16 +145,18 @@ export class Server {
             }
         };
 
-        switch (clear) {
-            case "Banner":
-                this.banner = null;
-                break;
-            case "Description":
-                this.description = null;
-                break;
-            case "Icon":
-                this.icon = null;
-                break;
+        for (const entry of clear) {
+            switch (entry) {
+                case "Banner":
+                    this.banner = null;
+                    break;
+                case "Description":
+                    this.description = null;
+                    break;
+                case "Icon":
+                    this.icon = null;
+                    break;
+            }
         }
 
         apply("owner");
@@ -171,10 +178,9 @@ export class Server {
      * @param data Channel create route data
      * @returns The newly-created channel
      */
-    async createChannel(data: Route<"POST", "/servers/id/channels">["data"]) {
-        return await this.client.req(
-            "POST",
-            `/servers/${this._id}/channels` as "/servers/id/channels",
+    async createChannel(data: DataCreateChannel) {
+        return await this.client.api.post(
+            `/servers/${this._id}/channels`,
             data,
         );
     }
@@ -183,10 +189,9 @@ export class Server {
      * Edit a server
      * @param data Server editing route data
      */
-    async edit(data: Route<"PATCH", "/servers/id">["data"]) {
-        return await this.client.req(
-            "PATCH",
-            `/servers/${this._id}` as "/servers/id",
+    async edit(data: DataEditServer) {
+        return await this.client.api.patch(
+            `/servers/${this._id}`,
             data,
         );
     }
@@ -196,9 +201,8 @@ export class Server {
      */
     async delete(avoidReq?: boolean) {
         if (!avoidReq)
-            await this.client.req(
-                "DELETE",
-                `/servers/${this._id}` as "/servers/id",
+            await this.client.api.delete(
+                `/servers/${this._id}`,
             );
 
         runInAction(() => {
@@ -210,9 +214,8 @@ export class Server {
      * Mark a server as read
      */
     async ack() {
-        return await this.client.req(
-            "PUT",
-            `/servers/${this._id}/ack` as "/servers/id/ack",
+        return await this.client.api.put(
+            `/servers/${this._id}/ack`,
         );
     }
 
@@ -222,11 +225,10 @@ export class Server {
      */
     async banUser(
         user_id: string,
-        data: Route<"PUT", "/servers/id/bans/id">["data"],
+        data: DataBanCreate,
     ) {
-        return await this.client.req(
-            "PUT",
-            `/servers/${this._id}/bans/${user_id}` as "/servers/id/bans/id",
+        return await this.client.api.put(
+            `/servers/${this._id as ''}/bans/${user_id}`,
             data,
         );
     }
@@ -236,9 +238,8 @@ export class Server {
      * @param user_id User ID
      */
     async unbanUser(user_id: string) {
-        return await this.client.req(
-            "DELETE",
-            `/servers/${this._id}/bans/${user_id}` as "/servers/id/bans/id",
+        return await this.client.api.delete(
+            `/servers/${this._id as ''}/bans/${user_id}`,
         );
     }
 
@@ -247,9 +248,8 @@ export class Server {
      * @returns An array of the server's invites
      */
     async fetchInvites() {
-        return await this.client.req(
-            "GET",
-            `/servers/${this._id}/invites` as "/servers/id/invites",
+        return await this.client.api.get(
+            `/servers/${this._id}/invites`,
         );
     }
 
@@ -258,9 +258,8 @@ export class Server {
      * @returns An array of the server's bans.
      */
     async fetchBans() {
-        return await this.client.req(
-            "GET",
-            `/servers/${this._id}/bans` as "/servers/id/bans",
+        return await this.client.api.get(
+            `/servers/${this._id}/bans`
         );
     }
 
@@ -273,10 +272,9 @@ export class Server {
         role_id = "default",
         permissions: Override | number
     ) {
-        return await this.client.req(
-            "PUT",
-            `/servers/${this._id}/permissions/${role_id}` as "/servers/id/permissions/id",
-            { permissions },
+        return await this.client.api.put(
+            `/servers/${this._id}/permissions/${role_id as ''}`,
+            { permissions: permissions as Override },
         );
     }
 
@@ -285,9 +283,8 @@ export class Server {
      * @param name Role name
      */
     async createRole(name: string) {
-        return await this.client.req(
-            "POST",
-            `/servers/${this._id}/roles` as "/servers/id/roles",
+        return await this.client.api.post(
+            `/servers/${this._id}/roles`,
             { name },
         );
     }
@@ -299,11 +296,10 @@ export class Server {
      */
     async editRole(
         role_id: string,
-        data: Route<"PATCH", "/servers/id/roles/id">["data"],
+        data: DataEditRole,
     ) {
-        return await this.client.req(
-            "PATCH",
-            `/servers/${this._id}/roles/${role_id}` as "/servers/id/roles/id",
+        return await this.client.api.patch(
+            `/servers/${this._id}/roles/${role_id as ''}`,
             data,
         );
     }
@@ -313,9 +309,8 @@ export class Server {
      * @param role_id Role ID
      */
     async deleteRole(role_id: string) {
-        return await this.client.req(
-            "DELETE",
-            `/servers/${this._id}/roles/${role_id}` as "/servers/id/roles/id",
+        return await this.client.api.delete(
+            `/servers/${this._id}/roles/${role_id as ''}`,
         );
     }
 
@@ -332,9 +327,8 @@ export class Server {
         });
         if (existing) return existing;
 
-        const member = await this.client.req(
-            "GET",
-            `/servers/${this._id}/members/${user_id}` as "/servers/id/members/id",
+        const member = await this.client.api.get(
+            `/servers/${this._id as ''}/members/${user_id as ''}`,
         );
         return this.client.members.createObj(member);
     }
@@ -344,15 +338,9 @@ export class Server {
      * ! OPTIMISATION
      */
     async syncMembers(skipOffline?: boolean) {
-        const data = await this.client.req(
-            "GET",
-            `/servers/${this._id}/members` as "/servers/id/members",
+        const data = await this.client.api.get(
+            `/servers/${this._id as ''}/members`,
         );
-
-        // ! FIXME: if we do this on the server, we can save 7ms locally
-        // 7ms to sort both lists.
-        // data.users.sort((a,b)=>b._id.localeCompare(a._id));
-        // data.members.sort((a,b)=>b._id.user.localeCompare(a._id.user));
 
         // This takes roughly 23ms.
         runInAction(() => {
@@ -396,9 +384,8 @@ export class Server {
      * @returns An array of the server's members and their user objects.
      */
     async fetchMembers() {
-        const data = await this.client.req(
-            "GET",
-            `/servers/${this._id}/members` as "/servers/id/members",
+        const data = await this.client.api.get(
+            `/servers/${this._id as ''}/members`,
         );
 
         // Note: this takes 986 ms (Testers server)
@@ -483,7 +470,7 @@ export default class Servers extends Collection<string, Server> {
         if (this.has(id)) return this.$get(id, data);
         const res =
             data ??
-            (await this.client.req("GET", `/servers/${id}` as "/servers/id"));
+            (await this.client.api.get(`/servers/${id as ''}`));
 
         return runInAction(async () => {
             for (const channel of res.channels) {
@@ -521,8 +508,8 @@ export default class Servers extends Collection<string, Server> {
      * @param data Server create route data
      * @returns The newly-created server
      */
-    async createServer(data: Route<"POST", "/servers/create">["data"]) {
-        const server = await this.client.req("POST", `/servers/create`, data);
+    async createServer(data: DataCreateServer) {
+        const server = await this.client.api.post(`/servers/create`, data);
         return this.fetch(server._id, server);
     }
 }

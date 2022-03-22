@@ -4,3 +4,4 @@ export {
     UserPermission,
     Permission
 } from "./api/permissions";
+export * from "revolt-api";

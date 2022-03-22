@@ -1,7 +1,7 @@
 import { backOff } from "@insertish/exponential-backoff";
 import WebSocket from "@insertish/isomorphic-ws";
 import { runInAction } from "mobx";
-import { Role } from "revolt-api/types/Servers";
+import { Role } from "revolt-api";
 
 import { Client } from "..";
 import {
