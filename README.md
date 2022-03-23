@@ -66,4 +66,11 @@ client.once('ready', () => {
 
 ## Revolt API Types
 
-All `revolt-api` types are re-exported from this library.
+All `revolt-api` types are re-exported from this library under `API`.
+
+```typescript
+import { API } from 'revolt.js';
+
+// API.Channel;
+// API.[..];
+```
