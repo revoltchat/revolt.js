@@ -180,7 +180,7 @@ export class Server {
      */
     async createChannel(data: DataCreateChannel) {
         return await this.client.api.post(
-            `/servers/${this._id}/channels`,
+            `/servers/${this._id as ''}/channels`,
             data,
         );
     }
@@ -191,7 +191,7 @@ export class Server {
      */
     async edit(data: DataEditServer) {
         return await this.client.api.patch(
-            `/servers/${this._id}`,
+            `/servers/${this._id as ''}`,
             data,
         );
     }
@@ -202,7 +202,7 @@ export class Server {
     async delete(avoidReq?: boolean) {
         if (!avoidReq)
             await this.client.api.delete(
-                `/servers/${this._id}`,
+                `/servers/${this._id as ''}`,
             );
 
         runInAction(() => {
@@ -249,7 +249,7 @@ export class Server {
      */
     async fetchInvites() {
         return await this.client.api.get(
-            `/servers/${this._id}/invites`,
+            `/servers/${this._id as ''}/invites`,
         );
     }
 
@@ -259,7 +259,7 @@ export class Server {
      */
     async fetchBans() {
         return await this.client.api.get(
-            `/servers/${this._id}/bans`
+            `/servers/${this._id as ''}/bans`
         );
     }
 
@@ -273,7 +273,7 @@ export class Server {
         permissions: Override | number
     ) {
         return await this.client.api.put(
-            `/servers/${this._id}/permissions/${role_id as ''}`,
+            `/servers/${this._id as ''}/permissions/${role_id as ''}`,
             { permissions: permissions as Override },
         );
     }
@@ -284,7 +284,7 @@ export class Server {
      */
     async createRole(name: string) {
         return await this.client.api.post(
-            `/servers/${this._id}/roles`,
+            `/servers/${this._id as ''}/roles`,
             { name },
         );
     }
@@ -299,7 +299,7 @@ export class Server {
         data: DataEditRole,
     ) {
         return await this.client.api.patch(
-            `/servers/${this._id}/roles/${role_id as ''}`,
+            `/servers/${this._id as ''}/roles/${role_id as ''}`,
             data,
         );
     }
@@ -310,7 +310,7 @@ export class Server {
      */
     async deleteRole(role_id: string) {
         return await this.client.api.delete(
-            `/servers/${this._id}/roles/${role_id as ''}`,
+            `/servers/${this._id as ''}/roles/${role_id as ''}`,
         );
     }
 

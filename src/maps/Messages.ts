@@ -167,7 +167,7 @@ export class Message {
      */
     async edit(data: DataEditMessage) {
         return await this.client.api.patch(
-            `/channels/${this.channel_id}/messages/${this._id as ''}`,
+            `/channels/${this.channel_id as ''}/messages/${this._id as ''}`,
             data,
         );
     }
@@ -177,7 +177,7 @@ export class Message {
      */
     async delete() {
         return await this.client.api.delete(
-            `/channels/${this.channel_id}/messages/${this._id as ''}`,
+            `/channels/${this.channel_id as ''}/messages/${this._id as ''}`,
         );
     }
 

@@ -32,7 +32,7 @@ export default class Bots {
      * @param id Bot ID
      */
     async delete(id: string) {
-        await this.client.api.delete(`/bots/${id}`);
+        await this.client.api.delete(`/bots/${id as ''}`);
     }
 
     /**
@@ -42,7 +42,7 @@ export default class Bots {
      */
     async fetchPublic(id: string) {
         return await this.client.api.get(
-            `/bots/${id}/invite`,
+            `/bots/${id as ''}/invite`,
         );
     }
 
@@ -56,7 +56,7 @@ export default class Bots {
         destination: InviteBotDestination,
     ) {
         return await this.client.api.post(
-            `/bots/${id}/invite`,
+            `/bots/${id as ''}/invite`,
             destination,
         );
     }
@@ -85,7 +85,7 @@ export default class Bots {
      * @param data Bot edit data object
      */
     async edit(id: string, data: DataEditBot) {
-        await this.client.api.patch(`/bots/${id}`, data);
+        await this.client.api.patch(`/bots/${id as ''}`, data);
 
         if (data.name) {
             const user = this.client.users.get(id);

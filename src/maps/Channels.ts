@@ -357,7 +357,7 @@ export class Channel {
      * @param data Edit data
      */
     async edit(data: DataEditChannel) {
-        this.update(await this.client.api.patch(`/channels/${this._id}`, data));
+        this.update(await this.client.api.patch(`/channels/${this._id as ''}`, data));
     }
 
     /**
@@ -367,7 +367,7 @@ export class Channel {
     async delete(avoidReq?: boolean) {
         if (!avoidReq)
             await this.client.api.delete(
-                `/channels/${this._id}`
+                `/channels/${this._id as ''}`
             );
 
         runInAction(() => {
@@ -398,7 +398,7 @@ export class Channel {
      */
     async addMember(user_id: string) {
         return await this.client.api.put(
-            `/channels/${this._id}/recipients/${user_id as ''}`
+            `/channels/${this._id as ''}/recipients/${user_id as ''}`
         );
     }
 
@@ -408,7 +408,7 @@ export class Channel {
      */
     async removeMember(user_id: string) {
         return await this.client.api.delete(
-            `/channels/${this._id}/recipients/${user_id as ''}`
+            `/channels/${this._id as ''}/recipients/${user_id as ''}`
         );
     }
 
@@ -462,7 +462,7 @@ export class Channel {
         >,
     ) {
         const messages = (await this.client.api.get(
-            `/channels/${this._id}/messages`,
+            `/channels/${this._id as ''}/messages`,
             { ...params },
         )) as MessageI[];
         return runInAction(() => messages.map(this.client.messages.createObj));
@@ -480,7 +480,7 @@ export class Channel {
         >,
     ) {
         const data = (await this.client.api.get(
-            `/channels/${this._id}/messages`,
+            `/channels/${this._id as ''}/messages`,
             { ...params, include_users: true },
         )) as { messages: MessageI[]; users: User[]; members?: Member[] };
         return runInAction(() => {
@@ -504,7 +504,7 @@ export class Channel {
         >,
     ) {
         const messages = (await this.client.api.post(
-            `/channels/${this._id}/search`,
+            `/channels/${this._id as ''}/search`,
             params,
         )) as MessageI[];
         return runInAction(() => messages.map(this.client.messages.createObj));
@@ -522,7 +522,7 @@ export class Channel {
         >,
     ) {
         const data = (await this.client.api.post(
-            `/channels/${this._id}/search`,
+            `/channels/${this._id as ''}/search`,
             { ...params, include_users: true },
         )) as { messages: MessageI[]; users: User[]; members?: Member[] };
         return runInAction(() => {
@@ -541,7 +541,7 @@ export class Channel {
      */
     async fetchStale(ids: string[]) {
         /*const data = await this.client.api.post(
-            `/channels/${this._id}/messages/stale`,
+            `/channels/${this._id as ''}/messages/stale`,
             { ids },
         );
 
@@ -562,7 +562,7 @@ export class Channel {
      */
     async createInvite() {
         return await this.client.api.post(
-            `/channels/${this._id}/invites`,
+            `/channels/${this._id as ''}/invites`,
         );
     }
 
@@ -619,7 +619,7 @@ export class Channel {
      */
     async setPermissions(role_id = "default", permissions: Override) {
         return await this.client.api.put(
-            `/channels/${this._id}/permissions/${role_id as ''}`,
+            `/channels/${this._id as ''}/permissions/${role_id as ''}`,
             { permissions },
         );
     }

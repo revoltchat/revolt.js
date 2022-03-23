@@ -88,7 +88,7 @@ export class Member {
      */
     async edit(data: DataMemberEdit) {
         return await this.client.api.patch(
-            `/servers/${this._id.server as ''}/members/${this._id.user}`,
+            `/servers/${this._id.server as ''}/members/${this._id.user as ''}`,
             data,
         );
     }
@@ -99,7 +99,7 @@ export class Member {
      */
     async kick() {
         return await this.client.api.delete(
-            `/servers/${this._id.server}/members/${this._id.user as ''}`,
+            `/servers/${this._id.server as ''}/members/${this._id.user as ''}`,
         );
     }
 

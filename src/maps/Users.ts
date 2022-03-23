@@ -123,28 +123,28 @@ export class User {
      * Send a friend request to a user
      */
     async addFriend() {
-        await this.client.api.put(`/users/${this.username as ''}/friend`);
+        return await this.client.api.put(`/users/${this.username as ''}/friend`);
     }
 
     /**
      * Remove a user from the friend list
      */
     async removeFriend() {
-        await this.client.api.delete(`/users/${this._id}/friend`);
+        return await this.client.api.delete(`/users/${this._id as ''}/friend`);
     }
 
     /**
      * Block a user
      */
     async blockUser() {
-        await this.client.api.put(`/users/${this._id}/block`);
+        return await this.client.api.put(`/users/${this._id as ''}/block`);
     }
 
     /**
      * Unblock a user
      */
     async unblockUser() {
-        await this.client.api.delete(`/users/${this._id}/block`);
+        return await this.client.api.delete(`/users/${this._id as ''}/block`);
     }
 
     /**
@@ -152,7 +152,7 @@ export class User {
      * @returns The profile of the user
      */
     async fetchProfile() {
-        return await this.client.api.get(`/users/${this._id}/profile`);
+        return await this.client.api.get(`/users/${this._id as ''}/profile`);
     }
 
     /**
@@ -160,7 +160,7 @@ export class User {
      * @returns The mutual connections of the current user and a target user
      */
     async fetchMutual() {
-        return await this.client.api.get(`/users/${this._id}/mutual`);
+        return await this.client.api.get(`/users/${this._id as ''}/mutual`);
     }
 
     /**
