@@ -303,7 +303,7 @@ export class Client extends EventEmitter {
      * @returns Invite information.
      */
     async fetchInvite(code: string) {
-        return await this.api.get(`/invites/${code}`);
+        return await this.api.get(`/invites/${code as ''}`);
     }
 
     /**
@@ -312,7 +312,7 @@ export class Client extends EventEmitter {
      * @returns Data provided by invite.
      */
     async joinInvite(code: string) {
-        return await this.api.post(`/invites/${code}`);
+        return await this.api.post(`/invites/${code as ''}`);
     }
 
     /**
@@ -320,7 +320,7 @@ export class Client extends EventEmitter {
      * @param code The invite code.
      */
     async deleteInvite(code: string) {
-        await this.api.delete(`/invites/${code}`);
+        await this.api.delete(`/invites/${code as ''}`);
     }
 
     /**
