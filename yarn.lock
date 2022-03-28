@@ -1018,7 +1018,7 @@ reusify@^1.0.4:
   resolved "https://registry.yarnpkg.com/reusify/-/reusify-1.0.4.tgz#90da382b1e126efc02146e90845a88db12925d76"
   integrity sha512-U9nH88a3fc/ekCF1l0/UP1IosiuIjyTh7hBvXVMHYgVcfGvt897Xguj2UOLDeI5BG2m7/uwyaLVT6fbtCwTyzw==
 
-revolt-api@0.5.3-rc.8:
+revolt-api@^0.5.3-rc.8:
   version "0.5.3-rc.8"
   resolved "https://registry.yarnpkg.com/revolt-api/-/revolt-api-0.5.3-rc.8.tgz#0e6e13ab824b7b4c733ed3b5da35797d3c4020a5"
   integrity sha512-FvrsoVnLkBAQhV8OvYHWBNkyD21l48A/fYYc4p/5OTtx7de39yeOjczCY4vQfXry2uyjG+XccdjK1rVCVjK/uw==
