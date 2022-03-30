@@ -7,7 +7,7 @@
 ## Example Usage (Javascript / ES6)
 
 ```javascript
-import { Client } from "revolt-api";
+import { Client } from "revolt.js";
 
 let client = new Client();
 
@@ -31,7 +31,7 @@ For example, `node --experimental-specifier-resolution=node index.js`.
 ## Example Usage (Typescript)
 
 ```typescript
-import { Client } from "revolt-api";
+import { Client } from "revolt.js";
 
 let client = new Client();
 
@@ -69,7 +69,7 @@ client.once('ready', () => {
 All `revolt-api` types are re-exported from this library under `API`.
 
 ```typescript
-import { API } from 'revolt.js';
+import { API } from 'revolt-api';
 
 // API.Channel;
 // API.[..];
