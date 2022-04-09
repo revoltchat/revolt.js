@@ -1,7 +1,7 @@
 import EventEmitter from "eventemitter3";
 import defaultsDeep from "lodash.defaultsdeep";
 import { action, makeObservable, observable } from "mobx";
-import type { DataCreateAccount, DataLogin, DataOnboard, Session } from "revolt-api";
+import type { DataCreateAccount, DataLogin, DataOnboard, InviteResponse, Session } from "revolt-api";
 import type { RevoltConfig, Metadata } from "revolt-api";
 import { API, MemberCompositeKey, Role } from "revolt-api";
 
@@ -306,13 +306,37 @@ export class Client extends EventEmitter {
         return await this.api.get(`/invites/${code as ''}`);
     }
 
+    async joinInvite(code: string): Promise<Server>;
+    async joinInvite(invite: InviteResponse): Promise<Server>;
+
     /**
      * Use an invite.
-     * @param code The invite code.
+     * @param invite Invite
      * @returns Data provided by invite.
      */
-    async joinInvite(code: string) {
-        return await this.api.post(`/invites/${code as ''}`);
+    async joinInvite(invite: string | InviteResponse) {
+        const code = typeof invite === 'string' ? invite : invite.code;
+
+        if (typeof invite === 'object') {
+            switch (invite.type) {
+                case 'Group': {
+                    const group = this.channels.get(invite.channel_id);
+                    if (group) return group;
+                    break;
+                }
+                case 'Server': {
+                    const server = this.servers.get(invite.server_id);
+                    if (server) return server;
+                }
+            }
+        }
+
+        const response = await this.api.post(`/invites/${code}`);
+        if (response.type === 'Server') {
+            return await this.servers.fetch(response.server._id, response.server, response.channels);
+        } else {
+            throw "Unsupported invite type.";
+        }
     }
 
     /**

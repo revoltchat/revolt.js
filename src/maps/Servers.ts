@@ -1,5 +1,6 @@
 import type {
     Category,
+    Channel as ChannelI,
     DataBanCreate,
     DataCreateChannel,
     DataCreateServer,
@@ -466,20 +467,26 @@ export default class Servers extends Collection<string, Server> {
      * @param id Server ID
      * @returns The server
      */
-    async fetch(id: string, data?: ServerI) {
+    async fetch(id: string, data?: ServerI, channels?: ChannelI[]) {
         if (this.has(id)) return this.$get(id, data);
         const res =
             data ??
             (await this.client.api.get(`/servers/${id as ''}`));
 
         return runInAction(async () => {
-            for (const channel of res.channels) {
-                // ! FIXME: add route for fetching all channels
-                // ! FIXME: OR the WHOLE server
-                try {
-                    await this.client.channels.fetch(channel);
-                    // future proofing for when not
-                } catch (err) {}
+            if (channels) {
+                for (const channel of channels) {
+                    await this.client.channels.fetch(channel._id, channel);
+                }
+            } else {
+                for (const channel of res.channels) {
+                    // ! FIXME: add route for fetching all channels
+                    // ! FIXME: OR the WHOLE server
+                    try {
+                        await this.client.channels.fetch(channel);
+                        // future proofing for when not
+                    } catch (err) {}
+                }
             }
 
             return this.createObj(res);
@@ -509,7 +516,7 @@ export default class Servers extends Collection<string, Server> {
      * @returns The newly-created server
      */
     async createServer(data: DataCreateServer) {
-        const server = await this.client.api.post(`/servers/create`, data);
-        return this.fetch(server._id, server);
+        const { server, channels } = await this.client.api.post(`/servers/create`, data);
+        return await this.fetch(server._id, server, channels);
     }
 }

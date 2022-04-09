@@ -61,6 +61,12 @@ export type ClientboundNotification =
     | { type: "ChannelStopTyping"; id: string; user: string }
     | { type: "ChannelAck"; id: string; user: string; message_id: string }
     | {
+        type: "ServerCreate";
+        id: string;
+        server: Server;
+        channels: Channel[];
+    }
+    | {
           type: "ServerUpdate";
           id: string;
           data: Partial<Server>;

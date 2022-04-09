@@ -16,7 +16,7 @@
         "lodash.isequal": "^4.5.0",
         "long": "^5.2.0",
         "mobx": "^6.3.2",
-        "revolt-api": "^0.5.3-rc.8",
+        "revolt-api": "0.5.3-rc.10",
         "ulid": "^2.3.0",
         "ws": "^8.2.2"
     },

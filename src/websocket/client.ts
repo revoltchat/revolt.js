@@ -332,6 +332,19 @@ export class WebSocketClient {
                             break;
                         }
 
+                        case "ServerCreate": {
+                            runInAction(async () => {
+                                const channels = [];
+                                for (const channel of packet.channels) {
+                                    channels.push(await this.client.channels.fetch(channel._id, channel));
+                                }
+
+                                await this.client.servers.fetch(packet.id, packet.server);
+                            });
+                            
+                            break;
+                        }
+
                         case "ServerUpdate": {
                             const server = this.client.servers.get(packet.id);
                             if (server) {
@@ -359,8 +372,6 @@ export class WebSocketClient {
 
                         case "ServerMemberJoin": {
                             runInAction(async () => {
-                                if (packet.type !== "ServerMemberJoin") return 0;
-
                                 await this.client.servers.fetch(packet.id);
                                 await this.client.users.fetch(packet.user);
 
