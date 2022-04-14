@@ -279,7 +279,7 @@ export class WebSocketClient {
                         case "MessageAppend": {
                             const message = this.client.messages.get(packet.id);
                             if (message) {
-                                message.append(packet.data);
+                                message.append(packet.append);
                                 this.client.emit("message/append", message);
                             }
                             break;
