@@ -276,6 +276,15 @@ export class WebSocketClient {
                             break;
                         }
 
+                        case "MessageAppend": {
+                            const message = this.client.messages.get(packet.id);
+                            if (message) {
+                                message.append(packet.data);
+                                this.client.emit("message/append", message);
+                            }
+                            break;
+                        }
+
                         case "MessageDelete": {
                             const msg = this.client.messages.get(packet.id);
                             this.client.messages.delete(packet.id);

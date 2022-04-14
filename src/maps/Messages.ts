@@ -161,6 +161,15 @@ export class Message {
         apply("mentions", "mention_ids");
     }
 
+    @action append({ embeds }: Pick<Partial<MessageI>, 'embeds'>) {
+        if (embeds) {
+            this.embeds = [
+                ...(this.embeds ?? []),
+                ...embeds
+            ];
+        }
+    }
+
     /**
      * Edit a message
      * @param data Message edit route data

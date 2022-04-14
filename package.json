@@ -1,7 +1,7 @@
 {
     "type": "module",
     "name": "revolt.js",
-    "version": "6.0.0-rc.4",
+    "version": "6.0.0-rc.5",
     "main": "dist/index.js",
     "repository": "https://github.com/revoltchat/revolt.js",
     "author": "Paul Makles <insrt.uk>",
