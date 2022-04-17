@@ -120,7 +120,7 @@ export class Message {
 
         this.content = data.content;
         this.attachments = toNullable(data.attachments);
-        this.edited = toNullableDate(data.edited as any);
+        this.edited = toNullableDate(data.edited);
         this.embeds = toNullable(data.embeds);
         this.mention_ids = toNullable(data.mentions);
         this.reply_ids = toNullable(data.replies);
