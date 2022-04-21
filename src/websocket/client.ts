@@ -335,9 +335,16 @@ export class WebSocketClient {
                         }
 
                         case "ChannelGroupLeave": {
-                            this.client.channels
-                                .get(packet.id)
-                                ?.updateGroupLeave(packet.user);
+                            const channel = this.client.channels.get(packet.id);
+
+                            if (channel) {
+                                if (packet.user === this.client.user?._id) {
+                                    channel.delete(true);
+                                } else {
+                                    channel.updateGroupLeave(packet.user);
+                                }
+                            }
+
                             break;
                         }
 
