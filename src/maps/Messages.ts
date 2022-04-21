@@ -24,7 +24,8 @@ export class Message {
     channel_id: string;
     author_id: string;
 
-    content: string | SystemMessage;
+    content: Nullable<string>;
+    system: Nullable<SystemMessage>;
     attachments: Nullable<File[]>;
     edited: Nullable<Date>;
     embeds: Nullable<Embed[]>;
@@ -82,32 +83,32 @@ export class Message {
 
     @computed
     get asSystemMessage() {
-        const content = this.content;
-        if (typeof content === "string") return { type: "text", content };
+        const system = this.system;
+        if (!system) return { type: 'none' };
 
-        const { type } = content;
+        const { type } = system;
         const get = (id: string) => this.client.users.get(id);
-        switch (content.type) {
+        switch (system.type) {
             case "text":
-                return content;
+                return system;
             case "user_added":
-                return { type, user: get(content.id), by: get(content.by) };
+                return { type, user: get(system.id), by: get(system.by) };
             case "user_remove":
-                return { type, user: get(content.id), by: get(content.by) };
+                return { type, user: get(system.id), by: get(system.by) };
             case "user_joined":
-                return { type, user: get(content.id) };
+                return { type, user: get(system.id) };
             case "user_left":
-                return { type, user: get(content.id) };
+                return { type, user: get(system.id) };
             case "user_kicked":
-                return { type, user: get(content.id) };
+                return { type, user: get(system.id) };
             case "user_banned":
-                return { type, user: get(content.id) };
+                return { type, user: get(system.id) };
             case "channel_renamed":
-                return { type, name: content.name, by: get(content.by) };
+                return { type, name: system.name, by: get(system.by) };
             case "channel_description_changed":
-                return { type, by: get(content.by) };
+                return { type, by: get(system.by) };
             case "channel_icon_changed":
-                return { type, by: get(content.by) };
+                return { type, by: get(system.by) };
         }
     }
 
@@ -118,7 +119,8 @@ export class Message {
         this.channel_id = data.channel;
         this.author_id = data.author;
 
-        this.content = data.content;
+        this.content = toNullable(data.content);
+        this.system = toNullable(data.system);
         this.attachments = toNullable(data.attachments);
         this.edited = toNullableDate(data.edited);
         this.embeds = toNullable(data.embeds);

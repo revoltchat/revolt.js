@@ -208,24 +208,24 @@ export class WebSocketClient {
                                     packet.author ===
                                     "00000000000000000000000000"
                                 ) {
-                                    if (typeof packet.content === "object") {
-                                        switch (packet.content.type) {
+                                    if (packet.system) {
+                                        switch (packet.system.type) {
                                             case "user_added":
                                             case "user_remove":
                                                 await this.client.users.fetch(
-                                                    packet.content.by,
+                                                    packet.system.by,
                                                 );
                                                 break;
                                             case "user_joined":
                                                 await this.client.users.fetch(
-                                                    packet.content.id,
+                                                    packet.system.id,
                                                 );
                                                 break;
                                             case "channel_description_changed":
                                             case "channel_icon_changed":
                                             case "channel_renamed":
                                                 await this.client.users.fetch(
-                                                    packet.content.by,
+                                                    packet.system.by,
                                                 );
                                                 break;
                                         }
