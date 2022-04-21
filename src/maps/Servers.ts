@@ -7,7 +7,6 @@ import type {
     DataEditRole,
     DataEditServer,
     FieldsServer,
-    Member,
     Role,
     Server as ServerI,
     SystemMessageChannels,
@@ -331,53 +330,36 @@ export class Server {
         const member = await this.client.api.get(
             `/servers/${this._id as ''}/members/${user_id as ''}`,
         );
+
         return this.client.members.createObj(member);
     }
-
+    
     /**
      * Optimised member fetch route.
-     * ! OPTIMISATION
+     * @param exclude_offline 
      */
-    async syncMembers(skipOffline?: boolean) {
+    async syncMembers(exclude_offline?: boolean) {
         const data = await this.client.api.get(
             `/servers/${this._id as ''}/members`,
+            { exclude_offline }
         );
 
-        // This takes roughly 23ms.
         runInAction(() => {
-            // This adds roughly 15ms to 23ms above.
-            const mapping: Record<string, Member> = {};
-            data.members.forEach(x => mapping[x._id.user] = x);
-
-            for (let i=0;i<data.users.length;i++) {
-                if (data.users[i].online) {
+            if (exclude_offline) {
+                for (let i=0;i<data.users.length;i++) {
                     const user = data.users[i];
-                    this.client.users.createObj(user);
-                    this.client.members.createObj(mapping[user._id]);
+                    if (user.online) {
+                        this.client.users.createObj(user);
+                        this.client.members.createObj(data.members[i]);
+                    }
                 }
-            }
-        });
-
-        if (skipOffline) return;
-
-        let j = 0;
-        // Each batch takes between 70 and 90ms.
-        const batch = () => {
-            const offset = j * 100;
-            runInAction(() => {
-                for (let i=offset;i<data.users.length&&i<offset+100;i++) {
+            } else {
+                for (let i=0;i<data.users.length;i++) {
                     this.client.users.createObj(data.users[i]);
                     this.client.members.createObj(data.members[i]);
                 }
-            });
-
-            if (offset<data.users.length) {
-                j++;
-                setTimeout(batch, 0);
             }
-        }
-
-        setTimeout(batch, 0);
+        });
     }
 
     /**
