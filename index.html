@@ -62,7 +62,7 @@
 					<h1>revolt.js</h1>
 				</a>
 				<p><img src="https://img.shields.io/npm/v/revolt.js" alt="revolt.js"> <img src="https://img.shields.io/npm/v/revolt-api?label=Revolt%20API" alt="revolt-api"></p>
-				<p><strong>revolt.js</strong> is a direct implementation of the entire Revolt API and provides a way to authenticate and start communicating with Revolt servers. <strong>This is an ESM library!</strong></p>
+				<p><strong>revolt.js</strong> is a direct implementation of the entire Revolt API and provides a way to authenticate and start communicating with Revolt servers.</p>
 				<a href="#example-usage-javascript--es6" id="example-usage-javascript--es6" style="color: inherit; text-decoration: none;">
 					<h2>Example Usage (Javascript / ES6)</h2>
 				</a>
@@ -84,6 +84,25 @@
 </code></pre>
 				<p>If you are using Node, you must specify <code>--experimental-specifier-resolution=node</code>.</p>
 				<p>For example, <code>node --experimental-specifier-resolution=node index.js</code>.</p>
+				<a href="#example-usage-commonjs" id="example-usage-commonjs" style="color: inherit; text-decoration: none;">
+					<h2>Example Usage (CommonJS)</h2>
+				</a>
+				<pre><code class="language-javascript"><span style="color: #0000FF">const</span><span style="color: #000000"> { </span><span style="color: #0070C1">Client</span><span style="color: #000000"> } = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;revolt.js&quot;</span><span style="color: #000000">);</span>
+
+<span style="color: #0000FF">let</span><span style="color: #000000"> </span><span style="color: #001080">client</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Client</span><span style="color: #000000">();</span>
+
+<span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">on</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;ready&quot;</span><span style="color: #000000">, </span><span style="color: #0000FF">async</span><span style="color: #000000"> () </span><span style="color: #0000FF">=&gt;</span>
+<span style="color: #000000">    </span><span style="color: #001080">console</span><span style="color: #000000">.</span><span style="color: #795E26">info</span><span style="color: #000000">(</span><span style="color: #A31515">`Logged in as </span><span style="color: #0000FF">${</span><span style="color: #001080">client</span><span style="color: #000000FF">.</span><span style="color: #001080">user</span><span style="color: #000000FF">.</span><span style="color: #001080">username</span><span style="color: #0000FF">}</span><span style="color: #A31515">!`</span><span style="color: #000000">),</span>
+<span style="color: #000000">);</span>
+
+<span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">on</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;message&quot;</span><span style="color: #000000">, </span><span style="color: #0000FF">async</span><span style="color: #000000"> (</span><span style="color: #001080">message</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">    </span><span style="color: #AF00DB">if</span><span style="color: #000000"> (</span><span style="color: #001080">message</span><span style="color: #000000">.</span><span style="color: #001080">content</span><span style="color: #000000"> === </span><span style="color: #A31515">&quot;hello&quot;</span><span style="color: #000000">) {</span>
+<span style="color: #000000">        </span><span style="color: #001080">message</span><span style="color: #000000">.</span><span style="color: #001080">channel</span><span style="color: #000000">.</span><span style="color: #795E26">sendMessage</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;world&quot;</span><span style="color: #000000">);</span>
+<span style="color: #000000">    }</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #001080">client</span><span style="color: #000000">.</span><span style="color: #795E26">loginBot</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;..&quot;</span><span style="color: #000000">);</span>
+</code></pre>
 				<a href="#example-usage-typescript" id="example-usage-typescript" style="color: inherit; text-decoration: none;">
 					<h2>Example Usage (Typescript)</h2>
 				</a>
