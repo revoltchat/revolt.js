@@ -18,7 +18,6 @@ async function user() {
 
         const group = await client.channels.createGroup({
             name: 'sussy',
-            nonce: ''+Math.random(),
             users: []
         });
 
@@ -26,14 +25,13 @@ async function user() {
             content: "embed test",
             embeds: [
                 {
-                    type: 'Text',
                     title: 'We do a little!'
                 }
             ]
         });
 
         await msg.edit({
-            embeds: [{ type: 'Text', title: 'sus' }]
+            embeds: [{ title: 'sus' }]
         });
     });
 
@@ -41,38 +39,32 @@ async function user() {
         if (message.content === "sus") {
             message.channel!.sendMessage("sus!");
         } else if (message.content === "bot") {
-            const bot = await client.req("POST", "/bots/create", {
+            const bot = await client.api.post("/bots/create", {
                 name: "basedbot12",
             });
             message.channel!.sendMessage(JSON.stringify(bot));
         } else if (message.content === "my bots") {
             message.channel!.sendMessage(
-                JSON.stringify(await client.req("GET", "/bots/@me")),
+                JSON.stringify(await client.api.get("/bots/@me")),
             );
         } else if (message.content === "join bot") {
-            await client.req(
-                "POST",
-                `/bots/01FCV7DCMRD9MT3JBYT5VEKVRD/invite` as "/bots/id/invite",
+            await client.api.post(
+                `/bots/${'01FCV7DCMRD9MT3JBYT5VEKVRD'}/invite`,
                 { group: message.channel_id },
             );
             // { server: '01FATEGMHEE2M1QGPA65NS6V8K' });
         } else if (message.content === "edit bot name") {
-            await client.req(
-                "PATCH",
-                `/bots/01FCV7DCMRD9MT3JBYT5VEKVRD` as "/bots/id",
+            await client.api.patch(
+                `/bots/${'01FCV7DCMRD9MT3JBYT5VEKVRD'}`,
                 { name: "testingbkaka" },
             );
         } else if (message.content === "make bot public") {
-            await client.req(
-                "PATCH",
-                `/bots/01FCV7DCMRD9MT3JBYT5VEKVRD` as "/bots/id",
+            await client.api.patch(
+                `/bots/${'01FCV7DCMRD9MT3JBYT5VEKVRD'}`,
                 { public: true },
             );
         } else if (message.content === "delete bot") {
-            await client.req(
-                "DELETE",
-                `/bots/01FCV7DCMRD9MT3JBYT5VEKVRD` as "/bots/id",
-            );
+            await client.api.delete(`/bots/${'01FCV7DCMRD9MT3JBYT5VEKVRD'}`);
         }
     });
 

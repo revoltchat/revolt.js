@@ -1,23 +1,30 @@
 import type {
     Category,
-    PermissionTuple,
+    Channel as ChannelI,
+    DataBanCreate,
+    DataCreateChannel,
+    DataCreateServer,
+    DataEditRole,
+    DataEditServer,
+    FieldsServer,
     Role,
     Server as ServerI,
     SystemMessageChannels,
-} from "revolt-api/types/Servers";
-import type { RemoveServerField, Route } from "../api/routes";
-import type { Attachment } from "revolt-api/types/Autumn";
+} from "revolt-api";
+import type { File } from "revolt-api";
 
 import { makeAutoObservable, action, runInAction, computed } from "mobx";
 import isEqual from "lodash.isequal";
 
 import { Nullable, toNullable } from "../util/null";
-import { U32_MAX } from "../api/permissions";
+import { Permission } from "../api/permissions";
 import Collection from "./Collection";
 import { User } from "./Users";
 import { Client, FileArgs } from "..";
 import { decodeTime } from "ulid";
 import { INotificationChecker } from "../util/Unreads";
+import { Override } from "revolt-api";
+import Long from "long";
 
 export class Server {
     client: Client;
@@ -32,16 +39,16 @@ export class Server {
     system_messages: Nullable<SystemMessageChannels> = null;
 
     roles: Nullable<{ [key: string]: Role }> = null;
-    default_permissions: PermissionTuple;
+    default_permissions: number;
 
-    icon: Nullable<Attachment> = null;
-    banner: Nullable<Attachment> = null;
+    icon: Nullable<File> = null;
+    banner: Nullable<File> = null;
 
     nsfw: Nullable<boolean> = null;
     flags: Nullable<number> = null;
 
     get channels() {
-        return this.channel_ids.map((x) => this.client.channels.get(x));
+        return this.channel_ids.map((x) => this.client.channels.get(x)).filter(x => x);
     }
 
     /**
@@ -63,6 +70,23 @@ export class Server {
      */
     get url() {
         return this.client.configuration?.app + this.path;
+    }
+
+    /**
+     * Get an ordered array of roles with their IDs attached.
+     * The highest ranking roles will be first followed by lower
+     * ranking roles. This is dictated by the "rank" property
+     * which is smaller for higher priority roles.
+     */
+    @computed get orderedRoles() {
+        return Object.keys(this.roles ?? {})
+            .map(id => {
+                return {
+                    id,
+                    ...this.roles![id]
+                }
+            })
+            .sort((b, a) => (b.rank || 0) - (a.rank || 0));
     }
 
     @computed isUnread(permit?: INotificationChecker) {
@@ -107,7 +131,7 @@ export class Server {
         });
     }
 
-    @action update(data: Partial<ServerI>, clear?: RemoveServerField) {
+    @action update(data: Partial<ServerI>, clear: FieldsServer[] = []) {
         const apply = (key: string, target?: string) => {
             // This code has been tested.
             if (
@@ -121,16 +145,18 @@ export class Server {
             }
         };
 
-        switch (clear) {
-            case "Banner":
-                this.banner = null;
-                break;
-            case "Description":
-                this.description = null;
-                break;
-            case "Icon":
-                this.icon = null;
-                break;
+        for (const entry of clear) {
+            switch (entry) {
+                case "Banner":
+                    this.banner = null;
+                    break;
+                case "Description":
+                    this.description = null;
+                    break;
+                case "Icon":
+                    this.icon = null;
+                    break;
+            }
         }
 
         apply("owner");
@@ -152,10 +178,9 @@ export class Server {
      * @param data Channel create route data
      * @returns The newly-created channel
      */
-    async createChannel(data: Route<"POST", "/servers/id/channels">["data"]) {
-        return await this.client.req(
-            "POST",
-            `/servers/${this._id}/channels` as "/servers/id/channels",
+    async createChannel(data: DataCreateChannel) {
+        return await this.client.api.post(
+            `/servers/${this._id as ''}/channels`,
             data,
         );
     }
@@ -164,10 +189,9 @@ export class Server {
      * Edit a server
      * @param data Server editing route data
      */
-    async edit(data: Route<"PATCH", "/servers/id">["data"]) {
-        return await this.client.req(
-            "PATCH",
-            `/servers/${this._id}` as "/servers/id",
+    async edit(data: DataEditServer) {
+        return await this.client.api.patch(
+            `/servers/${this._id as ''}`,
             data,
         );
     }
@@ -177,9 +201,8 @@ export class Server {
      */
     async delete(avoidReq?: boolean) {
         if (!avoidReq)
-            await this.client.req(
-                "DELETE",
-                `/servers/${this._id}` as "/servers/id",
+            await this.client.api.delete(
+                `/servers/${this._id as ''}`,
             );
 
         runInAction(() => {
@@ -191,9 +214,8 @@ export class Server {
      * Mark a server as read
      */
     async ack() {
-        return await this.client.req(
-            "PUT",
-            `/servers/${this._id}/ack` as "/servers/id/ack",
+        return await this.client.api.put(
+            `/servers/${this._id}/ack`,
         );
     }
 
@@ -203,11 +225,10 @@ export class Server {
      */
     async banUser(
         user_id: string,
-        data: Route<"PUT", "/servers/id/bans/id">["data"],
+        data: DataBanCreate,
     ) {
-        return await this.client.req(
-            "PUT",
-            `/servers/${this._id}/bans/${user_id}` as "/servers/id/bans/id",
+        return await this.client.api.put(
+            `/servers/${this._id as ''}/bans/${user_id}`,
             data,
         );
     }
@@ -217,9 +238,8 @@ export class Server {
      * @param user_id User ID
      */
     async unbanUser(user_id: string) {
-        return await this.client.req(
-            "DELETE",
-            `/servers/${this._id}/bans/${user_id}` as "/servers/id/bans/id",
+        return await this.client.api.delete(
+            `/servers/${this._id as ''}/bans/${user_id}`,
         );
     }
 
@@ -228,9 +248,8 @@ export class Server {
      * @returns An array of the server's invites
      */
     async fetchInvites() {
-        return await this.client.req(
-            "GET",
-            `/servers/${this._id}/invites` as "/servers/id/invites",
+        return await this.client.api.get(
+            `/servers/${this._id as ''}/invites`,
         );
     }
 
@@ -239,25 +258,23 @@ export class Server {
      * @returns An array of the server's bans.
      */
     async fetchBans() {
-        return await this.client.req(
-            "GET",
-            `/servers/${this._id}/bans` as "/servers/id/bans",
+        return await this.client.api.get(
+            `/servers/${this._id as ''}/bans`
         );
     }
 
     /**
      * Set role permissions
      * @param role_id Role Id, set to 'default' to affect all users
-     * @param permissions Permission number, removes permission if unset
+     * @param permissions Permission value
      */
     async setPermissions(
         role_id = "default",
-        permissions?: { server: number; channel: number },
+        permissions: Override | number
     ) {
-        return await this.client.req(
-            "PUT",
-            `/servers/${this._id}/permissions/${role_id}` as "/servers/id/permissions/id",
-            { permissions },
+        return await this.client.api.put(
+            `/servers/${this._id as ''}/permissions/${role_id as ''}`,
+            { permissions: permissions as Override },
         );
     }
 
@@ -266,9 +283,8 @@ export class Server {
      * @param name Role name
      */
     async createRole(name: string) {
-        return await this.client.req(
-            "POST",
-            `/servers/${this._id}/roles` as "/servers/id/roles",
+        return await this.client.api.post(
+            `/servers/${this._id as ''}/roles`,
             { name },
         );
     }
@@ -280,11 +296,10 @@ export class Server {
      */
     async editRole(
         role_id: string,
-        data: Route<"PATCH", "/servers/id/roles/id">["data"],
+        data: DataEditRole,
     ) {
-        return await this.client.req(
-            "PATCH",
-            `/servers/${this._id}/roles/${role_id}` as "/servers/id/roles/id",
+        return await this.client.api.patch(
+            `/servers/${this._id as ''}/roles/${role_id as ''}`,
             data,
         );
     }
@@ -294,9 +309,8 @@ export class Server {
      * @param role_id Role ID
      */
     async deleteRole(role_id: string) {
-        return await this.client.req(
-            "DELETE",
-            `/servers/${this._id}/roles/${role_id}` as "/servers/id/roles/id",
+        return await this.client.api.delete(
+            `/servers/${this._id as ''}/roles/${role_id as ''}`,
         );
     }
 
@@ -313,59 +327,38 @@ export class Server {
         });
         if (existing) return existing;
 
-        const member = await this.client.req(
-            "GET",
-            `/servers/${this._id}/members/${user_id}` as "/servers/id/members/id",
+        const member = await this.client.api.get(
+            `/servers/${this._id as ''}/members/${user_id as ''}`,
         );
+
         return this.client.members.createObj(member);
     }
-
+    
     /**
      * Optimised member fetch route.
-     * ! OPTIMISATION
+     * @param exclude_offline 
      */
-    async syncMembers(skipOffline?: boolean) {
-        const data = await this.client.req(
-            "GET",
-            `/servers/${this._id}/members` as "/servers/id/members",
+    async syncMembers(exclude_offline?: boolean) {
+        const data = await this.client.api.get(
+            `/servers/${this._id as ''}/members`,
+            { exclude_offline }
         );
 
-        // ! FIXME: if we do this on the server, we can save 7ms locally
-        // 7ms to sort both lists.
-        data.users.sort((a,b)=>b._id.localeCompare(a._id));
-        data.members.sort((a,b)=>b._id.user.localeCompare(a._id.user));
-
-        // This takes roughly 23ms.
         runInAction(() => {
-            for (let i=0;i<data.users.length;i++) {
-                if (data.users[i].online) {
+            if (exclude_offline) {
+                for (let i=0;i<data.users.length;i++) {
+                    const user = data.users[i];
+                    if (user.online) {
+                        this.client.users.createObj(user);
+                        this.client.members.createObj(data.members[i]);
+                    }
+                }
+            } else {
+                for (let i=0;i<data.users.length;i++) {
                     this.client.users.createObj(data.users[i]);
                     this.client.members.createObj(data.members[i]);
                 }
             }
-
-            if (skipOffline) return;
-
-            let j = 0;
-            // Each batch takes between 70 and 90ms.
-            const batch = () => {
-                const offset = j * 100;
-                runInAction(() => {
-                    for (let i=offset;i<data.users.length&&i<offset+100;i++) {
-                        if (!data.users[i].online) {
-                            this.client.users.createObj(data.users[i]);
-                            this.client.members.createObj(data.members[i]);
-                        }
-                    }
-                });
-
-                if (offset<data.users.length) {
-                    j++;
-                    setTimeout(batch, 0);
-                }
-            }
-
-            setTimeout(batch, 0);
         });
     }
 
@@ -374,9 +367,8 @@ export class Server {
      * @returns An array of the server's members and their user objects.
      */
     async fetchMembers() {
-        const data = await this.client.req(
-            "GET",
-            `/servers/${this._id}/members` as "/servers/id/members",
+        const data = await this.client.api.get(
+            `/servers/${this._id as ''}/members`,
         );
 
         // Note: this takes 986 ms (Testers server)
@@ -397,9 +389,11 @@ export class Server {
     }
 
     @computed get permission() {
+        // 1. Check if owner.
         if (this.owner === this.client.user?._id) {
-            return U32_MAX;
+            return Permission.GrantAllSafe;
         } else {
+            // 2. Get member.
             const member = this.client.members.getKey({
                 user: this.client.user!._id,
                 server: this._id,
@@ -407,15 +401,34 @@ export class Server {
 
             if (!member) return 0;
 
-            let perm = this.default_permissions[0] >>> 0;
-            if (member.roles) {
-                for (const role of member.roles) {
-                    perm |= (this.roles?.[role].permissions[0] ?? 0) >>> 0;
+            // 3. Apply allows from default_permissions.
+            let perm = this.default_permissions;
+
+            // 4. If user has roles, iterate in order.
+            if (member.roles && this.roles) {
+                // 5. Apply allows and denies from roles.
+                const permissions = member
+                    .orderedRoles
+                    .map(([, role]) => role.permissions);
+
+                for (const permission of permissions) {
+                    perm |= permission.a;
+                    perm &= ~permission.d;
                 }
             }
 
             return perm;
         }
+    }
+
+    /**
+     * Check if we have a certain permission in a server.
+     * @param permission Relevant permission string
+     */
+    havePermission(permission: keyof typeof Permission) {
+        return Long.fromNumber(this.permission)
+            .and(Permission[permission])
+            .eq(Permission[permission]);
     }
 }
 
@@ -436,20 +449,26 @@ export default class Servers extends Collection<string, Server> {
      * @param id Server ID
      * @returns The server
      */
-    async fetch(id: string, data?: ServerI) {
+    async fetch(id: string, data?: ServerI, channels?: ChannelI[]) {
         if (this.has(id)) return this.$get(id, data);
         const res =
             data ??
-            (await this.client.req("GET", `/servers/${id}` as "/servers/id"));
+            (await this.client.api.get(`/servers/${id as ''}`));
 
         return runInAction(async () => {
-            for (const channel of res.channels) {
-                // ! FIXME: add route for fetching all channels
-                // ! FIXME: OR the WHOLE server
-                try {
-                    await this.client.channels.fetch(channel);
-                    // future proofing for when not
-                } catch (err) {}
+            if (channels) {
+                for (const channel of channels) {
+                    await this.client.channels.fetch(channel._id, channel);
+                }
+            } else {
+                for (const channel of res.channels) {
+                    // ! FIXME: add route for fetching all channels
+                    // ! FIXME: OR the WHOLE server
+                    try {
+                        await this.client.channels.fetch(channel);
+                        // future proofing for when not
+                    } catch (err) {}
+                }
             }
 
             return this.createObj(res);
@@ -478,8 +497,8 @@ export default class Servers extends Collection<string, Server> {
      * @param data Server create route data
      * @returns The newly-created server
      */
-    async createServer(data: Route<"POST", "/servers/create">["data"]) {
-        const server = await this.client.req("POST", `/servers/create`, data);
-        return this.fetch(server._id, server);
+    async createServer(data: DataCreateServer) {
+        const { server, channels } = await this.client.api.post(`/servers/create`, data);
+        return await this.fetch(server._id, server, channels);
     }
 }

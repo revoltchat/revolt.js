@@ -1,8 +1,8 @@
 import { runInAction } from "mobx";
 
-import { Route } from "../api/routes";
-
 import { Client } from "../Client";
+
+import { InviteBotDestination, DataEditBot, DataCreateBot, OwnedBotsResponse } from 'revolt-api';
 
 export default class Bots {
     client: Client;
@@ -17,10 +17,10 @@ export default class Bots {
      * @returns Bot and User object
      */
     async fetch(id: string) {
-        const { bot, user } = await this.client.req(
-            "GET",
-            `/bots/${id}` as "/bots/id",
+        const { bot, user } = await this.client.api.get(
+            `/bots/${id as ''}`,
         );
+
         return {
             bot,
             user: await this.client.users.fetch(user._id, user),
@@ -32,7 +32,7 @@ export default class Bots {
      * @param id Bot ID
      */
     async delete(id: string) {
-        await this.client.req("DELETE", `/bots/${id}` as "/bots/id");
+        await this.client.api.delete(`/bots/${id as ''}`);
     }
 
     /**
@@ -41,9 +41,8 @@ export default class Bots {
      * @returns Public Bot object
      */
     async fetchPublic(id: string) {
-        return await this.client.req(
-            "GET",
-            `/bots/${id}/invite` as "/bots/id/invite",
+        return await this.client.api.get(
+            `/bots/${id as ''}/invite`,
         );
     }
 
@@ -54,11 +53,10 @@ export default class Bots {
      */
     async invite(
         id: string,
-        destination: Route<"POST", "/bots/id/invite">["data"],
+        destination: InviteBotDestination,
     ) {
-        return await this.client.req(
-            "POST",
-            `/bots/${id}/invite` as "/bots/id/invite",
+        return await this.client.api.post(
+            `/bots/${id as ''}/invite`,
             destination,
         );
     }
@@ -69,10 +67,9 @@ export default class Bots {
      * @returns Bot and User objects
      */
     async fetchOwned() {
-        const { bots, users: userObjects } = await this.client.req(
-            "GET",
+        const { bots, users: userObjects } = await this.client.api.get(
             `/bots/@me`,
-        );
+        ) as OwnedBotsResponse;
 
         const users = [];
         for (const obj of userObjects) {
@@ -87,8 +84,8 @@ export default class Bots {
      * @param id Bot ID
      * @param data Bot edit data object
      */
-    async edit(id: string, data: Route<"PATCH", "/bots/id">["data"]) {
-        await this.client.req("PATCH", `/bots/${id}` as "/bots/id", data);
+    async edit(id: string, data: DataEditBot) {
+        await this.client.api.patch(`/bots/${id as ''}`, data);
 
         if (data.name) {
             const user = this.client.users.get(id);
@@ -104,8 +101,8 @@ export default class Bots {
      * Create a bot
      * @param data Bot creation data
      */
-    async create(data: Route<"POST", "/bots/create">["data"]) {
-        const bot = await this.client.req("POST", "/bots/create", data);
+    async create(data: DataCreateBot) {
+        const bot = await this.client.api.post("/bots/create", data);
         const user = await this.client.users.fetch(bot._id, {
             _id: bot._id,
             username: data.name,

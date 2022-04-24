@@ -1,9 +1,10 @@
 {
     "type": "module",
     "name": "revolt.js",
-    "version": "5.2.7",
+    "version": "6.0.0-rc.15",
     "main": "dist/index.js",
-    "typings": "dist/index.d.ts"
+    "typings": "dist/index.d.ts",
+    "module": "esm/index.js",
     "repository": "https://github.com/revoltchat/revolt.js",
     "author": "Paul Makles <insrt.uk>",
     "license": "MIT",
@@ -15,8 +16,9 @@
         "lodash.defaultsdeep": "^4.6.1",
         "lodash.flatten": "^4.4.0",
         "lodash.isequal": "^4.5.0",
+        "long": "^5.2.0",
         "mobx": "^6.3.2",
-        "revolt-api": "0.5.3-alpha.12",
+        "revolt-api": "0.5.3-rc.15",
         "ulid": "^2.3.0",
         "ws": "^8.2.2"
     },
@@ -72,7 +74,7 @@
     "scripts": {
         "dev": "tsc-watch --onSuccess \"node --experimental-specifier-resolution=node dist/tester\"",
         "prepublish": "in-publish && tsc || echo Skipping build.",
-        "build": "rimraf dist && tsc",
+        "build": "rimraf dist esm && tsc && tsc -p tsconfig.cjs.json",
         "build:watch": "tsc-watch",
         "typecheck": "tsc --noEmit",
         "docs": "typedoc --readme README.md src/index.ts",
@@ -81,7 +83,8 @@
     },
     "files": [
         "README.md",
-        "dist"
+        "dist",
+        "esm"
     ],
     "description": "Library for interacting with the Revolt API."
 }

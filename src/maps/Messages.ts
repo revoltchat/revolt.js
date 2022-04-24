@@ -1,11 +1,12 @@
 import type {
+    DataEditMessage,
+    DataMessageSend,
     Embed,
     Masquerade,
     Message as MessageI,
     SystemMessage,
-} from "revolt-api/types/Channels";
-import type { Attachment } from "revolt-api/types/Autumn";
-import type { Route } from "../api/routes";
+} from "revolt-api";
+import type { File } from "revolt-api";
 
 import { makeAutoObservable, runInAction, action, computed } from "mobx";
 import isEqual from "lodash.isequal";
@@ -23,8 +24,9 @@ export class Message {
     channel_id: string;
     author_id: string;
 
-    content: string | SystemMessage;
-    attachments: Nullable<Attachment[]>;
+    content: Nullable<string>;
+    system: Nullable<SystemMessage>;
+    attachments: Nullable<File[]>;
     edited: Nullable<Date>;
     embeds: Nullable<Embed[]>;
     mention_ids: Nullable<string[]>;
@@ -81,43 +83,44 @@ export class Message {
 
     @computed
     get asSystemMessage() {
-        const content = this.content;
-        if (typeof content === "string") return { type: "text", content };
+        const system = this.system;
+        if (!system) return { type: 'none' };
 
-        const { type } = content;
+        const { type } = system;
         const get = (id: string) => this.client.users.get(id);
-        switch (content.type) {
+        switch (system.type) {
             case "text":
-                return content;
+                return system;
             case "user_added":
-                return { type, user: get(content.id), by: get(content.by) };
+                return { type, user: get(system.id), by: get(system.by) };
             case "user_remove":
-                return { type, user: get(content.id), by: get(content.by) };
+                return { type, user: get(system.id), by: get(system.by) };
             case "user_joined":
-                return { type, user: get(content.id) };
+                return { type, user: get(system.id) };
             case "user_left":
-                return { type, user: get(content.id) };
+                return { type, user: get(system.id) };
             case "user_kicked":
-                return { type, user: get(content.id) };
+                return { type, user: get(system.id) };
             case "user_banned":
-                return { type, user: get(content.id) };
+                return { type, user: get(system.id) };
             case "channel_renamed":
-                return { type, name: content.name, by: get(content.by) };
+                return { type, name: system.name, by: get(system.by) };
             case "channel_description_changed":
-                return { type, by: get(content.by) };
+                return { type, by: get(system.by) };
             case "channel_icon_changed":
-                return { type, by: get(content.by) };
+                return { type, by: get(system.by) };
         }
     }
 
     constructor(client: Client, data: MessageI) {
         this.client = client;
         this._id = data._id;
-        this.nonce = data.nonce;
+        this.nonce = data.nonce ?? undefined;
         this.channel_id = data.channel;
         this.author_id = data.author;
 
-        this.content = data.content;
+        this.content = toNullable(data.content);
+        this.system = toNullable(data.system);
         this.attachments = toNullable(data.attachments);
         this.edited = toNullableDate(data.edited);
         this.embeds = toNullable(data.embeds);
@@ -160,14 +163,22 @@ export class Message {
         apply("mentions", "mention_ids");
     }
 
+    @action append({ embeds }: Pick<Partial<MessageI>, 'embeds'>) {
+        if (embeds) {
+            this.embeds = [
+                ...(this.embeds ?? []),
+                ...embeds
+            ];
+        }
+    }
+
     /**
      * Edit a message
      * @param data Message edit route data
      */
-    async edit(data: Route<"PATCH", "/channels/id/messages/id">["data"]) {
-        return await this.client.req(
-            "PATCH",
-            `/channels/${this.channel_id}/messages/${this._id}` as "/channels/id/messages/id",
+    async edit(data: DataEditMessage) {
+        return await this.client.api.patch(
+            `/channels/${this.channel_id as ''}/messages/${this._id as ''}`,
             data,
         );
     }
@@ -176,9 +187,8 @@ export class Message {
      * Delete a message
      */
     async delete() {
-        return await this.client.req(
-            "DELETE",
-            `/channels/${this.channel_id}/messages/${this._id}` as "/channels/id/messages/id",
+        return await this.client.api.delete(
+            `/channels/${this.channel_id as ''}/messages/${this._id as ''}`,
         );
     }
 
@@ -195,7 +205,7 @@ export class Message {
     reply(
         data:
             | string
-            | (Omit<Route<"POST", "/channels/id/messages">["data"], "nonce"> & {
+            | (Omit<DataMessageSend, "nonce"> & {
                   nonce?: string;
               }),
         mention = true,

@@ -1,10 +1,12 @@
 import type {
     BotInformation,
-    Status,
+    UserStatus,
     User as UserI,
-} from "revolt-api/types/Users";
-import type { RemoveUserField, Route } from "../api/routes";
-import type { Attachment } from "revolt-api/types/Autumn";
+    RelationshipStatus,
+    FieldsUser,
+    DataEditUser,
+} from "revolt-api";
+import type { File } from "revolt-api";
 
 import { makeAutoObservable, action, runInAction, computed } from "mobx";
 import isEqual from "lodash.isequal";
@@ -16,25 +18,15 @@ import { Client, FileArgs } from "..";
 import _ from "lodash";
 import { decodeTime } from "ulid";
 
-enum RelationshipStatus {
-    None = "None",
-    User = "User",
-    Friend = "Friend",
-    Outgoing = "Outgoing",
-    Incoming = "Incoming",
-    Blocked = "Blocked",
-    BlockedOther = "BlockedOther",
-}
-
 export class User {
     client: Client;
 
     _id: string;
     username: string;
 
-    avatar: Nullable<Attachment>;
+    avatar: Nullable<File>;
     badges: Nullable<number>;
-    status: Nullable<Status>;
+    status: Nullable<UserStatus>;
     relationship: Nullable<RelationshipStatus>;
     online: Nullable<boolean>;
     flags: Nullable<number>;
@@ -67,7 +59,7 @@ export class User {
         });
     }
 
-    @action update(data: Partial<UserI>, clear?: RemoveUserField) {
+    @action update(data: Partial<UserI>, clear: FieldsUser[] = []) {
         const apply = (key: string) => {
             // This code has been tested.
             if (
@@ -85,13 +77,15 @@ export class User {
             }
         };
 
-        switch (clear) {
-            case "Avatar":
-                this.avatar = null;
-                break;
-            case "StatusText": {
-                if (this.status) {
-                    this.status.text = undefined;
+        for (const entry of clear) {
+            switch (entry) {
+                case "Avatar":
+                    this.avatar = null;
+                    break;
+                case "StatusText": {
+                    if (this.status) {
+                        this.status.text = undefined;
+                    }
                 }
             }
         }
@@ -111,51 +105,46 @@ export class User {
      * @returns DM Channel
      */
     async openDM() {
-        const dm = await this.client.req(
-            "GET",
-            `/users/${this._id}/dm` as "/users/id/dm",
-        );
-        return (await this.client.channels.fetch(dm._id, dm))!;
+        let dm = [...this.client.channels.values()].find(x => x.channel_type === 'DirectMessage' && x.recipient == this);
+
+        if (!dm) {
+            const data = await this.client.api.get(`/users/${this._id as ''}/dm`);
+            dm = await this.client.channels.fetch(data._id, data)!;
+        }
+
+        runInAction(() => {
+            dm!.active = true;
+        });
+
+        return dm;
     }
 
     /**
      * Send a friend request to a user
      */
     async addFriend() {
-        await this.client.req(
-            "PUT",
-            `/users/${this.username}/friend` as "/users/id/friend",
-        );
+        return await this.client.api.put(`/users/${this.username as ''}/friend`);
     }
 
     /**
      * Remove a user from the friend list
      */
     async removeFriend() {
-        await this.client.req(
-            "DELETE",
-            `/users/${this._id}/friend` as "/users/id/friend",
-        );
+        return await this.client.api.delete(`/users/${this._id as ''}/friend`);
     }
 
     /**
      * Block a user
      */
     async blockUser() {
-        await this.client.req(
-            "PUT",
-            `/users/${this._id}/block` as "/users/id/block",
-        );
+        return await this.client.api.put(`/users/${this._id as ''}/block`);
     }
 
     /**
      * Unblock a user
      */
     async unblockUser() {
-        await this.client.req(
-            "DELETE",
-            `/users/${this._id}/block` as "/users/id/block",
-        );
+        return await this.client.api.delete(`/users/${this._id as ''}/block`);
     }
 
     /**
@@ -163,10 +152,7 @@ export class User {
      * @returns The profile of the user
      */
     async fetchProfile() {
-        return await this.client.req(
-            "GET",
-            `/users/${this._id}/profile` as "/users/id/profile",
-        );
+        return await this.client.api.get(`/users/${this._id as ''}/profile`);
     }
 
     /**
@@ -174,10 +160,7 @@ export class User {
      * @returns The mutual connections of the current user and a target user
      */
     async fetchMutual() {
-        return await this.client.req(
-            "GET",
-            `/users/${this._id}/mutual` as "/users/id/mutual",
-        );
+        return await this.client.api.get(`/users/${this._id as ''}/mutual`);
     }
 
     /**
@@ -197,14 +180,14 @@ export class User {
     @computed get permission() {
         let permissions = 0;
         switch (this.relationship) {
-            case RelationshipStatus.Friend:
-            case RelationshipStatus.User:
+            case 'Friend':
+            case 'User':
                 return U32_MAX;
-            case RelationshipStatus.Blocked:
-            case RelationshipStatus.BlockedOther:
+            case 'Blocked':
+            case 'BlockedOther':
                 return UserPermission.Access;
-            case RelationshipStatus.Incoming:
-            case RelationshipStatus.Outgoing:
+            case 'Incoming':
+            case 'Outgoing':
                 permissions = UserPermission.Access;
         }
 
@@ -254,7 +237,8 @@ export default class Users extends Collection<string, User> {
         if (this.has(id)) return this.$get(id, data);
         const res =
             data ??
-            (await this.client.req("GET", `/users/${id}` as "/users/id"));
+            (await this.client.api.get(`/users/${id as ''}`));
+        
         return this.createObj(res);
     }
 
@@ -280,8 +264,8 @@ export default class Users extends Collection<string, User> {
      * Edit the current user
      * @param data User edit data object
      */
-    async edit(data: Route<"PATCH", "/users/id">["data"]) {
-        await this.client.req("PATCH", "/users/id", data);
+    async edit(data: DataEditUser) {
+        await this.client.api.patch("/users/@me", data);
     }
 
     /**
@@ -290,7 +274,7 @@ export default class Users extends Collection<string, User> {
      * @param password Current password
      */
     async changeUsername(username: string, password: string) {
-        return await this.client.req("PATCH", "/users/id/username", {
+        return await this.client.api.patch("/users/@me/username", {
             username,
             password,
         });

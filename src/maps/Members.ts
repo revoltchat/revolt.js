@@ -1,9 +1,11 @@
 import type {
+    DataMemberEdit,
+    FieldsMember,
     Member as MemberI,
     MemberCompositeKey,
-} from "revolt-api/types/Servers";
-import type { RemoveMemberField, Route } from "../api/routes";
-import type { Attachment } from "revolt-api/types/Autumn";
+    Role,
+} from "revolt-api";
+import type { File } from "revolt-api";
 
 import { makeAutoObservable, runInAction, action, computed } from "mobx";
 import isEqual from "lodash.isequal";
@@ -18,7 +20,7 @@ export class Member {
     _id: MemberCompositeKey;
 
     nickname: Nullable<string> = null;
-    avatar: Nullable<Attachment> = null;
+    avatar: Nullable<File> = null;
     roles: Nullable<string[]> = null;
 
     /**
@@ -49,7 +51,7 @@ export class Member {
         });
     }
 
-    @action update(data: Partial<MemberI>, clear?: RemoveMemberField) {
+    @action update(data: Partial<MemberI>, clear: FieldsMember[] = []) {
         const apply = (key: string) => {
             // This code has been tested.
             if (
@@ -63,13 +65,15 @@ export class Member {
             }
         };
 
-        switch (clear) {
-            case "Nickname":
-                this.nickname = null;
-                break;
-            case "Avatar":
-                this.avatar = null;
-                break;
+        for (const field of clear) {
+            switch (field) {
+                case "Nickname":
+                    this.nickname = null;
+                    break;
+                case "Avatar":
+                    this.avatar = null;
+                    break;
+            }
         }
 
         apply("nickname");
@@ -82,10 +86,9 @@ export class Member {
      * @param data Member editing route data
      * @returns Server member object
      */
-    async edit(data: Route<"PATCH", "/servers/id/members/id">["data"]) {
-        return await this.client.req(
-            "PATCH",
-            `/servers/${this._id.server}/members/${this._id.user}` as "/servers/id/members/id",
+    async edit(data: DataMemberEdit) {
+        return await this.client.api.patch(
+            `/servers/${this._id.server as ''}/members/${this._id.user as ''}`,
             data,
         );
     }
@@ -95,10 +98,28 @@ export class Member {
      * @param user_id User ID
      */
     async kick() {
-        return await this.client.req(
-            "DELETE",
-            `/servers/${this._id.server}/members/${this._id.user}` as "/servers/id/members/id",
+        return await this.client.api.delete(
+            `/servers/${this._id.server as ''}/members/${this._id.user as ''}`,
         );
+    }
+
+    @computed get orderedRoles() {
+        const member_roles = new Set(this.roles);
+        const server = this.server!;
+
+        return Object.keys(server.roles ?? {})
+            .filter(x => member_roles.has(x))
+            .map(role_id => [role_id, server.roles![role_id]] as [ string, Role ])
+            .sort(([, a], [, b]) => (b.rank || 0) - (a.rank || 0));
+    }
+
+    @computed get hoistedRole() {
+        const roles = this.orderedRoles;
+        if (roles.length > 0) {
+            return roles[roles.length - 1];
+        } else {
+            return null;
+        }
     }
 
     @computed generateAvatarURL(...args: FileArgs) {
