@@ -1,7 +1,6 @@
 {
-    "type": "module",
     "name": "revolt.js",
-    "version": "6.0.0-rc.15",
+    "version": "6.0.0-rc.16",
     "main": "dist/index.js",
     "module": "esm/index.js",
     "repository": "https://github.com/revoltchat/revolt.js",
