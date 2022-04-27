@@ -31,10 +31,10 @@
   resolved "https://registry.yarnpkg.com/@humanwhocodes/object-schema/-/object-schema-1.2.1.tgz#b520529ec21d8e5945a1851dfd1c32e94e39ff45"
   integrity sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==
 
-"@insertish/exponential-backoff@3.1.0-patch.0":
-  version "3.1.0-patch.0"
-  resolved "https://registry.yarnpkg.com/@insertish/exponential-backoff/-/exponential-backoff-3.1.0-patch.0.tgz#1fff134f70fc0906d11d09069d51183b542e42cf"
-  integrity sha512-1qhW81s3GDbssyaxRWdpBAn1cIw5s393HnrdYFjfa2i6rq3SEjQDK6U80g6dq/K0or6JRr2eCn75Wfc1IrGM0g==
+"@insertish/exponential-backoff@3.1.0-patch.2":
+  version "3.1.0-patch.2"
+  resolved "https://registry.yarnpkg.com/@insertish/exponential-backoff/-/exponential-backoff-3.1.0-patch.2.tgz#08310c856b795c783a832f3f608c0feaff262c0d"
+  integrity sha512-0lsMVexkZ7dHpQlPrTZDRsm42hZ4/CzKxP1hbAEJH8IaEwrIEhhTKJuFxPuLOi2TwPImuocncjYHpGpwVNOemQ==
 
 "@insertish/isomorphic-ws@^4.0.1":
   version "4.0.1"
