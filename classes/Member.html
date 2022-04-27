@@ -107,6 +107,8 @@
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="Member.html#edit" class="tsd-kind-icon">edit</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="Member.html#generateAvatarURL" class="tsd-kind-icon">generate<wbr>AvatarURL</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="Member.html#getPermissions" class="tsd-kind-icon">get<wbr>Permissions</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="Member.html#hasPermission" class="tsd-kind-icon">has<wbr>Permission</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="Member.html#kick" class="tsd-kind-icon">kick</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="Member.html#update" class="tsd-kind-icon">update</a></li>
 							</ul>
@@ -126,7 +128,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/8cb5482/src/maps/Members.ts#L40">src/maps/Members.ts:40</a></li>
+									<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/3e64e92/src/maps/Members.ts#L42">src/maps/Members.ts:42</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -215,7 +217,7 @@
 					<div class="tsd-signature tsd-kind-icon">_id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>server<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>user<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/8cb5482/src/maps/Members.ts#L20">src/maps/Members.ts:20</a></li>
+							<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/3e64e92/src/maps/Members.ts#L22">src/maps/Members.ts:22</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-type-declaration">
@@ -250,7 +252,7 @@
 					<div class="tsd-signature tsd-kind-icon">avatar<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Nullable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span>_id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>content_type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>deleted<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>filename<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>message_id<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>metadata<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;File&quot;</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{ </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;Text&quot;</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{ </span>height<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;Image&quot;</span><span class="tsd-signature-symbol">; </span>width<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{ </span>height<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;Video&quot;</span><span class="tsd-signature-symbol">; </span>width<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{ </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;Audio&quot;</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">; </span>object_id<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>reported<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>server_id<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>size<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>tag<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>user_id<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = null</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/8cb5482/src/maps/Members.ts#L23">src/maps/Members.ts:23</a></li>
+							<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/3e64e92/src/maps/Members.ts#L25">src/maps/Members.ts:25</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -260,7 +262,7 @@
 					<div class="tsd-signature tsd-kind-icon">client<span class="tsd-signature-symbol">:</span> <a href="Client.html" class="tsd-signature-type" data-tsd-kind="Class">Client</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/8cb5482/src/maps/Members.ts#L18">src/maps/Members.ts:18</a></li>
+							<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/3e64e92/src/maps/Members.ts#L20">src/maps/Members.ts:20</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -270,7 +272,7 @@
 					<div class="tsd-signature tsd-kind-icon">nickname<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Nullable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = null</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/8cb5482/src/maps/Members.ts#L22">src/maps/Members.ts:22</a></li>
+							<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/3e64e92/src/maps/Members.ts#L24">src/maps/Members.ts:24</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -280,7 +282,7 @@
 					<div class="tsd-signature tsd-kind-icon">roles<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Nullable</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = null</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/8cb5482/src/maps/Members.ts#L24">src/maps/Members.ts:24</a></li>
+							<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/3e64e92/src/maps/Members.ts#L26">src/maps/Members.ts:26</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -297,7 +299,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/8cb5482/src/maps/Members.ts#L116">src/maps/Members.ts:116</a></li>
+									<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/3e64e92/src/maps/Members.ts#L121">src/maps/Members.ts:121</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-symbol">{ </span>colour<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>hoist<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>permissions<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>a<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>d<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>r<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">; </span>rank<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">]</span></h4>
@@ -314,7 +316,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/8cb5482/src/maps/Members.ts#L106">src/maps/Members.ts:106</a></li>
+									<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/3e64e92/src/maps/Members.ts#L108">src/maps/Members.ts:108</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-symbol">{ </span>colour<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>hoist<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>permissions<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>a<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>d<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>r<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">; </span>rank<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">[]</span></h4>
@@ -331,7 +333,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/8cb5482/src/maps/Members.ts#L36">src/maps/Members.ts:36</a></li>
+									<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/3e64e92/src/maps/Members.ts#L38">src/maps/Members.ts:38</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -353,7 +355,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/8cb5482/src/maps/Members.ts#L29">src/maps/Members.ts:29</a></li>
+									<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/3e64e92/src/maps/Members.ts#L31">src/maps/Members.ts:31</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -378,7 +380,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/8cb5482/src/maps/Members.ts#L89">src/maps/Members.ts:89</a></li>
+									<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/3e64e92/src/maps/Members.ts#L91">src/maps/Members.ts:91</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -452,7 +454,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/8cb5482/src/maps/Members.ts#L125">src/maps/Members.ts:125</a></li>
+									<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/3e64e92/src/maps/Members.ts#L130">src/maps/Members.ts:130</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -466,6 +468,76 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="getPermissions" class="tsd-anchor"></a>
+					<h3>get<wbr>Permissions</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Permissions<span class="tsd-signature-symbol">(</span>target<span class="tsd-signature-symbol">: </span><a href="Channel.html" class="tsd-signature-type" data-tsd-kind="Class">Channel</a><span class="tsd-signature-symbol"> | </span><a href="Server.html" class="tsd-signature-type" data-tsd-kind="Class">Server</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/3e64e92/src/maps/Members.ts#L139">src/maps/Members.ts:139</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Get the permissions that this member has against a certain object</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>target: <a href="Channel.html" class="tsd-signature-type" data-tsd-kind="Class">Channel</a><span class="tsd-signature-symbol"> | </span><a href="Server.html" class="tsd-signature-type" data-tsd-kind="Class">Server</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Target object to check permissions against</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4>
+							<p>Permissions that this member has</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="hasPermission" class="tsd-anchor"></a>
+					<h3>has<wbr>Permission</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">has<wbr>Permission<span class="tsd-signature-symbol">(</span>target<span class="tsd-signature-symbol">: </span><a href="Channel.html" class="tsd-signature-type" data-tsd-kind="Class">Channel</a><span class="tsd-signature-symbol"> | </span><a href="Server.html" class="tsd-signature-type" data-tsd-kind="Class">Server</a>, permission<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;Video&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;Masquerade&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;ManageChannel&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;ManageServer&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;ManagePermissions&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;ManageRole&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;KickMembers&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;BanMembers&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;TimeoutMembers&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;AssignRoles&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;ChangeNickname&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;ManageNicknames&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;ChangeAvatar&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;RemoveAvatars&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;ViewChannel&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;ReadMessageHistory&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;SendMessage&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;ManageMessages&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;ManageWebhooks&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;InviteOthers&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;SendEmbeds&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;UploadFiles&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;Connect&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;Speak&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;MuteMembers&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;DeafenMembers&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;MoveMembers&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;GrantAllSafe&quot;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/3e64e92/src/maps/Members.ts#L149">src/maps/Members.ts:149</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Check whether a member has a certain permission against a certain object</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>target: <a href="Channel.html" class="tsd-signature-type" data-tsd-kind="Class">Channel</a><span class="tsd-signature-symbol"> | </span><a href="Server.html" class="tsd-signature-type" data-tsd-kind="Class">Server</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Target object to check permissions against</p>
+									</div>
+								</li>
+								<li>
+									<h5>permission: <span class="tsd-signature-type">&quot;Video&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;Masquerade&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;ManageChannel&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;ManageServer&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;ManagePermissions&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;ManageRole&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;KickMembers&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;BanMembers&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;TimeoutMembers&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;AssignRoles&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;ChangeNickname&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;ManageNicknames&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;ChangeAvatar&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;RemoveAvatars&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;ViewChannel&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;ReadMessageHistory&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;SendMessage&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;ManageMessages&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;ManageWebhooks&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;InviteOthers&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;SendEmbeds&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;UploadFiles&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;Connect&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;Speak&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;MuteMembers&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;DeafenMembers&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;MoveMembers&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;GrantAllSafe&quot;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Permission string to check for</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+							<p>Whether the member has this permission</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="kick" class="tsd-anchor"></a>
 					<h3>kick</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -475,7 +547,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/8cb5482/src/maps/Members.ts#L100">src/maps/Members.ts:100</a></li>
+									<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/3e64e92/src/maps/Members.ts#L102">src/maps/Members.ts:102</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -497,7 +569,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/8cb5482/src/maps/Members.ts#L54">src/maps/Members.ts:54</a></li>
+									<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/3e64e92/src/maps/Members.ts#L56">src/maps/Members.ts:56</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -573,6 +645,12 @@
 								<a href="Member.html#generateAvatarURL" class="tsd-kind-icon">generate<wbr>AvatarURL</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="Member.html#getPermissions" class="tsd-kind-icon">get<wbr>Permissions</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="Member.html#hasPermission" class="tsd-kind-icon">has<wbr>Permission</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="Member.html#kick" class="tsd-kind-icon">kick</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
@@ -614,6 +692,9 @@
 					</li>
 					<li class=" tsd-kind-variable">
 						<a href="../modules.html#defaultConfig" class="tsd-kind-icon">default<wbr>Config</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="../modules.html#calculatePermission" class="tsd-kind-icon">calculate<wbr>Permission</a>
 					</li>
 				</ul>
 			</nav>
