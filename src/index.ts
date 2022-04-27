@@ -6,9 +6,8 @@ export { User } from "./maps/Users";
 
 export * from "./Client";
 export * from "./config";
-export {
-    UserPermission,
-    Permission
-} from "./api/permissions";
+
+export { UserPermission, Permission } from "./permissions/definitions";
+export { calculatePermission } from "./permissions/calculator";
 
 export * as API from "revolt-api";

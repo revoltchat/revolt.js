@@ -1,3 +1,6 @@
+/**
+ * Permission against User
+ */
 export const UserPermission = {
     Access: 1 << 0,
     ViewProfile: 1 << 1,
@@ -5,74 +8,77 @@ export const UserPermission = {
     Invite: 1 << 3,
 };
 
+/**
+ * Permission against Server / Channel
+ */
 export const Permission = {
     // * Generic permissions
     /// Manage the channel or channels on the server
-    ManageChannel: 2**0,
+    ManageChannel: 2 ** 0,
     /// Manage the server
-    ManageServer: 2**1,
+    ManageServer: 2 ** 1,
     /// Manage permissions on servers or channels
-    ManagePermissions: 2**2,
+    ManagePermissions: 2 ** 2,
     /// Manage roles on server
-    ManageRole: 2**3,
+    ManageRole: 2 ** 3,
 
     // % 3 bits reserved
 
     // * Member permissions
     /// Kick other members below their ranking
-    KickMembers: 2**6,
+    KickMembers: 2 ** 6,
     /// Ban other members below their ranking
-    BanMembers: 2**7,
+    BanMembers: 2 ** 7,
     /// Timeout other members below their ranking
-    TimeoutMembers: 2**8,
+    TimeoutMembers: 2 ** 8,
     /// Assign roles to members below their ranking
-    AssignRoles: 2**9,
+    AssignRoles: 2 ** 9,
     /// Change own nickname
-    ChangeNickname: 2**10,
+    ChangeNickname: 2 ** 10,
     /// Change or remove other's nicknames below their ranking
-    ManageNicknames: 2**11,
+    ManageNicknames: 2 ** 11,
     /// Change own avatar
-    ChangeAvatar: 2**12,
+    ChangeAvatar: 2 ** 12,
     /// Remove other's avatars below their ranking
-    RemoveAvatars: 2**13,
+    RemoveAvatars: 2 ** 13,
 
     // % 7 bits reserved
 
     // * Channel permissions
     /// View a channel
-    ViewChannel: 2**20,
+    ViewChannel: 2 ** 20,
     /// Read a channel's past message history
-    ReadMessageHistory: 2**21,
+    ReadMessageHistory: 2 ** 21,
     /// Send a message in a channel
-    SendMessage: 2**22,
+    SendMessage: 2 ** 22,
     /// Delete messages in a channel
-    ManageMessages: 2**23,
+    ManageMessages: 2 ** 23,
     /// Manage webhook entries on a channel
-    ManageWebhooks: 2**24,
+    ManageWebhooks: 2 ** 24,
     /// Create invites to this channel
-    InviteOthers: 2**25,
+    InviteOthers: 2 ** 25,
     /// Send embedded content in this channel
-    SendEmbeds: 2**26,
+    SendEmbeds: 2 ** 26,
     /// Send attachments and media in this channel
-    UploadFiles: 2**27,
+    UploadFiles: 2 ** 27,
     /// Masquerade messages using custom nickname and avatar
-    Masquerade: 2**28,
+    Masquerade: 2 ** 28,
 
     // % 1 bits reserved
 
     // * Voice permissions
     /// Connect to a voice channel
-    Connect: 2**30,
+    Connect: 2 ** 30,
     /// Speak in a voice call
-    Speak: 2**31,
+    Speak: 2 ** 31,
     /// Share video in a voice call
-    Video: 2**32,
+    Video: 2 ** 32,
     /// Mute other members with lower ranking in a voice call
-    MuteMembers: 2**33,
+    MuteMembers: 2 ** 33,
     /// Deafen other members with lower ranking in a voice call
-    DeafenMembers: 2**34,
+    DeafenMembers: 2 ** 34,
     /// Move members between voice channels
-    MoveMembers: 2**35,
+    MoveMembers: 2 ** 35,
 
     // * Misc. permissions
     // % Bits 36 to 52: free area
@@ -80,15 +86,23 @@ export const Permission = {
 
     // * Grant all permissions
     /// Safely grant all permissions
-    GrantAllSafe: 0x000F_FFFF_FFFF_FFFF,
+    GrantAllSafe: 0x000f_ffff_ffff_ffff,
 };
 
+/**
+ * Maximum safe value
+ */
 export const U32_MAX = 2 ** 32 - 1; // 4294967295
 
+/**
+ * Default permissions if we can only view
+ */
 export const DEFAULT_PERMISSION_VIEW_ONLY =
-    Permission.ViewChannel +
-    Permission.ReadMessageHistory;
+    Permission.ViewChannel + Permission.ReadMessageHistory;
 
+/**
+ * Default base permissions for channels
+ */
 export const DEFAULT_PERMISSION =
     DEFAULT_PERMISSION_VIEW_ONLY +
     Permission.SendMessage +
@@ -98,13 +112,19 @@ export const DEFAULT_PERMISSION =
     Permission.Connect +
     Permission.Speak;
 
+/**
+ * Permissions in saved messages channel
+ */
 export const DEFAULT_PERMISSION_SAVED_MESSAGES = Permission.GrantAllSafe;
 
+/**
+ * Permissions in direct message channel
+ */
 export const DEFAULT_PERMISSION_DIRECT_MESSAGE =
-    DEFAULT_PERMISSION +
-    Permission.ManageChannel;
+    DEFAULT_PERMISSION + Permission.ManageChannel;
 
+/**
+ * Permissions in server text / voice channel
+ */
 export const DEFAULT_PERMISSION_SERVER =
-    DEFAULT_PERMISSION +
-    Permission.ChangeNickname +
-    Permission.ChangeAvatar;
+    DEFAULT_PERMISSION + Permission.ChangeNickname + Permission.ChangeAvatar;

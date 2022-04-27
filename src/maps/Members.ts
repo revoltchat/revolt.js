@@ -12,7 +12,9 @@ import isEqual from "lodash.isequal";
 
 import { Nullable, toNullable } from "../util/null";
 import Collection from "./Collection";
-import { Client, FileArgs } from "..";
+import { Channel, Client, FileArgs, Server } from "..";
+import { bitwiseAndEq, calculatePermission } from "../permissions/calculator";
+import { Permission } from "../permissions/definitions";
 
 export class Member {
     client: Client;
@@ -88,7 +90,7 @@ export class Member {
      */
     async edit(data: DataMemberEdit) {
         return await this.client.api.patch(
-            `/servers/${this._id.server as ''}/members/${this._id.user as ''}`,
+            `/servers/${this._id.server as ""}/members/${this._id.user as ""}`,
             data,
         );
     }
@@ -99,7 +101,7 @@ export class Member {
      */
     async kick() {
         return await this.client.api.delete(
-            `/servers/${this._id.server as ''}/members/${this._id.user as ''}`,
+            `/servers/${this._id.server as ""}/members/${this._id.user as ""}`,
         );
     }
 
@@ -108,8 +110,11 @@ export class Member {
         const server = this.server!;
 
         return Object.keys(server.roles ?? {})
-            .filter(x => member_roles.has(x))
-            .map(role_id => [role_id, server.roles![role_id]] as [ string, Role ])
+            .filter((x) => member_roles.has(x))
+            .map(
+                (role_id) =>
+                    [role_id, server.roles![role_id]] as [string, Role],
+            )
             .sort(([, a], [, b]) => (b.rank || 0) - (a.rank || 0));
     }
 
@@ -124,6 +129,31 @@ export class Member {
 
     @computed generateAvatarURL(...args: FileArgs) {
         return this.client.generateFileURL(this.avatar ?? undefined, ...args);
+    }
+
+    /**
+     * Get the permissions that this member has against a certain object
+     * @param target Target object to check permissions against
+     * @returns Permissions that this member has
+     */
+    @computed getPermissions(target: Server | Channel) {
+        return calculatePermission(target, { member: this });
+    }
+
+    /**
+     * Check whether a member has a certain permission against a certain object
+     * @param target Target object to check permissions against
+     * @param permission Permission string to check for
+     * @returns Whether the member has this permission
+     */
+    @computed hasPermission(
+        target: Server | Channel,
+        permission: keyof typeof Permission,
+    ) {
+        return bitwiseAndEq(
+            this.getPermissions(target),
+            Permission[permission],
+        );
     }
 }
 

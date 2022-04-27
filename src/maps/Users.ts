@@ -11,7 +11,7 @@ import type { File } from "revolt-api";
 import { makeAutoObservable, action, runInAction, computed } from "mobx";
 import isEqual from "lodash.isequal";
 
-import { U32_MAX, UserPermission } from "../api/permissions";
+import { U32_MAX, UserPermission } from "../permissions/definitions";
 import { toNullable, Nullable } from "../util/null";
 import Collection from "./Collection";
 import { Client, FileArgs } from "..";
@@ -105,10 +105,14 @@ export class User {
      * @returns DM Channel
      */
     async openDM() {
-        let dm = [...this.client.channels.values()].find(x => x.channel_type === 'DirectMessage' && x.recipient == this);
+        let dm = [...this.client.channels.values()].find(
+            (x) => x.channel_type === "DirectMessage" && x.recipient == this,
+        );
 
         if (!dm) {
-            const data = await this.client.api.get(`/users/${this._id as ''}/dm`);
+            const data = await this.client.api.get(
+                `/users/${this._id as ""}/dm`,
+            );
             dm = await this.client.channels.fetch(data._id, data)!;
         }
 
@@ -123,28 +127,30 @@ export class User {
      * Send a friend request to a user
      */
     async addFriend() {
-        return await this.client.api.put(`/users/${this.username as ''}/friend`);
+        return await this.client.api.put(
+            `/users/${this.username as ""}/friend`,
+        );
     }
 
     /**
      * Remove a user from the friend list
      */
     async removeFriend() {
-        return await this.client.api.delete(`/users/${this._id as ''}/friend`);
+        return await this.client.api.delete(`/users/${this._id as ""}/friend`);
     }
 
     /**
      * Block a user
      */
     async blockUser() {
-        return await this.client.api.put(`/users/${this._id as ''}/block`);
+        return await this.client.api.put(`/users/${this._id as ""}/block`);
     }
 
     /**
      * Unblock a user
      */
     async unblockUser() {
-        return await this.client.api.delete(`/users/${this._id as ''}/block`);
+        return await this.client.api.delete(`/users/${this._id as ""}/block`);
     }
 
     /**
@@ -152,7 +158,7 @@ export class User {
      * @returns The profile of the user
      */
     async fetchProfile() {
-        return await this.client.api.get(`/users/${this._id as ''}/profile`);
+        return await this.client.api.get(`/users/${this._id as ""}/profile`);
     }
 
     /**
@@ -160,7 +166,7 @@ export class User {
      * @returns The mutual connections of the current user and a target user
      */
     async fetchMutual() {
-        return await this.client.api.get(`/users/${this._id as ''}/mutual`);
+        return await this.client.api.get(`/users/${this._id as ""}/mutual`);
     }
 
     /**
@@ -180,14 +186,14 @@ export class User {
     @computed get permission() {
         let permissions = 0;
         switch (this.relationship) {
-            case 'Friend':
-            case 'User':
+            case "Friend":
+            case "User":
                 return U32_MAX;
-            case 'Blocked':
-            case 'BlockedOther':
+            case "Blocked":
+            case "BlockedOther":
                 return UserPermission.Access;
-            case 'Incoming':
-            case 'Outgoing':
+            case "Incoming":
+            case "Outgoing":
                 permissions = UserPermission.Access;
         }
 
@@ -235,10 +241,8 @@ export default class Users extends Collection<string, User> {
      */
     async fetch(id: string, data?: UserI) {
         if (this.has(id)) return this.$get(id, data);
-        const res =
-            data ??
-            (await this.client.api.get(`/users/${id as ''}`));
-        
+        const res = data ?? (await this.client.api.get(`/users/${id as ""}`));
+
         return this.createObj(res);
     }
 

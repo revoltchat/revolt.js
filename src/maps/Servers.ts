@@ -17,14 +17,14 @@ import { makeAutoObservable, action, runInAction, computed } from "mobx";
 import isEqual from "lodash.isequal";
 
 import { Nullable, toNullable } from "../util/null";
-import { Permission } from "../api/permissions";
+import { Permission } from "../permissions/definitions";
 import Collection from "./Collection";
 import { User } from "./Users";
 import { Client, FileArgs } from "..";
 import { decodeTime } from "ulid";
 import { INotificationChecker } from "../util/Unreads";
 import { Override } from "revolt-api";
-import Long from "long";
+import { bitwiseAndEq, calculatePermission } from "../permissions/calculator";
 
 export class Server {
     client: Client;
@@ -48,7 +48,9 @@ export class Server {
     flags: Nullable<number> = null;
 
     get channels() {
-        return this.channel_ids.map((x) => this.client.channels.get(x)).filter(x => x);
+        return this.channel_ids
+            .map((x) => this.client.channels.get(x))
+            .filter((x) => x);
     }
 
     /**
@@ -80,25 +82,26 @@ export class Server {
      */
     @computed get orderedRoles() {
         return Object.keys(this.roles ?? {})
-            .map(id => {
+            .map((id) => {
                 return {
                     id,
-                    ...this.roles![id]
-                }
+                    ...this.roles![id],
+                };
             })
             .sort((b, a) => (b.rank || 0) - (a.rank || 0));
     }
 
     @computed isUnread(permit?: INotificationChecker) {
         if (permit?.isMuted(this)) return false;
-        return this.channels.find((channel) =>
-            !permit?.isMuted(channel) && channel?.unread);
+        return this.channels.find(
+            (channel) => !permit?.isMuted(channel) && channel?.unread,
+        );
     }
 
     @computed getMentions(permit?: INotificationChecker) {
         if (permit?.isMuted(this)) return [];
         const arr = this.channels
-            .filter(channel => !permit?.isMuted(channel))
+            .filter((channel) => !permit?.isMuted(channel))
             .map((channel) => channel?.mentions) as string[][];
 
         return ([] as string[]).concat(...arr);
@@ -180,7 +183,7 @@ export class Server {
      */
     async createChannel(data: DataCreateChannel) {
         return await this.client.api.post(
-            `/servers/${this._id as ''}/channels`,
+            `/servers/${this._id as ""}/channels`,
             data,
         );
     }
@@ -190,10 +193,7 @@ export class Server {
      * @param data Server editing route data
      */
     async edit(data: DataEditServer) {
-        return await this.client.api.patch(
-            `/servers/${this._id as ''}`,
-            data,
-        );
+        return await this.client.api.patch(`/servers/${this._id as ""}`, data);
     }
 
     /**
@@ -201,9 +201,7 @@ export class Server {
      */
     async delete(avoidReq?: boolean) {
         if (!avoidReq)
-            await this.client.api.delete(
-                `/servers/${this._id as ''}`,
-            );
+            await this.client.api.delete(`/servers/${this._id as ""}`);
 
         runInAction(() => {
             this.client.servers.delete(this._id);
@@ -214,21 +212,16 @@ export class Server {
      * Mark a server as read
      */
     async ack() {
-        return await this.client.api.put(
-            `/servers/${this._id}/ack`,
-        );
+        return await this.client.api.put(`/servers/${this._id}/ack`);
     }
 
     /**
      * Ban user
      * @param user_id User ID
      */
-    async banUser(
-        user_id: string,
-        data: DataBanCreate,
-    ) {
+    async banUser(user_id: string, data: DataBanCreate) {
         return await this.client.api.put(
-            `/servers/${this._id as ''}/bans/${user_id}`,
+            `/servers/${this._id as ""}/bans/${user_id}`,
             data,
         );
     }
@@ -239,7 +232,7 @@ export class Server {
      */
     async unbanUser(user_id: string) {
         return await this.client.api.delete(
-            `/servers/${this._id as ''}/bans/${user_id}`,
+            `/servers/${this._id as ""}/bans/${user_id}`,
         );
     }
 
@@ -248,9 +241,7 @@ export class Server {
      * @returns An array of the server's invites
      */
     async fetchInvites() {
-        return await this.client.api.get(
-            `/servers/${this._id as ''}/invites`,
-        );
+        return await this.client.api.get(`/servers/${this._id as ""}/invites`);
     }
 
     /**
@@ -258,9 +249,7 @@ export class Server {
      * @returns An array of the server's bans.
      */
     async fetchBans() {
-        return await this.client.api.get(
-            `/servers/${this._id as ''}/bans`
-        );
+        return await this.client.api.get(`/servers/${this._id as ""}/bans`);
     }
 
     /**
@@ -268,12 +257,9 @@ export class Server {
      * @param role_id Role Id, set to 'default' to affect all users
      * @param permissions Permission value
      */
-    async setPermissions(
-        role_id = "default",
-        permissions: Override | number
-    ) {
+    async setPermissions(role_id = "default", permissions: Override | number) {
         return await this.client.api.put(
-            `/servers/${this._id as ''}/permissions/${role_id as ''}`,
+            `/servers/${this._id as ""}/permissions/${role_id as ""}`,
             { permissions: permissions as Override },
         );
     }
@@ -283,10 +269,9 @@ export class Server {
      * @param name Role name
      */
     async createRole(name: string) {
-        return await this.client.api.post(
-            `/servers/${this._id as ''}/roles`,
-            { name },
-        );
+        return await this.client.api.post(`/servers/${this._id as ""}/roles`, {
+            name,
+        });
     }
 
     /**
@@ -294,12 +279,9 @@ export class Server {
      * @param role_id Role ID
      * @param data Role editing route data
      */
-    async editRole(
-        role_id: string,
-        data: DataEditRole,
-    ) {
+    async editRole(role_id: string, data: DataEditRole) {
         return await this.client.api.patch(
-            `/servers/${this._id as ''}/roles/${role_id as ''}`,
+            `/servers/${this._id as ""}/roles/${role_id as ""}`,
             data,
         );
     }
@@ -310,7 +292,7 @@ export class Server {
      */
     async deleteRole(role_id: string) {
         return await this.client.api.delete(
-            `/servers/${this._id as ''}/roles/${role_id as ''}`,
+            `/servers/${this._id as ""}/roles/${role_id as ""}`,
         );
     }
 
@@ -328,25 +310,25 @@ export class Server {
         if (existing) return existing;
 
         const member = await this.client.api.get(
-            `/servers/${this._id as ''}/members/${user_id as ''}`,
+            `/servers/${this._id as ""}/members/${user_id as ""}`,
         );
 
         return this.client.members.createObj(member);
     }
-    
+
     /**
      * Optimised member fetch route.
-     * @param exclude_offline 
+     * @param exclude_offline
      */
     async syncMembers(exclude_offline?: boolean) {
         const data = await this.client.api.get(
-            `/servers/${this._id as ''}/members`,
-            { exclude_offline }
+            `/servers/${this._id as ""}/members`,
+            { exclude_offline },
         );
 
         runInAction(() => {
             if (exclude_offline) {
-                for (let i=0;i<data.users.length;i++) {
+                for (let i = 0; i < data.users.length; i++) {
                     const user = data.users[i];
                     if (user.online) {
                         this.client.users.createObj(user);
@@ -354,7 +336,7 @@ export class Server {
                     }
                 }
             } else {
-                for (let i=0;i<data.users.length;i++) {
+                for (let i = 0; i < data.users.length; i++) {
                     this.client.users.createObj(data.users[i]);
                     this.client.members.createObj(data.members[i]);
                 }
@@ -368,7 +350,7 @@ export class Server {
      */
     async fetchMembers() {
         const data = await this.client.api.get(
-            `/servers/${this._id as ''}/members`,
+            `/servers/${this._id as ""}/members`,
         );
 
         // Note: this takes 986 ms (Testers server)
@@ -380,55 +362,38 @@ export class Server {
         });
     }
 
+    /**
+     * Generate URL to icon for this server
+     * @param args File parameters
+     * @returns File URL
+     */
     @computed generateIconURL(...args: FileArgs) {
         return this.client.generateFileURL(this.icon ?? undefined, ...args);
     }
 
+    /**
+     * Generate URL to banner for this server
+     * @param args File parameters
+     * @returns File URL
+     */
     @computed generateBannerURL(...args: FileArgs) {
         return this.client.generateFileURL(this.banner ?? undefined, ...args);
     }
 
+    /**
+     * Permission the currently authenticated user has against this server
+     */
     @computed get permission() {
-        // 1. Check if owner.
-        if (this.owner === this.client.user?._id) {
-            return Permission.GrantAllSafe;
-        } else {
-            // 2. Get member.
-            const member = this.client.members.getKey({
-                user: this.client.user!._id,
-                server: this._id,
-            }) ?? { roles: null };
-
-            if (!member) return 0;
-
-            // 3. Apply allows from default_permissions.
-            let perm = this.default_permissions;
-
-            // 4. If user has roles, iterate in order.
-            if (member.roles && this.roles) {
-                // 5. Apply allows and denies from roles.
-                const permissions = member
-                    .orderedRoles
-                    .map(([, role]) => role.permissions);
-
-                for (const permission of permissions) {
-                    perm |= permission.a;
-                    perm &= ~permission.d;
-                }
-            }
-
-            return perm;
-        }
+        return calculatePermission(this);
     }
 
     /**
-     * Check if we have a certain permission in a server.
-     * @param permission Relevant permission string
+     * Check whether we have a given permission in a server
+     * @param permission Permission Name
+     * @returns Whether we have this permission
      */
-    havePermission(permission: keyof typeof Permission) {
-        return Long.fromNumber(this.permission)
-            .and(Permission[permission])
-            .eq(Permission[permission]);
+    @computed havePermission(permission: keyof typeof Permission) {
+        return bitwiseAndEq(this.permission, Permission[permission]);
     }
 }
 
@@ -451,9 +416,7 @@ export default class Servers extends Collection<string, Server> {
      */
     async fetch(id: string, data?: ServerI, channels?: ChannelI[]) {
         if (this.has(id)) return this.$get(id, data);
-        const res =
-            data ??
-            (await this.client.api.get(`/servers/${id as ''}`));
+        const res = data ?? (await this.client.api.get(`/servers/${id as ""}`));
 
         return runInAction(async () => {
             if (channels) {
@@ -498,7 +461,10 @@ export default class Servers extends Collection<string, Server> {
      * @returns The newly-created server
      */
     async createServer(data: DataCreateServer) {
-        const { server, channels } = await this.client.api.post(`/servers/create`, data);
+        const { server, channels } = await this.client.api.post(
+            `/servers/create`,
+            data,
+        );
         return await this.fetch(server._id, server, channels);
     }
 }
