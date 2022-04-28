@@ -143,16 +143,16 @@ export class Member {
     /**
      * Check whether a member has a certain permission against a certain object
      * @param target Target object to check permissions against
-     * @param permission Permission string to check for
+     * @param permission Permission names to check for
      * @returns Whether the member has this permission
      */
     @computed hasPermission(
         target: Server | Channel,
-        permission: keyof typeof Permission,
+        ...permission: (keyof typeof Permission)[]
     ) {
         return bitwiseAndEq(
             this.getPermissions(target),
-            Permission[permission],
+            ...permission.map((x) => Permission[x]),
         );
     }
 }

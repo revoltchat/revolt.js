@@ -10,10 +10,11 @@ import {
 /**
  * Check whether `b` is present in `a`
  * @param a Input A
- * @param b Input B
+ * @param b Inputs (OR'd together)
  */
-export function bitwiseAndEq(a: number, b: number) {
-    return Long.fromNumber(a).and(b).eq(b);
+export function bitwiseAndEq(a: number, ...b: number[]) {
+    const value = b.reduce((prev, cur) => prev.or(cur), Long.fromNumber(0));
+    return value.and(a).eq(value);
 }
 
 /**

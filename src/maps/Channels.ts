@@ -653,11 +653,14 @@ export class Channel {
 
     /**
      * Check whether we have a given permission in a channel
-     * @param permission Permission Name
+     * @param permission Permission Names
      * @returns Whether we have this permission
      */
-    @computed havePermission(permission: keyof typeof Permission) {
-        return bitwiseAndEq(this.permission, Permission[permission]);
+    @computed havePermission(...permission: (keyof typeof Permission)[]) {
+        return bitwiseAndEq(
+            this.permission,
+            ...permission.map((x) => Permission[x]),
+        );
     }
 }
 
