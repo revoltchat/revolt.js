@@ -58,7 +58,7 @@ export function calculatePermission(
                 for (const permission of permissions) {
                     perm = perm
                         .or(permission.a)
-                        .and(Long.fromNumber(permission.d).neg());
+                        .and(Long.fromNumber(permission.d).not());
                 }
             }
 
@@ -111,7 +111,9 @@ export function calculatePermission(
                     if (!member) return 0;
 
                     // 5. Calculate server base permissions.
-                    let perm = Long.fromNumber(server.permission);
+                    let perm = Long.fromNumber(
+                        calculatePermission(server, options),
+                    );
 
                     // 6. Apply default allows and denies for channel.
                     if (target.default_permissions) {
@@ -120,7 +122,7 @@ export function calculatePermission(
                             .and(
                                 Long.fromNumber(
                                     target.default_permissions.d,
-                                ).neg(),
+                                ).not(),
                             );
                     }
 
@@ -138,7 +140,7 @@ export function calculatePermission(
                             if (override) {
                                 perm = perm
                                     .or(override.a)
-                                    .and(Long.fromNumber(override.d).neg());
+                                    .and(Long.fromNumber(override.d).not());
                             }
                         }
                     }
