@@ -1,6 +1,6 @@
 {
     "name": "revolt.js",
-    "version": "6.0.0-rc.22",
+    "version": "6.0.0-rc.23",
     "main": "dist/index.js",
     "typings": "dist/index.d.ts",
     "module": "esm/index.js",

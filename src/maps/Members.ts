@@ -118,18 +118,35 @@ export class Member {
                 (role_id) =>
                     [role_id, server.roles![role_id]] as [string, Role],
             )
-            .sort(([, a], [, b]) => (b.rank || 0) - (a.rank || 0));
+            .sort(([, a], [, b]) => b.rank! - a.rank!);
     }
 
     /**
      * Get this member's currently hoisted role.
      */
     @computed get hoistedRole() {
-        const roles = this.orderedRoles;
+        const roles = this.orderedRoles.filter((x) => x[1].hoist);
         if (roles.length > 0) {
             return roles[roles.length - 1];
         } else {
             return null;
+        }
+    }
+
+    /**
+     * Get this member's ranking.
+     * Smaller values are ranked as higher priotity.
+     */
+    @computed get ranking() {
+        if (this._id.user === this.server?.owner) {
+            return -Infinity;
+        }
+
+        const roles = this.orderedRoles;
+        if (roles.length > 0) {
+            return roles[roles.length - 1][1].rank!;
+        } else {
+            return Infinity;
         }
     }
 
