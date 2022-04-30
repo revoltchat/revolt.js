@@ -20,7 +20,7 @@ import { Nullable, toNullable } from "../util/null";
 import { Permission } from "../permissions/definitions";
 import Collection from "./Collection";
 import { User } from "./Users";
-import { Client, FileArgs } from "..";
+import { Channel, Client, FileArgs } from "..";
 import { decodeTime } from "ulid";
 import { INotificationChecker } from "../util/Unreads";
 import { Override } from "revolt-api";
@@ -75,6 +75,46 @@ export class Server {
     }
 
     /**
+     * Get an array of ordered categories with their respective channels.
+     * Uncategorised channels are returned in `id="default"` category.
+     */
+    @computed get orderedChannels(): (Omit<Category, "channels"> & {
+        channels: Channel[];
+    })[] {
+        const uncategorised = new Set(
+            this.channel_ids.filter((key) => this.client.channels.has(key)),
+        );
+
+        const elements = [];
+
+        if (this.categories) {
+            for (const category of this.categories) {
+                const channels = [];
+                for (const key of category.channels) {
+                    if (uncategorised.delete(key)) {
+                        channels.push(this.client.channels.get(key)!);
+                    }
+                }
+
+                elements.push({
+                    ...category,
+                    channels,
+                });
+            }
+        }
+
+        elements.unshift({
+            id: "default",
+            title: "Default",
+            channels: [...uncategorised].map(
+                (key) => this.client.channels.get(key)!,
+            ),
+        });
+
+        return elements;
+    }
+
+    /**
      * Get an ordered array of roles with their IDs attached.
      * The highest ranking roles will be first followed by lower
      * ranking roles. This is dictated by the "rank" property
@@ -88,9 +128,14 @@ export class Server {
                     ...this.roles![id],
                 };
             })
-            .sort((b, a) => (b.rank || 0) - (a.rank || 0));
+            .sort((a, b) => (a.rank || 0) - (b.rank || 0));
     }
 
+    /**
+     * Check whether the server is currently unread
+     * @param permit Callback function to determine whether a server has certain properties
+     * @returns Whether the server is unread
+     */
     @computed isUnread(permit?: INotificationChecker) {
         if (permit?.isMuted(this)) return false;
         return this.channels.find(
@@ -98,6 +143,11 @@ export class Server {
         );
     }
 
+    /**
+     * Find all message IDs of unread messages
+     * @param permit Callback function to determine whether a server has certain properties
+     * @returns Array of message IDs which are unread
+     */
     @computed getMentions(permit?: INotificationChecker) {
         if (permit?.isMuted(this)) return [];
         const arr = this.channels

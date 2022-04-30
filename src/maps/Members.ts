@@ -105,6 +105,9 @@ export class Member {
         );
     }
 
+    /**
+     * Get an ordered list of roles for this member, from lowest to highest priority.
+     */
     @computed get orderedRoles() {
         const member_roles = new Set(this.roles);
         const server = this.server!;
@@ -118,6 +121,9 @@ export class Member {
             .sort(([, a], [, b]) => (b.rank || 0) - (a.rank || 0));
     }
 
+    /**
+     * Get this member's currently hoisted role.
+     */
     @computed get hoistedRole() {
         const roles = this.orderedRoles;
         if (roles.length > 0) {
@@ -127,6 +133,11 @@ export class Member {
         }
     }
 
+    /**
+     * Generate URL to this member's avatar
+     * @param args File parameters
+     * @returns File URL
+     */
     @computed generateAvatarURL(...args: FileArgs) {
         return this.client.generateFileURL(this.avatar ?? undefined, ...args);
     }

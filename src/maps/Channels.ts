@@ -199,11 +199,21 @@ export class Channel {
         return this.client.configuration?.app + this.path;
     }
 
+    /**
+     * Check whether the channel is currently unread
+     * @param permit Callback function to determine whether a channel has certain properties
+     * @returns Whether the channel is unread
+     */
     @computed isUnread(permit: INotificationChecker) {
         if (permit.isMuted(this)) return false;
         return this.unread;
     }
 
+    /**
+     * Find all message IDs of unread messages
+     * @param permit Callback function to determine whether a channel has certain properties
+     * @returns Array of message IDs which are unread
+     */
     @computed getMentions(permit: INotificationChecker) {
         if (permit.isMuted(this)) return [];
         return this.mentions;
