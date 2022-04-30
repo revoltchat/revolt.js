@@ -431,6 +431,16 @@ export class Server {
     }
 
     /**
+     * Get our own member object for this server
+     */
+    @computed get member() {
+        return this.client.members.getKey({
+            server: this._id,
+            user: this.client.user!._id,
+        });
+    }
+
+    /**
      * Permission the currently authenticated user has against this server
      */
     @computed get permission() {
