@@ -39,6 +39,27 @@ export class Member {
         return this.client.servers.get(this._id.server);
     }
 
+    /**
+     * Whether the client has a higher rank than this member.
+     */
+    get inferior() {
+        return (this.server?.member?.ranking ?? Infinity) < this.ranking;
+    }
+
+    /**
+     * Whether the client can kick this user.
+     */
+    get kickable() {
+        return this.server?.havePermission('KickMembers') && this.inferior;
+    }
+
+    /**
+     * Whether the client can ban this user.
+     */
+    get bannable() {
+        return this.server?.havePermission('BanMembers') && this.inferior;
+    }
+
     constructor(client: Client, data: MemberI) {
         this.client = client;
         this._id = data._id;
@@ -182,6 +203,15 @@ export class Member {
             this.getPermissions(target),
             ...permission.map((x) => Permission[x]),
         );
+    }
+
+    /**
+     * Checks whether the target member has a higer rank than this member.
+     * @param target The member to compare against
+     * @returns Whether this member is inferior to the target
+     */
+    @computed inferiorTo(target: Member) {
+        return target.ranking < this.ranking;
     }
 }
 
