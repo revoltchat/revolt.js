@@ -565,6 +565,15 @@ export class Channel {
         return { deprecated: ids };
     }
 
+    async deleteMessages(ids: string[]) {
+        await this.client.api.post(
+            // @ts-expect-error .delete does not support params
+            `/channels/${this._id as ""}/messages/bulk`,
+            { ids },
+            { method: "DELETE" },
+        );
+    }
+
     /**
      * Create an invite to the channel
      * @returns Newly created invite code

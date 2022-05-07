@@ -150,8 +150,9 @@ export class WebSocketClient {
                             });
 
                             this.client.user = this.client.users.get(
-                                packet.users.find((x) => x.relationship === "User")!
-                                    ._id,
+                                packet.users.find(
+                                    (x) => x.relationship === "User",
+                                )!._id,
                             )!;
 
                             this.client.emit("ready");
@@ -191,7 +192,9 @@ export class WebSocketClient {
                                                     );
 
                                                     this.disconnect();
-                                                    this.connect(disallowReconnect);
+                                                    this.connect(
+                                                        disallowReconnect,
+                                                    );
                                                 }
                                             }
                                         }, this.client.options.pongTimeout * 1000);
@@ -231,17 +234,21 @@ export class WebSocketClient {
                                         }
                                     }
                                 } else {
-                                    await this.client.users.fetch(packet.author);
+                                    await this.client.users.fetch(
+                                        packet.author,
+                                    );
                                 }
 
-                                const channel = await this.client.channels.fetch(
-                                    packet.channel,
-                                );
+                                const channel =
+                                    await this.client.channels.fetch(
+                                        packet.channel,
+                                    );
 
                                 if (channel.channel_type === "TextChannel") {
-                                    const server = await this.client.servers.fetch(
-                                        channel.server_id!,
-                                    );
+                                    const server =
+                                        await this.client.servers.fetch(
+                                            channel.server_id!,
+                                        );
                                     if (
                                         packet.author !==
                                         "00000000000000000000000000"
@@ -249,18 +256,30 @@ export class WebSocketClient {
                                         await server.fetchMember(packet.author);
                                 }
 
-                                const message = this.client.messages.createObj(packet, true);
+                                const message = this.client.messages.createObj(
+                                    packet,
+                                    true,
+                                );
 
                                 runInAction(() => {
-                                    if (channel.channel_type === "DirectMessage") {
+                                    if (
+                                        channel.channel_type === "DirectMessage"
+                                    ) {
                                         channel.active = true;
                                     }
 
                                     channel.last_message_id = message._id;
 
-                                    if (this.client.unreads &&
-                                        message.mention_ids?.includes(this.client.user!._id)) {
-                                        this.client.unreads.markMention(message.channel_id, message._id);
+                                    if (
+                                        this.client.unreads &&
+                                        message.mention_ids?.includes(
+                                            this.client.user!._id,
+                                        )
+                                    ) {
+                                        this.client.unreads.markMention(
+                                            message.channel_id,
+                                            message._id,
+                                        );
                                     }
                                 });
                             }
@@ -292,6 +311,17 @@ export class WebSocketClient {
                             break;
                         }
 
+                        case "MessageBulkDelete": {
+                            runInAction(() => {
+                                for (const id of packet.ids) {
+                                    const msg = this.client.messages.get(id);
+                                    this.client.messages.delete(id);
+                                    this.client.emit("message/delete", id, msg);
+                                }
+                            });
+                            break;
+                        }
+
                         case "ChannelCreate": {
                             runInAction(async () => {
                                 if (packet.type !== "ChannelCreate") throw 0;
@@ -300,9 +330,10 @@ export class WebSocketClient {
                                     packet.channel_type === "TextChannel" ||
                                     packet.channel_type === "VoiceChannel"
                                 ) {
-                                    const server = await this.client.servers.fetch(
-                                        packet.server,
-                                    );
+                                    const server =
+                                        await this.client.servers.fetch(
+                                            packet.server,
+                                        );
                                     server.channel_ids.push(packet._id);
                                 }
 
@@ -323,7 +354,11 @@ export class WebSocketClient {
                         case "ChannelDelete": {
                             const channel = this.client.channels.get(packet.id);
                             channel?.delete(true);
-                            this.client.emit("channel/delete", packet.id, channel);
+                            this.client.emit(
+                                "channel/delete",
+                                packet.id,
+                                channel,
+                            );
                             break;
                         }
 
@@ -352,12 +387,20 @@ export class WebSocketClient {
                             runInAction(async () => {
                                 const channels = [];
                                 for (const channel of packet.channels) {
-                                    channels.push(await this.client.channels.fetch(channel._id, channel));
+                                    channels.push(
+                                        await this.client.channels.fetch(
+                                            channel._id,
+                                            channel,
+                                        ),
+                                    );
                                 }
 
-                                await this.client.servers.fetch(packet.id, packet.server);
+                                await this.client.servers.fetch(
+                                    packet.id,
+                                    packet.server,
+                                );
                             });
-                            
+
                             break;
                         }
 
@@ -373,12 +416,18 @@ export class WebSocketClient {
                         case "ServerDelete": {
                             const server = this.client.servers.get(packet.id);
                             server?.delete(true);
-                            this.client.emit("server/delete", packet.id, server);
+                            this.client.emit(
+                                "server/delete",
+                                packet.id,
+                                server,
+                            );
                             break;
                         }
 
                         case "ServerMemberUpdate": {
-                            const member = this.client.members.getKey(packet.id);
+                            const member = this.client.members.getKey(
+                                packet.id,
+                            );
                             if (member) {
                                 member.update(packet.data, packet.clear);
                                 this.client.emit("member/update", member);
@@ -415,7 +464,8 @@ export class WebSocketClient {
                                     [...this.client.members.keys()].forEach(
                                         (key) => {
                                             if (
-                                                JSON.parse(key).server === server_id
+                                                JSON.parse(key).server ===
+                                                server_id
                                             ) {
                                                 this.client.members.delete(key);
                                             }
@@ -484,7 +534,7 @@ export class WebSocketClient {
                             if (user) {
                                 user.update({
                                     ...packet.user,
-                                    relationship: packet.status
+                                    relationship: packet.status,
                                 });
                             } else {
                                 this.client.users.createObj(packet.user);
@@ -536,7 +586,7 @@ export class WebSocketClient {
                                     `Warning: Unhandled packet! ${packet.type}`,
                                 );
                     }
-                } catch(e) {
+                } catch (e) {
                     console.error(e);
                 }
             };

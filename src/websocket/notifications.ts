@@ -1,11 +1,12 @@
-import type { FieldsChannel, FieldsMember, FieldsServer, FieldsUser, Session } from "revolt-api";
-import type { Channel, Message } from "revolt-api";
 import type {
-    Member,
-    MemberCompositeKey,
-    Role,
-    Server,
+    FieldsChannel,
+    FieldsMember,
+    FieldsServer,
+    FieldsUser,
+    Session,
 } from "revolt-api";
+import type { Channel, Message } from "revolt-api";
+import type { Member, MemberCompositeKey, Role, Server } from "revolt-api";
 import type { RelationshipStatus, User } from "revolt-api";
 
 type WebSocketError = {
@@ -47,12 +48,13 @@ export type ClientboundNotification =
           data: Partial<Message>;
       }
     | {
-        type: "MessageAppend";
-        id: string;
-        channel: string;
-        append: Pick<Partial<Message>, 'embeds'>;
+          type: "MessageAppend";
+          id: string;
+          channel: string;
+          append: Pick<Partial<Message>, "embeds">;
       }
     | { type: "MessageDelete"; id: string; channel: string }
+    | { type: "MessageBulkDelete"; channel: string; ids: string[] }
     | ({ type: "ChannelCreate" } & Channel)
     | {
           type: "ChannelUpdate";
@@ -67,11 +69,11 @@ export type ClientboundNotification =
     | { type: "ChannelStopTyping"; id: string; user: string }
     | { type: "ChannelAck"; id: string; user: string; message_id: string }
     | {
-        type: "ServerCreate";
-        id: string;
-        server: Server;
-        channels: Channel[];
-    }
+          type: "ServerCreate";
+          id: string;
+          server: Server;
+          channels: Channel[];
+      }
     | {
           type: "ServerUpdate";
           id: string;
@@ -102,4 +104,8 @@ export type ClientboundNotification =
       }
     | { type: "UserRelationship"; user: User; status: RelationshipStatus }
     | { type: "UserPresence"; id: string; online: boolean }
-    | { type: "UserSettingsUpdate"; id: string; update: { [key: string]: [number, string] } };
+    | {
+          type: "UserSettingsUpdate";
+          id: string;
+          update: { [key: string]: [number, string] };
+      };
