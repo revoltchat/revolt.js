@@ -311,7 +311,7 @@ export class WebSocketClient {
                             break;
                         }
 
-                        case "MessageBulkDelete": {
+                        case "BulkMessageDelete": {
                             runInAction(() => {
                                 for (const id of packet.ids) {
                                     const msg = this.client.messages.get(id);

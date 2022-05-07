@@ -54,7 +54,7 @@ export type ClientboundNotification =
           append: Pick<Partial<Message>, "embeds">;
       }
     | { type: "MessageDelete"; id: string; channel: string }
-    | { type: "MessageBulkDelete"; channel: string; ids: string[] }
+    | { type: "BulkMessageDelete"; channel: string; ids: string[] }
     | ({ type: "ChannelCreate" } & Channel)
     | {
           type: "ChannelUpdate";
