@@ -211,6 +211,10 @@ export class User {
                 (member) => member._id.user === this.client.user!._id,
             )
         ) {
+            if (this.client.user?.bot || this.bot) {
+                permissions |= UserPermission.SendMessage;
+            }
+
             permissions |= UserPermission.Access | UserPermission.ViewProfile;
         }
 
