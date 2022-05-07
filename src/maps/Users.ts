@@ -28,7 +28,8 @@ export class User {
     badges: Nullable<number>;
     status: Nullable<UserStatus>;
     relationship: Nullable<RelationshipStatus>;
-    online: Nullable<boolean>;
+    online: boolean;
+    privileged: boolean;
     flags: Nullable<number>;
     bot: Nullable<BotInformation>;
 
@@ -49,7 +50,8 @@ export class User {
         this.badges = toNullable(data.badges);
         this.status = toNullable(data.status);
         this.relationship = toNullable(data.relationship);
-        this.online = toNullable(data.online);
+        this.online = data.online ?? false;
+        this.privileged = data.privileged ?? false;
         this.flags = toNullable(data.flags);
         this.bot = toNullable(data.bot);
 
@@ -96,6 +98,7 @@ export class User {
         apply("status");
         apply("relationship");
         apply("online");
+        apply("privileged");
         apply("flags");
         apply("bot");
     }

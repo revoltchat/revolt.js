@@ -31,15 +31,20 @@ export function calculatePermission(
         member?: Member;
     },
 ): number {
+    const user = options?.member ? options?.member.user : target.client.user;
+    if (user?.privileged) {
+        return Permission.GrantAllSafe;
+    }
+
     if (target instanceof Server) {
         // 1. Check if owner.
-        if (target.owner === target.client.user?._id) {
+        if (target.owner === user?._id) {
             return Permission.GrantAllSafe;
         } else {
             // 2. Get member.
             const member = options?.member ??
                 target.client.members.getKey({
-                    user: target.client.user!._id,
+                    user: user!._id,
                     server: target._id,
                 }) ?? { roles: null };
 
@@ -82,7 +87,7 @@ export function calculatePermission(
             }
             case "Group": {
                 // 2. Check if user is owner.
-                if (target.owner_id === target.client.user!._id) {
+                if (target.owner_id === user!._id) {
                     return DEFAULT_PERMISSION_DIRECT_MESSAGE;
                 } else {
                     // 3. Pull out group permissions.
@@ -98,13 +103,13 @@ export function calculatePermission(
                 if (typeof server === "undefined") return 0;
 
                 // 3. If server owner, just grant all permissions.
-                if (server.owner === target.client.user?._id) {
+                if (server.owner === user?._id) {
                     return Permission.GrantAllSafe;
                 } else {
                     // 4. Get member.
                     const member = options?.member ??
                         target.client.members.getKey({
-                            user: target.client.user!._id,
+                            user: user!._id,
                             server: server._id,
                         }) ?? { roles: null };
 
