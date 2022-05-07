@@ -206,7 +206,7 @@ export class Member {
     }
 
     /**
-     * Checks whether the target member has a higer rank than this member.
+     * Checks whether the target member has a higher rank than this member.
      * @param target The member to compare against
      * @returns Whether this member is inferior to the target
      */
