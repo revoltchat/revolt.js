@@ -76,7 +76,7 @@
         "build": "rimraf dist esm && tsc && tsc -p tsconfig.cjs.json",
         "build:watch": "tsc-watch",
         "typecheck": "tsc --noEmit",
-        "docs": "typedoc --readme README.md src/index.ts",
+        "docs": "typedoc --readme README.md src/",
         "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
         "fmt": "prettier --write 'src/**/*.{js,jsx,ts,tsx}'"
     },
