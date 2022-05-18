@@ -1015,10 +1015,10 @@ reusify@^1.0.4:
   resolved "https://registry.yarnpkg.com/reusify/-/reusify-1.0.4.tgz#90da382b1e126efc02146e90845a88db12925d76"
   integrity sha512-U9nH88a3fc/ekCF1l0/UP1IosiuIjyTh7hBvXVMHYgVcfGvt897Xguj2UOLDeI5BG2m7/uwyaLVT6fbtCwTyzw==
 
-revolt-api@0.5.3-5:
-  version "0.5.3-5"
-  resolved "https://registry.yarnpkg.com/revolt-api/-/revolt-api-0.5.3-5.tgz#2031a37cb9fb58e0f3876f4a596fb59b7260183a"
-  integrity sha512-6SUB13/+SGYjiwg3cDqkAmeLR3E3hkcZ7WUV5M4qHdwVv52P+zRNCjpabrzyD/9qierQddajgCvS0cIH2taCwg==
+revolt-api@0.5.3-5-patch.3:
+  version "0.5.3-5-patch.3"
+  resolved "https://registry.yarnpkg.com/revolt-api/-/revolt-api-0.5.3-5-patch.3.tgz#73a0614a02a210adac2b946fc0fc35f4304fb348"
+  integrity sha512-xESgQ9kp8T5iupeixt/yJIiGDiM11pm1b2E6srM/+jrV7Jyrj/vPgDPv3hEeJFhNmUK6EP5tKxkmTBhcqNE/Vw==
   dependencies:
     "@insertish/oapi" "0.1.15"
     axios "^0.26.1"
