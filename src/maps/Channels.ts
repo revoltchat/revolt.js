@@ -566,11 +566,9 @@ export class Channel {
     }
 
     async deleteMessages(ids: string[]) {
-        await this.client.api.post(
-            // @ts-expect-error .delete does not support params
+        await this.client.api.delete(
             `/channels/${this._id as ""}/messages/bulk`,
-            { ids },
-            { method: "DELETE" },
+            { data: { ids } },
         );
     }
 
