@@ -41,10 +41,10 @@
   resolved "https://registry.yarnpkg.com/@insertish/isomorphic-ws/-/isomorphic-ws-4.0.1.tgz#5bcd6f73b93efa9ccdb6abf887ae808d40827169"
   integrity sha512-kFD/p8T4Hkqr992QrdkbW/cQ/W/q2d9MPCobwzBv2PwTKLkCD9RaYDy6m17qRnSLQQ5PU0kHCG8kaOwAqzj1vQ==
 
-"@insertish/oapi@0.1.15":
-  version "0.1.15"
-  resolved "https://registry.yarnpkg.com/@insertish/oapi/-/oapi-0.1.15.tgz#ee58b82d879ed5af54db846699941b8ad0262e7b"
-  integrity sha512-2G8eFxrojF651tBoRutQ8CJOw0u8UjYSlw/LQU+xycw5KpXslhWp/KSR86uIFyDIPddwfMCNA91vwHGCFRA63w==
+"@insertish/oapi@0.1.16":
+  version "0.1.16"
+  resolved "https://registry.yarnpkg.com/@insertish/oapi/-/oapi-0.1.16.tgz#1149547a3ded6c1c087318bf9649e231836408ed"
+  integrity sha512-dxuLdNKBmnbVw8BBRzE1APZ3d7wErhNWQepXdNM3ueeQrheo6Sjg8FGFCQG7zCrEKns08lg5ITmxhqbYXVXZBQ==
   dependencies:
     typescript "^4.6.2"
   optionalDependencies:
@@ -1015,12 +1015,12 @@ reusify@^1.0.4:
   resolved "https://registry.yarnpkg.com/reusify/-/reusify-1.0.4.tgz#90da382b1e126efc02146e90845a88db12925d76"
   integrity sha512-U9nH88a3fc/ekCF1l0/UP1IosiuIjyTh7hBvXVMHYgVcfGvt897Xguj2UOLDeI5BG2m7/uwyaLVT6fbtCwTyzw==
 
-revolt-api@0.5.3-5-patch.3:
-  version "0.5.3-5-patch.3"
-  resolved "https://registry.yarnpkg.com/revolt-api/-/revolt-api-0.5.3-5-patch.3.tgz#73a0614a02a210adac2b946fc0fc35f4304fb348"
-  integrity sha512-xESgQ9kp8T5iupeixt/yJIiGDiM11pm1b2E6srM/+jrV7Jyrj/vPgDPv3hEeJFhNmUK6EP5tKxkmTBhcqNE/Vw==
+revolt-api@0.5.3-5-patch.4:
+  version "0.5.3-5-patch.4"
+  resolved "https://registry.yarnpkg.com/revolt-api/-/revolt-api-0.5.3-5-patch.4.tgz#c80da9c02a62ba8736420cf878d2a77e7c93a277"
+  integrity sha512-ITcKvMBJyx24+rcG/tzGLBZR7fBlYuDla9WMYVIE24dPehGnCzgx9r0ncuwM+RvjbHWGRRDGqc2MA9phT/PZsg==
   dependencies:
-    "@insertish/oapi" "0.1.15"
+    "@insertish/oapi" "0.1.16"
     axios "^0.26.1"
     lodash.defaultsdeep "^4.6.1"
 

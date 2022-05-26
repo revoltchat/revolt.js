@@ -1,7 +1,13 @@
 import EventEmitter from "eventemitter3";
 import defaultsDeep from "lodash.defaultsdeep";
 import { action, makeObservable, observable } from "mobx";
-import type { DataCreateAccount, DataLogin, DataOnboard, InviteResponse, Session } from "revolt-api";
+import type {
+    DataCreateAccount,
+    DataLogin,
+    DataOnboard,
+    InviteResponse,
+    Session,
+} from "revolt-api";
 import type { RevoltConfig, Metadata } from "revolt-api";
 import { API, MemberCompositeKey, Role } from "revolt-api";
 
@@ -62,14 +68,23 @@ export declare interface Client {
 
     on(event: "message", listener: (message: Message) => void): this;
     on(event: "message/update", listener: (message: Message) => void): this;
-    on(event: "message/delete", listener: (id: string, message?: Message) => void): this;
+    on(
+        event: "message/delete",
+        listener: (id: string, message?: Message) => void,
+    ): this;
 
     on(event: "channel/create", listener: (channel: Channel) => void): this;
     on(event: "channel/update", listener: (channel: Channel) => void): this;
-    on(event: "channel/delete", listener: (id: string, channel?: Channel) => void): this;
+    on(
+        event: "channel/delete",
+        listener: (id: string, channel?: Channel) => void,
+    ): this;
 
     on(event: "server/update", listener: (server: Server) => void): this;
-    on(event: "server/delete", listener: (id: string, server?: Server) => void): this;
+    on(
+        event: "server/delete",
+        listener: (id: string, server?: Server) => void,
+    ): this;
 
     on(
         event: "role/update",
@@ -99,10 +114,10 @@ export const RE_SPOILER = /!!.+!!/g;
 
 export type FileArgs = [
     options?: {
-        max_side?: number,
-        size?: number,
-        width?: number,
-        height?: number
+        max_side?: number;
+        size?: number;
+        width?: number;
+        height?: number;
     },
     allowAnimation?: boolean,
     fallback?: string,
@@ -220,8 +235,8 @@ export class Client extends EventEmitter {
         this.api = new API({
             baseURL: this.apiURL,
             authentication: {
-                revolt: this.session
-            }
+                revolt: this.session,
+            },
         });
     }
 
@@ -233,7 +248,7 @@ export class Client extends EventEmitter {
     async login(details: DataLogin) {
         await this.fetchConfiguration();
         const data = await this.api.post("/auth/session/login", details);
-        if (data.result === 'Success') {
+        if (data.result === "Success") {
             this.session = data;
             return await this.$connect();
         } else {
@@ -283,10 +298,7 @@ export class Client extends EventEmitter {
      * @param data Onboarding data object
      * @param loginAfterSuccess Defines whether to automatically log in and connect after onboarding finishes
      */
-    async completeOnboarding(
-        data: DataOnboard,
-        loginAfterSuccess?: boolean,
-    ) {
+    async completeOnboarding(data: DataOnboard, loginAfterSuccess?: boolean) {
         await this.api.post("/onboard/complete", data);
         if (loginAfterSuccess) {
             await this.websocket.connect();
@@ -303,7 +315,7 @@ export class Client extends EventEmitter {
      * @returns Invite information.
      */
     async fetchInvite(code: string) {
-        return await this.api.get(`/invites/${code as ''}`);
+        return await this.api.get(`/invites/${code as ""}`);
     }
 
     async joinInvite(code: string): Promise<Server>;
@@ -315,16 +327,16 @@ export class Client extends EventEmitter {
      * @returns Data provided by invite.
      */
     async joinInvite(invite: string | InviteResponse) {
-        const code = typeof invite === 'string' ? invite : invite.code;
+        const code = typeof invite === "string" ? invite : invite.code;
 
-        if (typeof invite === 'object') {
+        if (typeof invite === "object") {
             switch (invite.type) {
-                case 'Group': {
+                case "Group": {
                     const group = this.channels.get(invite.channel_id);
                     if (group) return group;
                     break;
                 }
-                case 'Server': {
+                case "Server": {
                     const server = this.servers.get(invite.server_id);
                     if (server) return server;
                 }
@@ -332,8 +344,12 @@ export class Client extends EventEmitter {
         }
 
         const response = await this.api.post(`/invites/${code}`);
-        if (response.type === 'Server') {
-            return await this.servers.fetch(response.server._id, response.server, response.channels);
+        if (response.type === "Server") {
+            return await this.servers.fetch(
+                response.server._id,
+                response.server,
+                response.channels,
+            );
         } else {
             throw "Unsupported invite type.";
         }
@@ -344,7 +360,7 @@ export class Client extends EventEmitter {
      * @param code The invite code.
      */
     async deleteInvite(code: string) {
-        await this.api.delete(`/invites/${code as ''}`);
+        await this.api.delete(`/invites/${code as ""}`);
     }
 
     /**
@@ -372,13 +388,10 @@ export class Client extends EventEmitter {
                 typeof value === "string" ? value : JSON.stringify(value);
         }
 
-        await this.api.post(
-            `/sync/settings/set`,
-            {
-                ...requestData,
-                timestamp
-            }
-        );
+        await this.api.post(`/sync/settings/set`, {
+            ...requestData,
+            timestamp,
+        });
     }
 
     /**
@@ -469,7 +482,12 @@ export class Client extends EventEmitter {
      * @returns Generated URL or nothing
      */
     generateFileURL(
-        attachment?: { tag: string; _id: string; content_type?: string, metadata?: Metadata },
+        attachment?: {
+            tag: string;
+            _id: string;
+            content_type?: string;
+            metadata?: Metadata;
+        },
         ...args: FileArgs
     ) {
         const [options, allowAnimation, fallback] = args;
@@ -481,10 +499,12 @@ export class Client extends EventEmitter {
         const { tag, _id, content_type, metadata } = attachment;
 
         // ! FIXME: These limits should be done on Autumn.
-        if (metadata?.type === 'Image') {
-            if (Math.min(metadata.width, metadata.height) <= 0 || 
-                (content_type === "image/gif"
-                && Math.max(metadata.width, metadata.height) >= 1024))
+        if (metadata?.type === "Image") {
+            if (
+                Math.min(metadata.width, metadata.height) <= 0 ||
+                (content_type === "image/gif" &&
+                    Math.max(metadata.width, metadata.height) >= 1024)
+            )
                 return fallback;
         }
 
@@ -500,5 +520,107 @@ export class Client extends EventEmitter {
         }
 
         return `${autumn.url}/${tag}/${_id}${query}`;
+    }
+
+    /**
+     * Configure mock data ("demo mode")
+     */
+    async mock() {
+        this.configuration = {
+            revolt: "0.5.3",
+            features: {
+                captcha: {
+                    enabled: true,
+                    key: "",
+                },
+                email: true,
+                invite_only: false,
+                autumn: { enabled: true, url: "https://autumn.revolt.chat" },
+                january: { enabled: true, url: "https://jan.revolt.chat" },
+                voso: {
+                    enabled: true,
+                    url: "https://vortex.revolt.chat",
+                    ws: "wss://vortex.revolt.chat",
+                },
+            },
+            ws: "wss://ws.revolt.chat",
+            app: "https://app.revolt.chat",
+            vapid: "",
+        };
+
+        this.user = await this.users.fetch("user", {
+            _id: "user",
+            username: "insert",
+            online: true,
+            status: {
+                presence: "Online",
+                text: "gaming frfr",
+            },
+            profile: {
+                content: "profile text",
+                background: {
+                    _id: "7B3pdjRfTd7NriBWRYFdqKTQpUiskBzHkZ67tJiMtE",
+                    tag: "backgrounds",
+                    filename: "tenor.gif",
+                    metadata: {
+                        type: "Image",
+                        width: 498,
+                        height: 292,
+                    },
+                    content_type: "image/gif",
+                    size: 1073166,
+                },
+            },
+            avatar: {
+                _id: "6rgg372gI2LrxCUx0CiA2R1Qs6eTtmC-2NpMq1Xa_3",
+                tag: "avatars",
+                filename: "e4332b6d70619b8a98086e532dbd4b9e.png",
+                metadata: {
+                    type: "Image",
+                    width: 128,
+                    height: 128,
+                },
+                content_type: "image/png",
+                size: 23321,
+            },
+        });
+
+        const names = [
+            "Server Name",
+            "My Server",
+            "Joe Nuts",
+            "F",
+            "G",
+            "Deez",
+            "A B C D E F",
+        ];
+
+        for (let i = 0; i < names.length; i++) {
+            const _id = i.toString();
+
+            this.channels.fetch(_id, {
+                _id,
+                channel_type: "TextChannel",
+                name: "General",
+                server: _id,
+            });
+
+            this.servers.fetch(_id, {
+                _id,
+                name: names[i],
+                channels: [],
+                default_permissions: 0,
+                owner: "user",
+            });
+
+            if (Math.random() > 0.75) {
+                const count = Math.floor(Math.random() * 10);
+                for (let i = 0; i < count; i++) {
+                    this.unreads?.markMention(_id, "mid");
+                }
+            } else if (Math.random() > 0.5) {
+                this.unreads?.markUnread(_id, "mid");
+            }
+        }
     }
 }
