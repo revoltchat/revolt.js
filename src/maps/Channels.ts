@@ -22,7 +22,7 @@ import { Client, FileArgs } from "..";
 import { Permission } from "../permissions/definitions";
 import { INotificationChecker } from "../util/Unreads";
 import { Override, OverrideField } from "revolt-api";
-import { APIRoutes } from "revolt-api/dist/routes";
+import type { APIRoutes } from "revolt-api/dist/routes";
 import { bitwiseAndEq, calculatePermission } from "../permissions/calculator";
 
 export class Channel {
