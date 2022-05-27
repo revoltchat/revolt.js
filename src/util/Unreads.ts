@@ -20,6 +20,7 @@ export interface INotificationChecker {
  */
 export default class Unreads {
     private client: Client;
+    private loaded: boolean;
     private channels: ObservableMap<string, Omit<ChannelUnread, "_id">>;
 
     /**
@@ -27,6 +28,7 @@ export default class Unreads {
      */
     constructor(client: Client) {
         this.channels = new ObservableMap();
+        this.loaded = false;
         makeAutoObservable(this);
         this.client = client;
     }
@@ -37,6 +39,7 @@ export default class Unreads {
     async sync() {
         const unreads = await this.client.syncFetchUnreads();
         runInAction(() => {
+            this.loaded = true;
             for (const unread of unreads) {
                 const { _id, ...data } = unread;
                 this.channels.set(_id.channel, data);
@@ -50,6 +53,11 @@ export default class Unreads {
      * @returns Partial channel unread object
      */
     @computed getUnread(channel_id: string) {
+        if (!this.loaded)
+            return {
+                last_id: "40000000000000000000000000",
+            };
+
         return this.channels.get(channel_id);
     }
 
