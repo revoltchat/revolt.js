@@ -585,6 +585,12 @@ export class Client extends EventEmitter {
             },
         });
 
+        await this.users.fetch("user2", {
+            _id: "user2",
+            username: "mink",
+            online: true,
+        });
+
         const names = [
             "Server Name",
             "My Server",
@@ -622,5 +628,20 @@ export class Client extends EventEmitter {
                 this.unreads?.markUnread(_id, "mid");
             }
         }
+
+        this.channels.fetch("group", {
+            _id: "group",
+            channel_type: "Group",
+            name: "Group Chat",
+            owner: "user2",
+            recipients: ["user", "user2"],
+        });
+
+        this.channels.fetch("dm", {
+            _id: "dm",
+            channel_type: "DirectMessage",
+            active: true,
+            recipients: ["user", "user2"],
+        });
     }
 }
