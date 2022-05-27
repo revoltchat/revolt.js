@@ -660,6 +660,13 @@ export class Channel {
      * @returns File URL
      */
     generateIconURL(...args: FileArgs) {
+        if (this.channel_type === "DirectMessage") {
+            return this.client.generateFileURL(
+                this.recipient?.avatar ?? undefined,
+                ...args,
+            );
+        }
+
         return this.client.generateFileURL(this.icon ?? undefined, ...args);
     }
 
