@@ -6,7 +6,6 @@ import type {
     DataLogin,
     DataOnboard,
     InviteResponse,
-    Session,
 } from "revolt-api";
 import type { RevoltConfig, Metadata } from "revolt-api";
 import { API, MemberCompositeKey, Role } from "revolt-api";
