@@ -56,12 +56,12 @@ import { Client } from "revolt.js";
 let client = new Client();
 
 client.on("ready", async () =>
-    console.info(`Logged in as ${client.user!.username}!`),
+    console.info(`Logged in as ${client.user.username}!`),
 );
 
 client.on("message", async (message) => {
     if (message.content === "hello") {
-        message.channel!.sendMessage("world");
+        message.channel.sendMessage("world");
     }
 });
 
@@ -79,7 +79,7 @@ import { autorun } from 'mobx';
 
 client.once('ready', () => {
     autorun(() => {
-        console.log(`Current username is ${client.user!.username}!`);
+        console.log(`Current username is ${client.user.username}!`);
     });
 });
 ```
