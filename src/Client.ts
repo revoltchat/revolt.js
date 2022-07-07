@@ -16,6 +16,7 @@ import Members, { Member } from "./maps/Members";
 import Messages, { Message } from "./maps/Messages";
 import Servers, { Server } from "./maps/Servers";
 import Users, { User } from "./maps/Users";
+import Emojis, { Emoji } from "./maps/Emojis";
 
 import { WebSocketClient } from "./websocket/client";
 import { ClientboundNotification } from "./websocket/notifications";
@@ -99,6 +100,12 @@ export declare interface Client {
     on(event: "member/leave", listener: (id: MemberCompositeKey) => void): this;
 
     on(event: "user/relationship", listener: (user: User) => void): this;
+
+    on(event: "emoji/create", listener: (emoji: Emoji) => void): this;
+    on(
+        event: "emoji/delete",
+        listener: (id: string, emoji?: Emoji) => void,
+    ): this;
 }
 
 /**
@@ -139,6 +146,7 @@ export class Client extends EventEmitter {
     members: Members;
     messages: Messages;
     bots: Bots;
+    emojis: Emojis;
 
     unreads?: Unreads;
 
@@ -151,6 +159,7 @@ export class Client extends EventEmitter {
         this.members = new Members(this);
         this.messages = new Messages(this);
         this.bots = new Bots(this);
+        this.emojis = new Emojis(this);
 
         makeObservable(
             this,
@@ -161,6 +170,7 @@ export class Client extends EventEmitter {
                 servers: observable,
                 members: observable,
                 messages: observable,
+                emojis: observable,
                 reset: action,
             },
             {
@@ -429,6 +439,7 @@ export class Client extends EventEmitter {
         this.servers = new Servers(this);
         this.members = new Members(this);
         this.messages = new Messages(this);
+        this.emojis = new Emojis(this);
     }
 
     /**

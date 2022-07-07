@@ -1,6 +1,6 @@
 {
     "name": "revolt.js",
-    "version": "6.0.3",
+    "version": "6.0.4",
     "main": "dist/index.js",
     "typings": "dist/index.d.ts",
     "module": "esm/index.js",
@@ -17,7 +17,7 @@
         "lodash.isequal": "^4.5.0",
         "long": "^5.2.0",
         "mobx": "^6.3.2",
-        "revolt-api": "0.5.3-7",
+        "revolt-api": "0.5.4",
         "ulid": "^2.3.0",
         "ws": "^8.2.2"
     },
@@ -44,8 +44,12 @@
     },
     "eslintConfig": {
         "parser": "@typescript-eslint/parser",
+        "plugins": [
+            "mobx"
+        ],
         "extends": [
-            "plugin:@typescript-eslint/recommended"
+            "plugin:@typescript-eslint/recommended",
+            "plugin:mobx/recommended"
         ],
         "ignorePatterns": [
             "build/"

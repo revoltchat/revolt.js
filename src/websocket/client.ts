@@ -147,6 +147,10 @@ export class WebSocketClient {
                                 for (const member of packet.members) {
                                     this.client.members.createObj(member);
                                 }
+
+                                for (const emoji of packet.emojis!) {
+                                    this.client.emojis.createObj(emoji);
+                                }
                             });
 
                             this.client.user = this.client.users.get(
@@ -572,6 +576,17 @@ export class WebSocketClient {
                                 packet.id,
                                 packet.message_id,
                             );
+                            break;
+                        }
+
+                        case "EmojiCreate": {
+                            this.client.emojis.createObj(packet, true);
+                            break;
+                        }
+
+                        case "EmojiDelete": {
+                            const emoji = this.client.emojis.get(packet.id);
+                            this.client.emit("emoji/delete", packet.id, emoji);
                             break;
                         }
 

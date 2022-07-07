@@ -1,4 +1,5 @@
 import type {
+    Emoji,
     FieldsChannel,
     FieldsMember,
     FieldsServer,
@@ -30,6 +31,7 @@ export type ReadyPacket = {
     servers: Server[];
     channels: Channel[];
     members: Member[];
+    emojis?: Emoji[];
 };
 
 export type ClientboundNotification =
@@ -107,4 +109,6 @@ export type ClientboundNotification =
           type: "UserSettingsUpdate";
           id: string;
           update: { [key: string]: [number, string] };
-      };
+      }
+    | ({ type: "EmojiCreate" } & Emoji)
+    | { type: "EmojiDelete"; id: string };

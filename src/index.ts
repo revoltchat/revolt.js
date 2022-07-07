@@ -3,6 +3,7 @@ export { Member } from "./maps/Members";
 export { Message } from "./maps/Messages";
 export { Server } from "./maps/Servers";
 export { User } from "./maps/Users";
+export { Emoji } from "./maps/Emojis";
 
 export * from "./Client";
 export * from "./config";
