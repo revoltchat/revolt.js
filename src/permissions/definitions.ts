@@ -21,8 +21,10 @@ export const Permission = {
     ManagePermissions: 2 ** 2,
     /// Manage roles on server
     ManageRole: 2 ** 3,
+    /// Manage server customisation (includes emoji)
+    ManageCustomisation: 2**4,
 
-    // % 3 bits reserved
+    // % 1 bits reserved
 
     // * Member permissions
     /// Kick other members below their ranking
