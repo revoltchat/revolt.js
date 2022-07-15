@@ -112,6 +112,8 @@ export class Message {
                 return { type, by: get(system.by) };
             case "channel_icon_changed":
                 return { type, by: get(system.by) };
+            case "channel_ownership_changed":
+                return { type, from: get(system.from), to: get(system.to) };
         }
     }
 
