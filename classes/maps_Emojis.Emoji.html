@@ -94,6 +94,7 @@
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="maps_Emojis.Emoji.html#client" class="tsd-kind-icon">client</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="maps_Emojis.Emoji.html#creator_id" class="tsd-kind-icon">creator_<wbr>id</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="maps_Emojis.Emoji.html#name" class="tsd-kind-icon">name</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class"><a href="maps_Emojis.Emoji.html#nsfw" class="tsd-kind-icon">nsfw</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class"><a href="maps_Emojis.Emoji.html#parent" class="tsd-kind-icon">parent</a></li>
 							</ul>
 						</section>
@@ -120,13 +121,13 @@
 					<a name="constructor" class="tsd-anchor"></a>
 					<h3>constructor</h3>
 					<ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">new <wbr>Emoji<span class="tsd-signature-symbol">(</span>client<span class="tsd-signature-symbol">: </span><a href="Client.Client-1.html" class="tsd-signature-type" data-tsd-kind="Class">Client</a>, data<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>_id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>animated<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>creator_id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>parent<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;Server&quot;</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="maps_Emojis.Emoji.html" class="tsd-signature-type" data-tsd-kind="Class">Emoji</a></li>
+						<li class="tsd-signature tsd-kind-icon">new <wbr>Emoji<span class="tsd-signature-symbol">(</span>client<span class="tsd-signature-symbol">: </span><a href="Client.Client-1.html" class="tsd-signature-type" data-tsd-kind="Class">Client</a>, data<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>_id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>animated<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>creator_id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>nsfw<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>parent<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;Server&quot;</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{ </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;Detached&quot;</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="maps_Emojis.Emoji.html" class="tsd-signature-type" data-tsd-kind="Class">Emoji</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/ececa58/src/maps/Emojis.ts#L32">src/maps/Emojis.ts:32</a></li>
+									<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/7a881c1/src/maps/Emojis.ts#L33">src/maps/Emojis.ts:33</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -135,7 +136,7 @@
 									<h5>client: <a href="Client.Client-1.html" class="tsd-signature-type" data-tsd-kind="Class">Client</a></h5>
 								</li>
 								<li>
-									<h5>data: <span class="tsd-signature-symbol">{ </span>_id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>animated<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>creator_id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>parent<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;Server&quot;</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> }</span></h5>
+									<h5>data: <span class="tsd-signature-symbol">{ </span>_id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>animated<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>creator_id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>nsfw<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span>parent<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;Server&quot;</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{ </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;Detached&quot;</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> }</span></h5>
 									<ul class="tsd-parameters">
 										<li class="tsd-parameter">
 											<h5>_id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
@@ -148,7 +149,7 @@
 											</div>
 										</li>
 										<li class="tsd-parameter">
-											<h5>animated<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5>
+											<h5><span class="tsd-flag ts-flagOptional">Optional</span> animated<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
 											<div class="tsd-comment tsd-typography">
 												<dl class="tsd-comment-tags">
 													<dt>description</dt>
@@ -178,7 +179,17 @@
 											</div>
 										</li>
 										<li class="tsd-parameter">
-											<h5>parent<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;Server&quot;</span><span class="tsd-signature-symbol"> }</span></h5>
+											<h5><span class="tsd-flag ts-flagOptional">Optional</span> nsfw<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
+											<div class="tsd-comment tsd-typography">
+												<dl class="tsd-comment-tags">
+													<dt>description</dt>
+													<dd><p>Whether the emoji is marked as nsfw</p>
+													</dd>
+												</dl>
+											</div>
+										</li>
+										<li class="tsd-parameter">
+											<h5>parent<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;Server&quot;</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{ </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;Detached&quot;</span><span class="tsd-signature-symbol"> }</span></h5>
 											<div class="tsd-comment tsd-typography">
 												<dl class="tsd-comment-tags">
 													<dt>description</dt>
@@ -186,14 +197,6 @@
 													</dd>
 												</dl>
 											</div>
-											<ul class="tsd-parameters">
-												<li class="tsd-parameter">
-													<h5>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
-												</li>
-												<li class="tsd-parameter">
-													<h5>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;Server&quot;</span></h5>
-												</li>
-											</ul>
 										</li>
 									</ul>
 								</li>
@@ -211,7 +214,7 @@
 					<div class="tsd-signature tsd-kind-icon">_id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/ececa58/src/maps/Emojis.ts#L12">src/maps/Emojis.ts:12</a></li>
+							<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/7a881c1/src/maps/Emojis.ts#L12">src/maps/Emojis.ts:12</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -221,7 +224,7 @@
 					<div class="tsd-signature tsd-kind-icon">animated<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/ececa58/src/maps/Emojis.ts#L16">src/maps/Emojis.ts:16</a></li>
+							<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/7a881c1/src/maps/Emojis.ts#L16">src/maps/Emojis.ts:16</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -231,7 +234,7 @@
 					<div class="tsd-signature tsd-kind-icon">client<span class="tsd-signature-symbol">:</span> <a href="Client.Client-1.html" class="tsd-signature-type" data-tsd-kind="Class">Client</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/ececa58/src/maps/Emojis.ts#L10">src/maps/Emojis.ts:10</a></li>
+							<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/7a881c1/src/maps/Emojis.ts#L10">src/maps/Emojis.ts:10</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -241,7 +244,7 @@
 					<div class="tsd-signature tsd-kind-icon">creator_<wbr>id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/ececa58/src/maps/Emojis.ts#L14">src/maps/Emojis.ts:14</a></li>
+							<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/7a881c1/src/maps/Emojis.ts#L14">src/maps/Emojis.ts:14</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -251,30 +254,29 @@
 					<div class="tsd-signature tsd-kind-icon">name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/ececa58/src/maps/Emojis.ts#L13">src/maps/Emojis.ts:13</a></li>
+							<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/7a881c1/src/maps/Emojis.ts#L13">src/maps/Emojis.ts:13</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+					<a name="nsfw" class="tsd-anchor"></a>
+					<h3>nsfw</h3>
+					<div class="tsd-signature tsd-kind-icon">nsfw<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/7a881c1/src/maps/Emojis.ts#L17">src/maps/Emojis.ts:17</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
 					<a name="parent" class="tsd-anchor"></a>
 					<h3>parent</h3>
-					<div class="tsd-signature tsd-kind-icon">parent<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;Server&quot;</span><span class="tsd-signature-symbol"> }</span></div>
+					<div class="tsd-signature tsd-kind-icon">parent<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;Server&quot;</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{ </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;Detached&quot;</span><span class="tsd-signature-symbol"> }</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/ececa58/src/maps/Emojis.ts#L15">src/maps/Emojis.ts:15</a></li>
+							<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/7a881c1/src/maps/Emojis.ts#L15">src/maps/Emojis.ts:15</a></li>
 						</ul>
 					</aside>
-					<div class="tsd-type-declaration">
-						<h4>Type declaration</h4>
-						<ul class="tsd-parameters">
-							<li class="tsd-parameter">
-								<h5>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
-							</li>
-							<li class="tsd-parameter">
-								<h5>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">&quot;Server&quot;</span></h5>
-							</li>
-						</ul>
-					</div>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
@@ -289,7 +291,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/ececa58/src/maps/Emojis.ts#L21">src/maps/Emojis.ts:21</a></li>
+									<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/7a881c1/src/maps/Emojis.ts#L22">src/maps/Emojis.ts:22</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -311,7 +313,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/ececa58/src/maps/Emojis.ts#L28">src/maps/Emojis.ts:28</a></li>
+									<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/7a881c1/src/maps/Emojis.ts#L29">src/maps/Emojis.ts:29</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -333,7 +335,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/ececa58/src/maps/Emojis.ts#L57">src/maps/Emojis.ts:57</a></li>
+									<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/7a881c1/src/maps/Emojis.ts#L59">src/maps/Emojis.ts:59</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -358,7 +360,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/ececa58/src/maps/Emojis.ts#L50">src/maps/Emojis.ts:50</a></li>
+									<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/7a881c1/src/maps/Emojis.ts#L52">src/maps/Emojis.ts:52</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -458,6 +460,9 @@
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
 								<a href="maps_Emojis.Emoji.html#name" class="tsd-kind-icon">name</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class">
+								<a href="maps_Emojis.Emoji.html#nsfw" class="tsd-kind-icon">nsfw</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class">
 								<a href="maps_Emojis.Emoji.html#parent" class="tsd-kind-icon">parent</a>
