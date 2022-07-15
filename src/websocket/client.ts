@@ -450,6 +450,7 @@ export class WebSocketClient {
                                             server: packet.id,
                                             user: packet.user,
                                         },
+                                        joined_at: new Date().toISOString(),
                                     },
                                     true,
                                 );
