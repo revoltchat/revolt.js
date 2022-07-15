@@ -14,6 +14,7 @@ export class Emoji {
     creator_id: string;
     parent: EmojiParent;
     animated: boolean;
+    nsfw: boolean;
 
     /**
      * Get timestamp when this message was created.
@@ -36,7 +37,8 @@ export class Emoji {
         this.name = data.name;
         this.creator_id = data.creator_id;
         this.parent = data.parent;
-        this.animated = data.animated;
+        this.animated = data.animated ?? false;
+        this.nsfw = data.nsfw ?? false;
 
         makeAutoObservable(this, {
             _id: false,

@@ -2,6 +2,7 @@ import type {
     DataEditMessage,
     DataMessageSend,
     Embed,
+    Interactions,
     Masquerade,
     Message as MessageI,
     SystemMessage,
@@ -32,6 +33,8 @@ export class Message {
     mention_ids: Nullable<string[]>;
     reply_ids: Nullable<string[]>;
     masquerade: Nullable<Masquerade>;
+    // reactions: Record<string, Set<string>>;
+    // interactions: Nullable<Interactions>;
 
     get channel() {
         return this.client.channels.get(this.channel_id);
@@ -66,7 +69,7 @@ export class Message {
      * Absolute pathname to this message in the client.
      */
     get path() {
-        return this.channel?.path + '/' + this._id;
+        return this.channel?.path + "/" + this._id;
     }
 
     /**
@@ -84,7 +87,7 @@ export class Message {
     @computed
     get asSystemMessage() {
         const system = this.system;
-        if (!system) return { type: 'none' };
+        if (!system) return { type: "none" };
 
         const { type } = system;
         const get = (id: string) => this.client.users.get(id);
@@ -163,12 +166,9 @@ export class Message {
         apply("mentions", "mention_ids");
     }
 
-    @action append({ embeds }: Pick<Partial<MessageI>, 'embeds'>) {
+    @action append({ embeds }: Pick<Partial<MessageI>, "embeds">) {
         if (embeds) {
-            this.embeds = [
-                ...(this.embeds ?? []),
-                ...embeds
-            ];
+            this.embeds = [...(this.embeds ?? []), ...embeds];
         }
     }
 
@@ -178,7 +178,7 @@ export class Message {
      */
     async edit(data: DataEditMessage) {
         return await this.client.api.patch(
-            `/channels/${this.channel_id as ''}/messages/${this._id as ''}`,
+            `/channels/${this.channel_id as ""}/messages/${this._id as ""}`,
             data,
         );
     }
@@ -188,7 +188,7 @@ export class Message {
      */
     async delete() {
         return await this.client.api.delete(
-            `/channels/${this.channel_id as ''}/messages/${this._id as ''}`,
+            `/channels/${this.channel_id as ""}/messages/${this._id as ""}`,
         );
     }
 
