@@ -22,7 +22,7 @@ export const Permission = {
     /// Manage roles on server
     ManageRole: 2 ** 3,
     /// Manage server customisation (includes emoji)
-    ManageCustomisation: 2**4,
+    ManageCustomisation: 2 ** 4,
 
     // % 1 bits reserved
 
@@ -65,8 +65,8 @@ export const Permission = {
     UploadFiles: 2 ** 27,
     /// Masquerade messages using custom nickname and avatar
     Masquerade: 2 ** 28,
-
-    // % 1 bits reserved
+    /// React to messages with emoji
+    React: 2 ** 29,
 
     // * Voice permissions
     /// Connect to a voice channel
@@ -95,6 +95,12 @@ export const Permission = {
  * Maximum safe value
  */
 export const U32_MAX = 2 ** 32 - 1; // 4294967295
+
+/**
+ * Permissions allowed for a user while in timeout
+ */
+export const ALLOW_IN_TIMEOUT =
+    Permission.ViewChannel + Permission.ReadMessageHistory;
 
 /**
  * Default permissions if we can only view

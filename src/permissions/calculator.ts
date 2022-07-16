@@ -1,6 +1,7 @@
 import Long from "long";
 import { Channel, Server, Member } from "..";
 import {
+    ALLOW_IN_TIMEOUT,
     DEFAULT_PERMISSION_DIRECT_MESSAGE,
     DEFAULT_PERMISSION_VIEW_ONLY,
     Permission,
@@ -46,7 +47,7 @@ export function calculatePermission(
                 target.client.members.getKey({
                     user: user!._id,
                     server: target._id,
-                }) ?? { roles: null };
+                }) ?? { roles: null, timeout: null };
 
             if (!member) return 0;
 
@@ -65,6 +66,11 @@ export function calculatePermission(
                         .or(permission.a)
                         .and(Long.fromNumber(permission.d).not());
                 }
+            }
+
+            // 5. Revoke permissions if member is timed out.
+            if (member.timeout && member.timeout > new Date()) {
+                perm = perm.and(ALLOW_IN_TIMEOUT);
             }
 
             return perm.toNumber();
@@ -111,7 +117,7 @@ export function calculatePermission(
                         target.client.members.getKey({
                             user: user!._id,
                             server: server._id,
-                        }) ?? { roles: null };
+                        }) ?? { roles: null, timeout: null };
 
                     if (!member) return 0;
 
@@ -148,6 +154,11 @@ export function calculatePermission(
                                     .and(Long.fromNumber(override.d).not());
                             }
                         }
+                    }
+
+                    // 8. Revoke permissions if member is timed out.
+                    if (member.timeout && member.timeout > new Date()) {
+                        perm = perm.and(ALLOW_IN_TIMEOUT);
                     }
 
                     return perm.toNumber();

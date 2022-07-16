@@ -33,8 +33,8 @@ export class Message {
     mention_ids: Nullable<string[]>;
     reply_ids: Nullable<string[]>;
     masquerade: Nullable<Masquerade>;
-    // reactions: Record<string, Set<string>>;
-    // interactions: Nullable<Interactions>;
+    reactions: Record<string, string[]>;
+    interactions: Nullable<Interactions>;
 
     get channel() {
         return this.client.channels.get(this.channel_id);
@@ -132,6 +132,8 @@ export class Message {
         this.mention_ids = toNullable(data.mentions);
         this.reply_ids = toNullable(data.replies);
         this.masquerade = toNullable(data.masquerade);
+        this.reactions = data.reactions ?? {};
+        this.interactions = toNullable(data.interactions);
 
         makeAutoObservable(this, {
             _id: false,
@@ -166,6 +168,9 @@ export class Message {
         apply("edited", undefined, toNullableDate as (obj: unknown) => unknown);
         apply("embeds");
         apply("mentions", "mention_ids");
+        apply("masquerade");
+        apply("reactions");
+        apply("interactions");
     }
 
     @action append({ embeds }: Pick<Partial<MessageI>, "embeds">) {

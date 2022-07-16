@@ -10,7 +10,7 @@ import type { File } from "revolt-api";
 import { makeAutoObservable, runInAction, action, computed } from "mobx";
 import isEqual from "lodash.isequal";
 
-import { Nullable, toNullable } from "../util/null";
+import { Nullable, toNullable, toNullableDate } from "../util/null";
 import Collection from "./Collection";
 import { Channel, Client, FileArgs, Server } from "..";
 import { bitwiseAndEq, calculatePermission } from "../permissions/calculator";
@@ -20,10 +20,12 @@ export class Member {
     client: Client;
 
     _id: MemberCompositeKey;
+    joined_at: Date;
 
     nickname: Nullable<string> = null;
     avatar: Nullable<File> = null;
     roles: Nullable<string[]> = null;
+    timeout: Nullable<Date> = null;
 
     /**
      * Associated user.
@@ -50,23 +52,25 @@ export class Member {
      * Whether the client can kick this user.
      */
     get kickable() {
-        return this.server?.havePermission('KickMembers') && this.inferior;
+        return this.server?.havePermission("KickMembers") && this.inferior;
     }
 
     /**
      * Whether the client can ban this user.
      */
     get bannable() {
-        return this.server?.havePermission('BanMembers') && this.inferior;
+        return this.server?.havePermission("BanMembers") && this.inferior;
     }
 
     constructor(client: Client, data: MemberI) {
         this.client = client;
         this._id = data._id;
+        this.joined_at = new Date(data.joined_at);
 
         this.nickname = toNullable(data.nickname);
         this.avatar = toNullable(data.avatar);
         this.roles = toNullable(data.roles);
+        this.timeout = toNullableDate(data.timeout);
 
         makeAutoObservable(this, {
             _id: false,
@@ -96,12 +100,19 @@ export class Member {
                 case "Avatar":
                     this.avatar = null;
                     break;
+                case "Roles":
+                    this.roles = [];
+                    break;
+                case "Timeout":
+                    this.timeout = null;
+                    break;
             }
         }
 
         apply("nickname");
         apply("avatar");
         apply("roles");
+        apply("timeout");
     }
 
     /**
