@@ -334,9 +334,17 @@ export class WebSocketClient {
 
                         case "MessageUnreact": {
                             const msg = this.client.messages.get(packet.id);
-                            msg?.reactions
-                                .get(packet.emoji_id)
-                                ?.delete(packet.user_id);
+                            const user_ids = msg?.reactions.get(
+                                packet.emoji_id,
+                            );
+
+                            if (user_ids) {
+                                user_ids.delete(packet.user_id);
+                                if (user_ids.size === 0) {
+                                    msg!.reactions.delete(packet.emoji_id);
+                                }
+                            }
+
                             break;
                         }
 
