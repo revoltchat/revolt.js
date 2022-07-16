@@ -1,6 +1,6 @@
 import { backOff } from "@insertish/exponential-backoff";
 import WebSocket from "@insertish/isomorphic-ws";
-import { runInAction } from "mobx";
+import { ObservableSet, runInAction } from "mobx";
 import { Role } from "revolt-api";
 
 import { Client } from "..";
@@ -312,6 +312,37 @@ export class WebSocketClient {
                             const msg = this.client.messages.get(packet.id);
                             this.client.messages.delete(packet.id);
                             this.client.emit("message/delete", packet.id, msg);
+                            break;
+                        }
+
+                        case "MessageReact": {
+                            const msg = this.client.messages.get(packet.id);
+                            if (msg) {
+                                if (msg.reactions.has(packet.emoji_id)) {
+                                    msg.reactions
+                                        .get(packet.emoji_id)!
+                                        .add(packet.user_id);
+                                } else {
+                                    msg.reactions.set(
+                                        packet.emoji_id,
+                                        new ObservableSet([packet.user_id]),
+                                    );
+                                }
+                            }
+                            break;
+                        }
+
+                        case "MessageUnreact": {
+                            const msg = this.client.messages.get(packet.id);
+                            msg?.reactions
+                                .get(packet.emoji_id)
+                                ?.delete(packet.user_id);
+                            break;
+                        }
+
+                        case "MessageRemoveReaction": {
+                            const msg = this.client.messages.get(packet.id);
+                            msg?.reactions.delete(packet.emoji_id);
                             break;
                         }
 

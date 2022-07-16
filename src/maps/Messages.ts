@@ -9,7 +9,14 @@ import type {
 } from "revolt-api";
 import type { File } from "revolt-api";
 
-import { makeAutoObservable, runInAction, action, computed } from "mobx";
+import {
+    makeAutoObservable,
+    runInAction,
+    action,
+    computed,
+    ObservableMap,
+    ObservableSet,
+} from "mobx";
 import isEqual from "lodash.isequal";
 
 import { Nullable, toNullable, toNullableDate } from "../util/null";
@@ -33,7 +40,7 @@ export class Message {
     mention_ids: Nullable<string[]>;
     reply_ids: Nullable<string[]>;
     masquerade: Nullable<Masquerade>;
-    reactions: Record<string, string[]>;
+    reactions: ObservableMap<string, ObservableSet<string>>;
     interactions: Nullable<Interactions>;
 
     get channel() {
@@ -132,8 +139,15 @@ export class Message {
         this.mention_ids = toNullable(data.mentions);
         this.reply_ids = toNullable(data.replies);
         this.masquerade = toNullable(data.masquerade);
-        this.reactions = data.reactions ?? {};
         this.interactions = toNullable(data.interactions);
+
+        this.reactions = new ObservableMap();
+        for (const reaction of Object.keys(data.reactions ?? {})) {
+            this.reactions.set(
+                reaction,
+                new ObservableSet(data.reactions![reaction]),
+            );
+        }
 
         makeAutoObservable(this, {
             _id: false,
@@ -222,6 +236,41 @@ export class Message {
             ...obj,
             replies: [{ id: this._id, mention }],
         });
+    }
+
+    /**
+     * Clear all reactions from this message
+     */
+    async clearReactions() {
+        return await this.client.api.delete(
+            `/channels/${this.channel_id as ""}/messages/${
+                this._id as ""
+            }/reactions`,
+        );
+    }
+
+    /**
+     * React to a message
+     * @param emoji Unicode or emoji ID
+     */
+    async react(emoji: string) {
+        return await this.client.api.put(
+            `/channels/${this.channel_id as ""}/messages/${
+                this._id as ""
+            }/reactions/${emoji as ""}`,
+        );
+    }
+
+    /**
+     * Unreact from a message
+     * @param emoji Unicode or emoji ID
+     */
+    async unreact(emoji: string) {
+        return await this.client.api.delete(
+            `/channels/${this.channel_id as ""}/messages/${
+                this._id as ""
+            }/reactions/${emoji as ""}`,
+        );
     }
 }
 
