@@ -73,6 +73,12 @@ export declare interface Client {
         listener: (id: string, message?: Message) => void,
     ): this;
 
+    // General purpose event
+    on(
+        event: "message/updated",
+        listener: (message: Message, packet: ClientboundNotification) => void,
+    ): this;
+
     on(event: "channel/create", listener: (channel: Channel) => void): this;
     on(event: "channel/update", listener: (channel: Channel) => void): this;
     on(

@@ -295,6 +295,11 @@ export class WebSocketClient {
                             if (message) {
                                 message.update(packet.data);
                                 this.client.emit("message/update", message);
+                                this.client.emit(
+                                    "message/updated",
+                                    message,
+                                    packet,
+                                );
                             }
                             break;
                         }
@@ -304,6 +309,11 @@ export class WebSocketClient {
                             if (message) {
                                 message.append(packet.append);
                                 this.client.emit("message/append", message);
+                                this.client.emit(
+                                    "message/updated",
+                                    message,
+                                    packet,
+                                );
                             }
                             break;
                         }
@@ -328,21 +338,35 @@ export class WebSocketClient {
                                         new ObservableSet([packet.user_id]),
                                     );
                                 }
+
+                                this.client.emit(
+                                    "message/updated",
+                                    msg,
+                                    packet,
+                                );
                             }
                             break;
                         }
 
                         case "MessageUnreact": {
                             const msg = this.client.messages.get(packet.id);
-                            const user_ids = msg?.reactions.get(
-                                packet.emoji_id,
-                            );
+                            if (msg) {
+                                const user_ids = msg.reactions.get(
+                                    packet.emoji_id,
+                                );
 
-                            if (user_ids) {
-                                user_ids.delete(packet.user_id);
-                                if (user_ids.size === 0) {
-                                    msg!.reactions.delete(packet.emoji_id);
+                                if (user_ids) {
+                                    user_ids.delete(packet.user_id);
+                                    if (user_ids.size === 0) {
+                                        msg.reactions.delete(packet.emoji_id);
+                                    }
                                 }
+
+                                this.client.emit(
+                                    "message/updated",
+                                    msg,
+                                    packet,
+                                );
                             }
 
                             break;
@@ -350,7 +374,17 @@ export class WebSocketClient {
 
                         case "MessageRemoveReaction": {
                             const msg = this.client.messages.get(packet.id);
-                            msg?.reactions.delete(packet.emoji_id);
+
+                            if (msg) {
+                                msg.reactions.delete(packet.emoji_id);
+
+                                this.client.emit(
+                                    "message/updated",
+                                    msg,
+                                    packet,
+                                );
+                            }
+
                             break;
                         }
 
