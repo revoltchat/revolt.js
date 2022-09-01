@@ -137,6 +137,10 @@ export class Member {
                         delete this._timeout;
                     });
                 }, offset) as unknown as number;
+            } else {
+                runInAction(() => {
+                    this.timeout = null;
+                });
             }
         }
     }
