@@ -92,7 +92,9 @@ export class Member {
                 !isEqual(this[key], data[key])
             ) {
                 // @ts-expect-error TODO: clean up types here
-                this[key] = data[key];
+                this[key] =
+                    // @ts-expect-error TODO: clean up types here
+                    key === "timeout" ? toNullableDate(data[key]) : data[key];
             }
         };
 
