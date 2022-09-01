@@ -27,6 +27,8 @@ export class Member {
     roles: Nullable<string[]> = null;
     timeout: Nullable<Date> = null;
 
+    private _timeout: number | undefined;
+
     /**
      * Associated user.
      */
@@ -72,6 +74,8 @@ export class Member {
         this.roles = toNullable(data.roles);
         this.timeout = toNullableDate(data.timeout);
 
+        this.scheduleTimeout();
+
         makeAutoObservable(this, {
             _id: false,
             client: false,
@@ -113,6 +117,28 @@ export class Member {
         apply("avatar");
         apply("roles");
         apply("timeout");
+
+        this.scheduleTimeout();
+    }
+
+    /**
+     * Schedule timeout revocation
+     */
+    private scheduleTimeout() {
+        delete this._timeout;
+        clearTimeout(this._timeout);
+
+        if (this.timeout) {
+            const offset = +this.timeout - +new Date();
+            if (offset > 0) {
+                this._timeout = setTimeout(() => {
+                    runInAction(() => {
+                        this.timeout = null;
+                        delete this._timeout;
+                    });
+                }, offset) as unknown as number;
+            }
+        }
     }
 
     /**
