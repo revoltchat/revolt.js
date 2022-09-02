@@ -379,9 +379,11 @@ export class Channel {
      * Delete a channel
      * @requires `DM`, `Group`, `TextChannel`, `VoiceChannel`
      */
-    async delete(avoidReq?: boolean) {
+    async delete(leave_silently?: boolean, avoidReq?: boolean) {
         if (!avoidReq)
-            await this.client.api.delete(`/channels/${this._id as ""}`);
+            await this.client.api.delete(`/channels/${this._id as ""}`, {
+                leave_silently,
+            });
 
         runInAction(() => {
             if (this.channel_type === "DirectMessage") {

@@ -249,9 +249,11 @@ export class Server {
     /**
      * Delete a guild
      */
-    async delete(avoidReq?: boolean) {
+    async delete(leave_silently?: boolean, avoidReq?: boolean) {
         if (!avoidReq)
-            await this.client.api.delete(`/servers/${this._id as ""}`);
+            await this.client.api.delete(`/servers/${this._id as ""}`, {
+                leave_silently,
+            });
 
         runInAction(() => {
             this.client.servers.delete(this._id);

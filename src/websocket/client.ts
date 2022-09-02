@@ -430,7 +430,7 @@ export class WebSocketClient {
 
                         case "ChannelDelete": {
                             const channel = this.client.channels.get(packet.id);
-                            channel?.delete(true);
+                            channel?.delete(false, true);
                             this.client.emit(
                                 "channel/delete",
                                 packet.id,
@@ -451,7 +451,7 @@ export class WebSocketClient {
 
                             if (channel) {
                                 if (packet.user === this.client.user?._id) {
-                                    channel.delete(true);
+                                    channel.delete(false, true);
                                 } else {
                                     channel.updateGroupLeave(packet.user);
                                 }
@@ -492,7 +492,7 @@ export class WebSocketClient {
 
                         case "ServerDelete": {
                             const server = this.client.servers.get(packet.id);
-                            server?.delete(true);
+                            server?.delete(false, true);
                             this.client.emit(
                                 "server/delete",
                                 packet.id,
@@ -538,7 +538,7 @@ export class WebSocketClient {
                                 runInAction(() => {
                                     this.client.servers
                                         .get(server_id)
-                                        ?.delete(true);
+                                        ?.delete(false, true);
                                     [...this.client.members.keys()].forEach(
                                         (key) => {
                                             if (
