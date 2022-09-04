@@ -89,5 +89,6 @@
         "dist",
         "esm"
     ],
-    "description": "Library for interacting with the Revolt API."
+    "description": "Library for interacting with the Revolt API.",
+    "packageManager": "yarn@3.2.3"
 }
