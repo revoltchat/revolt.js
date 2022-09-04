@@ -135,6 +135,8 @@ export type FileArgs = [
     fallback?: string,
 ];
 
+export type Session = { token: string };
+
 export class Client extends EventEmitter {
     heartbeat: number;
 

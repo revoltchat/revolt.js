@@ -8,6 +8,7 @@ import type {
 import type { Channel, Message } from "revolt-api";
 import type { Member, MemberCompositeKey, Role, Server } from "revolt-api";
 import type { RelationshipStatus, User } from "revolt-api";
+import type { Session } from "../Client";
 
 type WebSocketError = {
     error:
