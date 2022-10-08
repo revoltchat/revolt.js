@@ -191,7 +191,23 @@ export class Member {
     @computed get hoistedRole() {
         const roles = this.orderedRoles.filter((x) => x[1].hoist);
         if (roles.length > 0) {
-            return roles[roles.length - 1];
+            const [id, role] = roles[roles.length - 1];
+            return {
+                id,
+                ...role
+            }
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Get this member's current role colour.
+     */
+    @computed get roleColour() {
+        const roles = this.orderedRoles.filter((x) => x[1].colour);
+        if (roles.length > 0) {
+            return roles[roles.length - 1][1].colour;
         } else {
             return null;
         }
