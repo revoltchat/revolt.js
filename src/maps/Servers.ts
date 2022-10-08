@@ -86,6 +86,7 @@ export class Server {
         );
 
         const elements = [];
+        let defaultCategory;
 
         if (this.categories) {
             for (const category of this.categories) {
@@ -96,20 +97,40 @@ export class Server {
                     }
                 }
 
-                elements.push({
+                const cat = {
                     ...category,
+                    channels,
+                };
+
+                if (cat.id === 'default') {
+                    if (channels.length === 0)
+                        continue;
+
+                    defaultCategory = cat;
+                }
+
+                elements.push(cat);
+            }
+        }
+
+        if (uncategorised.size > 0) {
+            const channels = [...uncategorised].map(
+                (key) => this.client.channels.get(key)!,
+            );
+
+            if (defaultCategory) {
+                defaultCategory.channels = [
+                    ...defaultCategory.channels,
+                    ...channels
+                ];
+            } else {
+                elements.unshift({
+                    id: "default",
+                    title: "Default",
                     channels,
                 });
             }
         }
-
-        elements.unshift({
-            id: "default",
-            title: "Default",
-            channels: [...uncategorised].map(
-                (key) => this.client.channels.get(key)!,
-            ),
-        });
 
         return elements;
     }
