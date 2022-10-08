@@ -692,7 +692,7 @@ export class WebSocketClient {
 
             let processing = false;
             const queue: WebSocket.MessageEvent[] = [];
-            ws.onmessage = async (data) => {
+            ws.onmessage = async (data: string) => {
                 queue.push(data);
 
                 if (!processing) {
@@ -704,7 +704,7 @@ export class WebSocketClient {
                 }
             };
 
-            ws.onerror = (err) => {
+            ws.onerror = (err: any) => {
                 reject(err);
             };
 
