@@ -152,6 +152,7 @@ export class Channel {
 
     /**
      * Get the last message ID if it is present or the origin timestamp.
+     * TODO: deprecate
      */
     get last_message_id_or_past() {
         return this.last_message_id ?? "0";
@@ -179,6 +180,13 @@ export class Channel {
      */
     get createdAt() {
         return decodeTime(this._id);
+    }
+
+    /**
+     * Get timestamp when this channel last had a message sent or when it was created
+     */
+    get updatedAt() {
+        return this.last_message_id ? decodeTime(this.last_message_id) : this.createdAt;
     }
 
     /**
