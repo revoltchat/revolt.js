@@ -179,6 +179,20 @@ export class User {
         return `${this.client.apiURL}/users/${this._id}/default_avatar`;
     }
 
+    /**
+     * Get a pre-configured avatar URL of a user
+     */
+    get avatarURL() {
+        return this.generateAvatarURL({ max_side: 256 });
+    }
+
+    /**
+     * Get a pre-configured animated avatar URL of a user
+     */
+    get animatedAvatarURL() {
+        return this.generateAvatarURL({ max_side: 256 }, true);
+    }
+
     @computed generateAvatarURL(...args: FileArgs) {
         return (
             this.client.generateFileURL(this.avatar ?? undefined, ...args) ??

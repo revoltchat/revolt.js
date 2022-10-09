@@ -86,6 +86,40 @@ export class Message {
         return this.client.configuration?.app + this.path;
     }
 
+    /**
+     * Get the username for this message.
+     */
+    get username() {
+        return this.masquerade?.name ?? this.member?.nickname ?? this.author?.username;
+    }
+
+    /**
+     * Get the role colour for this message.
+     */
+    get roleColour() {
+        return this.member?.roleColour;
+    }
+
+    /**
+     * Get the avatar URL for this message.
+     */
+    get avatarURL() {
+        return this.generateMasqAvatarURL()
+            ?? (this.member
+                ? this.member?.avatarURL
+                : this.author?.avatarURL);
+    }
+
+    /**
+     * Get the animated avatar URL for this message.
+     */
+    get animatedAvatarURL() {
+        return this.generateMasqAvatarURL()
+            ?? (this.member
+                ? this.member?.animatedAvatarURL
+                : this.author?.animatedAvatarURL);
+    }
+
     @computed generateMasqAvatarURL() {
         const avatar = this.masquerade?.avatar;
         return avatar ? this.client.proxyFile(avatar) : undefined;

@@ -231,6 +231,20 @@ export class Member {
     }
 
     /**
+     * Get a pre-configured avatar URL of a member
+     */
+    get avatarURL() {
+        return this.generateAvatarURL({ max_side: 256 }) ?? this.user?.avatarURL;
+    }
+
+    /**
+     * Get a pre-configured animated avatar URL of a member
+     */
+    get animatedAvatarURL() {
+        return this.generateAvatarURL({ max_side: 256 }, true) ?? this.user?.animatedAvatarURL;
+    }
+
+    /**
      * Generate URL to this member's avatar
      * @param args File parameters
      * @returns File URL
