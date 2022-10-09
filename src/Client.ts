@@ -194,6 +194,8 @@ export class Client extends EventEmitter {
         this.api = new API({ baseURL: this.apiURL });
         this.websocket = new WebSocketClient(this);
         this.heartbeat = this.options.heartbeat;
+
+        this.proxyFile = this.proxyFile.bind(this);
     }
 
     /**
