@@ -97,7 +97,7 @@ export class Message {
      * Get the role colour for this message.
      */
     get roleColour() {
-        return this.member?.roleColour;
+        return this.masquerade?.colour ?? this.member?.roleColour;
     }
 
     /**
