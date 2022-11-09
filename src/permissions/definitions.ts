@@ -126,13 +126,13 @@ export const DEFAULT_PERMISSION =
 export const DEFAULT_PERMISSION_SAVED_MESSAGES = Permission.GrantAllSafe;
 
 /**
- * Permissions in direct message channel
+ * Permissions in direct message channels / default permissions for group DMs
  */
 export const DEFAULT_PERMISSION_DIRECT_MESSAGE =
-    DEFAULT_PERMISSION + Permission.ManageChannel;
+    DEFAULT_PERMISSION + Permission.React + Permission.ManageChannel;
 
 /**
  * Permissions in server text / voice channel
  */
 export const DEFAULT_PERMISSION_SERVER =
-    DEFAULT_PERMISSION + Permission.ChangeNickname + Permission.ChangeAvatar;
+    DEFAULT_PERMISSION + Permission.React + Permission.ChangeNickname + Permission.ChangeAvatar;
