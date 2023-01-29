@@ -1,6 +1,6 @@
 {
     "name": "revolt.js",
-    "version": "6.0.19",
+    "version": "6.0.20",
     "main": "dist/index.js",
     "typings": "dist/index.d.ts",
     "module": "esm/index.js",
@@ -17,7 +17,7 @@
         "lodash.isequal": "^4.5.0",
         "long": "^5.2.0",
         "mobx": "^6.3.2",
-        "revolt-api": "0.5.5-5",
+        "revolt-api": "0.5.7",
         "ulid": "^2.3.0",
         "ws": "^8.2.2"
     },
