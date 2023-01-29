@@ -601,6 +601,66 @@ export class WebSocketClient {
                             break;
                         }
 
+                        case "UserPlatformWipe": {
+                            runInAction(() => {
+                                const user_id = packet.user_id;
+
+                                this.client.users.get(user_id)?.update(
+                                    {
+                                        username: "Removed User",
+                                        online: false,
+                                        relationship: "None",
+                                        flags: packet.flags,
+                                    },
+                                    [
+                                        "Avatar",
+                                        "ProfileBackground",
+                                        "ProfileContent",
+                                        "StatusPresence",
+                                        "StatusText",
+                                    ],
+                                );
+
+                                const dm_channel = [
+                                    ...this.client.channels.values(),
+                                ].find(
+                                    (channel) =>
+                                        channel.channel_type ===
+                                            "DirectMessage" &&
+                                        channel.recipient_ids?.includes(
+                                            user_id,
+                                        ),
+                                );
+
+                                if (dm_channel) {
+                                    this.client.channels.delete(dm_channel._id);
+                                }
+
+                                const member_ids = [
+                                    ...this.client.members.values(),
+                                ]
+                                    .filter(
+                                        (member) => member._id.user === user_id,
+                                    )
+                                    .map((member) => member._id);
+
+                                for (const member_id of member_ids) {
+                                    this.client.members.deleteKey(member_id);
+                                }
+
+                                for (const message of [
+                                    ...this.client.messages.values(),
+                                ].filter(
+                                    (message) => message.author_id === user_id,
+                                )) {
+                                    message.content = "(message withheld)";
+                                    message.attachments = [];
+                                    message.embeds = [];
+                                }
+                            });
+                            break;
+                        }
+
                         case "UserUpdate": {
                             this.client.users
                                 .get(packet.id)

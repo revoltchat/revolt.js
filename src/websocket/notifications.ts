@@ -131,5 +131,20 @@ export type ClientboundNotification =
           id: string;
           update: { [key: string]: [number, string] };
       }
+    | { type: "UserPlatformWipe"; user_id: string; flags: number }
     | ({ type: "EmojiCreate" } & Emoji)
-    | { type: "EmojiDelete"; id: string };
+    | { type: "EmojiDelete"; id: string }
+    | ({
+          type: "Auth";
+      } & (
+          | {
+                event_type: "DeleteSession";
+                user_id: string;
+                session_id: string;
+            }
+          | {
+                event_type: "DeleteAllSessions";
+                user_id: string;
+                exclude_session_id: string;
+            }
+      ));
