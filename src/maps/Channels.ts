@@ -186,7 +186,9 @@ export class Channel {
      * Get timestamp when this channel last had a message sent or when it was created
      */
     get updatedAt() {
-        return this.last_message_id ? decodeTime(this.last_message_id) : this.createdAt;
+        return this.last_message_id
+            ? decodeTime(this.last_message_id)
+            : this.createdAt;
     }
 
     /**
@@ -441,20 +443,20 @@ export class Channel {
      * @returns The message
      */
     async sendMessage(
-        data:
-            | string
-            | (Omit<DataMessageSend, "nonce"> & {
-                  nonce?: string;
-              }),
+        data: string | DataMessageSend,
+        idempotencyKey: string = ulid(),
     ) {
-        const msg: DataMessageSend = {
-            nonce: ulid(),
-            ...(typeof data === "string" ? { content: data } : data),
-        };
+        const msg: DataMessageSend =
+            typeof data === "string" ? { content: data } : data;
 
         const message = await this.client.api.post(
             `/channels/${this._id as ""}/messages`,
             msg,
+            {
+                headers: {
+                    "Idempotency-Key": idempotencyKey,
+                },
+            },
         );
 
         return this.client.messages.createObj(message, true);
