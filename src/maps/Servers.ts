@@ -102,9 +102,8 @@ export class Server {
                     channels,
                 };
 
-                if (cat.id === 'default') {
-                    if (channels.length === 0)
-                        continue;
+                if (cat.id === "default") {
+                    if (channels.length === 0) continue;
 
                     defaultCategory = cat;
                 }
@@ -121,7 +120,7 @@ export class Server {
             if (defaultCategory) {
                 defaultCategory.channels = [
                     ...defaultCategory.channels,
-                    ...channels
+                    ...channels,
                 ];
             } else {
                 elements.unshift({
@@ -133,6 +132,14 @@ export class Server {
         }
 
         return elements;
+    }
+
+    /**
+     * Get the default channel for this server
+     */
+    @computed get defaultChannel(): Channel | undefined {
+        return this.orderedChannels.find((cat) => cat.channels.length)
+            ?.channels[0];
     }
 
     /**
