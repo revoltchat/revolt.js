@@ -580,7 +580,7 @@ export class Channel {
     async deleteMessages(ids: string[]) {
         await this.client.api.delete(
             `/channels/${this._id as ""}/messages/bulk`,
-            { data: { ids } },
+            { ids },
         );
     }
 
