@@ -1384,14 +1384,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"revolt-api@npm:0.5.16":
-  version: 0.5.16
-  resolution: "revolt-api@npm:0.5.16"
+"revolt-api@npm:0.5.17":
+  version: 0.5.17
+  resolution: "revolt-api@npm:0.5.17"
   dependencies:
     "@insertish/oapi": 0.1.18
     axios: ^0.26.1
     lodash.defaultsdeep: ^4.6.1
-  checksum: ce39f61e371c1b7da0704191317bccf88b6630f1d8ffcef6bc9c699ebdc8cfbb3fcc5e054f96f9751c2f4a048398d4b349670cd067bcaad2e099d0c30efd9cfe
+  checksum: aa722f4739c09bea46f738a1b9aef61af126e06aa924a61fcf33caa53561c5de4e7e2ddde26b496cdd0546e113cf324821fead0035973e2ebdb2633df482091b
   languageName: node
   linkType: hard
 
@@ -1423,7 +1423,7 @@ __metadata:
     mobx: ^6.3.2
     node-fetch: ^2.6.1
     prettier: ^2.4.1
-    revolt-api: 0.5.16
+    revolt-api: 0.5.17
     rimraf: ^3.0.2
     tsc-watch: ^4.1.0
     typedoc: ^0.21.4
