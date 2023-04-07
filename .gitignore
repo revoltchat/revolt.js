@@ -1,9 +1,9 @@
 # build
 node_modules
 .env
-dist
 docs
-esm
+lib
+old
 
 # yarn
 .pnp.*
