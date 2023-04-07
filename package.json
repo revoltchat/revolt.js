@@ -1,30 +1,42 @@
 {
-    "name": "revolt.js",
-    "version": "7.0.0",
-    "main": "lib/index.js",
-    "repository": "https://github.com/revoltchat/revolt.js",
-    "author": "Paul Makles <insrt.uk>",
-    "license": "MIT",
-    "scripts": {
-        "lint": "eslint --ext .ts,.tsx src/",
-        "lint:fix": "eslint --fix --ext .ts,.tsx src/"
-    },
-    "files": [
-        "README.md",
-        "lib"
-    ],
-    "description": "Library for interacting with the Revolt API.",
-    "packageManager": "pnpm@7.14.2",
-    "dependencies": {
-        "solid-js": "^1.7.2"
-    },
-    "devDependencies": {
-        "@typescript-eslint/eslint-plugin": "^5.57.1",
-        "@typescript-eslint/parser": "^5.57.1",
-        "eslint": "^8.37.0",
-        "eslint-config-prettier": "^8.8.0",
-        "eslint-plugin-solid": "^0.12.0",
-        "eslint-plugin-spellcheck": "^0.0.20",
-        "typescript": "^5.0.3"
-    }
+  "name": "revolt.js",
+  "version": "7.0.0",
+  "main": "lib/index.js",
+  "repository": "https://github.com/revoltchat/revolt.js",
+  "author": "Paul Makles <insrt.uk>",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc-watch --onSuccess \"node .\"",
+    "lint": "eslint --ext .ts,.tsx src/",
+    "lint:fix": "eslint --fix --ext .ts,.tsx src/"
+  },
+  "files": [
+    "README.md",
+    "lib"
+  ],
+  "description": "Library for interacting with the Revolt API.",
+  "packageManager": "pnpm@7.14.2",
+  "dependencies": {
+    "isomorphic-ws": "^5.0.0",
+    "revolt-api": "^0.5.17",
+    "solid-js": "^1.7.2",
+    "ws": "^8.13.0"
+  },
+  "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^4.1.1",
+    "@types/node": "^18.15.11",
+    "@types/ws": "^8.5.4",
+    "@typescript-eslint/eslint-plugin": "^5.57.1",
+    "@typescript-eslint/parser": "^5.57.1",
+    "dotenv": "^16.0.3",
+    "eslint": "^8.37.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-solid": "^0.12.0",
+    "eslint-plugin-spellcheck": "^0.0.20",
+    "prettier": "^2.8.7",
+    "tsc-watch": "^6.0.0",
+    "typed-emitter": "^2.1.0",
+    "typescript": "^5.0.3"
+  }
 }

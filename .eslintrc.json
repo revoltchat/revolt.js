@@ -16,6 +16,7 @@
         "strings": false,
         "identifiers": false,
         "templates": false,
+        "skipWords": ["uri"],
         "minLength": 3
       }
     ],
