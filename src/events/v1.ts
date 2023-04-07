@@ -169,7 +169,7 @@ type ReadyData = {
   servers: Server[];
   channels: Channel[];
   members: Member[];
-  emojis?: Emoji[];
+  emojis: Emoji[];
 };
 
 /**

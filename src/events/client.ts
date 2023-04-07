@@ -28,7 +28,7 @@ type Events<T extends AvailableProtocols, P extends EventProtocol<T>> = {
 /**
  * Simple wrapper around the Revolt websocket service.
  */
-class EventClient<
+class Client<
   T extends AvailableProtocols,
   P extends EventProtocol<T>
 > extends EventEmitter {
@@ -188,6 +188,15 @@ class EventClient<
 }
 
 /**
+ * Event client
+ */
+export type EventClient<T extends AvailableProtocols> = Omit<
+  Client<T, EventProtocol<T>>,
+  "on" | "once"
+> &
+  TypedEmitter<Events<T, EventProtocol<T>>>;
+
+/**
  * Create a new event client.
  * @param protocolVersion Target protocol version
  * @param transportFormat Communication format
@@ -203,10 +212,10 @@ export function createEventClient<
   heartbeatInterval?: number,
   pongTimeout?: number
 ) {
-  return new EventClient<T, P>(
+  return new Client<T, P>(
     protocolVersion,
     transportFormat,
     heartbeatInterval,
     pongTimeout
-  ) as EventClient<T, P> & TypedEmitter<Events<T, P>>;
+  ) as EventClient<T>;
 }

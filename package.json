@@ -18,9 +18,12 @@
   "description": "Library for interacting with the Revolt API.",
   "packageManager": "pnpm@7.14.2",
   "dependencies": {
+    "@solid-primitives/map": "^0.4.3",
+    "@solid-primitives/set": "^0.4.3",
     "isomorphic-ws": "^5.0.0",
     "revolt-api": "^0.5.17",
     "solid-js": "^1.7.2",
+    "ulid": "^2.3.0",
     "ws": "^8.13.0"
   },
   "devDependencies": {

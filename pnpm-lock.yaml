@@ -1,6 +1,8 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@solid-primitives/map': ^0.4.3
+  '@solid-primitives/set': ^0.4.3
   '@trivago/prettier-plugin-sort-imports': ^4.1.1
   '@types/node': ^18.15.11
   '@types/ws': ^8.5.4
@@ -18,12 +20,16 @@ specifiers:
   tsc-watch: ^6.0.0
   typed-emitter: ^2.1.0
   typescript: ^5.0.3
+  ulid: ^2.3.0
   ws: ^8.13.0
 
 dependencies:
+  '@solid-primitives/map': 0.4.3_solid-js@1.7.2
+  '@solid-primitives/set': 0.4.3_solid-js@1.7.2
   isomorphic-ws: 5.0.0_ws@8.13.0
   revolt-api: 0.5.17
   solid-js: 1.7.2
+  ulid: 2.3.0
   ws: 8.13.0
 
 devDependencies:
@@ -247,6 +253,41 @@ packages:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.15.0
     dev: true
+
+  /@solid-primitives/map/0.4.3_solid-js@1.7.2:
+    resolution: {integrity: sha512-9cpa8MjhLNg+PTVQaIhDUuc192kXoyIAbSCGNTxjzqq7u4OwakhvZlt4C3rIkvLX6yThNlC4IBhOnOSpos5DQA==}
+    peerDependencies:
+      solid-js: ^1.6.12
+    dependencies:
+      '@solid-primitives/trigger': 1.0.5_solid-js@1.7.2
+      solid-js: 1.7.2
+    dev: false
+
+  /@solid-primitives/set/0.4.3_solid-js@1.7.2:
+    resolution: {integrity: sha512-n/owKQy/76IWPLZkvLSWZ+0Ji4fndvQ6vj4idXEm5vS8hj/xvGHP2Fw6uBf2XrijGr3BVuSuq9zvnaGjIAB12w==}
+    peerDependencies:
+      solid-js: ^1.6.12
+    dependencies:
+      '@solid-primitives/trigger': 1.0.5_solid-js@1.7.2
+      solid-js: 1.7.2
+    dev: false
+
+  /@solid-primitives/trigger/1.0.5_solid-js@1.7.2:
+    resolution: {integrity: sha512-NAnLYmUFPvJoH05qBf90IEcSTROM+woFdqcGgGmlcYcewewLNLIuJDB69CvPvM+O9yHvRk7UXcpapV25iXcoDQ==}
+    peerDependencies:
+      solid-js: ^1.6.12
+    dependencies:
+      '@solid-primitives/utils': 6.0.0_solid-js@1.7.2
+      solid-js: 1.7.2
+    dev: false
+
+  /@solid-primitives/utils/6.0.0_solid-js@1.7.2:
+    resolution: {integrity: sha512-SSu12+vvU6J8SVWW9eGV+dqiMsc0WG1Oy8YYY9AWzRzssmzNXg/uexaW+0eqTuj8JcRAaGplMDjhraB01HOidA==}
+    peerDependencies:
+      solid-js: ^1.6.12
+    dependencies:
+      solid-js: 1.7.2
+    dev: false
 
   /@trivago/prettier-plugin-sort-imports/4.1.1_prettier@2.8.7:
     resolution: {integrity: sha512-dQ2r2uzNr1x6pJsuh/8x0IRA3CBUB+pWEW3J/7N98axqt7SQSm+2fy0FLNXvXGg77xEDC7KHxJlHfLYyi7PDcw==}
@@ -1833,6 +1874,11 @@ packages:
     engines: {node: '>=12.20'}
     hasBin: true
     dev: true
+
+  /ulid/2.3.0:
+    resolution: {integrity: sha512-keqHubrlpvT6G2wH0OEfSW4mquYRcbe/J8NMmveoQOjUqmo+hXtO+ORCpWhdbZ7k72UtY61BL7haGxW6enBnjw==}
+    hasBin: true
+    dev: false
 
   /unbox-primitive/1.0.2:
     resolution: {integrity: sha512-61pPlCD9h51VoreyJ0BReideM3MDKMKnh6+V9L08331ipq6Q8OFXZYiqP6n/tbHx4s5I9uRhcye6BrbkizkBDw==}
