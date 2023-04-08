@@ -86,6 +86,7 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
   connect(uri: string, token: string) {
     this.disconnect();
     this.setState(ConnectionState.Connecting);
+
     this.#socket = new WebSocket(
       `${uri}?version=${this.#protocolVersion}&format=${
         this.#transportFormat
@@ -115,9 +116,13 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
       }
     };
 
+    let closed = false;
     this.#socket.onclose = () => {
+      if (closed) return;
+      closed = true;
+
       clearInterval(this.#heartbeatIntervalReference);
-      this.setState(ConnectionState.Disconnected);
+      this.disconnect();
     };
   }
 
@@ -126,9 +131,10 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
    */
   disconnect() {
     if (!this.#socket) return;
-    this.setState(ConnectionState.Disconnected);
-    this.#socket.close();
+    let socket = this.#socket;
     this.#socket = undefined;
+    socket.close();
+    this.setState(ConnectionState.Disconnected);
   }
 
   /**

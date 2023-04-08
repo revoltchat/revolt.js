@@ -154,6 +154,7 @@ export class Client extends EventEmitter<Events> {
           break;
         case ConnectionState.Disconnected:
           this.emit("disconnected");
+          setTimeout(() => this.connect(), 10000);
           break;
       }
     });
