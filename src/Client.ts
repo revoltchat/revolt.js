@@ -1,4 +1,5 @@
 import { API } from "revolt-api";
+import type { DataLogin, RevoltConfig } from "revolt-api";
 
 import channelClassFactory from "./classes/Channel";
 import emojiClassFactory from "./classes/Emoji";
@@ -15,6 +16,7 @@ export type Channel = Obj<typeof channelClassFactory>;
 export type Server = Obj<typeof serverClassFactory>;
 export type ServerMember = Obj<typeof serverMemberClassFactory>;
 export type User = Obj<typeof userClassFactory>;
+export type Session = { token: string } | string;
 
 /**
  * Revolt.js Client
@@ -33,17 +35,21 @@ export class Client {
   readonly serverMembers = this.#ServerMember;
 
   readonly api: API;
+  readonly baseURL: string;
   readonly events: EventClient<1>;
+
+  configuration: RevoltConfig | undefined;
+  session: Session | undefined;
 
   /**
    * Create Revolt.js Client
    */
-  constructor() {
+  constructor(baseURL: string) {
+    this.baseURL = baseURL;
     this.api = new API({
-      authentication: {
-        rauth: process.env.TOKEN!,
-      },
+      baseURL,
     });
+
     this.events = createEventClient(1);
   }
 
@@ -100,6 +106,69 @@ export class Client {
     this.events.on("state", (state) => console.info("STATE =", state));
     this.events.on("error", (error) => console.error("ERROR =", error));
 
-    this.events.connect("wss://ws.revolt.chat", process.env.TOKEN!);
+    this.events.connect(
+      "wss://ws.revolt.chat",
+      typeof this.session === "string" ? this.session : this.session!.token
+    );
+  }
+
+  /**
+   * Fetches the configuration of the server if it has not been already fetched.
+   */
+  async #fetchConfiguration() {
+    if (!this.configuration) {
+      this.configuration = await this.api.get("/");
+    }
+  }
+
+  /**
+   * Update API object to use authentication.
+   */
+  #updateHeaders() {
+    (this.api as API) = new API({
+      baseURL: this.baseURL,
+      authentication: {
+        revolt: this.session,
+      },
+    });
+  }
+
+  /**
+   * Log in with auth data, creating a new session in the process.
+   * @param details Login data object
+   * @returns An on-boarding function if on-boarding is required, undefined otherwise
+   */
+  async login(details: DataLogin) {
+    await this.#fetchConfiguration();
+    const data = await this.api.post("/auth/session/login", details);
+    if (data.result === "Success") {
+      this.session = data;
+      // TODO: return await this.connect();
+    } else {
+      throw "MFA not implemented!";
+    }
+  }
+
+  /**
+   * Use an existing session to log into Revolt.
+   * @param session Session data object
+   * @returns An on-boarding function if on-boarding is required, undefined otherwise
+   */
+  async useExistingSession(session: Session) {
+    await this.#fetchConfiguration();
+    this.session = session;
+    this.#updateHeaders();
+    this.connect();
+  }
+
+  /**
+   * Log in as a bot.
+   * @param token Bot token
+   */
+  async loginBot(token: string) {
+    await this.#fetchConfiguration();
+    this.session = token;
+    this.#updateHeaders();
+    this.connect();
   }
 }
