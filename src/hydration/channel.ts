@@ -1,6 +1,6 @@
 import { Channel as ApiChannel, File, OverrideField } from "revolt-api";
 
-import { Merge } from "../lib/merge";
+import type { Merge } from "../lib/merge";
 
 import { Hydrate } from ".";
 

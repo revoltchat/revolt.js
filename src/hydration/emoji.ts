@@ -1,6 +1,6 @@
 import { Emoji as ApiEmoji, EmojiParent } from "revolt-api";
 
-import { Merge } from "../lib/merge";
+import type { Merge } from "../lib/merge";
 
 import { Hydrate } from ".";
 
