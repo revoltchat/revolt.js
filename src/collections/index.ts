@@ -1,31 +1,247 @@
-import { MemberCompositeKey } from "revolt-api";
+import type * as API from "revolt-api";
 
-import { Channel, Emoji, Message, Server, ServerMember, User } from "..";
-import { HydratedChannel } from "../hydration/channel";
-import { HydratedEmoji } from "../hydration/emoji";
-import { HydratedMessage } from "../hydration/message";
-import { HydratedServer } from "../hydration/server";
-import { HydratedServerMember } from "../hydration/serverMember";
-import { HydratedUser } from "../hydration/user";
+import { Client } from "..";
+import {
+  Channel,
+  Emoji,
+  Message,
+  Server,
+  ServerMember,
+  User,
+} from "../classes";
+import {
+  HydratedChannel,
+  HydratedEmoji,
+  HydratedMessage,
+  HydratedServer,
+  HydratedServerMember,
+  HydratedUser,
+} from "../hydration";
 
 import { StoreCollection } from "./Collection";
 
-export class ChannelCollection extends StoreCollection<
+class ClassCollection<T, V> extends StoreCollection<T, V> {
+  readonly client: Client;
+
+  constructor(client: Client) {
+    super();
+    this.client = client;
+  }
+}
+
+export class ChannelCollection extends ClassCollection<
   Channel,
   HydratedChannel
-> {}
-export class EmojiCollection extends StoreCollection<Emoji, HydratedEmoji> {}
-export class MessageCollection extends StoreCollection<
+> {
+  /**
+   * Fetch channel by ID
+   * @param id Id
+   * @returns Channel
+   */
+  async fetch(id: string): Promise<Channel | undefined> {
+    const channel = this.get(id);
+    if (channel) return channel;
+    const data = await this.client.api.get(`/channels/${id as ""}`);
+    return this.getOrCreate(data._id, data);
+  }
+
+  /**
+   * Get or create
+   * @param id Id
+   * @param data Data
+   */
+  getOrCreate(id: string, data: API.Channel) {
+    if (this.has(id)) {
+      return this.get(id)!;
+    } else {
+      const instance = new Channel(this, id);
+      this.create(id, "channel", instance, data);
+      return instance;
+    }
+  }
+}
+
+export class EmojiCollection extends ClassCollection<Emoji, HydratedEmoji> {
+  /**
+   * Fetch emoji by ID
+   * @param id Id
+   * @returns Emoji
+   */
+  async fetch(id: string): Promise<Emoji | undefined> {
+    const emoji = this.get(id);
+    if (emoji) return emoji;
+    const data = await this.client.api.get(`/custom/emoji/${id as ""}`);
+    return this.getOrCreate(data._id, data);
+  }
+
+  /**
+   * Get or create
+   * @param id Id
+   * @param data Data
+   */
+  getOrCreate(id: string, data: API.Emoji) {
+    if (this.has(id)) {
+      return this.get(id)!;
+    } else {
+      const instance = new Emoji(this, id);
+      this.create(id, "emoji", instance, data);
+      return instance;
+    }
+  }
+}
+
+export class MessageCollection extends ClassCollection<
   Message,
   HydratedMessage
-> {}
-export class ServerCollection extends StoreCollection<Server, HydratedServer> {}
-export class UserCollection extends StoreCollection<User, HydratedUser> {}
-export class ServerMemberCollection extends StoreCollection<
+> {
+  /**
+   * Fetch message by Id
+   * @param channelId Channel Id
+   * @param messageId Message Id
+   * @returns Message
+   */
+  async fetch(
+    channelId: string,
+    messageId: string
+  ): Promise<Message | undefined> {
+    const message = this.get(messageId);
+    if (message) return message;
+
+    const data = await this.client.api.get(
+      `/channels/${channelId as ""}/messages/${messageId as ""}`
+    );
+
+    return this.getOrCreate(data._id, data);
+  }
+
+  /**
+   * Get or create
+   * @param id Id
+   * @param data Data
+   */
+  getOrCreate(id: string, data: API.Message) {
+    if (this.has(id)) {
+      return this.get(id)!;
+    } else {
+      const instance = new Message(this, id);
+      this.create(id, "message", instance, data);
+      return instance;
+    }
+  }
+}
+
+export class ServerCollection extends ClassCollection<Server, HydratedServer> {
+  /**
+   * Fetch server by ID
+   * @param id Id
+   * @returns Server
+   */
+  async fetch(id: string): Promise<Server | undefined> {
+    const server = this.get(id);
+    if (server) return server;
+    const data = await this.client.api.get(`/servers/${id as ""}`);
+    return this.getOrCreate(data._id, data);
+  }
+
+  /**
+   * Get or create
+   * @param id Id
+   * @param data Data
+   */
+  getOrCreate(id: string, data: API.Server) {
+    if (this.has(id)) {
+      return this.get(id)!;
+    } else {
+      const instance = new Server(this, id);
+      this.create(id, "server", instance, data);
+      return instance;
+    }
+  }
+}
+
+export class UserCollection extends ClassCollection<User, HydratedUser> {
+  /**
+   * Fetch user by ID
+   * @param id Id
+   * @returns User
+   */
+  async fetch(id: string): Promise<User | undefined> {
+    const user = this.get(id);
+    if (user) return user;
+    const data = await this.client.api.get(`/users/${id as ""}`);
+    return this.getOrCreate(data._id, data);
+  }
+
+  /**
+   * Get or create
+   * @param id Id
+   * @param data Data
+   */
+  getOrCreate(id: string, data: API.User) {
+    if (this.has(id)) {
+      return this.get(id)!;
+    } else {
+      const instance = new User(this, id);
+      this.create(id, "user", instance, data);
+      return instance;
+    }
+  }
+}
+
+export class ServerMemberCollection extends ClassCollection<
   ServerMember,
   HydratedServerMember
 > {
-  getByKey(id: MemberCompositeKey) {
+  /**
+   * Check if member exists by composite key
+   * @param id Id
+   * @returns Whether it exists
+   */
+  hasByKey(id: API.MemberCompositeKey) {
+    return super.has(id.server + id.user);
+  }
+
+  /**
+   * Get member by composite key
+   * @param id Id
+   * @returns Member
+   */
+  getByKey(id: API.MemberCompositeKey) {
     return super.get(id.server + id.user);
+  }
+
+  /**
+   * Fetch server member by Id
+   * @param serverId Server Id
+   * @param userId User Id
+   * @returns Message
+   */
+  async fetch(
+    serverId: string,
+    userId: string
+  ): Promise<ServerMember | undefined> {
+    const member = this.get(userId);
+    if (member) return member;
+
+    const data = await this.client.api.get(
+      `/servers/${serverId as ""}/members/${userId as ""}`
+    );
+
+    return this.getOrCreate(data._id, data);
+  }
+
+  /**
+   * Get or create
+   * @param id Id
+   * @param data Data
+   */
+  getOrCreate(id: API.MemberCompositeKey, data: API.Member) {
+    if (this.hasByKey(id)) {
+      return this.getByKey(id)!;
+    } else {
+      const instance = new ServerMember(this, id);
+      this.create(id.server + id.user, "serverMember", instance, data);
+      return instance;
+    }
   }
 }

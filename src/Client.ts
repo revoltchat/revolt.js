@@ -3,12 +3,7 @@ import { Accessor, Setter, createSignal } from "solid-js";
 import { API, Metadata } from "revolt-api";
 import type { DataLogin, RevoltConfig } from "revolt-api";
 
-import channelClassFactory from "./classes/Channel";
-import emojiClassFactory from "./classes/Emoji";
-import messageClassFactory from "./classes/Message";
-import serverClassFactory from "./classes/Server";
-import serverMemberClassFactory from "./classes/ServerMember";
-import userClassFactory from "./classes/User";
+import { User } from "./classes";
 import {
   ChannelCollection,
   EmojiCollection,
@@ -19,28 +14,12 @@ import {
 } from "./collections";
 import { EventClient, createEventClient } from "./events/client";
 
-// eslint-disable-next-line
-type O<T extends (...args: any) => any> = InstanceType<ReturnType<T>>;
-
-export type Channel = O<typeof channelClassFactory>;
-export type Emoji = O<typeof emojiClassFactory>;
-export type Message = O<typeof messageClassFactory>;
-export type Server = O<typeof serverClassFactory>;
-export type ServerMember = O<typeof serverMemberClassFactory>;
-export type User = O<typeof userClassFactory>;
 export type Session = { token: string; user_id: string } | string;
 
 /**
  * Revolt.js Client
  */
 export class Client {
-  readonly Channel: ReturnType<typeof channelClassFactory>;
-  readonly Emoji: ReturnType<typeof emojiClassFactory>;
-  readonly Message: ReturnType<typeof messageClassFactory>;
-  readonly User: ReturnType<typeof userClassFactory>;
-  readonly Server: ReturnType<typeof serverClassFactory>;
-  readonly ServerMember: ReturnType<typeof serverMemberClassFactory>;
-
   readonly channels;
   readonly emojis;
   readonly messages;
@@ -74,22 +53,12 @@ export class Client {
     this.ready = ready;
     this.#setReady = setReady;
 
-    this.channels = new ChannelCollection();
-    this.emojis = new EmojiCollection();
-    this.messages = new MessageCollection();
-    this.users = new UserCollection();
-    this.servers = new ServerCollection();
-    this.serverMembers = new ServerMemberCollection();
-
-    this.Channel = channelClassFactory(this, this.channels as never);
-    this.Emoji = emojiClassFactory(this, this.emojis as never);
-    this.Message = messageClassFactory(this, this.messages as never);
-    this.User = userClassFactory(this, this.users as never);
-    this.Server = serverClassFactory(this, this.servers as never);
-    this.ServerMember = serverMemberClassFactory(
-      this,
-      this.serverMembers as never
-    );
+    this.channels = new ChannelCollection(this);
+    this.emojis = new EmojiCollection(this);
+    this.messages = new MessageCollection(this);
+    this.users = new UserCollection(this);
+    this.servers = new ServerCollection(this);
+    this.serverMembers = new ServerMemberCollection(this);
   }
 
   /**
@@ -101,7 +70,7 @@ export class Client {
       if (event.type === "Ready") {
         console.time("load users");
         for (const user of event.users) {
-          const u = new this.User(user._id, user);
+          const u = this.users.getOrCreate(user._id, user);
 
           if (u.relationship === "User") {
             this.user = u;
@@ -110,22 +79,22 @@ export class Client {
         console.timeEnd("load users");
         console.time("load servers");
         for (const server of event.servers) {
-          new this.Server(server._id, server);
+          this.servers.getOrCreate(server._id, server);
         }
         console.timeEnd("load servers");
         console.time("load memberships");
         for (const member of event.members) {
-          new this.ServerMember(member._id, member);
+          this.serverMembers.getOrCreate(member._id, member);
         }
         console.timeEnd("load memberships");
         console.time("load channels");
         for (const channel of event.channels) {
-          new this.Channel(channel._id, channel);
+          this.channels.getOrCreate(channel._id, channel);
         }
         console.timeEnd("load channels");
         console.time("load emojis");
         for (const emoji of event.emojis) {
-          new this.Emoji(emoji._id, emoji);
+          this.emojis.getOrCreate(emoji._id, emoji);
         }
         console.timeEnd("load emojis");
 

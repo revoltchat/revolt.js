@@ -40,7 +40,7 @@ export function calculatePermission(
     return Permission.GrantAllSafe;
   }
 
-  if (target instanceof client.Server) {
+  if (target instanceof Server) {
     // 1. Check if owner.
     if (target.owner === user?.id) {
       return Permission.GrantAllSafe;

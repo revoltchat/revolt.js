@@ -5,6 +5,13 @@ import { serverHydration } from "./server";
 import { serverMemberHydration } from "./serverMember";
 import { userHydration } from "./user";
 
+export type { HydratedChannel } from "./channel";
+export type { HydratedEmoji } from "./emoji";
+export type { HydratedMessage } from "./message";
+export type { HydratedServer } from "./server";
+export type { HydratedServerMember } from "./serverMember";
+export type { HydratedUser } from "./user";
+
 /**
  * Functions to map from one object to another
  */
