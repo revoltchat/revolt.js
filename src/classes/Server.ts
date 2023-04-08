@@ -1,3 +1,4 @@
+import { ReactiveMap } from "@solid-primitives/map";
 import type { Server as ApiServer, Category } from "revolt-api";
 import { decodeTime } from "ulid";
 
@@ -11,16 +12,74 @@ export default (client: Client) =>
    */
   class Server {
     static #storage = new ObjectStorage<HydratedServer>();
-    static #objects: Record<string, Server> = {};
+
+    // * Object Map Definition
+    static #objects = new ReactiveMap<string, InstanceType<typeof this>>();
 
     /**
-     * Get an existing Server
-     * @param id Server ID
-     * @returns Server
+     * Get an existing object
+     * @param id ID
+     * @returns Object
      */
-    static get(id: string): Server | undefined {
-      return Server.#objects[id];
+    static get(id: string): InstanceType<typeof this> | undefined {
+      return this.#objects.get(id);
     }
+
+    /**
+     * Number of stored objects
+     * @returns Size
+     */
+    static size() {
+      return this.#objects.size;
+    }
+
+    /**
+     * Iterable of keys in the map
+     * @returns Iterable
+     */
+    static keys() {
+      return this.#objects.keys();
+    }
+
+    /**
+     * Iterable of values in the map
+     * @returns Iterable
+     */
+    static values() {
+      return this.#objects.values();
+    }
+
+    /**
+     * List of values in the map
+     * @returns List
+     */
+    static toList() {
+      return [...this.#objects.values()];
+    }
+
+    /**
+     * Iterable of key, value pairs in the map
+     * @returns Iterable
+     */
+    static entries() {
+      return this.#objects.entries();
+    }
+
+    /**
+     * Execute a provided function over each key, value pair in the map
+     * @param cb Callback for each pair
+     * @returns Iterable
+     */
+    static forEach(
+      cb: (
+        value: InstanceType<typeof this>,
+        key: string,
+        map: ReactiveMap<string, InstanceType<typeof this>>
+      ) => void
+    ) {
+      return this.#objects.forEach(cb);
+    }
+    // * End Object Map Definition
 
     /**
      * Fetch server by ID
@@ -42,9 +101,9 @@ export default (client: Client) =>
      * @param id Server Id
      */
     constructor(id: string, data?: ApiServer) {
-      Server.#storage.hydrate(id, "server", data);
-      Server.#objects[id] = this;
       this.id = id;
+      Server.#storage.hydrate(id, "server", data);
+      Server.#objects.set(id, this);
     }
 
     /**
@@ -231,5 +290,36 @@ export default (client: Client) =>
             .map(([id, role]) => ({ id, ...role }))
             .sort((a, b) => (a.rank || 0) - (b.rank || 0))
         : [];
+    }
+
+    get unread() {
+      return false;
+    }
+
+    get mentions() {
+      return [];
+    }
+
+    /**
+     * URL to the server's icon
+     */
+    get iconURL() {
+      return client.generateFileURL(this.icon, { max_side: 256 });
+    }
+
+    /**
+     * URL to the server's animated icon
+     */
+    get animatedIconURL() {
+      return client.generateFileURL(this.icon, { max_side: 256 }, true);
+    }
+
+    /**
+     * URL to the server's banner
+     */
+    get bannerURL() {
+      return client.generateFileURL(this.banner, {
+        max_side: 256,
+      });
     }
   };

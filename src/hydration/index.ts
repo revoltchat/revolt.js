@@ -78,7 +78,7 @@ type ExtractOutput<T> = T extends Hydrate<any, infer O> ? O : never;
  */
 export function hydrate<T extends keyof Hydrators>(
   type: T,
-  input: ExtractInput<Hydrators[T]>
+  input: Partial<ExtractInput<Hydrators[T]>>
 ) {
   return hydrateInternal(hydrators[type] as never, input) as ExtractOutput<
     Hydrators[T]

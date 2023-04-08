@@ -1,3 +1,4 @@
+import { ReactiveMap } from "@solid-primitives/map";
 import type { Emoji as ApiEmoji } from "revolt-api";
 import { decodeTime } from "ulid";
 
@@ -11,16 +12,74 @@ export default (client: Client) =>
    */
   class Emoji {
     static #storage = new ObjectStorage<HydratedEmoji>();
-    static #objects: Record<string, Emoji> = {};
+
+    // * Object Map Definition
+    static #objects = new ReactiveMap<string, InstanceType<typeof this>>();
 
     /**
-     * Get an existing Emoji
-     * @param id Emoji ID
-     * @returns Emoji
+     * Get an existing object
+     * @param id ID
+     * @returns Object
      */
-    static get(id: string): Emoji | undefined {
-      return Emoji.#objects[id];
+    static get(id: string): InstanceType<typeof this> | undefined {
+      return this.#objects.get(id);
     }
+
+    /**
+     * Number of stored objects
+     * @returns Size
+     */
+    static size() {
+      return this.#objects.size;
+    }
+
+    /**
+     * Iterable of keys in the map
+     * @returns Iterable
+     */
+    static keys() {
+      return this.#objects.keys();
+    }
+
+    /**
+     * Iterable of values in the map
+     * @returns Iterable
+     */
+    static values() {
+      return this.#objects.values();
+    }
+
+    /**
+     * List of values in the map
+     * @returns List
+     */
+    static toList() {
+      return [...this.#objects.values()];
+    }
+
+    /**
+     * Iterable of key, value pairs in the map
+     * @returns Iterable
+     */
+    static entries() {
+      return this.#objects.entries();
+    }
+
+    /**
+     * Execute a provided function over each key, value pair in the map
+     * @param cb Callback for each pair
+     * @returns Iterable
+     */
+    static forEach(
+      cb: (
+        value: InstanceType<typeof this>,
+        key: string,
+        map: ReactiveMap<string, InstanceType<typeof this>>
+      ) => void
+    ) {
+      return this.#objects.forEach(cb);
+    }
+    // * End Object Map Definition
 
     /**
      * Fetch emoji by ID
@@ -42,9 +101,9 @@ export default (client: Client) =>
      * @param id Emoji Id
      */
     constructor(id: string, data?: ApiEmoji) {
-      Emoji.#storage.hydrate(id, "emoji", data);
-      Emoji.#objects[id] = this;
       this.id = id;
+      Emoji.#storage.hydrate(id, "emoji", data);
+      Emoji.#objects.set(id, this);
     }
 
     /**

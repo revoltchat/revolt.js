@@ -1,5 +1,6 @@
-export {
-  Client,
+export { Client } from "./Client";
+
+export type {
   Emoji,
   Channel,
   Server,
@@ -8,4 +9,5 @@ export {
   Session,
 } from "./Client";
 
+export * from "./lib/regex";
 export * as API from "revolt-api";

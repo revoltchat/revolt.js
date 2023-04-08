@@ -1,6 +1,6 @@
 import { Accessor, Setter, createSignal } from "solid-js";
 
-import EventEmitter from "events";
+import EventEmitter from "eventemitter3";
 import WebSocket from "isomorphic-ws";
 import type TypedEmitter from "typed-emitter";
 
@@ -37,7 +37,7 @@ class Client<
   #heartbeatInterval: number;
   #pongTimeout: number;
 
-  #state: Accessor<ConnectionState>;
+  readonly state: Accessor<ConnectionState>;
   #setStateSetter: Setter<ConnectionState>;
 
   #socket: WebSocket | undefined;
@@ -65,7 +65,7 @@ class Client<
     this.#pongTimeout = pongTimeout;
 
     const [state, setState] = createSignal(ConnectionState.Idle);
-    this.#state = state;
+    this.state = state;
     this.#setStateSetter = setState;
 
     this.disconnect = this.disconnect.bind(this);
@@ -161,7 +161,7 @@ class Client<
         return;
     }
 
-    switch (this.#state()) {
+    switch (this.state()) {
       case ConnectionState.Connecting:
         if (event.type === "Authenticated") {
           // no-op
@@ -182,7 +182,7 @@ class Client<
       default:
         throw `Unreachable code. Received ${
           event.type
-        } in state ${this.#state()}.`;
+        } in state ${this.state()}.`;
     }
   }
 }
@@ -217,5 +217,5 @@ export function createEventClient<
     transportFormat,
     heartbeatInterval,
     pongTimeout
-  ) as EventClient<T>;
+  ) as never as EventClient<T>;
 }

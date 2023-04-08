@@ -1,3 +1,4 @@
+import { ReactiveMap } from "@solid-primitives/map";
 import type { Member as ApiMember, MemberCompositeKey } from "revolt-api";
 
 import { Client } from "../Client";
@@ -19,7 +20,9 @@ export default (client: Client) =>
    */
   class ServerMember {
     static #storage = new ObjectStorage<HydratedServerMember>();
-    static #objects: Record<string, ServerMember> = {};
+
+    // * Object Map Definition
+    static #objects = new ReactiveMap<string, InstanceType<typeof this>>();
 
     /**
      * Deterministic conversion of member composite key to string ID
@@ -34,8 +37,64 @@ export default (client: Client) =>
      * @returns Member
      */
     static get(id: MemberCompositeKey): ServerMember | undefined {
-      return ServerMember.#objects[key(id)];
+      return ServerMember.#objects.get(key(id));
     }
+
+    /**
+     * Number of stored objects
+     * @returns Size
+     */
+    static size() {
+      return this.#objects.size;
+    }
+
+    /**
+     * Iterable of keys in the map
+     * @returns Iterable
+     */
+    static keys() {
+      return this.#objects.keys();
+    }
+
+    /**
+     * Iterable of values in the map
+     * @returns Iterable
+     */
+    static values() {
+      return this.#objects.values();
+    }
+
+    /**
+     * List of values in the map
+     * @returns List
+     */
+    static toList() {
+      return [...this.#objects.values()];
+    }
+
+    /**
+     * Iterable of key, value pairs in the map
+     * @returns Iterable
+     */
+    static entries() {
+      return this.#objects.entries();
+    }
+
+    /**
+     * Execute a provided function over each key, value pair in the map
+     * @param cb Callback for each pair
+     * @returns Iterable
+     */
+    static forEach(
+      cb: (
+        value: InstanceType<typeof this>,
+        key: string,
+        map: ReactiveMap<string, InstanceType<typeof this>>
+      ) => void
+    ) {
+      return this.#objects.forEach(cb);
+    }
+    // * End Object Map Definition
 
     /**
      * Fetch member by ID
@@ -62,7 +121,7 @@ export default (client: Client) =>
      */
     constructor(id: MemberCompositeKey, data?: ApiMember) {
       ServerMember.#storage.hydrate(key(id), "serverMember", data);
-      ServerMember.#objects[key(id)] = this;
+      ServerMember.#objects.set(key(id), this);
       this.id = id;
     }
 

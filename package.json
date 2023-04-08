@@ -1,7 +1,9 @@
 {
   "name": "revolt.js",
   "version": "7.0.0-beta.0",
-  "main": "lib/index.js",
+  "main": "lib/cjs/index.js",
+  "module": "src/index.ts",
+  "types": "src/index.ts",
   "repository": "https://github.com/revoltchat/revolt.js",
   "author": "Paul Makles <insrt.uk>",
   "license": "MIT",
@@ -20,6 +22,7 @@
   "dependencies": {
     "@solid-primitives/map": "^0.4.3",
     "@solid-primitives/set": "^0.4.3",
+    "eventemitter3": "^5.0.0",
     "isomorphic-ws": "^5.0.0",
     "revolt-api": "^0.5.17",
     "solid-js": "^1.7.2",
