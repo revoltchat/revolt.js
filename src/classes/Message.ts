@@ -1,85 +1,32 @@
-import { ReactiveMap } from "@solid-primitives/map";
+import { SetStoreFunction } from "solid-js/store";
+
 import type { Message as ApiMessage } from "revolt-api";
 import { decodeTime } from "ulid";
 
 import { Client } from "../Client";
+import { StoreCollection } from "../collections/Collection";
 import { HydratedMessage } from "../hydration/message";
-import { ObjectStorage } from "../storage/ObjectStorage";
 
-export default (client: Client) =>
+export default (
+  client: Client,
+  collection: StoreCollection<unknown, unknown>
+) =>
   /**
    * Message Class
    */
   class Message {
-    static #storage = new ObjectStorage<HydratedMessage>();
+    static #collection: StoreCollection<
+      InstanceType<typeof this>,
+      HydratedMessage
+    >;
+    static #set: SetStoreFunction<Record<string, HydratedMessage>>;
+    static #get: (id: string) => HydratedMessage;
 
-    // * Object Map Definition
-    static #objects = new ReactiveMap<string, InstanceType<typeof this>>();
-
-    /**
-     * Get an existing object
-     * @param id ID
-     * @returns Object
-     */
-    static get(id: string): InstanceType<typeof this> | undefined {
-      return this.#objects.get(id);
+    static {
+      Message.#collection = collection as never;
+      Message.#set = collection.updateUnderlyingObject as never;
+      Message.#get = collection.getUnderlyingObject as never;
     }
-
-    /**
-     * Number of stored objects
-     * @returns Size
-     */
-    static size() {
-      return this.#objects.size;
-    }
-
-    /**
-     * Iterable of keys in the map
-     * @returns Iterable
-     */
-    static keys() {
-      return this.#objects.keys();
-    }
-
-    /**
-     * Iterable of values in the map
-     * @returns Iterable
-     */
-    static values() {
-      return this.#objects.values();
-    }
-
-    /**
-     * List of values in the map
-     * @returns List
-     */
-    static toList() {
-      return [...this.#objects.values()];
-    }
-
-    /**
-     * Iterable of key, value pairs in the map
-     * @returns Iterable
-     */
-    static entries() {
-      return this.#objects.entries();
-    }
-
-    /**
-     * Execute a provided function over each key, value pair in the map
-     * @param cb Callback for each pair
-     * @returns Iterable
-     */
-    static forEach(
-      cb: (
-        value: InstanceType<typeof this>,
-        key: string,
-        map: ReactiveMap<string, InstanceType<typeof this>>
-      ) => void
-    ) {
-      return this.#objects.forEach(cb);
-    }
-    // * End Object Map Definition
 
     /**
      * Fetch message by ID
@@ -91,7 +38,7 @@ export default (client: Client) =>
       channelId: string,
       messageId: string
     ): Promise<Message | undefined> {
-      const message = Message.get(messageId);
+      const message = Message.#collection.get(messageId);
       if (message) return message;
 
       const data = await client.api.get(
@@ -108,8 +55,16 @@ export default (client: Client) =>
      */
     constructor(id: string, data?: ApiMessage) {
       this.id = id;
-      Message.#storage.hydrate(id, "message", data);
-      Message.#objects.set(id, this);
+      Message.#collection.create(id, "message", this, data);
+    }
+
+    /**
+     * Get or create
+     * @param id Id
+     * @param data Data
+     */
+    static new(id: string, data?: ApiMessage) {
+      return client.messages.get(id) ?? new Message(id, data);
     }
 
     /**
@@ -123,104 +78,104 @@ export default (client: Client) =>
      * Nonce value
      */
     get nonce() {
-      return Message.#storage.get(this.id).nonce;
+      return Message.#get(this.id).nonce;
     }
 
     /**
      * Id of channel this message was sent in
      */
     get channelId() {
-      return Message.#storage.get(this.id).channelId;
+      return Message.#get(this.id).channelId;
     }
 
     /**
      * Channel this message was sent in
      */
     get channel() {
-      return client.channels.get(Message.#storage.get(this.id).channelId);
+      return client.channels.get(Message.#get(this.id).channelId);
     }
 
     /**
      * Id of user this message was sent by
      */
     get authorId() {
-      return Message.#storage.get(this.id).authorId;
+      return Message.#get(this.id).authorId;
     }
 
     /**
      * User this message was sent by
      */
     get author() {
-      return client.users.get(Message.#storage.get(this.id).authorId!);
+      return client.users.get(Message.#get(this.id).authorId!);
     }
 
     /**
      * Content
      */
     get content() {
-      return Message.#storage.get(this.id).content;
+      return Message.#get(this.id).content;
     }
 
     /**
      * System message content
      */
     get systemMessage() {
-      return Message.#storage.get(this.id).systemMessage;
+      return Message.#get(this.id).systemMessage;
     }
 
     /**
      * Attachments
      */
     get attachments() {
-      return Message.#storage.get(this.id).attachments;
+      return Message.#get(this.id).attachments;
     }
 
     /**
      * Time at which this message was edited
      */
     get editedAt() {
-      return Message.#storage.get(this.id).editedAt;
+      return Message.#get(this.id).editedAt;
     }
 
     /**
      * Embeds
      */
     get embeds() {
-      return Message.#storage.get(this.id).embeds;
+      return Message.#get(this.id).embeds;
     }
 
     /**
      * IDs of users this message mentions
      */
     get mentionIds() {
-      return Message.#storage.get(this.id).mentionIds;
+      return Message.#get(this.id).mentionIds;
     }
 
     /**
      * IDs of messages this message replies to
      */
     get replyIds() {
-      return Message.#storage.get(this.id).replyIds;
+      return Message.#get(this.id).replyIds;
     }
 
     /**
      * Reactions
      */
     get reactions() {
-      return Message.#storage.get(this.id).reactions;
+      return Message.#get(this.id).reactions;
     }
 
     /**
      * Interactions
      */
     get interactions() {
-      return Message.#storage.get(this.id).interactions;
+      return Message.#get(this.id).interactions;
     }
 
     /**
      * Masquerade
      */
     get masquerade() {
-      return Message.#storage.get(this.id).masquerade;
+      return Message.#get(this.id).masquerade;
     }
   };

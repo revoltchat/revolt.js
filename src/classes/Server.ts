@@ -1,87 +1,34 @@
-import { ReactiveMap } from "@solid-primitives/map";
+import { SetStoreFunction } from "solid-js/store";
+
 import type { Server as ApiServer, Category } from "revolt-api";
 import { decodeTime } from "ulid";
 
 import { Channel, Client } from "../Client";
+import { StoreCollection } from "../collections/Collection";
 import { HydratedServer } from "../hydration/server";
 import { bitwiseAndEq, calculatePermission } from "../permissions/calculator";
 import { Permission } from "../permissions/definitions";
-import { ObjectStorage } from "../storage/ObjectStorage";
 
-export default (client: Client) =>
+export default (
+  client: Client,
+  collection: StoreCollection<unknown, unknown>
+) =>
   /**
    * Server Class
    */
   class Server {
-    static #storage = new ObjectStorage<HydratedServer>();
+    static #collection: StoreCollection<
+      InstanceType<typeof this>,
+      HydratedServer
+    >;
+    static #set: SetStoreFunction<Record<string, HydratedServer>>;
+    static #get: (id: string) => HydratedServer;
 
-    // * Object Map Definition
-    static #objects = new ReactiveMap<string, InstanceType<typeof this>>();
-
-    /**
-     * Get an existing object
-     * @param id ID
-     * @returns Object
-     */
-    static get(id: string): InstanceType<typeof this> | undefined {
-      return this.#objects.get(id);
+    static {
+      Server.#collection = collection as never;
+      Server.#set = collection.updateUnderlyingObject as never;
+      Server.#get = collection.getUnderlyingObject as never;
     }
-
-    /**
-     * Number of stored objects
-     * @returns Size
-     */
-    static size() {
-      return this.#objects.size;
-    }
-
-    /**
-     * Iterable of keys in the map
-     * @returns Iterable
-     */
-    static keys() {
-      return this.#objects.keys();
-    }
-
-    /**
-     * Iterable of values in the map
-     * @returns Iterable
-     */
-    static values() {
-      return this.#objects.values();
-    }
-
-    /**
-     * List of values in the map
-     * @returns List
-     */
-    static toList() {
-      return [...this.#objects.values()];
-    }
-
-    /**
-     * Iterable of key, value pairs in the map
-     * @returns Iterable
-     */
-    static entries() {
-      return this.#objects.entries();
-    }
-
-    /**
-     * Execute a provided function over each key, value pair in the map
-     * @param cb Callback for each pair
-     * @returns Iterable
-     */
-    static forEach(
-      cb: (
-        value: InstanceType<typeof this>,
-        key: string,
-        map: ReactiveMap<string, InstanceType<typeof this>>
-      ) => void
-    ) {
-      return this.#objects.forEach(cb);
-    }
-    // * End Object Map Definition
 
     /**
      * Fetch server by ID
@@ -89,7 +36,7 @@ export default (client: Client) =>
      * @returns Server
      */
     static async fetch(id: string): Promise<Server | undefined> {
-      const server = Server.get(id);
+      const server = Server.#collection.get(id);
       if (server) return server;
 
       const data = await client.api.get(`/servers/${id as ""}`);
@@ -99,13 +46,22 @@ export default (client: Client) =>
     readonly id: string;
 
     /**
-     * Construct Server
-     * @param id Server Id
+     * Construct
+     * @param id Id
+     * @param data Data
      */
     constructor(id: string, data?: ApiServer) {
       this.id = id;
-      Server.#storage.hydrate(id, "server", data);
-      Server.#objects.set(id, this);
+      Server.#collection.create(id, "server", this, data);
+    }
+
+    /**
+     * Get or create
+     * @param id Id
+     * @param data Data
+     */
+    static new(id: string, data?: ApiServer) {
+      return client.servers.get(id) ?? new Server(id, data);
     }
 
     /**
@@ -119,49 +75,56 @@ export default (client: Client) =>
      * Owner's user ID
      */
     get ownerId() {
-      return Server.#storage.get(this.id).ownerId;
+      return Server.#get(this.id).ownerId;
     }
 
     /**
      * Owner
      */
     get owner() {
-      return client.users.get(Server.#storage.get(this.id).ownerId);
+      return client.users.get(Server.#get(this.id).ownerId);
     }
 
     /**
      * Name
      */
     get name() {
-      return Server.#storage.get(this.id).name;
+      return Server.#get(this.id).name;
     }
 
     /**
      * Description
      */
     get description() {
-      return Server.#storage.get(this.id).description;
+      return Server.#get(this.id).description;
     }
 
     /**
      * Icon
      */
     get icon() {
-      return Server.#storage.get(this.id).icon;
+      return Server.#get(this.id).icon;
     }
 
     /**
      * Banner
      */
     get banner() {
-      return Server.#storage.get(this.id).banner;
+      return Server.#get(this.id).banner;
+    }
+
+    /**
+     * Channel IDs
+     */
+    get channelIds() {
+      return Server.#get(this.id).channelIds;
     }
 
     /**
      * Channels
      */
     get channels() {
-      return [...Server.#storage.get(this.id).channelIds.values()]
+      return [...Server.#get(this.id).channelIds.values()]
         .map((id) => client.channels.get(id)!)
         .filter((x) => x);
     }
@@ -170,56 +133,56 @@ export default (client: Client) =>
      * Categories
      */
     get categories() {
-      return Server.#storage.get(this.id).categories;
+      return Server.#get(this.id).categories;
     }
 
     /**
      * System message channels
      */
     get systemMessages() {
-      return Server.#storage.get(this.id).systemMessages;
+      return Server.#get(this.id).systemMessages;
     }
 
     /**
      * Roles
      */
     get roles() {
-      return Server.#storage.get(this.id).roles;
+      return Server.#get(this.id).roles;
     }
 
     /**
      * Default permissions
      */
     get defaultPermissions() {
-      return Server.#storage.get(this.id).defaultPermissions;
+      return Server.#get(this.id).defaultPermissions;
     }
 
     /**
      * Server flags
      */
     get flags() {
-      return Server.#storage.get(this.id).flags;
+      return Server.#get(this.id).flags;
     }
 
     /**
      * Whether analytics are enabled for this server
      */
     get analytics() {
-      return Server.#storage.get(this.id).analytics;
+      return Server.#get(this.id).analytics;
     }
 
     /**
      * Whether this server is publicly discoverable
      */
     get discoverable() {
-      return Server.#storage.get(this.id).discoverable;
+      return Server.#get(this.id).discoverable;
     }
 
     /**
      * Whether this server is marked as mature
      */
     get mature() {
-      return Server.#storage.get(this.id).nsfw;
+      return Server.#get(this.id).nsfw;
     }
 
     /**
@@ -336,7 +299,7 @@ export default (client: Client) =>
      * Own member object for this server
      */
     get member() {
-      return client.serverMembers.get({
+      return client.serverMembers.getByKey({
         server: this.id,
         user: client.user!.id,
       });

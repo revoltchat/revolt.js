@@ -1,86 +1,33 @@
-import { ReactiveMap } from "@solid-primitives/map";
+import { SetStoreFunction } from "solid-js/store";
+
 import type { User as ApiUser } from "revolt-api";
 import { decodeTime } from "ulid";
 
 import { Client, FileArgs } from "../Client";
+import { StoreCollection } from "../collections/Collection";
 import { HydratedUser } from "../hydration/user";
 import { U32_MAX, UserPermission } from "../permissions/definitions";
-import { ObjectStorage } from "../storage/ObjectStorage";
 
-export default (client: Client) =>
+export default (
+  client: Client,
+  collection: StoreCollection<unknown, unknown>
+) =>
   /**
    * User Class
    */
   class User {
-    static #storage = new ObjectStorage<HydratedUser>();
+    static #collection: StoreCollection<
+      InstanceType<typeof this>,
+      HydratedUser
+    >;
+    static #set: SetStoreFunction<Record<string, HydratedUser>>;
+    static #get: (id: string) => HydratedUser;
 
-    // * Object Map Definition
-    static #objects = new ReactiveMap<string, InstanceType<typeof this>>();
-
-    /**
-     * Get an existing object
-     * @param id ID
-     * @returns Object
-     */
-    static get(id: string): InstanceType<typeof this> | undefined {
-      return this.#objects.get(id);
+    static {
+      User.#collection = collection as never;
+      User.#set = collection.updateUnderlyingObject as never;
+      User.#get = collection.getUnderlyingObject as never;
     }
-
-    /**
-     * Number of stored objects
-     * @returns Size
-     */
-    static size() {
-      return this.#objects.size;
-    }
-
-    /**
-     * Iterable of keys in the map
-     * @returns Iterable
-     */
-    static keys() {
-      return this.#objects.keys();
-    }
-
-    /**
-     * Iterable of values in the map
-     * @returns Iterable
-     */
-    static values() {
-      return this.#objects.values();
-    }
-
-    /**
-     * List of values in the map
-     * @returns List
-     */
-    static toList() {
-      return [...this.#objects.values()];
-    }
-
-    /**
-     * Iterable of key, value pairs in the map
-     * @returns Iterable
-     */
-    static entries() {
-      return this.#objects.entries();
-    }
-
-    /**
-     * Execute a provided function over each key, value pair in the map
-     * @param cb Callback for each pair
-     * @returns Iterable
-     */
-    static forEach(
-      cb: (
-        value: InstanceType<typeof this>,
-        key: string,
-        map: ReactiveMap<string, InstanceType<typeof this>>
-      ) => void
-    ) {
-      return this.#objects.forEach(cb);
-    }
-    // * End Object Map Definition
 
     /**
      * Fetch user by ID
@@ -88,7 +35,7 @@ export default (client: Client) =>
      * @returns User
      */
     static async fetch(id: string): Promise<User | undefined> {
-      const user = this.get(id);
+      const user = this.#collection.get(id);
       if (user) return user;
 
       const data = await client.api.get(`/users/${id as ""}`);
@@ -98,13 +45,22 @@ export default (client: Client) =>
     readonly id: string;
 
     /**
-     * Construct User
-     * @param id User Id
+     * Construct
+     * @param id Id
+     * @param data Data
      */
     constructor(id: string, data?: ApiUser) {
       this.id = id;
-      User.#storage.hydrate(id, "user", data);
-      User.#objects.set(id, this);
+      User.#collection.create(id, "user", this, data);
+    }
+
+    /**
+     * Get or create
+     * @param id Id
+     * @param data Data
+     */
+    static new(id: string, data?: ApiUser) {
+      return client.users.get(id) ?? new User(id, data);
     }
 
     /**
@@ -118,63 +74,63 @@ export default (client: Client) =>
      * Username
      */
     get username() {
-      return User.#storage.get(this.id).username;
+      return User.#get(this.id).username;
     }
 
     /**
      * Avatar
      */
     get avatar() {
-      return User.#storage.get(this.id).avatar;
+      return User.#get(this.id).avatar;
     }
 
     /**
      * Badges
      */
     get badges() {
-      return User.#storage.get(this.id).badges;
+      return User.#get(this.id).badges;
     }
 
     /**
      * User Status
      */
     get status() {
-      return User.#storage.get(this.id).status;
+      return User.#get(this.id).status;
     }
 
     /**
      * Relationship with user
      */
     get relationship() {
-      return User.#storage.get(this.id).relationship;
+      return User.#get(this.id).relationship;
     }
 
     /**
      * Whether the user is online
      */
     get online() {
-      return User.#storage.get(this.id).online;
+      return User.#get(this.id).online;
     }
 
     /**
      * Whether the user is privileged
      */
     get privileged() {
-      return User.#storage.get(this.id).privileged;
+      return User.#get(this.id).privileged;
     }
 
     /**
      * Flags
      */
     get flags() {
-      return User.#storage.get(this.id).flags;
+      return User.#get(this.id).flags;
     }
 
     /**
      * Bot information
      */
     get bot() {
-      return User.#storage.get(this.id).bot;
+      return User.#get(this.id).bot;
     }
 
     /**

@@ -1,11 +1,12 @@
-import { ReactiveMap } from "@solid-primitives/map";
+import { SetStoreFunction } from "solid-js/store";
+
 import type { Member as ApiMember, MemberCompositeKey } from "revolt-api";
 
 import { Channel, Client, Server } from "../Client";
+import { StoreCollection } from "../collections/Collection";
 import { HydratedServerMember } from "../hydration/serverMember";
 import { bitwiseAndEq, calculatePermission } from "../permissions/calculator";
 import { Permission } from "../permissions/definitions";
-import { ObjectStorage } from "../storage/ObjectStorage";
 
 /**
  * Deterministic conversion of member composite key to string ID
@@ -16,87 +17,26 @@ function key(key: MemberCompositeKey) {
   return key.server + key.user;
 }
 
-export default (client: Client) =>
+export default (
+  client: Client,
+  collection: StoreCollection<unknown, unknown>
+) =>
   /**
    * Server Member Class
    */
   class ServerMember {
-    static #storage = new ObjectStorage<HydratedServerMember>();
+    static #collection: StoreCollection<
+      InstanceType<typeof this>,
+      HydratedServerMember
+    >;
+    static #set: SetStoreFunction<Record<string, HydratedServerMember>>;
+    static #get: (id: string) => HydratedServerMember;
 
-    // * Object Map Definition
-    static #objects = new ReactiveMap<string, InstanceType<typeof this>>();
-
-    /**
-     * Deterministic conversion of member composite key to string ID
-     * @param key Key
-     * @returns String key
-     */
-    static keyToString = key;
-
-    /**
-     * Get an existing Member
-     * @param id Member ID
-     * @returns Member
-     */
-    static get(id: MemberCompositeKey): ServerMember | undefined {
-      return ServerMember.#objects.get(key(id));
+    static {
+      ServerMember.#collection = collection as never;
+      ServerMember.#set = collection.updateUnderlyingObject as never;
+      ServerMember.#get = collection.getUnderlyingObject as never;
     }
-
-    /**
-     * Number of stored objects
-     * @returns Size
-     */
-    static size() {
-      return this.#objects.size;
-    }
-
-    /**
-     * Iterable of keys in the map
-     * @returns Iterable
-     */
-    static keys() {
-      return this.#objects.keys();
-    }
-
-    /**
-     * Iterable of values in the map
-     * @returns Iterable
-     */
-    static values() {
-      return this.#objects.values();
-    }
-
-    /**
-     * List of values in the map
-     * @returns List
-     */
-    static toList() {
-      return [...this.#objects.values()];
-    }
-
-    /**
-     * Iterable of key, value pairs in the map
-     * @returns Iterable
-     */
-    static entries() {
-      return this.#objects.entries();
-    }
-
-    /**
-     * Execute a provided function over each key, value pair in the map
-     * @param cb Callback for each pair
-     * @returns Iterable
-     */
-    static forEach(
-      cb: (
-        value: InstanceType<typeof this>,
-        key: string,
-        map: ReactiveMap<string, InstanceType<typeof this>>
-      ) => void
-    ) {
-      return this.#objects.forEach(cb);
-    }
-    // * End Object Map Definition
 
     /**
      * Fetch member by ID
@@ -106,7 +46,7 @@ export default (client: Client) =>
     static async fetch(
       id: MemberCompositeKey
     ): Promise<ServerMember | undefined> {
-      const channel = ServerMember.get(id);
+      const channel = ServerMember.#collection.get(key(id));
       if (channel) return channel;
 
       const data = await client.api.get(
@@ -118,13 +58,22 @@ export default (client: Client) =>
     readonly id: MemberCompositeKey;
 
     /**
-     * Construct Member
-     * @param id Member ID
+     * Construct
+     * @param id Id
+     * @param data Data
      */
     constructor(id: MemberCompositeKey, data?: ApiMember) {
-      ServerMember.#storage.hydrate(key(id), "serverMember", data);
-      ServerMember.#objects.set(key(id), this);
       this.id = id;
+      ServerMember.#collection.create(key(id), "serverMember", this, data);
+    }
+
+    /**
+     * Get or create
+     * @param id Id
+     * @param data Data
+     */
+    static new(id: MemberCompositeKey, data?: ApiMember) {
+      return client.serverMembers.get(key(id)) ?? new ServerMember(id, data);
     }
 
     /**
@@ -145,35 +94,35 @@ export default (client: Client) =>
      * When this user joined the server
      */
     get joinedAt() {
-      return ServerMember.#storage.get(key(this.id)).joinedAt;
+      return ServerMember.#get(key(this.id)).joinedAt;
     }
 
     /**
      * Nickname
      */
     get nickname() {
-      return ServerMember.#storage.get(key(this.id)).nickname;
+      return ServerMember.#get(key(this.id)).nickname;
     }
 
     /**
      * Avatar
      */
     get avatar() {
-      return ServerMember.#storage.get(key(this.id)).avatar;
+      return ServerMember.#get(key(this.id)).avatar;
     }
 
     /**
      * List of role IDs
      */
     get roles() {
-      return ServerMember.#storage.get(key(this.id)).roles;
+      return ServerMember.#get(key(this.id)).roles;
     }
 
     /**
      * Time at which timeout expires
      */
     get timeout() {
-      return ServerMember.#storage.get(key(this.id)).timeout;
+      return ServerMember.#get(key(this.id)).timeout;
     }
 
     /**

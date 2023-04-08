@@ -1,99 +1,52 @@
-import { ReactiveMap } from "@solid-primitives/map";
-import type { Channel as ApiChannel } from "revolt-api";
-import { decodeTime } from "ulid";
+import { SetStoreFunction } from "solid-js/store";
+
+import type {
+  Channel as ApiChannel,
+  DataEditChannel,
+  DataMessageSend,
+  Member,
+  Message,
+  User,
+} from "revolt-api";
+import { APIRoutes } from "revolt-api/dist/routes";
+import { decodeTime, ulid } from "ulid";
 
 import { Client } from "../Client";
+import { StoreCollection } from "../collections/Collection";
 import { hydrate } from "../hydration";
 import { HydratedChannel } from "../hydration/channel";
 import { bitwiseAndEq, calculatePermission } from "../permissions/calculator";
 import { Permission } from "../permissions/definitions";
-import { ObjectStorage } from "../storage/ObjectStorage";
 
-export default (client: Client) =>
+export default (
+  client: Client,
+  collection: StoreCollection<unknown, HydratedChannel>
+) =>
   /**
    * Channel Class
    */
   class Channel {
-    static #storage = new ObjectStorage<HydratedChannel>();
+    static #collection: StoreCollection<
+      InstanceType<typeof this>,
+      HydratedChannel
+    >;
+    static #set: SetStoreFunction<Record<string, HydratedChannel>>;
+    static #get: (id: string) => HydratedChannel;
 
     static {
+      Channel.#collection = collection as never;
+      Channel.#set = collection.updateUnderlyingObject as never;
+      Channel.#get = collection.getUnderlyingObject as never;
+
       client.events.on("event", (event) => {
         switch (event.type) {
           case "ChannelUpdate": {
-            this.#storage.set(event.id, hydrate("channel", event.data));
+            this.#set(event.id, hydrate("channel", event.data));
             break;
           }
         }
       });
     }
-
-    // * Object Map Definition
-    static #objects = new ReactiveMap<string, InstanceType<typeof this>>();
-
-    /**
-     * Get an existing object
-     * @param id ID
-     * @returns Object
-     */
-    static get(id: string): InstanceType<typeof this> | undefined {
-      return this.#objects.get(id);
-    }
-
-    /**
-     * Number of stored objects
-     * @returns Size
-     */
-    static size() {
-      return this.#objects.size;
-    }
-
-    /**
-     * Iterable of keys in the map
-     * @returns Iterable
-     */
-    static keys() {
-      return this.#objects.keys();
-    }
-
-    /**
-     * Iterable of values in the map
-     * @returns Iterable
-     */
-    static values() {
-      return this.#objects.values();
-    }
-
-    /**
-     * List of values in the map
-     * @returns List
-     */
-    static toList() {
-      return [...this.#objects.values()];
-    }
-
-    /**
-     * Iterable of key, value pairs in the map
-     * @returns Iterable
-     */
-    static entries() {
-      return this.#objects.entries();
-    }
-
-    /**
-     * Execute a provided function over each key, value pair in the map
-     * @param cb Callback for each pair
-     * @returns Iterable
-     */
-    static forEach(
-      cb: (
-        value: InstanceType<typeof this>,
-        key: string,
-        map: ReactiveMap<string, InstanceType<typeof this>>
-      ) => void
-    ) {
-      return this.#objects.forEach(cb);
-    }
-    // * End Object Map Definition
 
     /**
      * Fetch channel by ID
@@ -101,7 +54,7 @@ export default (client: Client) =>
      * @returns Channel
      */
     static async fetch(id: string): Promise<Channel | undefined> {
-      const channel = Channel.get(id);
+      const channel = Channel.#collection.get(id);
       if (channel) return channel;
 
       const data = await client.api.get(`/channels/${id as ""}`);
@@ -116,12 +69,16 @@ export default (client: Client) =>
      */
     constructor(id: string, data?: ApiChannel) {
       this.id = id;
-      Channel.#storage.hydrate(id, "channel", data);
-      Channel.#objects.set(id, this);
+      Channel.#collection.create(id, "channel", this, data);
     }
 
-    updateSomething() {
-      Channel.#storage.set(this.id, "name", "troling");
+    /**
+     * Get or create
+     * @param id Id
+     * @param data Data
+     */
+    static new(id: string, data?: ApiChannel) {
+      return client.channels.get(id) ?? new Channel(id, data);
     }
 
     /**
@@ -135,51 +92,51 @@ export default (client: Client) =>
      * Channel type
      */
     get type() {
-      return Channel.#storage.get(this.id).channelType;
+      return Channel.#get(this.id).channelType;
     }
 
     /**
      * Channel name
      */
     get name() {
-      return Channel.#storage.get(this.id).name;
+      return Channel.#get(this.id).name;
     }
 
     /**
      * Channel description
      */
     get description() {
-      return Channel.#storage.get(this.id).description;
+      return Channel.#get(this.id).description;
     }
 
     /**
      * Channel icon
      */
     get icon() {
-      return Channel.#storage.get(this.id).icon;
+      return Channel.#get(this.id).icon;
     }
 
     /**
      * Whether the conversation is active
      */
     get active() {
-      return Channel.#storage.get(this.id).active;
+      return Channel.#get(this.id).active;
     }
 
     /**
      * User Ids of recipients of the group
      */
     get recipientIds() {
-      return Channel.#storage.get(this.id).recipientIds;
+      return Channel.#get(this.id).recipientIds;
     }
 
     /**
      * Recipients of the group
      */
     get recipients() {
-      return Channel.#storage
-        .get(this.id)
-        .recipientIds.map((id) => client.users.get(id)!);
+      return Channel.#get(this.id).recipientIds.map(
+        (id) => client.users.get(id)!
+      );
     }
 
     /**
@@ -195,77 +152,77 @@ export default (client: Client) =>
      * User ID
      */
     get userId() {
-      return Channel.#storage.get(this.id).userId!;
+      return Channel.#get(this.id).userId!;
     }
 
     /**
      * User this channel belongs to
      */
     get user() {
-      return client.users.get(Channel.#storage.get(this.id).userId!);
+      return client.users.get(Channel.#get(this.id).userId!);
     }
 
     /**
      * Owner ID
      */
     get ownerId() {
-      return Channel.#storage.get(this.id).ownerId!;
+      return Channel.#get(this.id).ownerId!;
     }
 
     /**
      * Owner of the group
      */
     get owner() {
-      return client.users.get(Channel.#storage.get(this.id).ownerId!);
+      return client.users.get(Channel.#get(this.id).ownerId!);
     }
 
     /**
      * Server ID
      */
     get serverId() {
-      return Channel.#storage.get(this.id).serverId!;
+      return Channel.#get(this.id).serverId!;
     }
 
     /**
      * Server this channel is in
      */
     get server() {
-      return client.servers.get(Channel.#storage.get(this.id).serverId!);
+      return client.servers.get(Channel.#get(this.id).serverId!);
     }
 
     /**
      * Permissions allowed for users in this group
      */
     get permissions() {
-      return Channel.#storage.get(this.id).permissions;
+      return Channel.#get(this.id).permissions;
     }
 
     /**
      * Default permissions for this server channel
      */
     get defaultPermissions() {
-      return Channel.#storage.get(this.id).defaultPermissions;
+      return Channel.#get(this.id).defaultPermissions;
     }
 
     /**
      * Role permissions for this server channel
      */
     get rolePermissions() {
-      return Channel.#storage.get(this.id).rolePermissions;
+      return Channel.#get(this.id).rolePermissions;
     }
 
     /**
      * Whether this channel is marked as mature
      */
     get mature() {
-      return Channel.#storage.get(this.id).nsfw;
+      return Channel.#get(this.id).nsfw;
     }
 
     /**
      * ID of the last message sent in this channel
      */
     get lastMessageId() {
-      return Channel.#storage.get(this.id).lastMessageId;
+      return Channel.#get(this.id).lastMessageId;
     }
 
     /**
@@ -340,5 +297,164 @@ export default (client: Client) =>
         this.permission,
         ...permission.map((x) => Permission[x])
       );
+    }
+
+    /**
+     * Fetch a channel's members.
+     * @requires `Group`
+     * @returns An array of the channel's members.
+     */
+    async fetchMembers() {
+      const members = await client.api.get(
+        `/channels/${this.id as ""}/members`
+      );
+
+      return members.map((user) => client.User.new(user._id, user));
+    }
+
+    /**
+     * Edit a channel
+     * @param data Edit data
+     */
+    async edit(data: DataEditChannel) {
+      await client.api.patch(`/channels/${this.id as ""}`, data);
+    }
+
+    /**
+     * Delete a channel
+     * @param leave_silently Whether to not send a message on leave
+     * @param noRequest Whether to not send a request
+     * @requires `DM`, `Group`, `TextChannel`, `VoiceChannel`
+     */
+    async delete(leave_silently?: boolean, noRequest?: boolean) {
+      if (!noRequest)
+        await client.api.delete(`/channels/${this.id as ""}`, {
+          leave_silently,
+        });
+
+      if (this.type === "DirectMessage") {
+        Channel.#set(this.id, "active", false);
+        return;
+      }
+
+      if (this.type === "TextChannel" || this.type === "VoiceChannel") {
+        const server = this.server;
+        if (server) {
+          server.channelIds.delete(this.id);
+        }
+      }
+
+      client.channels.delete(this.id);
+    }
+
+    /**
+     * Add a user to a group
+     * @param user_id ID of the target user
+     */
+    async addMember(user_id: string) {
+      return await client.api.put(
+        `/channels/${this.id as ""}/recipients/${user_id as ""}`
+      );
+    }
+
+    /**
+     * Remove a user from a group
+     * @param user_id ID of the target user
+     */
+    async removeMember(user_id: string) {
+      return await client.api.delete(
+        `/channels/${this.id as ""}/recipients/${user_id as ""}`
+      );
+    }
+    /**
+     * Send a message
+     * @param data Either the message as a string or message sending route data
+     * @returns The message
+     */
+    async sendMessage(
+      data: string | DataMessageSend,
+      idempotencyKey: string = ulid()
+    ) {
+      const msg: DataMessageSend =
+        typeof data === "string" ? { content: data } : data;
+
+      const message = await client.api.post(
+        `/channels/${this.id as ""}/messages`,
+        msg,
+        {
+          headers: {
+            "Idempotency-Key": idempotencyKey,
+          },
+        }
+      );
+
+      return client.Message.new(message._id, message);
+    }
+
+    /**
+     * Fetch a message by its ID
+     * @param messageId ID of the target message
+     * @returns The message
+     */
+    async fetchMessage(messageId: string) {
+      const message = await client.api.get(
+        `/channels/${this.id as ""}/messages/${messageId as ""}`
+      );
+
+      return client.Message.new(message._id, message);
+    }
+
+    /**
+     * Fetch multiple messages from a channel
+     * @param params Message fetching route data
+     * @returns The messages
+     */
+    async fetchMessages(
+      params?: Omit<
+        (APIRoutes & {
+          method: "get";
+          path: "/channels/{target}/messages";
+        })["params"],
+        "include_users"
+      >
+    ) {
+      const messages = (await client.api.get(
+        `/channels/${this.id as ""}/messages`,
+        { ...params }
+      )) as Message[];
+
+      return messages.map((message) =>
+        client.Message.new(message._id, message)
+      );
+    }
+
+    /**
+     * Fetch multiple messages from a channel including the users that sent them
+     * @param params Message fetching route data
+     * @returns Object including messages and users
+     */
+    async fetchMessagesWithUsers(
+      params?: Omit<
+        (APIRoutes & {
+          method: "get";
+          path: "/channels/{target}/messages";
+        })["params"],
+        "include_users"
+      >
+    ) {
+      const data = (await client.api.get(
+        `/channels/${this.id as ""}/messages`,
+        { ...params, include_users: true }
+      )) as { messages: Message[]; users: User[]; members?: Member[] };
+
+      return {
+        messages: data.messages.map((message) =>
+          client.Message.new(message._id, message)
+        ),
+        users: data.users.map((user) => client.User.new(user._id, user)),
+        members: data.members?.map((member) =>
+          client.ServerMember.new(member._id, member)
+        ),
+      };
     }
   };

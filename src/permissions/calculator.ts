@@ -40,14 +40,14 @@ export function calculatePermission(
     return Permission.GrantAllSafe;
   }
 
-  if (target instanceof client.servers) {
+  if (target instanceof client.Server) {
     // 1. Check if owner.
     if (target.owner === user?.id) {
       return Permission.GrantAllSafe;
     } else {
       // 2. Get ServerMember.
       const member = options?.member ??
-        client.serverMembers.get({
+        client.serverMembers.getByKey({
           user: user!.id,
           server: target.id,
         }) ?? { roles: null, timeout: null };
@@ -113,7 +113,7 @@ export function calculatePermission(
         } else {
           // 4. Get ServerMember.
           const member = options?.member ??
-            client.serverMembers.get({
+            client.serverMembers.getByKey({
               user: user!.id,
               server: server.id,
             }) ?? { roles: null, timeout: null };

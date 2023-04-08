@@ -16,6 +16,7 @@ export class ObjectStorage<T> {
     const [store, setStore] = createStore({});
     this.store = store as never;
     this.set = setStore;
+    this.get = this.get.bind(this);
   }
 
   /**

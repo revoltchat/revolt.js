@@ -7,6 +7,7 @@ export type {
   ServerMember,
   User,
   Session,
+  Message,
 } from "./Client";
 
 export * from "./lib/regex";
