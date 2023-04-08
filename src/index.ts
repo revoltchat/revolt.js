@@ -1,8 +1,11 @@
-import { config } from "dotenv";
+export {
+  Client,
+  Emoji,
+  Channel,
+  Server,
+  ServerMember,
+  User,
+  Session,
+} from "./Client";
 
-import { Client } from "./Client";
-
-config();
-
-const client = new Client();
-client.connect();
+export * as API from "revolt-api";
