@@ -4,6 +4,8 @@ import { decodeTime } from "ulid";
 
 import { Channel, Client } from "../Client";
 import { HydratedServer } from "../hydration/server";
+import { bitwiseAndEq, calculatePermission } from "../permissions/calculator";
+import { Permission } from "../permissions/definitions";
 import { ObjectStorage } from "../storage/ObjectStorage";
 
 export default (client: Client) =>
@@ -111,6 +113,13 @@ export default (client: Client) =>
      */
     get createdAt() {
       return new Date(decodeTime(this.id));
+    }
+
+    /**
+     * Owner's user ID
+     */
+    get ownerId() {
+      return Server.#storage.get(this.id).ownerId;
     }
 
     /**
@@ -321,5 +330,34 @@ export default (client: Client) =>
       return client.generateFileURL(this.banner, {
         max_side: 256,
       });
+    }
+
+    /**
+     * Own member object for this server
+     */
+    get member() {
+      return client.serverMembers.get({
+        server: this.id,
+        user: client.user!.id,
+      });
+    }
+
+    /**
+     * Permission the currently authenticated user has against this server
+     */
+    get permission() {
+      return calculatePermission(client, this);
+    }
+
+    /**
+     * Check whether we have a given permission in a server
+     * @param permission Permission Names
+     * @returns Whether we have this permission
+     */
+    havePermission(...permission: (keyof typeof Permission)[]) {
+      return bitwiseAndEq(
+        this.permission,
+        ...permission.map((x) => Permission[x])
+      );
     }
   };

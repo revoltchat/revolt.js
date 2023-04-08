@@ -2,9 +2,11 @@ import { ReactiveMap } from "@solid-primitives/map";
 import type { Channel as ApiChannel } from "revolt-api";
 import { decodeTime } from "ulid";
 
-import { Client, FileArgs } from "../Client";
+import { Client } from "../Client";
 import { hydrate } from "../hydration";
 import { HydratedChannel } from "../hydration/channel";
+import { bitwiseAndEq, calculatePermission } from "../permissions/calculator";
+import { Permission } from "../permissions/definitions";
 import { ObjectStorage } from "../storage/ObjectStorage";
 
 export default (client: Client) =>
@@ -165,6 +167,13 @@ export default (client: Client) =>
     }
 
     /**
+     * User Ids of recipients of the group
+     */
+    get recipientIds() {
+      return Channel.#storage.get(this.id).recipientIds;
+    }
+
+    /**
      * Recipients of the group
      */
     get recipients() {
@@ -311,6 +320,25 @@ export default (client: Client) =>
         this.icon ?? this.recipient?.avatar,
         { max_side: 256 },
         true
+      );
+    }
+
+    /**
+     * Permission the currently authenticated user has against this channel
+     */
+    get permission() {
+      return calculatePermission(client, this);
+    }
+
+    /**
+     * Check whether we have a given permission in a channel
+     * @param permission Permission Names
+     * @returns Whether we have this permission
+     */
+    havePermission(...permission: (keyof typeof Permission)[]) {
+      return bitwiseAndEq(
+        this.permission,
+        ...permission.map((x) => Permission[x])
       );
     }
   };

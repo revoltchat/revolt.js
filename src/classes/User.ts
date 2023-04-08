@@ -4,6 +4,7 @@ import { decodeTime } from "ulid";
 
 import { Client, FileArgs } from "../Client";
 import { HydratedUser } from "../hydration/user";
+import { U32_MAX, UserPermission } from "../permissions/definitions";
 import { ObjectStorage } from "../storage/ObjectStorage";
 
 export default (client: Client) =>
@@ -206,5 +207,44 @@ export default (client: Client) =>
       return (
         client.generateFileURL(this.avatar, ...args) ?? this.defaultAvatarURL
       );
+    }
+
+    /**
+     * Permissions against this user
+     */
+    get permission() {
+      let permissions = 0;
+      switch (this.relationship) {
+        case "Friend":
+        case "User":
+          return U32_MAX;
+        case "Blocked":
+        case "BlockedOther":
+          return UserPermission.Access;
+        case "Incoming":
+        case "Outgoing":
+          permissions = UserPermission.Access;
+      }
+
+      if (
+        client.channels
+          .toList()
+          .find(
+            (channel) =>
+              (channel.type === "Group" || channel.type === "DirectMessage") &&
+              channel.recipientIds?.includes(client.user!.id)
+          ) ||
+        client.serverMembers
+          .toList()
+          .find((member) => member.id.user === client.user!.id)
+      ) {
+        if (client.user?.bot || this.bot) {
+          permissions |= UserPermission.SendMessage;
+        }
+
+        permissions |= UserPermission.Access | UserPermission.ViewProfile;
+      }
+
+      return permissions;
     }
   };
