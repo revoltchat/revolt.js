@@ -2,7 +2,6 @@ import { Accessor, Setter, createSignal } from "solid-js";
 
 import EventEmitter from "eventemitter3";
 import WebSocket from "isomorphic-ws";
-import type TypedEmitter from "typed-emitter";
 
 import type { AvailableProtocols, EventProtocol } from ".";
 
@@ -28,10 +27,9 @@ type Events<T extends AvailableProtocols, P extends EventProtocol<T>> = {
 /**
  * Simple wrapper around the Revolt websocket service.
  */
-class Client<
-  T extends AvailableProtocols,
-  P extends EventProtocol<T>
-> extends EventEmitter {
+export class EventClient<T extends AvailableProtocols> extends EventEmitter<
+  Events<T, EventProtocol<T>>
+> {
   #protocolVersion: T;
   #transportFormat: "json" | "msgpack";
   #heartbeatInterval: number;
@@ -78,7 +76,6 @@ class Client<
   private setState(state: ConnectionState) {
     this.#setStateSetter(state);
     this.emit("state", state);
-    // TODO: debug weird state changes
   }
 
   /**
@@ -107,7 +104,7 @@ class Client<
     };
 
     this.#socket.onerror = (error) => {
-      this.emit("error", error);
+      this.emit("error", error as never);
     };
 
     this.#socket.onmessage = (event) => {
@@ -129,14 +126,16 @@ class Client<
    */
   disconnect() {
     if (!this.#socket) return;
+    this.setState(ConnectionState.Disconnected);
     this.#socket.close();
+    this.#socket = undefined;
   }
 
   /**
    * Send an event to the server.
    * @param event Event
    */
-  send(event: P["client"]) {
+  send(event: EventProtocol<T>["client"]) {
     console.info(event);
   }
 
@@ -144,7 +143,7 @@ class Client<
    * Handle events intended for client before passing them along.
    * @param event Event
    */
-  handle(event: P["server"]) {
+  handle(event: EventProtocol<T>["server"]) {
     switch (event.type) {
       case "Ping":
         this.send({
@@ -156,7 +155,7 @@ class Client<
         clearTimeout(this.#pongTimeoutReference);
         return;
       case "Error":
-        this.emit("error", event);
+        this.emit("error", event as never);
         this.disconnect();
         return;
     }
@@ -185,37 +184,4 @@ class Client<
         } in state ${this.state()}.`;
     }
   }
-}
-
-/**
- * Event client
- */
-export type EventClient<T extends AvailableProtocols> = Omit<
-  Client<T, EventProtocol<T>>,
-  "on" | "once"
-> &
-  TypedEmitter<Events<T, EventProtocol<T>>>;
-
-/**
- * Create a new event client.
- * @param protocolVersion Target protocol version
- * @param transportFormat Communication format
- * @param heartbeatInterval Interval in seconds to send ping
- * @param pongTimeout Time in seconds until heartbeat times out
- */
-export function createEventClient<
-  T extends AvailableProtocols,
-  P extends EventProtocol<T>
->(
-  protocolVersion: T,
-  transportFormat?: "json",
-  heartbeatInterval?: number,
-  pongTimeout?: number
-) {
-  return new Client<T, P>(
-    protocolVersion,
-    transportFormat,
-    heartbeatInterval,
-    pongTimeout
-  ) as never as EventClient<T>;
 }

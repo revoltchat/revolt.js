@@ -31,6 +31,7 @@ export type KeyMapping<Input, Output> = Record<keyof Input, keyof Output>;
 export type Hydrate<Input, Output> = {
   keyMapping: Partial<KeyMapping<Input, Output>>;
   functions: MappingFns<Input, Output, keyof Output>;
+  initialHydration: () => Partial<Output>;
 };
 
 /**
@@ -81,13 +82,16 @@ type ExtractOutput<T> = T extends Hydrate<any, infer O> ? O : never;
  * Hydrate some input with a given type
  * @param type Type
  * @param input Input Object
+ * @param initial Whether this is the initial hydration
  * @returns Hydrated Object
  */
 export function hydrate<T extends keyof Hydrators>(
   type: T,
-  input: Partial<ExtractInput<Hydrators[T]>>
+  input: Partial<ExtractInput<Hydrators[T]>>,
+  initial?: boolean
 ) {
-  return hydrateInternal(hydrators[type] as never, input) as ExtractOutput<
-    Hydrators[T]
-  >;
+  return hydrateInternal(
+    hydrators[type] as never,
+    initial ? { ...hydrators[type].initialHydration(), ...input } : input
+  ) as ExtractOutput<Hydrators[T]>;
 }

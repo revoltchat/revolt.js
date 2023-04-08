@@ -36,7 +36,7 @@ export class ObjectStorage<T> {
    */
   hydrate(id: string, type: keyof Hydrators, data?: unknown) {
     if (data) {
-      this.set(id, hydrate(type, data as never) as T);
+      this.set(id, hydrate(type, data as never, true) as T);
     }
   }
 }

@@ -1,16 +1,17 @@
 import type {
   Channel as ApiChannel,
+  Member as ApiMember,
+  Message as ApiMessage,
+  User as ApiUser,
   DataEditChannel,
   DataMessageSend,
-  Member,
-  Message,
   OptionsMessageSearch,
   Override,
-  User,
 } from "revolt-api";
 import { APIRoutes } from "revolt-api/dist/routes";
 import { decodeTime, ulid } from "ulid";
 
+import { Message } from "..";
 import { ChannelCollection } from "../collections";
 import { bitwiseAndEq, calculatePermission } from "../permissions/calculator";
 import { Permission } from "../permissions/definitions";
@@ -93,7 +94,23 @@ export class Channel {
   }
 
   /**
-   * User Ids of recipients of the group
+   * User ids of people currently typing in channel
+   */
+  get typingIds() {
+    return this.collection.getUnderlyingObject(this.id).recipientIds;
+  }
+
+  /**
+   * Users currently trying in channel
+   */
+  get typing() {
+    return [
+      ...this.collection.getUnderlyingObject(this.id).typingIds.values(),
+    ].map((id) => this.collection.client.users.get(id)!);
+  }
+
+  /**
+   * User ids of recipients of the group
    */
   get recipientIds() {
     return this.collection.getUnderlyingObject(this.id).recipientIds;
@@ -103,9 +120,9 @@ export class Channel {
    * Recipients of the group
    */
   get recipients() {
-    return this.collection
-      .getUnderlyingObject(this.id)
-      .recipientIds.map((id) => this.collection.client.users.get(id)!);
+    return [
+      ...this.collection.getUnderlyingObject(this.id).recipientIds.values(),
+    ].map((id) => this.collection.client.users.get(id)!);
   }
 
   /**
@@ -232,7 +249,7 @@ export class Channel {
    * URL to the channel icon
    */
   get iconURL() {
-    return this.collection.client.generateFileURL(
+    return this.collection.client.createFileURL(
       this.icon ?? this.recipient?.avatar,
       {
         max_side: 256,
@@ -244,7 +261,7 @@ export class Channel {
    * URL to a small variant of the channel icon
    */
   get smallIconURL() {
-    return this.collection.client.generateFileURL(
+    return this.collection.client.createFileURL(
       this.icon ?? this.recipient?.avatar,
       {
         max_side: 64,
@@ -256,7 +273,7 @@ export class Channel {
    * URL to the animated channel icon
    */
   get animatedIconURL() {
-    return this.collection.client.generateFileURL(
+    return this.collection.client.createFileURL(
       this.icon ?? this.recipient?.avatar,
       { max_side: 256 },
       true
@@ -322,13 +339,6 @@ export class Channel {
       return;
     }
 
-    if (this.type === "TextChannel" || this.type === "VoiceChannel") {
-      const server = this.server;
-      if (server) {
-        server.channelIds.delete(this.id);
-      }
-    }
-
     this.collection.client.channels.delete(this.id);
   }
 
@@ -373,7 +383,11 @@ export class Channel {
       }
     );
 
-    return this.collection.client.messages.getOrCreate(message._id, message);
+    return this.collection.client.messages.getOrCreate(
+      message._id,
+      message,
+      true
+    );
   }
 
   /**
@@ -406,7 +420,7 @@ export class Channel {
     const messages = (await this.collection.client.api.get(
       `/channels/${this.id as ""}/messages`,
       { ...params }
-    )) as Message[];
+    )) as ApiMessage[];
 
     return messages.map((message) =>
       this.collection.client.messages.getOrCreate(message._id, message)
@@ -430,7 +444,7 @@ export class Channel {
     const data = (await this.collection.client.api.get(
       `/channels/${this.id as ""}/messages`,
       { ...params, include_users: true }
-    )) as { messages: Message[]; users: User[]; members?: Member[] };
+    )) as { messages: ApiMessage[]; users: ApiUser[]; members?: ApiMember[] };
 
     return {
       messages: data.messages.map((message) =>
@@ -454,7 +468,7 @@ export class Channel {
     const messages = (await this.collection.client.api.post(
       `/channels/${this.id as ""}/search`,
       params
-    )) as Message[];
+    )) as ApiMessage[];
 
     return messages.map((message) =>
       this.collection.client.messages.getOrCreate(message._id, message)
@@ -473,7 +487,7 @@ export class Channel {
         ...params,
         include_users: true,
       }
-    )) as { messages: Message[]; users: User[]; members?: Member[] };
+    )) as { messages: ApiMessage[]; users: ApiUser[]; members?: ApiMember[] };
 
     return {
       messages: data.messages.map((message) =>
@@ -517,16 +531,17 @@ export class Channel {
    */
   async ack(message?: Message | string, skipRateLimiter?: boolean) {
     const id =
-      (typeof message === "string" ? message : message?._id) ??
+      (typeof message === "string" ? message : message?.id) ??
       this.lastMessageId ??
       ulid();
+
     const performAck = () => {
       this.#ackLimit = undefined;
       this.collection.client.api.put(`/channels/${this.id}/ack/${id as ""}`);
     };
 
-    /* TODO: if (!this.collection.client.options.ackRateLimiter || skipRateLimiter)
-            return performAck();*/
+    // TODO: !this.collection.client.options.ackRateLimiter
+    if (skipRateLimiter) return performAck();
 
     clearTimeout(this.#ackTimeout);
     if (this.#ackLimit && +new Date() > this.#ackLimit) {

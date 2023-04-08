@@ -1,3 +1,4 @@
+import { DataEditMessage, DataMessageSend } from "revolt-api";
 import { decodeTime } from "ulid";
 
 import { MessageCollection } from "../collections";
@@ -246,5 +247,83 @@ export class Message {
       case "channel_ownership_changed":
         return { type, from: get(system.from), to: get(system.to) };
     }
+  }
+
+  /**
+   * Edit a message
+   * @param data Message edit route data
+   */
+  async edit(data: DataEditMessage) {
+    return await this.collection.client.api.patch(
+      `/channels/${this.channelId as ""}/messages/${this.id as ""}`,
+      data
+    );
+  }
+
+  /**
+   * Delete a message
+   */
+  async delete() {
+    return await this.collection.client.api.delete(
+      `/channels/${this.channelId as ""}/messages/${this.id as ""}`
+    );
+  }
+
+  /**
+   * Acknowledge this message as read
+   */
+  ack() {
+    this.channel?.ack(this);
+  }
+
+  /**
+   * Reply to Message
+   */
+  reply(
+    data:
+      | string
+      | (Omit<DataMessageSend, "nonce"> & {
+          nonce?: string;
+        }),
+    mention = true
+  ) {
+    const obj = typeof data === "string" ? { content: data } : data;
+    return this.channel?.sendMessage({
+      ...obj,
+      replies: [{ id: this.id, mention }],
+    });
+  }
+
+  /**
+   * Clear all reactions from this message
+   */
+  async clearReactions() {
+    return await this.collection.client.api.delete(
+      `/channels/${this.channelId as ""}/messages/${this.id as ""}/reactions`
+    );
+  }
+
+  /**
+   * React to a message
+   * @param emoji Unicode or emoji ID
+   */
+  async react(emoji: string) {
+    return await this.collection.client.api.put(
+      `/channels/${this.channelId as ""}/messages/${this.id as ""}/reactions/${
+        emoji as ""
+      }`
+    );
+  }
+
+  /**
+   * Unreact from a message
+   * @param emoji Unicode or emoji ID
+   */
+  async unreact(emoji: string) {
+    return await this.collection.client.api.delete(
+      `/channels/${this.channelId as ""}/messages/${this.id as ""}/reactions/${
+        emoji as ""
+      }`
+    );
   }
 }

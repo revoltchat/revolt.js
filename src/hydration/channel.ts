@@ -1,3 +1,4 @@
+import { ReactiveSet } from "@solid-primitives/set";
 import { Channel as ApiChannel, File, OverrideField } from "revolt-api";
 
 import type { Merge } from "../lib/merge";
@@ -13,7 +14,8 @@ export type HydratedChannel = {
   icon?: File;
 
   active: boolean;
-  recipientIds: string[];
+  typingIds: ReactiveSet<string>;
+  recipientIds: ReactiveSet<string>;
 
   userId?: string;
   ownerId?: string;
@@ -46,7 +48,8 @@ export const channelHydration: Hydrate<Merge<ApiChannel>, HydratedChannel> = {
     description: (channel) => channel.description!,
     icon: (channel) => channel.icon!,
     active: (channel) => channel.active || false,
-    recipientIds: (channel) => channel.recipients ?? [],
+    typingIds: () => new ReactiveSet(),
+    recipientIds: (channel) => new ReactiveSet(channel.recipients),
     userId: (channel) => channel.user,
     ownerId: (channel) => channel.owner,
     serverId: (channel) => channel.server,
@@ -56,4 +59,8 @@ export const channelHydration: Hydrate<Merge<ApiChannel>, HydratedChannel> = {
     nsfw: (channel) => channel.nsfw || false,
     lastMessageId: (channel) => channel.last_message_id!,
   },
+  initialHydration: () => ({
+    typingIds: new ReactiveSet(),
+    recipientIds: new ReactiveSet(),
+  }),
 };

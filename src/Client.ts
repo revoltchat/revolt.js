@@ -1,9 +1,10 @@
 import { Accessor, Setter, createSignal } from "solid-js";
 
-import { API, Metadata } from "revolt-api";
+import EventEmitter from "eventemitter3";
+import { API, Metadata, RelationshipStatus, Role } from "revolt-api";
 import type { DataLogin, RevoltConfig } from "revolt-api";
 
-import { User } from "./classes";
+import { Channel, Emoji, Message, Server, ServerMember, User } from "./classes";
 import {
   ChannelCollection,
   EmojiCollection,
@@ -12,14 +13,89 @@ import {
   ServerMemberCollection,
   UserCollection,
 } from "./collections";
-import { EventClient, createEventClient } from "./events/client";
+import { ConnectionState, EventClient } from "./events/client";
+import { handleEvent } from "./events/v1";
+import {
+  HydratedChannel,
+  HydratedEmoji,
+  HydratedMessage,
+  HydratedServer,
+  HydratedServerMember,
+  HydratedUser,
+} from "./hydration";
 
-export type Session = { token: string; user_id: string } | string;
+export type Session = { _id: string; token: string; user_id: string } | string;
 
 /**
- * Revolt.js Client
+ * Events provided by the client
  */
-export class Client {
+type Events = {
+  error(error: Error): void;
+
+  connected(): void;
+  connecting(): void;
+  disconnected(): void;
+  ready(): void;
+  logout(): void;
+
+  messageCreate(message: Message): void;
+  messageUpdate(message: Message, previousMessage: HydratedMessage): void;
+  messageDelete(message: HydratedMessage): void;
+  messageDeleteBulk(messages: HydratedMessage[], channel?: Channel): void;
+  messageReactionAdd(message: Message, userId: string, emoji: string): void;
+  messageReactionRemove(message: Message, userId: string, emoji: string): void;
+  messageReactionRemoveEmoji(message: Message, emoji: string): void;
+
+  channelCreate(channel: Channel): void;
+  channelUpdate(channel: Channel, previousChannel: HydratedChannel): void;
+  channelDelete(channel: HydratedChannel): void;
+  channelGroupJoin(channel: Channel, user: User): void;
+  channelGroupLeave(channel: Channel, user?: User): void;
+  channelStartTyping(channel: Channel, user?: User): void;
+  channelStopTyping(channel: Channel, user?: User): void;
+  channelAcknowledged(channel: Channel, messageId: string): void;
+
+  serverCreate(server: Server): void;
+  serverUpdate(server: Server, previousServer: HydratedServer): void;
+  serverDelete(server: HydratedServer): void;
+  serverRoleUpdate(server: Server, roleId: string, previousRole: Role): void;
+  serverRoleDelete(server: Server, roleId: string, role: Role): void;
+
+  serverMemberUpdate(
+    member: ServerMember,
+    previousMember: HydratedServerMember
+  ): void;
+  serverMemberJoin(member: ServerMember): void;
+  serverMemberLeave(member: HydratedServerMember): void;
+
+  userUpdate(user: User, previousUser: HydratedUser): void;
+  // ^ userRelationshipChanged(user: User, previousRelationship: RelationshipStatus): void;
+  // ^ userPresenceChanged(user: User, previousPresence: boolean): void;
+  userSettingsUpdate(
+    id: string,
+    update: Record<string, [number, string]>
+  ): void;
+
+  emojiCreate(emoji: Emoji): void;
+  emojiDelete(emoji: HydratedEmoji): void;
+};
+
+/**
+ * Client options object
+ */
+export interface ClientOptions {
+  baseURL: string;
+
+  /**
+   * Whether to allow partial objects to emit from events.
+   */
+  partials: boolean;
+}
+
+/**
+ * Revolt.js Clients
+ */
+export class Client extends EventEmitter<Events> {
   readonly channels;
   readonly emojis;
   readonly messages;
@@ -28,7 +104,7 @@ export class Client {
   readonly serverMembers;
 
   readonly api: API;
-  readonly baseURL: string;
+  readonly options: ClientOptions;
   readonly events: EventClient<1>;
 
   configuration: RevoltConfig | undefined;
@@ -41,13 +117,18 @@ export class Client {
   /**
    * Create Revolt.js Client
    */
-  constructor(baseURL?: string) {
-    this.baseURL = baseURL ?? "https://api.revolt.chat";
-    this.api = new API({
-      baseURL,
-    });
+  constructor(options?: Partial<ClientOptions>) {
+    super();
 
-    this.events = createEventClient(1);
+    this.options = {
+      baseURL: "https://api.revolt.chat",
+      partials: false,
+      ...options,
+    };
+
+    this.api = new API({
+      baseURL: this.options.baseURL,
+    });
 
     const [ready, setReady] = createSignal(false);
     this.ready = ready;
@@ -59,67 +140,35 @@ export class Client {
     this.users = new UserCollection(this);
     this.servers = new ServerCollection(this);
     this.serverMembers = new ServerMemberCollection(this);
-  }
 
-  /**
-   * Connect
-   */
-  connect() {
-    this.events.on("event", (event) => {
-      console.info("[EVENT]", JSON.stringify(event).substring(0, 32));
-      if (event.type === "Ready") {
-        console.time("load users");
-        for (const user of event.users) {
-          const u = this.users.getOrCreate(user._id, user);
-
-          if (u.relationship === "User") {
-            this.user = u;
-          }
-        }
-        console.timeEnd("load users");
-        console.time("load servers");
-        for (const server of event.servers) {
-          this.servers.getOrCreate(server._id, server);
-        }
-        console.timeEnd("load servers");
-        console.time("load memberships");
-        for (const member of event.members) {
-          this.serverMembers.getOrCreate(member._id, member);
-        }
-        console.timeEnd("load memberships");
-        console.time("load channels");
-        for (const channel of event.channels) {
-          this.channels.getOrCreate(channel._id, channel);
-        }
-        console.timeEnd("load channels");
-        console.time("load emojis");
-        for (const emoji of event.emojis) {
-          this.emojis.getOrCreate(emoji._id, emoji);
-        }
-        console.timeEnd("load emojis");
-
-        const lounge = this.servers.get("01F7ZSBSFHQ8TA81725KQCSDDP")!;
-        console.info(
-          `The owner of ${lounge.name} is ${lounge.owner!.username}!`
-        );
-        console.log(lounge.owner);
-        console.log(
-          "It has the channels:",
-          lounge.channels.map((channel) => channel.name)
-        );
-        /*console.log(
-          "They joined at:",
-          this.serverMembers.get({ server: lounge.id, user: lounge.owner!.id })
-            ?.joinedAt
-        );*/
-
-        this.#setReady(true);
+    this.events = new EventClient(1);
+    this.events.on("error", (error) => this.emit("error", error));
+    this.events.on("state", (state) => {
+      console.info("[state]", state);
+      switch (state) {
+        case ConnectionState.Connected:
+          this.emit("connected");
+          break;
+        case ConnectionState.Connecting:
+          this.emit("connecting");
+          break;
+        case ConnectionState.Disconnected:
+          this.emit("disconnected");
+          break;
       }
     });
 
-    this.events.on("state", (state) => console.info("STATE =", state));
-    this.events.on("error", (error) => console.error("ERROR =", error));
+    this.events.on("event", (event) =>
+      handleEvent(this, event, this.#setReady)
+    );
+  }
 
+  /**
+   * Connect to Revolt
+   */
+  connect() {
+    this.events.disconnect();
+    this.#setReady(false);
     this.events.connect(
       "wss://ws.revolt.chat",
       typeof this.session === "string" ? this.session : this.session!.token
@@ -140,7 +189,7 @@ export class Client {
    */
   #updateHeaders() {
     (this.api as API) = new API({
-      baseURL: this.baseURL,
+      baseURL: this.options.baseURL,
       authentication: {
         revolt: this.session,
       },
@@ -187,14 +236,14 @@ export class Client {
   }
 
   /**
-   * Generates a URL to a given file with given options.
+   * Creates a URL to a given file with given options.
    * @param attachment Partial of attachment object
    * @param options Optional query parameters to modify object
    * @param allowAnimation Returns GIF if applicable, no operations occur on image
    * @param fallback Fallback URL
    * @returns Generated URL or nothing
    */
-  generateFileURL(
+  createFileURL(
     attachment?: {
       tag: string;
       _id: string;

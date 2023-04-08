@@ -24,7 +24,7 @@ export type HydratedServer = {
   categories?: Category[];
 
   systemMessages?: SystemMessageChannels;
-  roles?: ReactiveMap<string, Role>;
+  roles: ReactiveMap<string, Role>;
   defaultPermissions: number;
 
   flags: ServerFlags;
@@ -61,6 +61,10 @@ export const serverHydration: Hydrate<ApiServer, HydratedServer> = {
     discoverable: (server) => server.discoverable || false,
     nsfw: (server) => server.nsfw || false,
   },
+  initialHydration: () => ({
+    channelIds: new ReactiveSet(),
+    roles: new ReactiveMap(),
+  }),
 };
 
 /**

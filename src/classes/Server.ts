@@ -1,4 +1,4 @@
-import type { Server as ApiServer, Category } from "revolt-api";
+import type { Category } from "revolt-api";
 import { decodeTime } from "ulid";
 
 import { ServerCollection } from "../collections";
@@ -237,14 +237,14 @@ export class Server {
    * URL to the server's icon
    */
   get iconURL() {
-    return this.collection.client.generateFileURL(this.icon, { max_side: 256 });
+    return this.collection.client.createFileURL(this.icon, { max_side: 256 });
   }
 
   /**
    * URL to the server's animated icon
    */
   get animatedIconURL() {
-    return this.collection.client.generateFileURL(
+    return this.collection.client.createFileURL(
       this.icon,
       { max_side: 256 },
       true
@@ -255,7 +255,7 @@ export class Server {
    * URL to the server's banner
    */
   get bannerURL() {
-    return this.collection.client.generateFileURL(this.banner, {
+    return this.collection.client.createFileURL(this.banner, {
       max_side: 256,
     });
   }

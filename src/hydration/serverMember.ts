@@ -9,7 +9,7 @@ export type HydratedServerMember = {
   joinedAt: Date;
   nickname?: string;
   avatar?: File;
-  roles?: string[];
+  roles: string[];
   timeout?: Date;
 };
 
@@ -29,4 +29,7 @@ export const serverMemberHydration: Hydrate<
     roles: (member) => member.roles,
     timeout: (member) => new Date(member.timeout!),
   },
+  initialHydration: () => ({
+    roles: [],
+  }),
 };

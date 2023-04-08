@@ -43,6 +43,9 @@ export const userHydration: Hydrate<ApiUser, HydratedUser> = {
     status: (user) => user.status! ?? undefined,
     bot: (user) => user.bot! ?? undefined,
   },
+  initialHydration: () => ({
+    relationship: "None",
+  }),
 };
 
 /**

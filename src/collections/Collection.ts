@@ -2,7 +2,7 @@ import { SetStoreFunction } from "solid-js/store";
 
 import { ReactiveMap } from "@solid-primitives/map";
 
-import { Hydrators, hydrate } from "../hydration";
+import { Hydrators } from "../hydration";
 import { ObjectStorage } from "../storage/ObjectStorage";
 
 /**
@@ -125,6 +125,15 @@ export abstract class StoreCollection<T, V> extends Collection<T> {
   create(id: string, type: keyof Hydrators, instance: T, data?: unknown) {
     this.#storage.hydrate(id, type, data);
     this.#objects.set(id, instance);
+  }
+
+  /**
+   * Check whether an object is partially defined
+   * @param id Id
+   * @returns Whether it is a partial
+   */
+  isPartial(id: string): boolean {
+    return !!(this.getUnderlyingObject(id) as { partial: boolean }).partial;
   }
 
   /**
