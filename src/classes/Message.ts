@@ -75,6 +75,20 @@ export default (
     }
 
     /**
+     * Absolute pathname to this message in the client
+     */
+    get path() {
+      return `${this.channel!.path}/${this.id}`;
+    }
+
+    /**
+     * URL to this message
+     */
+    get url() {
+      return client.configuration?.app + this.path;
+    }
+
+    /**
      * Nonce value
      */
     get nonce() {
@@ -93,6 +107,23 @@ export default (
      */
     get channel() {
       return client.channels.get(Message.#get(this.id).channelId);
+    }
+
+    /**
+     * Server this message was sent in
+     */
+    get server() {
+      return this.channel!.server;
+    }
+
+    /**
+     * Member this message was sent by
+     */
+    get member() {
+      return client.serverMembers.getByKey({
+        server: this.channel!.serverId,
+        user: this.authorId!,
+      });
     }
 
     /**
@@ -177,5 +208,87 @@ export default (
      */
     get masquerade() {
       return Message.#get(this.id).masquerade;
+    }
+
+    /**
+     * Get the username for this message
+     */
+    get username() {
+      return (
+        this.masquerade?.name ?? this.member?.nickname ?? this.author?.username
+      );
+    }
+
+    /**
+     * Get the role colour for this message
+     */
+    get roleColour() {
+      return this.masquerade?.colour ?? this.member?.roleColour;
+    }
+
+    /**
+     * Get the avatar URL for this message
+     */
+    get avatarURL() {
+      return (
+        this.masqueradeAvatarURL ??
+        this.member?.avatarURL ??
+        this.author?.avatarURL
+      );
+    }
+
+    /**
+     * Get the animated avatar URL for this message
+     */
+    get animatedAvatarURL() {
+      return (
+        this.masqueradeAvatarURL ??
+        (this.member
+          ? this.member?.animatedAvatarURL
+          : this.author?.animatedAvatarURL)
+      );
+    }
+
+    /**
+     * Avatar URL from the masquerade
+     */
+    get masqueradeAvatarURL() {
+      const avatar = this.masquerade?.avatar;
+      return avatar ? client.proxyFile(avatar) : undefined;
+    }
+
+    /**
+     * Populated system message
+     */
+    get populatedSystemMessage() {
+      const system = this.systemMessage;
+      if (!system) return { type: "none" };
+
+      const { type } = system;
+      const get = (id: string) => client.users.get(id);
+      switch (system.type) {
+        case "text":
+          return system;
+        case "user_added":
+          return { type, user: get(system.id), by: get(system.by) };
+        case "user_remove":
+          return { type, user: get(system.id), by: get(system.by) };
+        case "user_joined":
+          return { type, user: get(system.id) };
+        case "user_left":
+          return { type, user: get(system.id) };
+        case "user_kicked":
+          return { type, user: get(system.id) };
+        case "user_banned":
+          return { type, user: get(system.id) };
+        case "channel_renamed":
+          return { type, name: system.name, by: get(system.by) };
+        case "channel_description_changed":
+          return { type, by: get(system.by) };
+        case "channel_icon_changed":
+          return { type, by: get(system.by) };
+        case "channel_ownership_changed":
+          return { type, from: get(system.from), to: get(system.to) };
+      }
     }
   };

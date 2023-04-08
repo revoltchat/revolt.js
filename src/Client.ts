@@ -265,6 +265,19 @@ export class Client {
 
     return `${autumn.url}/${tag}/${_id}${query}`;
   }
+
+  /**
+   * Proxy a file through January.
+   * @param url URL to proxy
+   * @returns Proxied media URL
+   */
+  proxyFile(url: string): string | undefined {
+    if (this.configuration?.features.january.enabled) {
+      return `${
+        this.configuration.features.january.url
+      }/proxy?url=${encodeURIComponent(url)}`;
+    }
+  }
 }
 
 export type FileArgs = [

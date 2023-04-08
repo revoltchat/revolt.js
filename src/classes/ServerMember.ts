@@ -2,7 +2,7 @@ import { SetStoreFunction } from "solid-js/store";
 
 import type { Member as ApiMember, MemberCompositeKey } from "revolt-api";
 
-import { Channel, Client, Server } from "../Client";
+import { Channel, Client, FileArgs, Server } from "../Client";
 import { StoreCollection } from "../collections/Collection";
 import { HydratedServerMember } from "../hydration/serverMember";
 import { bitwiseAndEq, calculatePermission } from "../permissions/calculator";
@@ -213,5 +213,25 @@ export default (
      */
     inferiorTo(target: ServerMember) {
       return target.ranking < this.ranking;
+    }
+
+    /**
+     * URL to the member's avatar
+     */
+    get avatarURL() {
+      return (
+        client.generateFileURL(this.avatar, { max_side: 256 }) ??
+        this.user?.avatarURL
+      );
+    }
+
+    /**
+     * URL to the member's animated avatar
+     */
+    get animatedAvatarURL() {
+      return (
+        client.generateFileURL(this.avatar, { max_side: 256 }, true) ??
+        this.user?.animatedAvatarURL
+      );
     }
   };

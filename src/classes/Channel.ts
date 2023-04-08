@@ -6,6 +6,8 @@ import type {
   DataMessageSend,
   Member,
   Message,
+  OptionsMessageSearch,
+  Override,
   User,
 } from "revolt-api";
 import { APIRoutes } from "revolt-api/dist/routes";
@@ -93,6 +95,24 @@ export default (
      */
     get type() {
       return Channel.#get(this.id).channelType;
+    }
+
+    /**
+     * Absolute pathname to this channel in the client
+     */
+    get path() {
+      if (this.serverId) {
+        return `/server/${this.serverId}/channel/${this.id}`;
+      } else {
+        return `/channel/${this.id}`;
+      }
+    }
+
+    /**
+     * URL to this channel
+     */
+    get url() {
+      return client.configuration?.app + this.path;
     }
 
     /**
@@ -456,5 +476,117 @@ export default (
           client.ServerMember.new(member._id, member)
         ),
       };
+    }
+
+    /**
+     * Search for messages
+     * @param params Message searching route data
+     * @returns The messages
+     */
+    async search(params: Omit<OptionsMessageSearch, "include_users">) {
+      const messages = (await client.api.post(
+        `/channels/${this.id as ""}/search`,
+        params
+      )) as Message[];
+
+      return messages.map((message) =>
+        client.Message.new(message._id, message)
+      );
+    }
+
+    /**
+     * Search for messages including the users that sent them
+     * @param params Message searching route data
+     * @returns The messages
+     */
+    async searchWithUsers(params: Omit<OptionsMessageSearch, "include_users">) {
+      const data = (await client.api.post(`/channels/${this.id as ""}/search`, {
+        ...params,
+        include_users: true,
+      })) as { messages: Message[]; users: User[]; members?: Member[] };
+
+      return {
+        messages: data.messages.map((message) =>
+          client.Message.new(message._id, message)
+        ),
+        users: data.users.map((user) => client.User.new(user._id, user)),
+        members: data.members?.map((member) =>
+          client.ServerMember.new(member._id, member)
+        ),
+      };
+    }
+
+    async deleteMessages(ids: string[]) {
+      await client.api.delete(`/channels/${this.id as ""}/messages/bulk`, {
+        data: { ids },
+      });
+    }
+
+    /**
+     * Create an invite to the channel
+     * @returns Newly created invite code
+     */
+    async createInvite() {
+      return await client.api.post(`/channels/${this.id as ""}/invites`);
+    }
+
+    #ackTimeout?: number;
+    #ackLimit?: number;
+
+    /**
+     * Mark a channel as read
+     * @param message Last read message or its ID
+     * @param skipRateLimiter Whether to skip the internal rate limiter
+     */
+    async ack(message?: Message | string, skipRateLimiter?: boolean) {
+      const id =
+        (typeof message === "string" ? message : message?._id) ??
+        this.lastMessageId ??
+        ulid();
+      const performAck = () => {
+        this.#ackLimit = undefined;
+        client.api.put(`/channels/${this.id}/ack/${id as ""}`);
+      };
+
+      /* TODO: if (!client.options.ackRateLimiter || skipRateLimiter)
+            return performAck();*/
+
+      clearTimeout(this.#ackTimeout);
+      if (this.#ackLimit && +new Date() > this.#ackLimit) {
+        performAck();
+      }
+
+      // We need to use setTimeout here for both Node.js and browser.
+      this.#ackTimeout = setTimeout(performAck, 5000) as unknown as number;
+
+      if (!this.#ackLimit) {
+        this.#ackLimit = +new Date() + 15e3;
+      }
+    }
+
+    /**
+     * Set role permissions
+     * @param role_id Role Id, set to 'default' to affect all users
+     * @param permissions Permission value
+     */
+    async setPermissions(role_id = "default", permissions: Override) {
+      return await client.api.put(
+        `/channels/${this.id as ""}/permissions/${role_id as ""}`,
+        { permissions }
+      );
+    }
+
+    /**
+     * Start typing in this channel
+     */
+    startTyping() {
+      client.events.send({ type: "BeginTyping", channel: this.id });
+    }
+
+    /**
+     * Stop typing in this channel
+     */
+    stopTyping() {
+      client.events.send({ type: "EndTyping", channel: this.id });
     }
   };

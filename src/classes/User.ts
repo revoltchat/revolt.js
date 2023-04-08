@@ -144,24 +144,19 @@ export default (
      * URL to the user's avatar
      */
     get avatarURL() {
-      return this.#generateAvatarURL({ max_side: 256 });
+      return (
+        client.generateFileURL(this.avatar, { max_side: 256 }) ??
+        this.defaultAvatarURL
+      );
     }
 
     /**
      * URL to the user's animated avatar
      */
     get animatedAvatarURL() {
-      return this.#generateAvatarURL({ max_side: 256 }, true);
-    }
-
-    /**
-     * Generate avatar URL
-     * @param args File args
-     * @returns URL
-     */
-    #generateAvatarURL(...args: FileArgs) {
       return (
-        client.generateFileURL(this.avatar, ...args) ?? this.defaultAvatarURL
+        client.generateFileURL(this.avatar, { max_side: 256 }, true) ??
+        this.defaultAvatarURL
       );
     }
 
