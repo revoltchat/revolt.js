@@ -1,7 +1,7 @@
 /**
  * Regular expression for mentions.
  */
-export const RE_MENTIONS = /<@([A-z0-9]{26})>/g;
+export const RE_MENTIONS = /<@([0-9ABCDEFGHJKMNPQRSTVWXYZ]{26})>/g;
 
 /**
  * Regular expression for spoilers.
