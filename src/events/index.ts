@@ -1,5 +1,9 @@
 import type { ProtocolV1 } from "./v1";
 
+export { handleEvent as handleEventV1 } from "./v1";
+
+export * from "./EventClient";
+
 /**
  * Available protocols to connect with
  */

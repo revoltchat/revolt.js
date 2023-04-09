@@ -13,8 +13,7 @@ import {
   ServerMemberCollection,
   UserCollection,
 } from "./collections";
-import { ConnectionState, EventClient } from "./events/client";
-import { handleEvent } from "./events/v1";
+import { ConnectionState, EventClient, handleEventV1 } from "./events";
 import {
   HydratedChannel,
   HydratedEmoji,
@@ -170,7 +169,7 @@ export class Client extends EventEmitter<Events> {
     });
 
     this.events.on("event", (event) =>
-      handleEvent(this, event, this.#setReady)
+      handleEventV1(this, event, this.#setReady)
     );
   }
 
