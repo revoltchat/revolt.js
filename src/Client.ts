@@ -96,6 +96,14 @@ export interface ClientOptions {
    * @default true
    */
   autoReconnect: boolean;
+
+  /**
+   * Retry delay function
+   * @param retryCount Count
+   * @returns Delay in seconds
+   * @default (2^x-1) ±20%
+   */
+  retryDelayFunction: (retryCount: number) => number;
 }
 
 /**
@@ -120,6 +128,10 @@ export class Client extends EventEmitter<Events> {
   readonly ready: Accessor<boolean>;
   #setReady: Setter<boolean>;
 
+  readonly connectionFailureCount: Accessor<number>;
+  #setConnectionFailureCount: Setter<number>;
+  #reconnectTimeout: number | undefined;
+
   /**
    * Create Revolt.js Client
    */
@@ -130,6 +142,14 @@ export class Client extends EventEmitter<Events> {
       baseURL: "https://api.revolt.chat",
       partials: false,
       autoReconnect: true,
+      /**
+       * Retry delay function
+       * @param retryCount Count
+       * @returns Delay in seconds
+       */
+      retryDelayFunction(retryCount) {
+        return (Math.pow(2, retryCount) - 1) * (0.8 + Math.random() * 0.4);
+      },
       ...options,
     };
 
@@ -141,6 +161,10 @@ export class Client extends EventEmitter<Events> {
     this.ready = ready;
     this.#setReady = setReady;
 
+    const [connectionFailureCount, setConnectionFailureCount] = createSignal(0);
+    this.connectionFailureCount = connectionFailureCount;
+    this.#setConnectionFailureCount = setConnectionFailureCount;
+
     this.channels = new ChannelCollection(this);
     this.emojis = new EmojiCollection(this);
     this.messages = new MessageCollection(this);
@@ -151,9 +175,9 @@ export class Client extends EventEmitter<Events> {
     this.events = new EventClient(1);
     this.events.on("error", (error) => this.emit("error", error));
     this.events.on("state", (state) => {
-      console.info("[state]", state);
       switch (state) {
         case ConnectionState.Connected:
+          this.#setConnectionFailureCount(0);
           this.emit("connected");
           break;
         case ConnectionState.Connecting:
@@ -162,7 +186,13 @@ export class Client extends EventEmitter<Events> {
         case ConnectionState.Disconnected:
           this.emit("disconnected");
           if (this.options.autoReconnect) {
-            setTimeout(() => this.connect(), 500);
+            this.#reconnectTimeout = setTimeout(
+              () => this.connect(),
+              this.options.retryDelayFunction(this.connectionFailureCount()) *
+                1e3
+            ) as never;
+
+            this.#setConnectionFailureCount((count) => count + 1);
           }
           break;
       }
@@ -177,6 +207,7 @@ export class Client extends EventEmitter<Events> {
    * Connect to Revolt
    */
   connect() {
+    clearTimeout(this.#reconnectTimeout);
     this.events.disconnect();
     this.#setReady(false);
     this.events.connect(
