@@ -173,7 +173,7 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
    * @param event Event
    */
   send(event: EventProtocol<T>["client"]) {
-    this.options.debug && console.info("[C->S]", event);
+    this.options.debug && console.debug("[C->S]", event);
     if (!this.#socket) throw "Socket closed, trying to send.";
     this.#socket.send(JSON.stringify(event));
   }
@@ -183,7 +183,7 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
    * @param event Event
    */
   handle(event: EventProtocol<T>["server"]) {
-    this.options.debug && console.info("[S->C]", event);
+    this.options.debug && console.debug("[S->C]", event);
     switch (event.type) {
       case "Ping":
         this.send({
@@ -194,7 +194,7 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
       case "Pong":
         clearTimeout(this.#pongTimeoutReference);
         this.#setPing(+new Date() - event.data);
-        this.options.debug && console.info(`[ping] ${this.ping()}ms`);
+        this.options.debug && console.debug(`[ping] ${this.ping()}ms`);
         return;
       case "Error":
         this.emit("error", event as never);
