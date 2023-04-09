@@ -1,4 +1,5 @@
 import { channelHydration } from "./channel";
+import { channelUnreadHydration } from "./channelUnread";
 import { emojiHydration } from "./emoji";
 import { messageHydration } from "./message";
 import { serverHydration } from "./server";
@@ -6,6 +7,7 @@ import { serverMemberHydration } from "./serverMember";
 import { userHydration } from "./user";
 
 export type { HydratedChannel } from "./channel";
+export type { HydratedChannelUnread } from "./channelUnread";
 export type { HydratedEmoji } from "./emoji";
 export type { HydratedMessage } from "./message";
 export type { HydratedServer } from "./server";
@@ -64,6 +66,7 @@ function hydrateInternal<Input extends object, Output>(
 
 const hydrators = {
   channel: channelHydration,
+  channelUnread: channelUnreadHydration,
   emoji: emojiHydration,
   message: messageHydration,
   server: serverHydration,

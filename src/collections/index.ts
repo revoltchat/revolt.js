@@ -15,6 +15,7 @@ export class ClassCollection<T, V> extends StoreCollection<T, V> {
 }
 
 export { ChannelCollection } from "./ChannelCollection";
+export { ChannelUnreadCollection } from "./ChannelUnreadCollection";
 export { EmojiCollection } from "./EmojiCollection";
 export { MessageCollection } from "./MessageCollection";
 export { ServerCollection } from "./ServerCollection";
