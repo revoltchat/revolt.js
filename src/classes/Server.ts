@@ -25,6 +25,14 @@ export class Server {
   }
 
   /**
+   * Convert to string
+   * @returns String
+   */
+  toString() {
+    return `<%${this.id}>`;
+  }
+
+  /**
    * Time when this server was created
    */
   get createdAt() {

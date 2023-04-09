@@ -34,6 +34,14 @@ export class ServerMember {
   }
 
   /**
+   * Convert to string
+   * @returns String
+   */
+  toString() {
+    return `<@${this.id.user}>`;
+  }
+
+  /**
    * Server this member belongs to
    */
   get server() {

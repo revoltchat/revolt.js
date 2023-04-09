@@ -21,6 +21,14 @@ export class User {
   }
 
   /**
+   * Convert to string
+   * @returns String
+   */
+  toString() {
+    return `<@${this.id}>`;
+  }
+
+  /**
    * Time when this user created their account
    */
   get createdAt() {

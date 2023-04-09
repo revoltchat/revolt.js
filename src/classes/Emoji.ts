@@ -20,6 +20,14 @@ export class Emoji {
   }
 
   /**
+   * Convert to string
+   * @returns String
+   */
+  toString() {
+    return `:${this.id}:`;
+  }
+
+  /**
    * Time when this emoji was created
    */
   get createdAt() {
