@@ -222,7 +222,14 @@ export class Message {
     if (!system) return { type: "none" };
 
     const { type } = system;
+
+    /**
+     * Get user by their id
+     * @param id Id
+     * @returns User
+     */
     const get = (id: string) => this.#collection.client.users.get(id);
+
     switch (system.type) {
       case "text":
         return system;
@@ -316,7 +323,7 @@ export class Message {
   }
 
   /**
-   * Unreact from a message
+   * Un-react from a message
    * @param emoji Unicode or emoji ID
    */
   async unreact(emoji: string) {

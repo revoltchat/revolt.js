@@ -122,8 +122,8 @@ export class ServerMember {
   }
 
   /**
-   * Member's ranking.
-   * Smaller values are ranked as higher priotity.
+   * Member's ranking
+   * Smaller values are ranked as higher priority
    */
   get ranking() {
     if (this.id.user === this.server?.ownerId) {
