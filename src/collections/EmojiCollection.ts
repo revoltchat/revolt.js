@@ -27,7 +27,7 @@ export class EmojiCollection extends ClassCollection<Emoji, HydratedEmoji> {
       return this.get(id)!;
     } else {
       const instance = new Emoji(this, id);
-      this.create(id, "emoji", instance, data);
+      this.create(id, "emoji", instance, this.client, data);
       isNew && this.client.emit("emojiCreate", instance);
       return instance;
     }
@@ -42,7 +42,7 @@ export class EmojiCollection extends ClassCollection<Emoji, HydratedEmoji> {
       return this.get(id)!;
     } else if (this.client.options.partials) {
       const instance = new Emoji(this, id);
-      this.create(id, "emoji", instance, {
+      this.create(id, "emoji", instance, this.client, {
         id,
       });
       return instance;

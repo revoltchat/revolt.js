@@ -1,10 +1,11 @@
 import {
   User as ApiUser,
   BotInformation,
-  File,
   RelationshipStatus,
   UserStatus,
 } from "revolt-api";
+
+import { File } from "..";
 
 import { Hydrate } from ".";
 
@@ -33,15 +34,15 @@ export const userHydration: Hydrate<ApiUser, HydratedUser> = {
     username: (user) => user.username,
     relationship: (user) => user.relationship ?? "None",
 
-    online: (user) => user.online || false,
-    privileged: (user) => user.privileged || false,
+    online: (user) => user.online!,
+    privileged: (user) => user.privileged,
 
     badges: (user) => user.badges ?? 0,
     flags: (user) => user.flags ?? 0,
 
-    avatar: (user) => user.avatar! ?? undefined,
-    status: (user) => user.status! ?? undefined,
-    bot: (user) => user.bot! ?? undefined,
+    avatar: (user, ctx) => new File(ctx, user.avatar!),
+    status: (user) => user.status!,
+    bot: (user) => user.bot!,
   },
   initialHydration: () => ({
     relationship: "None",

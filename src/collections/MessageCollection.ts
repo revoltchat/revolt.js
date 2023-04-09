@@ -35,7 +35,7 @@ export class MessageCollection extends ClassCollection<
       return this.get(id)!;
     } else {
       const instance = new Message(this, id);
-      this.create(id, "message", instance, data);
+      this.create(id, "message", instance, this.client, data);
       isNew && this.client.emit("messageCreate", instance);
       return instance;
     }
@@ -50,7 +50,7 @@ export class MessageCollection extends ClassCollection<
       return this.get(id)!;
     } else if (this.client.options.partials) {
       const instance = new Message(this, id);
-      this.create(id, "message", instance, {
+      this.create(id, "message", instance, this.client, {
         id,
         partial: true,
       });

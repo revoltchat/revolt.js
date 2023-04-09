@@ -121,10 +121,17 @@ export abstract class StoreCollection<T, V> extends Collection<T> {
    * @param id Id
    * @param type Type
    * @param instance Instance
+   * @param context Context
    * @param data Data
    */
-  create(id: string, type: keyof Hydrators, instance: T, data?: unknown) {
-    this.#storage.hydrate(id, type, data);
+  create(
+    id: string,
+    type: keyof Hydrators,
+    instance: T,
+    context: any,
+    data?: unknown
+  ) {
+    this.#storage.hydrate(id, type, context, data);
     this.#objects.set(id, instance);
   }
 

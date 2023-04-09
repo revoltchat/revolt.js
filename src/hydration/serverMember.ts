@@ -1,5 +1,6 @@
-import { Member as ApiMember, File, MemberCompositeKey } from "revolt-api";
+import { Member as ApiMember, MemberCompositeKey } from "revolt-api";
 
+import { File } from "..";
 import type { Merge } from "../lib/merge";
 
 import { Hydrate } from ".";
@@ -25,7 +26,7 @@ export const serverMemberHydration: Hydrate<
     id: (member) => member._id,
     joinedAt: (member) => new Date(member.joined_at),
     nickname: (member) => member.nickname!,
-    avatar: (member) => member.avatar!,
+    avatar: (member, ctx) => new File(ctx, member.avatar!),
     roles: (member) => member.roles,
     timeout: (member) => new Date(member.timeout!),
   },

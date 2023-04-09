@@ -3,12 +3,12 @@ import { ReactiveSet } from "@solid-primitives/set";
 import {
   Message as ApiMessage,
   Embed,
-  File,
   Interactions,
   Masquerade,
   SystemMessage,
 } from "revolt-api";
 
+import { File } from "..";
 import type { Merge } from "../lib/merge";
 
 import { Hydrate } from ".";
@@ -47,7 +47,8 @@ export const messageHydration: Hydrate<Merge<ApiMessage>, HydratedMessage> = {
     authorId: (message) => message.author,
     content: (message) => message.content!,
     systemMessage: (message) => message.system!,
-    attachments: (message) => message.attachments!,
+    attachments: (message, ctx) =>
+      message.attachments!.map((file) => new File(ctx, file)),
     editedAt: (message) => new Date(message.edited!),
     embeds: (message) => message.embeds!,
     mentionIds: (message) => message.mentions!,

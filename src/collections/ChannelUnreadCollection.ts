@@ -36,7 +36,7 @@ export class ChannelUnreadCollection extends ClassCollection<
       return this.get(id)!;
     } else {
       const instance = new ChannelUnread(this, id);
-      this.create(id, "channelUnread", instance, data);
+      this.create(id, "channelUnread", instance, this.client, data);
       return instance;
     }
   }

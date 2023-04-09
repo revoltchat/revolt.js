@@ -291,11 +291,8 @@ export class Channel {
    * URL to the channel icon
    */
   get iconURL() {
-    return this.#collection.client.createFileURL(
-      this.icon ?? this.recipient?.avatar,
-      {
-        max_side: 256,
-      }
+    return (
+      this.icon?.createFileURL({ max_side: 256 }) ?? this.recipient?.avatarURL
     );
   }
 
@@ -303,22 +300,16 @@ export class Channel {
    * URL to a small variant of the channel icon
    */
   get smallIconURL() {
-    return this.#collection.client.createFileURL(
-      this.icon ?? this.recipient?.avatar,
-      {
-        max_side: 64,
-      }
-    );
+    return this.icon?.createFileURL({ max_side: 64 });
   }
 
   /**
    * URL to the animated channel icon
    */
   get animatedIconURL() {
-    return this.#collection.client.createFileURL(
-      this.icon ?? this.recipient?.avatar,
-      { max_side: 256 },
-      true
+    return (
+      this.icon?.createFileURL({ max_side: 256 }, true) ??
+      this.recipient?.animatedAvatarURL
     );
   }
 

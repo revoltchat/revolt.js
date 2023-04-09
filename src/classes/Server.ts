@@ -259,27 +259,21 @@ export class Server {
    * URL to the server's icon
    */
   get iconURL() {
-    return this.#collection.client.createFileURL(this.icon, { max_side: 256 });
+    return this.icon?.createFileURL({ max_side: 256 });
   }
 
   /**
    * URL to the server's animated icon
    */
   get animatedIconURL() {
-    return this.#collection.client.createFileURL(
-      this.icon,
-      { max_side: 256 },
-      true
-    );
+    return this.icon?.createFileURL({ max_side: 256 }, true);
   }
 
   /**
    * URL to the server's banner
    */
   get bannerURL() {
-    return this.#collection.client.createFileURL(this.banner, {
-      max_side: 256,
-    });
+    return this.banner?.createFileURL({ max_side: 256 }, true);
   }
 
   /**

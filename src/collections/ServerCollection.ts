@@ -27,7 +27,7 @@ export class ServerCollection extends ClassCollection<Server, HydratedServer> {
       return this.get(id)!;
     } else {
       const instance = new Server(this, id);
-      this.create(id, "server", instance, data);
+      this.create(id, "server", instance, this.client, data);
       isNew && this.client.emit("serverCreate", instance);
       return instance;
     }
@@ -42,7 +42,7 @@ export class ServerCollection extends ClassCollection<Server, HydratedServer> {
       return this.get(id)!;
     } else if (this.client.options.partials) {
       const instance = new Server(this, id);
-      this.create(id, "server", instance, {
+      this.create(id, "server", instance, this.client, {
         id,
         partial: true,
       });

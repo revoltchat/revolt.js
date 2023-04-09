@@ -349,55 +349,6 @@ export class Client extends EventEmitter<Events> {
   }
 
   /**
-   * Creates a URL to a given file with given options.
-   * @param attachment Partial of attachment object
-   * @param options Optional query parameters to modify object
-   * @param allowAnimation Returns GIF if applicable, no operations occur on image
-   * @param fallback Fallback URL
-   * @returns Generated URL or nothing
-   */
-  createFileURL(
-    attachment?: {
-      tag: string;
-      _id: string;
-      content_type?: string;
-      metadata?: Metadata;
-    },
-    ...args: FileArgs
-  ) {
-    const [options, allowAnimation, fallback] = args;
-
-    const autumn = this.configuration?.features.autumn;
-    if (!autumn?.enabled) return fallback;
-    if (!attachment) return fallback;
-
-    const { tag, _id, content_type, metadata } = attachment;
-
-    // TODO: server-side
-    if (metadata?.type === "Image") {
-      if (
-        Math.min(metadata.width, metadata.height) <= 0 ||
-        (content_type === "image/gif" &&
-          Math.max(metadata.width, metadata.height) >= 4096)
-      )
-        return fallback;
-    }
-
-    let query = "";
-    if (options) {
-      if (!allowAnimation || content_type !== "image/gif") {
-        query =
-          "?" +
-          Object.keys(options)
-            .map((k) => `${k}=${options[k as keyof FileArgs[0]]}`)
-            .join("&");
-      }
-    }
-
-    return `${autumn.url}/${tag}/${_id}${query}`;
-  }
-
-  /**
    * Proxy a file through January.
    * @param url URL to proxy
    * @returns Proxied media URL
@@ -410,14 +361,3 @@ export class Client extends EventEmitter<Events> {
     }
   }
 }
-
-export type FileArgs = [
-  options?: {
-    max_side?: number;
-    size?: number;
-    width?: number;
-    height?: number;
-  },
-  allowAnimation?: boolean,
-  fallback?: string
-];

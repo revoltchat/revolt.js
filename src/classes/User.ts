@@ -112,8 +112,7 @@ export class User {
    */
   get avatarURL() {
     return (
-      this.#collection.client.createFileURL(this.avatar, { max_side: 256 }) ??
-      this.defaultAvatarURL
+      this.avatar?.createFileURL({ max_side: 256 }) ?? this.defaultAvatarURL
     );
   }
 
@@ -122,11 +121,8 @@ export class User {
    */
   get animatedAvatarURL() {
     return (
-      this.#collection.client.createFileURL(
-        this.avatar,
-        { max_side: 256 },
-        true
-      ) ?? this.defaultAvatarURL
+      this.avatar?.createFileURL({ max_side: 256 }, true) ??
+      this.defaultAvatarURL
     );
   }
 

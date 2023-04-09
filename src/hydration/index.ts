@@ -19,7 +19,7 @@ export type { HydratedUser } from "./user";
  */
 export type MappingFns<Input, Output, Key extends keyof Output> = Record<
   Key,
-  (value: Input) => Output[Key]
+  (value: Input, context: any) => Output[Key]
 >;
 
 /**
@@ -44,13 +44,14 @@ export type Hydrate<Input, Output> = {
  */
 function hydrateInternal<Input extends object, Output>(
   hydration: Hydrate<Input, Output>,
-  input: Input
+  input: Input,
+  context: any
 ): Output {
   return (Object.keys(input) as (keyof Input)[]).reduce((acc, key) => {
     let targetKey, value;
     try {
       targetKey = hydration.keyMapping[key] ?? key;
-      value = hydration.functions[targetKey as keyof Output](input);
+      value = hydration.functions[targetKey as keyof Output](input, context);
     } catch (err) {
       if (key === "type") return acc;
       console.debug(`Skipping key ${String(key)} during hydration!`);
@@ -92,10 +93,12 @@ type ExtractOutput<T> = T extends Hydrate<any, infer O> ? O : never;
 export function hydrate<T extends keyof Hydrators>(
   type: T,
   input: Partial<ExtractInput<Hydrators[T]>>,
+  context: any,
   initial?: boolean
 ) {
   return hydrateInternal(
     hydrators[type] as never,
-    initial ? { ...hydrators[type].initialHydration(), ...input } : input
+    initial ? { ...hydrators[type].initialHydration(), ...input } : input,
+    context
   ) as ExtractOutput<Hydrators[T]>;
 }

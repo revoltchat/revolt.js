@@ -27,7 +27,7 @@ export class UserCollection extends ClassCollection<User, HydratedUser> {
       return this.get(id)!;
     } else {
       const instance = new User(this, id);
-      this.create(id, "user", instance, data);
+      this.create(id, "user", instance, this.client, data);
       return instance;
     }
   }
@@ -41,7 +41,7 @@ export class UserCollection extends ClassCollection<User, HydratedUser> {
       return this.get(id)!;
     } else if (this.client.options.partials) {
       const instance = new User(this, id);
-      this.create(id, "user", instance, {
+      this.create(id, "user", instance, this.client, {
         id,
         partial: true,
       });

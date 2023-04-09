@@ -40,7 +40,7 @@ export class ChannelCollection extends ClassCollection<
       return this.get(id)!;
     } else {
       const instance = new Channel(this, id);
-      this.create(id, "channel", instance, data);
+      this.create(id, "channel", instance, this.client, data);
       isNew && this.client.emit("channelCreate", instance);
       return instance;
     }
@@ -55,7 +55,7 @@ export class ChannelCollection extends ClassCollection<
       return this.get(id)!;
     } else if (this.client.options.partials) {
       const instance = new Channel(this, id);
-      this.create(id, "channel", instance, {
+      this.create(id, "channel", instance, this.client, {
         id,
         partial: true,
       });

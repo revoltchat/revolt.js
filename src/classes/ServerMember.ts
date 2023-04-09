@@ -187,8 +187,7 @@ export class ServerMember {
    */
   get avatarURL() {
     return (
-      this.#collection.client.createFileURL(this.avatar, { max_side: 256 }) ??
-      this.user?.avatarURL
+      this.avatar?.createFileURL({ max_side: 256 }) ?? this.user?.avatarURL
     );
   }
 
@@ -197,11 +196,8 @@ export class ServerMember {
    */
   get animatedAvatarURL() {
     return (
-      this.#collection.client.createFileURL(
-        this.avatar,
-        { max_side: 256 },
-        true
-      ) ?? this.user?.animatedAvatarURL
+      this.avatar?.createFileURL({ max_side: 256 }, true) ??
+      this.user?.animatedAvatarURL
     );
   }
 }

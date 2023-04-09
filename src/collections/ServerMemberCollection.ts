@@ -52,7 +52,13 @@ export class ServerMemberCollection extends ClassCollection<
       return this.getByKey(id)!;
     } else {
       const instance = new ServerMember(this, id);
-      this.create(id.server + id.user, "serverMember", instance, data);
+      this.create(
+        id.server + id.user,
+        "serverMember",
+        instance,
+        this.client,
+        data
+      );
       return instance;
     }
   }
@@ -66,7 +72,7 @@ export class ServerMemberCollection extends ClassCollection<
       return this.getByKey(id)!;
     } else if (this.client.options.partials) {
       const instance = new ServerMember(this, id);
-      this.create(id.server + id.user, "serverMember", instance, {
+      this.create(id.server + id.user, "serverMember", instance, this.client, {
         id,
         partial: true,
       });
