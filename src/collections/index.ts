@@ -1,18 +1,4 @@
-import { Client } from "..";
-
-import { StoreCollection } from "./Collection";
-
-/**
- * Generic class collection backed by store
- */
-export class ClassCollection<T, V> extends StoreCollection<T, V> {
-  readonly client: Client;
-
-  constructor(client: Client) {
-    super();
-    this.client = client;
-  }
-}
+export * from "./Collection";
 
 export { ChannelCollection } from "./ChannelCollection";
 export { ChannelUnreadCollection } from "./ChannelUnreadCollection";

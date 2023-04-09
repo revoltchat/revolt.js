@@ -256,14 +256,35 @@ export class Channel {
     return this.lastMessageAt ?? this.createdAt;
   }
 
-  // TODO: lastMessage
-
+  /**
+   * Get whether this channel is unread.
+   */
   get unread() {
-    return false;
+    if (
+      !this.lastMessageId ||
+      this.type === "SavedMessages" ||
+      this.type === "VoiceChannel" ||
+      this.#collection.client.options.channelIsMuted(this)
+    )
+      return false;
+
+    return (
+      (
+        this.#collection.client.channelUnreads.get(this.id)?.lastMessageId ??
+        "0"
+      ).localeCompare(this.lastMessageId) === -1
+    );
   }
 
+  /**
+   * Get mentions in this channel for user.
+   */
   get mentions() {
-    return [];
+    if (this.type === "SavedMessages" || this.type === "VoiceChannel")
+      return undefined;
+
+    return this.#collection.client.channelUnreads.get(this.id)
+      ?.messageMentionIds;
   }
 
   /**
@@ -551,17 +572,30 @@ export class Channel {
    * @param skipRateLimiter Whether to skip the internal rate limiter
    */
   async ack(message?: Message | string, skipRateLimiter?: boolean) {
-    const id =
+    const lastMessageId =
       (typeof message === "string" ? message : message?.id) ??
       this.lastMessageId ??
       ulid();
 
+    const unreads = this.#collection.client.channelUnreads;
+    const channelUnread = unreads.get(this.id);
+    if (channelUnread) {
+      unreads.updateUnderlyingObject(this.id, {
+        lastMessageId,
+      });
+
+      if (channelUnread.messageMentionIds.size) {
+        channelUnread.messageMentionIds.clear();
+      }
+    }
+
     const performAck = () => {
       this.#ackLimit = undefined;
-      this.#collection.client.api.put(`/channels/${this.id}/ack/${id as ""}`);
+      this.#collection.client.api.put(
+        `/channels/${this.id}/ack/${lastMessageId as ""}`
+      );
     };
 
-    // TODO: !this.collection.client.options.ackRateLimiter
     if (skipRateLimiter) return performAck();
 
     clearTimeout(this.#ackTimeout);

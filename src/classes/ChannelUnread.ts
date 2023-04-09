@@ -28,6 +28,6 @@ export class ChannelUnread {
    * List of message IDs that we were mentioned in
    */
   get messageMentionIds() {
-    return this.#collection.getUnderlyingObject(this.id).lastMessageId;
+    return this.#collection.getUnderlyingObject(this.id).messageMentionIds;
   }
 }

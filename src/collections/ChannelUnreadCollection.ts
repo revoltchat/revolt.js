@@ -9,6 +9,24 @@ export class ChannelUnreadCollection extends ClassCollection<
   HydratedChannelUnread
 > {
   /**
+   * Load unread information from server
+   */
+  async sync() {
+    const unreads = await this.client.api.get("/sync/unreads");
+    this.reset();
+    for (const unread of unreads) {
+      this.getOrCreate(unread._id.channel, unread);
+    }
+  }
+
+  /**
+   * Clear all unread data
+   */
+  reset() {
+    this.updateUnderlyingObject({});
+  }
+
+  /**
    * Get or create
    * @param id Id
    * @param data Data

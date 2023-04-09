@@ -7,6 +7,7 @@ import type { DataLogin, RevoltConfig } from "revolt-api";
 import { Channel, Emoji, Message, Server, ServerMember, User } from "./classes";
 import {
   ChannelCollection,
+  ChannelUnreadCollection,
   EmojiCollection,
   MessageCollection,
   ServerCollection,
@@ -101,6 +102,12 @@ export type ClientOptions = Partial<EventClientOptions> & {
   partials: boolean;
 
   /**
+   * Whether to automatically sync unreads information
+   * @default false
+   */
+  syncUnreads: boolean;
+
+  /**
    * Whether to reconnect when disconnected
    * @default true
    */
@@ -112,7 +119,15 @@ export type ClientOptions = Partial<EventClientOptions> & {
    * @returns Delay in seconds
    * @default (2^x-1) ±20%
    */
-  retryDelayFunction: (retryCount: number) => number;
+  retryDelayFunction(retryCount: number): number;
+
+  /**
+   * Check whether a channel is muted
+   * @param channel Channel
+   * @return Whether it is muted
+   * @default false
+   */
+  channelIsMuted(channel: Channel): boolean;
 };
 
 /**
@@ -120,6 +135,7 @@ export type ClientOptions = Partial<EventClientOptions> & {
  */
 export class Client extends EventEmitter<Events> {
   readonly channels;
+  readonly channelUnreads;
   readonly emojis;
   readonly messages;
   readonly users;
@@ -150,6 +166,7 @@ export class Client extends EventEmitter<Events> {
     this.options = {
       baseURL: "https://api.revolt.chat",
       partials: false,
+      syncUnreads: false,
       autoReconnect: true,
       /**
        * Retry delay function
@@ -158,6 +175,14 @@ export class Client extends EventEmitter<Events> {
        */
       retryDelayFunction(retryCount) {
         return (Math.pow(2, retryCount) - 1) * (0.8 + Math.random() * 0.4);
+      },
+      /**
+       * Check whether a channel is muted
+       * @param channel Channel
+       * @return Whether it is muted
+       */
+      channelIsMuted() {
+        return false;
       },
       ...options,
     };
@@ -175,6 +200,7 @@ export class Client extends EventEmitter<Events> {
     this.#setConnectionFailureCount = setConnectionFailureCount;
 
     this.channels = new ChannelCollection(this);
+    this.channelUnreads = new ChannelUnreadCollection(this);
     this.emojis = new EmojiCollection(this);
     this.messages = new MessageCollection(this);
     this.users = new UserCollection(this);

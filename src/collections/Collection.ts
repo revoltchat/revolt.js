@@ -2,6 +2,7 @@ import { SetStoreFunction } from "solid-js/store";
 
 import { ReactiveMap } from "@solid-primitives/map";
 
+import { Client } from "..";
 import { Hydrators } from "../hydration";
 import { ObjectStorage } from "../storage/ObjectStorage";
 
@@ -175,5 +176,17 @@ export abstract class StoreCollection<T, V> extends Collection<T> {
    */
   forEach(cb: (value: T, key: string, map: ReactiveMap<string, T>) => void) {
     return this.#objects.forEach(cb);
+  }
+}
+
+/**
+ * Generic class collection backed by store
+ */
+export class ClassCollection<T, V> extends StoreCollection<T, V> {
+  readonly client: Client;
+
+  constructor(client: Client) {
+    super();
+    this.client = client;
   }
 }

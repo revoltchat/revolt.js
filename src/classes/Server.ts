@@ -235,12 +235,24 @@ export class Server {
       : [];
   }
 
+  /**
+   * Check whether the server is currently unread
+   * @returns Whether the server is unread
+   */
   get unread() {
-    return false;
+    return this.channels.find((channel) => channel.unread);
   }
 
+  /**
+   * Find all message IDs of unread messages
+   * @returns Array of message IDs which are unread
+   */
   get mentions() {
-    return [];
+    const arr = this.channels.map((channel) =>
+      Array.from(channel.mentions?.values() ?? [])
+    );
+
+    return ([] as string[]).concat(...arr);
   }
 
   /**

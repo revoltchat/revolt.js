@@ -233,8 +233,13 @@ export async function handleEvent(
         client.emojis.getOrCreate(emoji._id, emoji);
       }
 
+      if (client.options.syncUnreads) {
+        await client.channelUnreads.sync();
+      }
+
       setReady(true);
       client.emit("ready");
+
       break;
     }
     case "Message": {
