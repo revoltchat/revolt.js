@@ -57,7 +57,7 @@ export class File {
    * Direct URL to the file
    */
   get url() {
-    return `${this.#client.configuration?.features.autumn}/${this.tag}/${
+    return `${this.#client.configuration?.features.autumn.url}/${this.tag}/${
       this.id
     }/${this.filename}`;
   }
@@ -66,7 +66,7 @@ export class File {
    * Download URL for the file
    */
   get downloadURL() {
-    return `${this.#client.configuration?.features.autumn}/${
+    return `${this.#client.configuration?.features.autumn.url}/${
       this.tag
     }/download/${this.id}/${this.filename}`;
   }
@@ -82,6 +82,13 @@ export class File {
     }
 
     return `${this.size} B`;
+  }
+
+  /**
+   * Whether this file should be spoilered
+   */
+  get isSpoiler() {
+    return this.filename.toLowerCase().startsWith("spoiler_");
   }
 
   /**
