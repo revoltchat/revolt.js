@@ -16,6 +16,29 @@ export enum ConnectionState {
 }
 
 /**
+ * Event client options object
+ */
+export interface EventClientOptions {
+  /**
+   * Whether to log events
+   * @default false
+   */
+  debug: boolean;
+
+  /**
+   * Time in seconds between Ping packets sent to the server
+   * @default 30
+   */
+  heartbeatInterval: number;
+
+  /**
+   * Maximum time in seconds between Ping and corresponding Pong
+   * @default 10
+   */
+  pongTimeout: number;
+}
+
+/**
  * Events provided by the client.
  */
 type Events<T extends AvailableProtocols, P extends EventProtocol<T>> = {
@@ -30,10 +53,13 @@ type Events<T extends AvailableProtocols, P extends EventProtocol<T>> = {
 export class EventClient<T extends AvailableProtocols> extends EventEmitter<
   Events<T, EventProtocol<T>>
 > {
+  readonly options: EventClientOptions;
+
   #protocolVersion: T;
   #transportFormat: "json" | "msgpack";
-  #heartbeatInterval: number;
-  #pongTimeout: number;
+
+  readonly ping: Accessor<number>;
+  #setPing: Setter<number>;
 
   readonly state: Accessor<ConnectionState>;
   #setStateSetter: Setter<ConnectionState>;
@@ -46,25 +72,32 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
    * Create a new event client.
    * @param protocolVersion Target protocol version
    * @param transportFormat Communication format
-   * @param heartbeatInterval Interval in seconds to send ping
-   * @param pongTimeout Time in seconds until heartbeat times out
+   * @param options Configuration options
    */
   constructor(
     protocolVersion: T,
     transportFormat: "json" = "json",
-    heartbeatInterval = 30,
-    pongTimeout = 10
+    options?: EventClientOptions
   ) {
     super();
 
     this.#protocolVersion = protocolVersion;
     this.#transportFormat = transportFormat;
-    this.#heartbeatInterval = heartbeatInterval;
-    this.#pongTimeout = pongTimeout;
+
+    this.options = {
+      heartbeatInterval: 30,
+      pongTimeout: 10,
+      debug: false,
+      ...options,
+    };
 
     const [state, setState] = createSignal(ConnectionState.Idle);
     this.state = state;
     this.#setStateSetter = setState;
+
+    const [ping, setPing] = createSignal(-1);
+    this.ping = ping;
+    this.#setPing = setPing;
 
     this.disconnect = this.disconnect.bind(this);
   }
@@ -94,14 +127,13 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
     );
 
     this.#socket.onopen = () => {
-      this.#heartbeatIntervalReference = setInterval(
-        () =>
-          (this.#pongTimeoutReference = setTimeout(
-            this.disconnect,
-            this.#pongTimeout * 1e3
-          ) as never),
-        this.#heartbeatInterval & 1e3
-      ) as never;
+      this.#heartbeatIntervalReference = setInterval(() => {
+        this.send({ type: "Ping", data: +new Date() });
+        this.#pongTimeoutReference = setTimeout(
+          () => this.disconnect(),
+          this.options.pongTimeout * 1e3
+        ) as never;
+      }, this.options.heartbeatInterval * 1e3) as never;
     };
 
     this.#socket.onerror = (error) => {
@@ -120,8 +152,6 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
     this.#socket.onclose = () => {
       if (closed) return;
       closed = true;
-
-      clearInterval(this.#heartbeatIntervalReference);
       this.disconnect();
     };
   }
@@ -131,7 +161,8 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
    */
   disconnect() {
     if (!this.#socket) return;
-    let socket = this.#socket;
+    clearInterval(this.#heartbeatIntervalReference);
+    const socket = this.#socket;
     this.#socket = undefined;
     socket.close();
     this.setState(ConnectionState.Disconnected);
@@ -142,7 +173,9 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
    * @param event Event
    */
   send(event: EventProtocol<T>["client"]) {
-    console.info(event);
+    this.options.debug && console.info("[C->S]", event);
+    if (!this.#socket) throw "Socket closed, trying to send.";
+    this.#socket.send(JSON.stringify(event));
   }
 
   /**
@@ -150,6 +183,7 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
    * @param event Event
    */
   handle(event: EventProtocol<T>["server"]) {
+    this.options.debug && console.info("[S->C]", event);
     switch (event.type) {
       case "Ping":
         this.send({
@@ -159,6 +193,8 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
         return;
       case "Pong":
         clearTimeout(this.#pongTimeoutReference);
+        this.#setPing(+new Date() - event.data);
+        this.options.debug && console.info(`[ping] ${this.ping()}ms`);
         return;
       case "Error":
         this.emit("error", event as never);
@@ -174,7 +210,7 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
           this.emit("event", event);
           this.setState(ConnectionState.Connected);
         } else {
-          console.error("WE ARE IN WRONG STATE");
+          throw `Unreachable code. Received ${event.type} in Connecting state.`;
         }
         break;
       case ConnectionState.Connected:

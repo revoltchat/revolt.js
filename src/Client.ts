@@ -1,7 +1,7 @@
 import { Accessor, Setter, createSignal } from "solid-js";
 
 import EventEmitter from "eventemitter3";
-import { API, Metadata, RelationshipStatus, Role } from "revolt-api";
+import { API, Metadata, Role } from "revolt-api";
 import type { DataLogin, RevoltConfig } from "revolt-api";
 
 import { Channel, Emoji, Message, Server, ServerMember, User } from "./classes";
@@ -87,9 +87,16 @@ export interface ClientOptions {
   baseURL: string;
 
   /**
-   * Whether to allow partial objects to emit from events.
+   * Whether to allow partial objects to emit from events
+   * @default false
    */
   partials: boolean;
+
+  /**
+   * Whether to reconnect when disconnected
+   * @default true
+   */
+  autoReconnect: boolean;
 }
 
 /**
@@ -108,7 +115,7 @@ export class Client extends EventEmitter<Events> {
   readonly events: EventClient<1>;
 
   configuration: RevoltConfig | undefined;
-  session: Session | undefined;
+  #session: Session | undefined;
   user: User | undefined;
 
   readonly ready: Accessor<boolean>;
@@ -123,6 +130,7 @@ export class Client extends EventEmitter<Events> {
     this.options = {
       baseURL: "https://api.revolt.chat",
       partials: false,
+      autoReconnect: true,
       ...options,
     };
 
@@ -154,7 +162,9 @@ export class Client extends EventEmitter<Events> {
           break;
         case ConnectionState.Disconnected:
           this.emit("disconnected");
-          setTimeout(() => this.connect(), 10000);
+          if (this.options.autoReconnect) {
+            setTimeout(() => this.connect(), 500);
+          }
           break;
       }
     });
@@ -172,7 +182,7 @@ export class Client extends EventEmitter<Events> {
     this.#setReady(false);
     this.events.connect(
       "wss://ws.revolt.chat",
-      typeof this.session === "string" ? this.session : this.session!.token
+      typeof this.#session === "string" ? this.#session : this.#session!.token
     );
   }
 
@@ -192,7 +202,7 @@ export class Client extends EventEmitter<Events> {
     (this.api as API) = new API({
       baseURL: this.options.baseURL,
       authentication: {
-        revolt: this.session,
+        revolt: this.#session,
       },
     });
   }
@@ -206,7 +216,7 @@ export class Client extends EventEmitter<Events> {
     await this.#fetchConfiguration();
     const data = await this.api.post("/auth/session/login", details);
     if (data.result === "Success") {
-      this.session = data;
+      this.#session = data;
       // TODO: return await this.connect();
     } else {
       throw "MFA not implemented!";
@@ -220,7 +230,7 @@ export class Client extends EventEmitter<Events> {
    */
   async useExistingSession(session: Session) {
     await this.#fetchConfiguration();
-    this.session = session;
+    this.#session = session;
     this.#updateHeaders();
     this.connect();
   }
@@ -231,7 +241,7 @@ export class Client extends EventEmitter<Events> {
    */
   async loginBot(token: string) {
     await this.#fetchConfiguration();
-    this.session = token;
+    this.#session = token;
     this.#updateHeaders();
     this.connect();
   }

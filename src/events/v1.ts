@@ -201,7 +201,6 @@ export async function handleEvent(
   event: ServerMessage,
   setReady: Setter<boolean>
 ) {
-  console.info("[EVENT]", JSON.stringify(event).substring(0, 64));
   switch (event.type) {
     case "Bulk": {
       for (const item of event.v) {
@@ -252,7 +251,7 @@ export async function handleEvent(
         };
 
         client.messages.updateUnderlyingObject(event.id, {
-          ...(event.data as {}),
+          ...(event.data as object),
           editedAt: new Date(),
         });
 
@@ -760,20 +759,20 @@ export async function handleEvent(
       break;
     }
     case "Auth": {
-      if (typeof client.session === "string") throw "Unreachable code";
+      /*if (typeof client.#session === "string") throw "Unreachable code";
 
       switch (event.event_type) {
         case "DeleteSession":
-          if (event.session_id === client.session!._id) {
+          if (event.session_id === client.#session!._id) {
             // TODO: logout
           }
           break;
         case "DeleteAllSessions":
-          if (event.exclude_session_id !== client.session!._id) {
+          if (event.exclude_session_id !== client.#session!._id) {
             // TODO: logout
           }
           break;
-      }
+      }*/
       break;
     }
   }
