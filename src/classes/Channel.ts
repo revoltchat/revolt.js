@@ -32,6 +32,10 @@ export class Channel {
     this.id = id;
   }
 
+  toString() {
+    return `<#${this.id}>`;
+  }
+
   /**
    * Time when this server was created
    */
@@ -69,6 +73,17 @@ export class Channel {
    */
   get name() {
     return this.#collection.getUnderlyingObject(this.id).name;
+  }
+
+  /**
+   * Display name
+   */
+  get displayName() {
+    return this.type === "SavedMessages"
+      ? this.user?.username
+      : this.type === "DirectMessage"
+      ? this.recipient?.username
+      : this.name;
   }
 
   /**
@@ -216,6 +231,13 @@ export class Channel {
    */
   get lastMessageId() {
     return this.#collection.getUnderlyingObject(this.id).lastMessageId;
+  }
+
+  /**
+   * Last message sent in this channel
+   */
+  get lastMessage() {
+    return this.#collection.client.messages.get(this.lastMessageId!);
   }
 
   /**
