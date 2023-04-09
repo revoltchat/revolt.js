@@ -13,7 +13,12 @@ import {
   ServerMemberCollection,
   UserCollection,
 } from "./collections";
-import { ConnectionState, EventClient, handleEventV1 } from "./events";
+import {
+  ConnectionState,
+  EventClient,
+  EventClientOptions,
+  handleEventV1,
+} from "./events";
 import {
   HydratedChannel,
   HydratedEmoji,
@@ -82,7 +87,10 @@ type Events = {
 /**
  * Client options object
  */
-export interface ClientOptions {
+export type ClientOptions = Partial<EventClientOptions> & {
+  /**
+   * Base URL of the API server
+   */
   baseURL: string;
 
   /**
@@ -104,7 +112,7 @@ export interface ClientOptions {
    * @default (2^x-1) ±20%
    */
   retryDelayFunction: (retryCount: number) => number;
-}
+};
 
 /**
  * Revolt.js Clients
@@ -172,7 +180,7 @@ export class Client extends EventEmitter<Events> {
     this.servers = new ServerCollection(this);
     this.serverMembers = new ServerMemberCollection(this);
 
-    this.events = new EventClient(1);
+    this.events = new EventClient(1, "json", this.options);
     this.events.on("error", (error) => this.emit("error", error));
     this.events.on("state", (state) => {
       switch (state) {

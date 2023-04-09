@@ -77,7 +77,7 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
   constructor(
     protocolVersion: T,
     transportFormat: "json" = "json",
-    options?: EventClientOptions
+    options?: Partial<EventClientOptions>
   ) {
     super();
 
