@@ -1,7 +1,7 @@
 import { Accessor, Setter, createSignal } from "solid-js";
 
 import EventEmitter from "eventemitter3";
-import { API, Metadata, Role } from "revolt-api";
+import { API, DataCreateAccount, Metadata, Role } from "revolt-api";
 import type { DataLogin, RevoltConfig } from "revolt-api";
 
 import { Channel, Emoji, Message, Server, ServerMember, User } from "./classes";
@@ -27,6 +27,7 @@ import {
   HydratedServerMember,
   HydratedUser,
 } from "./hydration";
+import { RE_CHANNELS, RE_MENTIONS, RE_SPOILER } from "./lib/regex";
 
 export type Session = { _id: string; token: string; user_id: string } | string;
 
@@ -262,7 +263,7 @@ export class Client extends EventEmitter<Events> {
   }
 
   /**
-   * Use an existing session to log into Revolt.
+   * Use an existing session to log into Revolt
    * @param session Session data object
    * @returns An on-boarding function if on-boarding is required, undefined otherwise
    */
@@ -274,7 +275,7 @@ export class Client extends EventEmitter<Events> {
   }
 
   /**
-   * Log in as a bot.
+   * Log in as a bot
    * @param token Bot token
    */
   async loginBot(token: string) {
@@ -282,6 +283,43 @@ export class Client extends EventEmitter<Events> {
     this.#session = token;
     this.#updateHeaders();
     this.connect();
+  }
+
+  /**
+   * Register for a new account
+   * @param data Registration data object
+   * @returns A promise containing a registration response object
+   */
+  register(data: DataCreateAccount) {
+    return this.api.post("/auth/account/create", data);
+  }
+
+  /**
+   * Prepare a markdown-based message to be displayed to the user as plain text.
+   * @param source Source markdown text
+   * @returns Modified plain text
+   */
+  markdownToText(source: string) {
+    return source
+      .replace(RE_MENTIONS, (sub: string, id: string) => {
+        const user = this.users.get(id as string);
+
+        if (user) {
+          return `@${user.username}`;
+        }
+
+        return sub;
+      })
+      .replace(RE_CHANNELS, (sub: string, id: string) => {
+        const channel = this.channels.get(id as string);
+
+        if (channel) {
+          return `#${channel.displayName}`;
+        }
+
+        return sub;
+      })
+      .replace(RE_SPOILER, "<spoiler>");
   }
 
   /**
