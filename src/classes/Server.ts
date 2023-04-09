@@ -11,7 +11,7 @@ import { Channel } from "./Channel";
  * Server Class
  */
 export class Server {
-  readonly collection: ServerCollection;
+  readonly #collection: ServerCollection;
   readonly id: string;
 
   /**
@@ -20,7 +20,7 @@ export class Server {
    * @param id Id
    */
   constructor(collection: ServerCollection, id: string) {
-    this.collection = collection;
+    this.#collection = collection;
     this.id = id;
   }
 
@@ -35,15 +35,15 @@ export class Server {
    * Owner's user ID
    */
   get ownerId() {
-    return this.collection.getUnderlyingObject(this.id).ownerId;
+    return this.#collection.getUnderlyingObject(this.id).ownerId;
   }
 
   /**
    * Owner
    */
   get owner() {
-    return this.collection.client.users.get(
-      this.collection.getUnderlyingObject(this.id).ownerId
+    return this.#collection.client.users.get(
+      this.#collection.getUnderlyingObject(this.id).ownerId
     );
   }
 
@@ -51,43 +51,45 @@ export class Server {
    * Name
    */
   get name() {
-    return this.collection.getUnderlyingObject(this.id).name;
+    return this.#collection.getUnderlyingObject(this.id).name;
   }
 
   /**
    * Description
    */
   get description() {
-    return this.collection.getUnderlyingObject(this.id).description;
+    return this.#collection.getUnderlyingObject(this.id).description;
   }
 
   /**
    * Icon
    */
   get icon() {
-    return this.collection.getUnderlyingObject(this.id).icon;
+    return this.#collection.getUnderlyingObject(this.id).icon;
   }
 
   /**
    * Banner
    */
   get banner() {
-    return this.collection.getUnderlyingObject(this.id).banner;
+    return this.#collection.getUnderlyingObject(this.id).banner;
   }
 
   /**
    * Channel IDs
    */
   get channelIds() {
-    return this.collection.getUnderlyingObject(this.id).channelIds;
+    return this.#collection.getUnderlyingObject(this.id).channelIds;
   }
 
   /**
    * Channels
    */
   get channels() {
-    return [...this.collection.getUnderlyingObject(this.id).channelIds.values()]
-      .map((id) => this.collection.client.channels.get(id)!)
+    return [
+      ...this.#collection.getUnderlyingObject(this.id).channelIds.values(),
+    ]
+      .map((id) => this.#collection.client.channels.get(id)!)
       .filter((x) => x);
   }
 
@@ -95,56 +97,56 @@ export class Server {
    * Categories
    */
   get categories() {
-    return this.collection.getUnderlyingObject(this.id).categories;
+    return this.#collection.getUnderlyingObject(this.id).categories;
   }
 
   /**
    * System message channels
    */
   get systemMessages() {
-    return this.collection.getUnderlyingObject(this.id).systemMessages;
+    return this.#collection.getUnderlyingObject(this.id).systemMessages;
   }
 
   /**
    * Roles
    */
   get roles() {
-    return this.collection.getUnderlyingObject(this.id).roles;
+    return this.#collection.getUnderlyingObject(this.id).roles;
   }
 
   /**
    * Default permissions
    */
   get defaultPermissions() {
-    return this.collection.getUnderlyingObject(this.id).defaultPermissions;
+    return this.#collection.getUnderlyingObject(this.id).defaultPermissions;
   }
 
   /**
    * Server flags
    */
   get flags() {
-    return this.collection.getUnderlyingObject(this.id).flags;
+    return this.#collection.getUnderlyingObject(this.id).flags;
   }
 
   /**
    * Whether analytics are enabled for this server
    */
   get analytics() {
-    return this.collection.getUnderlyingObject(this.id).analytics;
+    return this.#collection.getUnderlyingObject(this.id).analytics;
   }
 
   /**
    * Whether this server is publicly discoverable
    */
   get discoverable() {
-    return this.collection.getUnderlyingObject(this.id).discoverable;
+    return this.#collection.getUnderlyingObject(this.id).discoverable;
   }
 
   /**
    * Whether this server is marked as mature
    */
   get mature() {
-    return this.collection.getUnderlyingObject(this.id).nsfw;
+    return this.#collection.getUnderlyingObject(this.id).nsfw;
   }
 
   /**
@@ -165,7 +167,7 @@ export class Server {
         const channels = [];
         for (const key of category.channels) {
           if (uncategorised.delete(key)) {
-            channels.push(this.collection.client.channels.get(key)!);
+            channels.push(this.#collection.client.channels.get(key)!);
           }
         }
 
@@ -186,7 +188,7 @@ export class Server {
 
     if (uncategorised.size > 0) {
       const channels = [...uncategorised].map(
-        (key) => this.collection.client.channels.get(key)!
+        (key) => this.#collection.client.channels.get(key)!
       );
 
       if (defaultCategory) {
@@ -237,14 +239,14 @@ export class Server {
    * URL to the server's icon
    */
   get iconURL() {
-    return this.collection.client.createFileURL(this.icon, { max_side: 256 });
+    return this.#collection.client.createFileURL(this.icon, { max_side: 256 });
   }
 
   /**
    * URL to the server's animated icon
    */
   get animatedIconURL() {
-    return this.collection.client.createFileURL(
+    return this.#collection.client.createFileURL(
       this.icon,
       { max_side: 256 },
       true
@@ -255,7 +257,7 @@ export class Server {
    * URL to the server's banner
    */
   get bannerURL() {
-    return this.collection.client.createFileURL(this.banner, {
+    return this.#collection.client.createFileURL(this.banner, {
       max_side: 256,
     });
   }
@@ -264,9 +266,9 @@ export class Server {
    * Own member object for this server
    */
   get member() {
-    return this.collection.client.serverMembers.getByKey({
+    return this.#collection.client.serverMembers.getByKey({
       server: this.id,
-      user: this.collection.client.user!.id,
+      user: this.#collection.client.user!.id,
     });
   }
 
@@ -274,7 +276,7 @@ export class Server {
    * Permission the currently authenticated user has against this server
    */
   get permission() {
-    return calculatePermission(this.collection.client, this);
+    return calculatePermission(this.#collection.client, this);
   }
 
   /**

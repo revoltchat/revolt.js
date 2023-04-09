@@ -1,5 +1,4 @@
 import type {
-  Channel as ApiChannel,
   Member as ApiMember,
   Message as ApiMessage,
   User as ApiUser,
@@ -20,7 +19,7 @@ import { Permission } from "../permissions/definitions";
  * Channel Class
  */
 export class Channel {
-  readonly collection: ChannelCollection;
+  readonly #collection: ChannelCollection;
   readonly id: string;
 
   /**
@@ -28,8 +27,8 @@ export class Channel {
    * @param collection Collection
    * @param id Channel Id
    */
-  constructor(collection: ChannelCollection, id: string, data?: ApiChannel) {
-    this.collection = collection;
+  constructor(collection: ChannelCollection, id: string) {
+    this.#collection = collection;
     this.id = id;
   }
 
@@ -44,7 +43,7 @@ export class Channel {
    * Channel type
    */
   get type() {
-    return this.collection.getUnderlyingObject(this.id).channelType;
+    return this.#collection.getUnderlyingObject(this.id).channelType;
   }
 
   /**
@@ -62,42 +61,42 @@ export class Channel {
    * URL to this channel
    */
   get url() {
-    return this.collection.client.configuration?.app + this.path;
+    return this.#collection.client.configuration?.app + this.path;
   }
 
   /**
    * Channel name
    */
   get name() {
-    return this.collection.getUnderlyingObject(this.id).name;
+    return this.#collection.getUnderlyingObject(this.id).name;
   }
 
   /**
    * Channel description
    */
   get description() {
-    return this.collection.getUnderlyingObject(this.id).description;
+    return this.#collection.getUnderlyingObject(this.id).description;
   }
 
   /**
    * Channel icon
    */
   get icon() {
-    return this.collection.getUnderlyingObject(this.id).icon;
+    return this.#collection.getUnderlyingObject(this.id).icon;
   }
 
   /**
    * Whether the conversation is active
    */
   get active() {
-    return this.collection.getUnderlyingObject(this.id).active;
+    return this.#collection.getUnderlyingObject(this.id).active;
   }
 
   /**
    * User ids of people currently typing in channel
    */
   get typingIds() {
-    return this.collection.getUnderlyingObject(this.id).recipientIds;
+    return this.#collection.getUnderlyingObject(this.id).recipientIds;
   }
 
   /**
@@ -105,15 +104,15 @@ export class Channel {
    */
   get typing() {
     return [
-      ...this.collection.getUnderlyingObject(this.id).typingIds.values(),
-    ].map((id) => this.collection.client.users.get(id)!);
+      ...this.#collection.getUnderlyingObject(this.id).typingIds.values(),
+    ].map((id) => this.#collection.client.users.get(id)!);
   }
 
   /**
    * User ids of recipients of the group
    */
   get recipientIds() {
-    return this.collection.getUnderlyingObject(this.id).recipientIds;
+    return this.#collection.getUnderlyingObject(this.id).recipientIds;
   }
 
   /**
@@ -121,8 +120,8 @@ export class Channel {
    */
   get recipients() {
     return [
-      ...this.collection.getUnderlyingObject(this.id).recipientIds.values(),
-    ].map((id) => this.collection.client.users.get(id)!);
+      ...this.#collection.getUnderlyingObject(this.id).recipientIds.values(),
+    ].map((id) => this.#collection.client.users.get(id)!);
   }
 
   /**
@@ -131,7 +130,7 @@ export class Channel {
   get recipient() {
     return this.type === "DirectMessage"
       ? this.recipients.find(
-          (user) => user.id !== this.collection.client.user!.id
+          (user) => user.id !== this.#collection.client.user!.id
         )
       : undefined;
   }
@@ -140,15 +139,15 @@ export class Channel {
    * User ID
    */
   get userId() {
-    return this.collection.getUnderlyingObject(this.id).userId!;
+    return this.#collection.getUnderlyingObject(this.id).userId!;
   }
 
   /**
    * User this channel belongs to
    */
   get user() {
-    return this.collection.client.users.get(
-      this.collection.getUnderlyingObject(this.id).userId!
+    return this.#collection.client.users.get(
+      this.#collection.getUnderlyingObject(this.id).userId!
     );
   }
 
@@ -156,15 +155,15 @@ export class Channel {
    * Owner ID
    */
   get ownerId() {
-    return this.collection.getUnderlyingObject(this.id).ownerId!;
+    return this.#collection.getUnderlyingObject(this.id).ownerId!;
   }
 
   /**
    * Owner of the group
    */
   get owner() {
-    return this.collection.client.users.get(
-      this.collection.getUnderlyingObject(this.id).ownerId!
+    return this.#collection.client.users.get(
+      this.#collection.getUnderlyingObject(this.id).ownerId!
     );
   }
 
@@ -172,15 +171,15 @@ export class Channel {
    * Server ID
    */
   get serverId() {
-    return this.collection.getUnderlyingObject(this.id).serverId!;
+    return this.#collection.getUnderlyingObject(this.id).serverId!;
   }
 
   /**
    * Server this channel is in
    */
   get server() {
-    return this.collection.client.servers.get(
-      this.collection.getUnderlyingObject(this.id).serverId!
+    return this.#collection.client.servers.get(
+      this.#collection.getUnderlyingObject(this.id).serverId!
     );
   }
 
@@ -188,35 +187,35 @@ export class Channel {
    * Permissions allowed for users in this group
    */
   get permissions() {
-    return this.collection.getUnderlyingObject(this.id).permissions;
+    return this.#collection.getUnderlyingObject(this.id).permissions;
   }
 
   /**
    * Default permissions for this server channel
    */
   get defaultPermissions() {
-    return this.collection.getUnderlyingObject(this.id).defaultPermissions;
+    return this.#collection.getUnderlyingObject(this.id).defaultPermissions;
   }
 
   /**
    * Role permissions for this server channel
    */
   get rolePermissions() {
-    return this.collection.getUnderlyingObject(this.id).rolePermissions;
+    return this.#collection.getUnderlyingObject(this.id).rolePermissions;
   }
 
   /**
    * Whether this channel is marked as mature
    */
   get mature() {
-    return this.collection.getUnderlyingObject(this.id).nsfw;
+    return this.#collection.getUnderlyingObject(this.id).nsfw;
   }
 
   /**
    * ID of the last message sent in this channel
    */
   get lastMessageId() {
-    return this.collection.getUnderlyingObject(this.id).lastMessageId;
+    return this.#collection.getUnderlyingObject(this.id).lastMessageId;
   }
 
   /**
@@ -249,7 +248,7 @@ export class Channel {
    * URL to the channel icon
    */
   get iconURL() {
-    return this.collection.client.createFileURL(
+    return this.#collection.client.createFileURL(
       this.icon ?? this.recipient?.avatar,
       {
         max_side: 256,
@@ -261,7 +260,7 @@ export class Channel {
    * URL to a small variant of the channel icon
    */
   get smallIconURL() {
-    return this.collection.client.createFileURL(
+    return this.#collection.client.createFileURL(
       this.icon ?? this.recipient?.avatar,
       {
         max_side: 64,
@@ -273,7 +272,7 @@ export class Channel {
    * URL to the animated channel icon
    */
   get animatedIconURL() {
-    return this.collection.client.createFileURL(
+    return this.#collection.client.createFileURL(
       this.icon ?? this.recipient?.avatar,
       { max_side: 256 },
       true
@@ -284,7 +283,7 @@ export class Channel {
    * Permission the currently authenticated user has against this channel
    */
   get permission() {
-    return calculatePermission(this.collection.client, this);
+    return calculatePermission(this.#collection.client, this);
   }
 
   /**
@@ -305,12 +304,12 @@ export class Channel {
    * @returns An array of the channel's members.
    */
   async fetchMembers() {
-    const members = await this.collection.client.api.get(
+    const members = await this.#collection.client.api.get(
       `/channels/${this.id as ""}/members`
     );
 
     return members.map((user) =>
-      this.collection.client.users.getOrCreate(user._id, user)
+      this.#collection.client.users.getOrCreate(user._id, user)
     );
   }
 
@@ -319,7 +318,7 @@ export class Channel {
    * @param data Edit data
    */
   async edit(data: DataEditChannel) {
-    await this.collection.client.api.patch(`/channels/${this.id as ""}`, data);
+    await this.#collection.client.api.patch(`/channels/${this.id as ""}`, data);
   }
 
   /**
@@ -330,16 +329,16 @@ export class Channel {
    */
   async delete(leave_silently?: boolean, noRequest?: boolean) {
     if (!noRequest)
-      await this.collection.client.api.delete(`/channels/${this.id as ""}`, {
+      await this.#collection.client.api.delete(`/channels/${this.id as ""}`, {
         leave_silently,
       });
 
     if (this.type === "DirectMessage") {
-      this.collection.updateUnderlyingObject(this.id, "active", false);
+      this.#collection.updateUnderlyingObject(this.id, "active", false);
       return;
     }
 
-    this.collection.client.channels.delete(this.id);
+    this.#collection.client.channels.delete(this.id);
   }
 
   /**
@@ -347,7 +346,7 @@ export class Channel {
    * @param user_id ID of the target user
    */
   async addMember(user_id: string) {
-    return await this.collection.client.api.put(
+    return await this.#collection.client.api.put(
       `/channels/${this.id as ""}/recipients/${user_id as ""}`
     );
   }
@@ -357,7 +356,7 @@ export class Channel {
    * @param user_id ID of the target user
    */
   async removeMember(user_id: string) {
-    return await this.collection.client.api.delete(
+    return await this.#collection.client.api.delete(
       `/channels/${this.id as ""}/recipients/${user_id as ""}`
     );
   }
@@ -373,7 +372,7 @@ export class Channel {
     const msg: DataMessageSend =
       typeof data === "string" ? { content: data } : data;
 
-    const message = await this.collection.client.api.post(
+    const message = await this.#collection.client.api.post(
       `/channels/${this.id as ""}/messages`,
       msg,
       {
@@ -383,7 +382,7 @@ export class Channel {
       }
     );
 
-    return this.collection.client.messages.getOrCreate(
+    return this.#collection.client.messages.getOrCreate(
       message._id,
       message,
       true
@@ -396,11 +395,11 @@ export class Channel {
    * @returns The message
    */
   async fetchMessage(messageId: string) {
-    const message = await this.collection.client.api.get(
+    const message = await this.#collection.client.api.get(
       `/channels/${this.id as ""}/messages/${messageId as ""}`
     );
 
-    return this.collection.client.messages.getOrCreate(message._id, message);
+    return this.#collection.client.messages.getOrCreate(message._id, message);
   }
 
   /**
@@ -417,13 +416,13 @@ export class Channel {
       "include_users"
     >
   ) {
-    const messages = (await this.collection.client.api.get(
+    const messages = (await this.#collection.client.api.get(
       `/channels/${this.id as ""}/messages`,
       { ...params }
     )) as ApiMessage[];
 
     return messages.map((message) =>
-      this.collection.client.messages.getOrCreate(message._id, message)
+      this.#collection.client.messages.getOrCreate(message._id, message)
     );
   }
 
@@ -441,20 +440,20 @@ export class Channel {
       "include_users"
     >
   ) {
-    const data = (await this.collection.client.api.get(
+    const data = (await this.#collection.client.api.get(
       `/channels/${this.id as ""}/messages`,
       { ...params, include_users: true }
     )) as { messages: ApiMessage[]; users: ApiUser[]; members?: ApiMember[] };
 
     return {
       messages: data.messages.map((message) =>
-        this.collection.client.messages.getOrCreate(message._id, message)
+        this.#collection.client.messages.getOrCreate(message._id, message)
       ),
       users: data.users.map((user) =>
-        this.collection.client.users.getOrCreate(user._id, user)
+        this.#collection.client.users.getOrCreate(user._id, user)
       ),
       members: data.members?.map((member) =>
-        this.collection.client.serverMembers.getOrCreate(member._id, member)
+        this.#collection.client.serverMembers.getOrCreate(member._id, member)
       ),
     };
   }
@@ -465,13 +464,13 @@ export class Channel {
    * @returns The messages
    */
   async search(params: Omit<OptionsMessageSearch, "include_users">) {
-    const messages = (await this.collection.client.api.post(
+    const messages = (await this.#collection.client.api.post(
       `/channels/${this.id as ""}/search`,
       params
     )) as ApiMessage[];
 
     return messages.map((message) =>
-      this.collection.client.messages.getOrCreate(message._id, message)
+      this.#collection.client.messages.getOrCreate(message._id, message)
     );
   }
 
@@ -481,7 +480,7 @@ export class Channel {
    * @returns The messages
    */
   async searchWithUsers(params: Omit<OptionsMessageSearch, "include_users">) {
-    const data = (await this.collection.client.api.post(
+    const data = (await this.#collection.client.api.post(
       `/channels/${this.id as ""}/search`,
       {
         ...params,
@@ -491,19 +490,19 @@ export class Channel {
 
     return {
       messages: data.messages.map((message) =>
-        this.collection.client.messages.getOrCreate(message._id, message)
+        this.#collection.client.messages.getOrCreate(message._id, message)
       ),
       users: data.users.map((user) =>
-        this.collection.client.users.getOrCreate(user._id, user)
+        this.#collection.client.users.getOrCreate(user._id, user)
       ),
       members: data.members?.map((member) =>
-        this.collection.client.serverMembers.getOrCreate(member._id, member)
+        this.#collection.client.serverMembers.getOrCreate(member._id, member)
       ),
     };
   }
 
   async deleteMessages(ids: string[]) {
-    await this.collection.client.api.delete(
+    await this.#collection.client.api.delete(
       `/channels/${this.id as ""}/messages/bulk`,
       {
         data: { ids },
@@ -516,7 +515,7 @@ export class Channel {
    * @returns Newly created invite code
    */
   async createInvite() {
-    return await this.collection.client.api.post(
+    return await this.#collection.client.api.post(
       `/channels/${this.id as ""}/invites`
     );
   }
@@ -537,7 +536,7 @@ export class Channel {
 
     const performAck = () => {
       this.#ackLimit = undefined;
-      this.collection.client.api.put(`/channels/${this.id}/ack/${id as ""}`);
+      this.#collection.client.api.put(`/channels/${this.id}/ack/${id as ""}`);
     };
 
     // TODO: !this.collection.client.options.ackRateLimiter
@@ -562,7 +561,7 @@ export class Channel {
    * @param permissions Permission value
    */
   async setPermissions(role_id = "default", permissions: Override) {
-    return await this.collection.client.api.put(
+    return await this.#collection.client.api.put(
       `/channels/${this.id as ""}/permissions/${role_id as ""}`,
       { permissions }
     );
@@ -572,7 +571,7 @@ export class Channel {
    * Start typing in this channel
    */
   startTyping() {
-    this.collection.client.events.send({
+    this.#collection.client.events.send({
       type: "BeginTyping",
       channel: this.id,
     });
@@ -582,6 +581,9 @@ export class Channel {
    * Stop typing in this channel
    */
   stopTyping() {
-    this.collection.client.events.send({ type: "EndTyping", channel: this.id });
+    this.#collection.client.events.send({
+      type: "EndTyping",
+      channel: this.id,
+    });
   }
 }

@@ -7,7 +7,7 @@ import { MessageCollection } from "../collections";
  * Message Class
  */
 export class Message {
-  readonly collection: MessageCollection;
+  readonly #collection: MessageCollection;
   readonly id: string;
 
   /**
@@ -16,7 +16,7 @@ export class Message {
    * @param id Message Id
    */
   constructor(collection: MessageCollection, id: string) {
-    this.collection = collection;
+    this.#collection = collection;
     this.id = id;
   }
 
@@ -38,29 +38,29 @@ export class Message {
    * URL to this message
    */
   get url() {
-    return this.collection.client.configuration?.app + this.path;
+    return this.#collection.client.configuration?.app + this.path;
   }
 
   /**
    * Nonce value
    */
   get nonce() {
-    return this.collection.getUnderlyingObject(this.id).nonce;
+    return this.#collection.getUnderlyingObject(this.id).nonce;
   }
 
   /**
    * Id of channel this message was sent in
    */
   get channelId() {
-    return this.collection.getUnderlyingObject(this.id).channelId;
+    return this.#collection.getUnderlyingObject(this.id).channelId;
   }
 
   /**
    * Channel this message was sent in
    */
   get channel() {
-    return this.collection.client.channels.get(
-      this.collection.getUnderlyingObject(this.id).channelId
+    return this.#collection.client.channels.get(
+      this.#collection.getUnderlyingObject(this.id).channelId
     );
   }
 
@@ -75,7 +75,7 @@ export class Message {
    * Member this message was sent by
    */
   get member() {
-    return this.collection.client.serverMembers.getByKey({
+    return this.#collection.client.serverMembers.getByKey({
       server: this.channel!.serverId,
       user: this.authorId!,
     });
@@ -85,15 +85,15 @@ export class Message {
    * Id of user this message was sent by
    */
   get authorId() {
-    return this.collection.getUnderlyingObject(this.id).authorId;
+    return this.#collection.getUnderlyingObject(this.id).authorId;
   }
 
   /**
    * User this message was sent by
    */
   get author() {
-    return this.collection.client.users.get(
-      this.collection.getUnderlyingObject(this.id).authorId!
+    return this.#collection.client.users.get(
+      this.#collection.getUnderlyingObject(this.id).authorId!
     );
   }
 
@@ -101,70 +101,70 @@ export class Message {
    * Content
    */
   get content() {
-    return this.collection.getUnderlyingObject(this.id).content;
+    return this.#collection.getUnderlyingObject(this.id).content;
   }
 
   /**
    * System message content
    */
   get systemMessage() {
-    return this.collection.getUnderlyingObject(this.id).systemMessage;
+    return this.#collection.getUnderlyingObject(this.id).systemMessage;
   }
 
   /**
    * Attachments
    */
   get attachments() {
-    return this.collection.getUnderlyingObject(this.id).attachments;
+    return this.#collection.getUnderlyingObject(this.id).attachments;
   }
 
   /**
    * Time at which this message was edited
    */
   get editedAt() {
-    return this.collection.getUnderlyingObject(this.id).editedAt;
+    return this.#collection.getUnderlyingObject(this.id).editedAt;
   }
 
   /**
    * Embeds
    */
   get embeds() {
-    return this.collection.getUnderlyingObject(this.id).embeds;
+    return this.#collection.getUnderlyingObject(this.id).embeds;
   }
 
   /**
    * IDs of users this message mentions
    */
   get mentionIds() {
-    return this.collection.getUnderlyingObject(this.id).mentionIds;
+    return this.#collection.getUnderlyingObject(this.id).mentionIds;
   }
 
   /**
    * IDs of messages this message replies to
    */
   get replyIds() {
-    return this.collection.getUnderlyingObject(this.id).replyIds;
+    return this.#collection.getUnderlyingObject(this.id).replyIds;
   }
 
   /**
    * Reactions
    */
   get reactions() {
-    return this.collection.getUnderlyingObject(this.id).reactions;
+    return this.#collection.getUnderlyingObject(this.id).reactions;
   }
 
   /**
    * Interactions
    */
   get interactions() {
-    return this.collection.getUnderlyingObject(this.id).interactions;
+    return this.#collection.getUnderlyingObject(this.id).interactions;
   }
 
   /**
    * Masquerade
    */
   get masquerade() {
-    return this.collection.getUnderlyingObject(this.id).masquerade;
+    return this.#collection.getUnderlyingObject(this.id).masquerade;
   }
 
   /**
@@ -211,7 +211,7 @@ export class Message {
    */
   get masqueradeAvatarURL() {
     const avatar = this.masquerade?.avatar;
-    return avatar ? this.collection.client.proxyFile(avatar) : undefined;
+    return avatar ? this.#collection.client.proxyFile(avatar) : undefined;
   }
 
   /**
@@ -222,7 +222,7 @@ export class Message {
     if (!system) return { type: "none" };
 
     const { type } = system;
-    const get = (id: string) => this.collection.client.users.get(id);
+    const get = (id: string) => this.#collection.client.users.get(id);
     switch (system.type) {
       case "text":
         return system;
@@ -254,7 +254,7 @@ export class Message {
    * @param data Message edit route data
    */
   async edit(data: DataEditMessage) {
-    return await this.collection.client.api.patch(
+    return await this.#collection.client.api.patch(
       `/channels/${this.channelId as ""}/messages/${this.id as ""}`,
       data
     );
@@ -264,7 +264,7 @@ export class Message {
    * Delete a message
    */
   async delete() {
-    return await this.collection.client.api.delete(
+    return await this.#collection.client.api.delete(
       `/channels/${this.channelId as ""}/messages/${this.id as ""}`
     );
   }
@@ -298,7 +298,7 @@ export class Message {
    * Clear all reactions from this message
    */
   async clearReactions() {
-    return await this.collection.client.api.delete(
+    return await this.#collection.client.api.delete(
       `/channels/${this.channelId as ""}/messages/${this.id as ""}/reactions`
     );
   }
@@ -308,7 +308,7 @@ export class Message {
    * @param emoji Unicode or emoji ID
    */
   async react(emoji: string) {
-    return await this.collection.client.api.put(
+    return await this.#collection.client.api.put(
       `/channels/${this.channelId as ""}/messages/${this.id as ""}/reactions/${
         emoji as ""
       }`
@@ -320,7 +320,7 @@ export class Message {
    * @param emoji Unicode or emoji ID
    */
   async unreact(emoji: string) {
-    return await this.collection.client.api.delete(
+    return await this.#collection.client.api.delete(
       `/channels/${this.channelId as ""}/messages/${this.id as ""}/reactions/${
         emoji as ""
       }`

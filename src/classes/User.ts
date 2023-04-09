@@ -7,7 +7,7 @@ import { U32_MAX, UserPermission } from "../permissions/definitions";
  * User Class
  */
 export class User {
-  readonly collection: UserCollection;
+  readonly #collection: UserCollection;
   readonly id: string;
 
   /**
@@ -16,7 +16,7 @@ export class User {
    * @param id Id
    */
   constructor(collection: UserCollection, id: string) {
-    this.collection = collection;
+    this.#collection = collection;
     this.id = id;
   }
 
@@ -31,70 +31,72 @@ export class User {
    * Username
    */
   get username() {
-    return this.collection.getUnderlyingObject(this.id).username;
+    return this.#collection.getUnderlyingObject(this.id).username;
   }
 
   /**
    * Avatar
    */
   get avatar() {
-    return this.collection.getUnderlyingObject(this.id).avatar;
+    return this.#collection.getUnderlyingObject(this.id).avatar;
   }
 
   /**
    * Badges
    */
   get badges() {
-    return this.collection.getUnderlyingObject(this.id).badges;
+    return this.#collection.getUnderlyingObject(this.id).badges;
   }
 
   /**
    * User Status
    */
   get status() {
-    return this.collection.getUnderlyingObject(this.id).status;
+    return this.#collection.getUnderlyingObject(this.id).status;
   }
 
   /**
    * Relationship with user
    */
   get relationship() {
-    return this.collection.getUnderlyingObject(this.id).relationship;
+    return this.#collection.getUnderlyingObject(this.id).relationship;
   }
 
   /**
    * Whether the user is online
    */
   get online() {
-    return this.collection.getUnderlyingObject(this.id).online;
+    return this.#collection.getUnderlyingObject(this.id).online;
   }
 
   /**
    * Whether the user is privileged
    */
   get privileged() {
-    return this.collection.getUnderlyingObject(this.id).privileged;
+    return this.#collection.getUnderlyingObject(this.id).privileged;
   }
 
   /**
    * Flags
    */
   get flags() {
-    return this.collection.getUnderlyingObject(this.id).flags;
+    return this.#collection.getUnderlyingObject(this.id).flags;
   }
 
   /**
    * Bot information
    */
   get bot() {
-    return this.collection.getUnderlyingObject(this.id).bot;
+    return this.#collection.getUnderlyingObject(this.id).bot;
   }
 
   /**
    * URL to the user's default avatar
    */
   get defaultAvatarURL() {
-    return `${this.collection.client.baseURL}/users/${this.id}/default_avatar`;
+    return `${this.#collection.client.options.baseURL}/users/${
+      this.id
+    }/default_avatar`;
   }
 
   /**
@@ -102,7 +104,7 @@ export class User {
    */
   get avatarURL() {
     return (
-      this.collection.client.createFileURL(this.avatar, { max_side: 256 }) ??
+      this.#collection.client.createFileURL(this.avatar, { max_side: 256 }) ??
       this.defaultAvatarURL
     );
   }
@@ -112,7 +114,7 @@ export class User {
    */
   get animatedAvatarURL() {
     return (
-      this.collection.client.createFileURL(
+      this.#collection.client.createFileURL(
         this.avatar,
         { max_side: 256 },
         true
@@ -138,18 +140,18 @@ export class User {
     }
 
     if (
-      this.collection.client.channels
+      this.#collection.client.channels
         .toList()
         .find(
           (channel) =>
             (channel.type === "Group" || channel.type === "DirectMessage") &&
-            channel.recipientIds?.includes(this.collection.client.user!.id)
+            channel.recipientIds.has(this.#collection.client.user!.id)
         ) ||
-      this.collection.client.serverMembers
+      this.#collection.client.serverMembers
         .toList()
-        .find((member) => member.id.user === this.collection.client.user!.id)
+        .find((member) => member.id.user === this.#collection.client.user!.id)
     ) {
-      if (this.collection.client.user?.bot || this.bot) {
+      if (this.#collection.client.user?.bot || this.bot) {
         permissions |= UserPermission.SendMessage;
       }
 

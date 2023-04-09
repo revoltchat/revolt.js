@@ -20,7 +20,7 @@ function key(key: MemberCompositeKey) {
  * Server Member Class
  */
 export class ServerMember {
-  readonly collection: ServerMemberCollection;
+  readonly #collection: ServerMemberCollection;
   readonly id: MemberCompositeKey;
 
   /**
@@ -29,7 +29,7 @@ export class ServerMember {
    * @param id Id
    */
   constructor(collection: ServerMemberCollection, id: MemberCompositeKey) {
-    this.collection = collection;
+    this.#collection = collection;
     this.id = id;
   }
 
@@ -37,49 +37,49 @@ export class ServerMember {
    * Server this member belongs to
    */
   get server() {
-    return this.collection.client.servers.get(this.id.server);
+    return this.#collection.client.servers.get(this.id.server);
   }
 
   /**
    * User corresponding to this member
    */
   get user() {
-    return this.collection.client.users.get(this.id.user);
+    return this.#collection.client.users.get(this.id.user);
   }
 
   /**
    * When this user joined the server
    */
   get joinedAt() {
-    return this.collection.getUnderlyingObject(key(this.id)).joinedAt;
+    return this.#collection.getUnderlyingObject(key(this.id)).joinedAt;
   }
 
   /**
    * Nickname
    */
   get nickname() {
-    return this.collection.getUnderlyingObject(key(this.id)).nickname;
+    return this.#collection.getUnderlyingObject(key(this.id)).nickname;
   }
 
   /**
    * Avatar
    */
   get avatar() {
-    return this.collection.getUnderlyingObject(key(this.id)).avatar;
+    return this.#collection.getUnderlyingObject(key(this.id)).avatar;
   }
 
   /**
    * List of role IDs
    */
   get roles() {
-    return this.collection.getUnderlyingObject(key(this.id)).roles;
+    return this.#collection.getUnderlyingObject(key(this.id)).roles;
   }
 
   /**
    * Time at which timeout expires
    */
   get timeout() {
-    return this.collection.getUnderlyingObject(key(this.id)).timeout;
+    return this.#collection.getUnderlyingObject(key(this.id)).timeout;
   }
 
   /**
@@ -144,7 +144,7 @@ export class ServerMember {
    * @returns Permissions that this member has
    */
   getPermissions(target: Server | Channel) {
-    return calculatePermission(this.collection.client, target, {
+    return calculatePermission(this.#collection.client, target, {
       member: this,
     });
   }
@@ -179,7 +179,7 @@ export class ServerMember {
    */
   get avatarURL() {
     return (
-      this.collection.client.createFileURL(this.avatar, { max_side: 256 }) ??
+      this.#collection.client.createFileURL(this.avatar, { max_side: 256 }) ??
       this.user?.avatarURL
     );
   }
@@ -189,7 +189,7 @@ export class ServerMember {
    */
   get animatedAvatarURL() {
     return (
-      this.collection.client.createFileURL(
+      this.#collection.client.createFileURL(
         this.avatar,
         { max_side: 256 },
         true

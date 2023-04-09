@@ -1,4 +1,3 @@
-import type { Emoji as ApiEmoji } from "revolt-api";
 import { decodeTime } from "ulid";
 
 import { EmojiCollection } from "../collections";
@@ -7,7 +6,7 @@ import { EmojiCollection } from "../collections";
  * Emoji Class
  */
 export class Emoji {
-  readonly collection: EmojiCollection;
+  readonly #collection: EmojiCollection;
   readonly id: string;
 
   /**
@@ -15,8 +14,8 @@ export class Emoji {
    * @param collection Collection
    * @param id Emoji Id
    */
-  constructor(collection: EmojiCollection, id: string, data?: ApiEmoji) {
-    this.collection = collection;
+  constructor(collection: EmojiCollection, id: string) {
+    this.#collection = collection;
     this.id = id;
   }
 
@@ -31,15 +30,15 @@ export class Emoji {
    * Information about the parent of this emoji
    */
   get parent() {
-    return this.collection.getUnderlyingObject(this.id).parent;
+    return this.#collection.getUnderlyingObject(this.id).parent;
   }
 
   /**
    * Creator of the emoji
    */
   get creator() {
-    return this.collection.client.users.get(
-      this.collection.getUnderlyingObject(this.id).creatorId
+    return this.#collection.client.users.get(
+      this.#collection.getUnderlyingObject(this.id).creatorId
     );
   }
 
@@ -47,20 +46,20 @@ export class Emoji {
    * Name
    */
   get name() {
-    return this.collection.getUnderlyingObject(this.id).name;
+    return this.#collection.getUnderlyingObject(this.id).name;
   }
 
   /**
    * Whether the emoji is animated
    */
   get animated() {
-    return this.collection.getUnderlyingObject(this.id).animated;
+    return this.#collection.getUnderlyingObject(this.id).animated;
   }
 
   /**
    * Whether the emoji is marked as mature
    */
   get mature() {
-    return this.collection.getUnderlyingObject(this.id).nsfw;
+    return this.#collection.getUnderlyingObject(this.id).nsfw;
   }
 }
