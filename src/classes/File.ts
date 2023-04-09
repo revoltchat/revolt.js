@@ -39,7 +39,7 @@ export class File {
   readonly size: number;
 
   /**
-   * Construct file
+   * Construct File
    * @param client Client
    * @param file File
    */

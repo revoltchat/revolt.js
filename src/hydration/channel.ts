@@ -56,7 +56,7 @@ export const channelHydration: Hydrate<Merge<ApiChannel>, HydratedChannel> = {
     serverId: (channel) => channel.server,
     permissions: (channel) => channel.permissions!,
     defaultPermissions: (channel) => channel.default_permissions!,
-    rolePermissions: (channel) => channel.role_permissions ?? {},
+    rolePermissions: (channel) => channel.role_permissions,
     nsfw: (channel) => channel.nsfw || false,
     lastMessageId: (channel) => channel.last_message_id!,
   },
