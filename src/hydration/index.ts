@@ -50,6 +50,7 @@ function hydrateInternal<Input extends object, Output>(
       targetKey = hydration.keyMapping[key] ?? key;
       value = hydration.functions[targetKey as keyof Output](input);
     } catch (err) {
+      if (key === "type") return acc;
       console.debug(`Skipping key ${String(key)} during hydration!`);
       return acc;
     }
