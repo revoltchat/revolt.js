@@ -97,6 +97,18 @@ export abstract class Collection<T> {
 
     return list;
   }
+
+  /**
+   * Find some value based on a predicate
+   * @param predicate Predicate to satisfy
+   */
+  find(predicate: (value: T, key: string) => boolean): T | undefined {
+    for (const [key, value] of this.entries()) {
+      if (predicate(value, key)) {
+        return value;
+      }
+    }
+  }
 }
 
 /**
