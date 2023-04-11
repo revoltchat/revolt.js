@@ -1,4 +1,4 @@
-import { API, Channel } from "..";
+import { API, Channel, User } from "..";
 import { HydratedChannel } from "../hydration";
 
 import { ClassCollection } from ".";
@@ -61,5 +61,20 @@ export class ChannelCollection extends ClassCollection<
       });
       return instance;
     }
+  }
+
+  /**
+   * Create a group
+   * @param name Group name
+   * @param users Users to add
+   * @returns The newly-created group
+   */
+  async createGroup(name: string, users: (User | string)[]) {
+    const group = await this.client.api.post(`/channels/create`, {
+      name,
+      users: users.map((user) => (user instanceof User ? user.id : user)),
+    });
+
+    return this.getOrCreate(group._id, group, true);
   }
 }

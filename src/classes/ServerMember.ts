@@ -1,4 +1,9 @@
-import type { MemberCompositeKey } from "revolt-api";
+import type {
+  DataBanCreate,
+  DataEditMessage,
+  DataMemberEdit,
+  MemberCompositeKey,
+} from "revolt-api";
 
 import { ServerMemberCollection } from "../collections";
 import { bitwiseAndEq, calculatePermission } from "../permissions/calculator";
@@ -199,5 +204,31 @@ export class ServerMember {
       this.avatar?.createFileURL({ max_side: 256 }, true) ??
       this.user?.animatedAvatarURL
     );
+  }
+
+  /**
+   * Edit a member
+   * @param data Changes
+   */
+  async edit(data: DataMemberEdit) {
+    await this.#collection.client.api.patch(
+      `/servers/${this.id.server as ""}/members/${this.id.user as ""}`,
+      data
+    );
+  }
+
+  /**
+   * Ban this member from the server
+   * @param options Ban options
+   */
+  async ban(options: DataBanCreate) {
+    this.server?.banUser(this, options);
+  }
+
+  /**
+   * Kick this member from the server
+   */
+  async kick() {
+    this.server?.kickUser(this);
   }
 }

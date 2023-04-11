@@ -1,3 +1,4 @@
+import { DataEditUser } from "revolt-api";
 import { decodeTime } from "ulid";
 
 import { UserCollection } from "../collections";
@@ -163,5 +164,110 @@ export class User {
     }
 
     return permissions;
+  }
+
+  /**
+   * Edit the user
+   * @param data Changes
+   */
+  async edit(data: DataEditUser) {
+    await this.#collection.client.api.patch(
+      `/users/${
+        this.id === this.#collection.client.user?.id ? "@me" : this.id
+      }`,
+      data
+    );
+  }
+
+  /**
+   * Change the username of the current user
+   * @param username New username
+   * @param password Current password
+   */
+  async changeUsername(username: string, password: string) {
+    return await this.#collection.client.api.patch("/users/@me/username", {
+      username,
+      password,
+    });
+  }
+
+  /**
+   * Open a DM with a user
+   * @returns DM Channel
+   */
+  async openDM() {
+    let dm = [...this.#collection.client.channels.values()].find(
+      (x) => x.type === "DirectMessage" && x.recipient == this
+    );
+
+    if (dm) {
+      if (!dm.active) {
+        this.#collection.client.channels.updateUnderlyingObject(
+          dm.id,
+          "active",
+          true
+        );
+      }
+    } else {
+      const data = await this.#collection.client.api.get(
+        `/users/${this.id as ""}/dm`
+      );
+
+      dm = this.#collection.client.channels.getOrCreate(data._id, data)!;
+    }
+
+    return dm;
+  }
+
+  /**
+   * Send a friend request to a user
+   */
+  async addFriend() {
+    const user = await this.#collection.client.api.post(`/users/friend`, {
+      username: this.username,
+    });
+
+    return this.#collection.getOrCreate(user._id, user);
+  }
+
+  /**
+   * Remove a user from the friend list
+   */
+  async removeFriend() {
+    await this.#collection.client.api.delete(`/users/${this.id as ""}/friend`);
+  }
+
+  /**
+   * Block a user
+   */
+  async blockUser() {
+    await this.#collection.client.api.put(`/users/${this.id as ""}/block`);
+  }
+
+  /**
+   * Unblock a user
+   */
+  async unblockUser() {
+    await this.#collection.client.api.delete(`/users/${this.id as ""}/block`);
+  }
+
+  /**
+   * Fetch the profile of a user
+   * @returns The profile of the user
+   */
+  async fetchProfile() {
+    return await this.#collection.client.api.get(
+      `/users/${this.id as ""}/profile`
+    );
+  }
+
+  /**
+   * Fetch the mutual connections of the current user and a target user
+   * @returns The mutual connections of the current user and a target user
+   */
+  async fetchMutual() {
+    return await this.#collection.client.api.get(
+      `/users/${this.id as ""}/mutual`
+    );
   }
 }

@@ -1,6 +1,14 @@
-import type { Category } from "revolt-api";
+import type {
+  Category,
+  DataBanCreate,
+  DataCreateChannel,
+  DataEditRole,
+  DataEditServer,
+  Override,
+} from "revolt-api";
 import { decodeTime } from "ulid";
 
+import { ServerMember, User } from "..";
 import { ServerCollection } from "../collections";
 import { bitwiseAndEq, calculatePermission } from "../permissions/calculator";
 import { Permission } from "../permissions/definitions";
@@ -302,6 +310,251 @@ export class Server {
     return bitwiseAndEq(
       this.permission,
       ...permission.map((x) => Permission[x])
+    );
+  }
+
+  /**
+   * Create a channel
+   * @param data Channel create route data
+   * @returns The newly-created channel
+   */
+  async createChannel(data: DataCreateChannel) {
+    let channel = await this.#collection.client.api.post(
+      `/servers/${this.id as ""}/channels`,
+      data
+    );
+
+    return this.#collection.client.channels.getOrCreate(channel._id, channel);
+  }
+
+  /**
+   * Edit a server
+   * @param data Changes
+   */
+  async edit(data: DataEditServer) {
+    await this.#collection.client.api.patch(`/servers/${this.id as ""}`, data);
+  }
+
+  /**
+   * Delete or leave a server
+   * @param leaveSilently Whether to not send a message on leave
+   * @param noRequest Whether to not send a request
+   */
+  async delete(leaveSilently?: boolean, avoidReq?: boolean) {
+    if (!avoidReq)
+      await this.#collection.client.api.delete(`/servers/${this.id as ""}`, {
+        leave_silently: leaveSilently,
+      });
+
+    this.#collection.delete(this.id);
+  }
+
+  /**
+   * Mark a server as read
+   */
+  async ack() {
+    await this.#collection.client.api.put(`/servers/${this.id}/ack`);
+  }
+
+  /**
+   * Ban user from this server
+   * @param user User
+   * @param options Ban options
+   */
+  async banUser(user: string | User | ServerMember, options?: DataBanCreate) {
+    const userId =
+      user instanceof User
+        ? user.id
+        : user instanceof ServerMember
+        ? user.id.user
+        : user;
+
+    return await this.#collection.client.api.put(
+      `/servers/${this.id as ""}/bans/${userId}`,
+      options
+    );
+  }
+
+  /**
+   * Kick user from this server
+   * @param user User
+   */
+  async kickUser(user: string | User | ServerMember) {
+    const userId =
+      user instanceof User
+        ? user.id
+        : user instanceof ServerMember
+        ? user.id.user
+        : user;
+
+    return await this.#collection.client.api.delete(
+      `/servers/${this.id as ""}/members/${userId}`
+    );
+  }
+
+  /**
+   * Pardon user's ban
+   * @param user User
+   */
+  async unbanUser(user: string | User) {
+    const userId = user instanceof User ? user.id : user;
+    return await this.#collection.client.api.delete(
+      `/servers/${this.id as ""}/bans/${userId}`
+    );
+  }
+
+  /**
+   * Fetch a server's invites
+   * @returns An array of the server's invites
+   */
+  async fetchInvites() {
+    return await this.#collection.client.api.get(
+      `/servers/${this.id as ""}/invites`
+    );
+  }
+
+  /**
+   * Fetch a server's bans
+   * @returns An array of the server's bans.
+   */
+  async fetchBans() {
+    return await this.#collection.client.api.get(
+      `/servers/${this.id as ""}/bans`
+    );
+  }
+
+  /**
+   * Set role permissions
+   * @param roleId Role Id, set to 'default' to affect all users
+   * @param permissions Permission value
+   */
+  async setPermissions(roleId = "default", permissions: Override | number) {
+    return await this.#collection.client.api.put(
+      `/servers/${this.id as ""}/permissions/${roleId as ""}`,
+      { permissions: permissions as Override }
+    );
+  }
+
+  /**
+   * Create role
+   * @param name Role name
+   */
+  async createRole(name: string) {
+    return await this.#collection.client.api.post(
+      `/servers/${this.id as ""}/roles`,
+      {
+        name,
+      }
+    );
+  }
+
+  /**
+   * Edit a role
+   * @param roleId Role ID
+   * @param data Role editing route data
+   */
+  async editRole(roleId: string, data: DataEditRole) {
+    return await this.#collection.client.api.patch(
+      `/servers/${this.id as ""}/roles/${roleId as ""}`,
+      data
+    );
+  }
+
+  /**
+   * Delete role
+   * @param roleId Role ID
+   */
+  async deleteRole(roleId: string) {
+    return await this.#collection.client.api.delete(
+      `/servers/${this.id as ""}/roles/${roleId as ""}`
+    );
+  }
+
+  /**
+   * Fetch a server member
+   * @param user User
+   * @returns Server member object
+   */
+  async fetchMember(user: User | string) {
+    const userId = typeof user === "string" ? user : user.id;
+    const existing = this.#collection.client.serverMembers.getByKey({
+      server: this.id,
+      user: userId,
+    });
+
+    if (existing) return existing;
+
+    const member = await this.#collection.client.api.get(
+      `/servers/${this.id as ""}/members/${userId as ""}`
+    );
+
+    return this.#collection.client.serverMembers.getOrCreate(
+      member._id,
+      member
+    );
+  }
+
+  /**
+   * Optimised member fetch route
+   * @param excludeOffline
+   */
+  async syncMembers(excludeOffline?: boolean) {
+    const data = await this.#collection.client.api.get(
+      `/servers/${this.id as ""}/members`,
+      { exclude_offline: excludeOffline }
+    );
+
+    if (excludeOffline) {
+      for (let i = 0; i < data.users.length; i++) {
+        const user = data.users[i];
+        if (user.online) {
+          this.#collection.client.users.getOrCreate(user._id, user);
+          this.#collection.client.serverMembers.getOrCreate(
+            data.members[i]._id,
+            data.members[i]
+          );
+        }
+      }
+    } else {
+      for (let i = 0; i < data.users.length; i++) {
+        this.#collection.client.users.getOrCreate(
+          data.users[i]._id,
+          data.users[i]
+        );
+        this.#collection.client.serverMembers.getOrCreate(
+          data.members[i]._id,
+          data.members[i]
+        );
+      }
+    }
+  }
+
+  /**
+   * Fetch a server's members
+   * @returns List of the server's members and their user objects
+   */
+  async fetchMembers() {
+    const data = await this.#collection.client.api.get(
+      `/servers/${this.id as ""}/members`
+    );
+
+    return {
+      members: data.members.map((member) =>
+        this.#collection.client.serverMembers.getOrCreate(member._id, member)
+      ),
+      users: data.users.map((user) =>
+        this.#collection.client.users.getOrCreate(user._id, user)
+      ),
+    };
+  }
+
+  /**
+   * Fetch a server's emoji
+   * @returns List of server emoji
+   */
+  async fetchEmojis() {
+    return await this.#collection.client.api.get(
+      `/servers/${this.id as ""}/emojis`
     );
   }
 }

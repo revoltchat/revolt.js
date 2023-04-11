@@ -1,3 +1,5 @@
+import { DataCreateServer } from "revolt-api";
+
 import { API, Server } from "..";
 import { HydratedServer } from "../hydration";
 
@@ -48,5 +50,23 @@ export class ServerCollection extends ClassCollection<Server, HydratedServer> {
       });
       return instance;
     }
+  }
+
+  /**
+   * Create a server
+   * @param data Server options
+   * @returns The newly-created server
+   */
+  async createServer(data: DataCreateServer) {
+    const { server, channels } = await this.client.api.post(
+      `/servers/create`,
+      data
+    );
+
+    for (const channel of channels) {
+      this.client.channels.getOrCreate(channel._id, channel);
+    }
+
+    return this.getOrCreate(server._id, server, true);
   }
 }

@@ -349,22 +349,22 @@ export class Channel {
 
   /**
    * Edit a channel
-   * @param data Edit data
+   * @param data Changes
    */
   async edit(data: DataEditChannel) {
     await this.#collection.client.api.patch(`/channels/${this.id as ""}`, data);
   }
 
   /**
-   * Delete a channel
-   * @param leave_silently Whether to not send a message on leave
+   * Delete or leave a channel
+   * @param leaveSilently Whether to not send a message on leave
    * @param noRequest Whether to not send a request
-   * @requires `DM`, `Group`, `TextChannel`, `VoiceChannel`
+   * @requires `DirectMessage`, `Group`, `TextChannel`, `VoiceChannel`
    */
-  async delete(leave_silently?: boolean, noRequest?: boolean) {
+  async delete(leaveSilently?: boolean, noRequest?: boolean) {
     if (!noRequest)
       await this.#collection.client.api.delete(`/channels/${this.id as ""}`, {
-        leave_silently,
+        leave_silently: leaveSilently,
       });
 
     if (this.type === "DirectMessage") {
@@ -378,6 +378,7 @@ export class Channel {
   /**
    * Add a user to a group
    * @param user_id ID of the target user
+   * @requires `Group`
    */
   async addMember(user_id: string) {
     return await this.#collection.client.api.put(
@@ -388,16 +389,19 @@ export class Channel {
   /**
    * Remove a user from a group
    * @param user_id ID of the target user
+   * @requires `Group`
    */
   async removeMember(user_id: string) {
     return await this.#collection.client.api.delete(
       `/channels/${this.id as ""}/recipients/${user_id as ""}`
     );
   }
+
   /**
    * Send a message
    * @param data Either the message as a string or message sending route data
-   * @returns The message
+   * @requires `SavedMessages`, `DirectMessage`, `Group`, `TextChannel`
+   * @returns Sent message
    */
   async sendMessage(
     data: string | DataMessageSend,
@@ -426,7 +430,8 @@ export class Channel {
   /**
    * Fetch a message by its ID
    * @param messageId ID of the target message
-   * @returns The message
+   * @requires `SavedMessages`, `DirectMessage`, `Group`, `TextChannel`
+   * @returns Message
    */
   async fetchMessage(messageId: string) {
     const message = await this.#collection.client.api.get(
@@ -439,7 +444,8 @@ export class Channel {
   /**
    * Fetch multiple messages from a channel
    * @param params Message fetching route data
-   * @returns The messages
+   * @requires `SavedMessages`, `DirectMessage`, `Group`, `TextChannel`
+   * @returns Messages
    */
   async fetchMessages(
     params?: Omit<
@@ -463,6 +469,7 @@ export class Channel {
   /**
    * Fetch multiple messages from a channel including the users that sent them
    * @param params Message fetching route data
+   * @requires `SavedMessages`, `DirectMessage`, `Group`, `TextChannel`
    * @returns Object including messages and users
    */
   async fetchMessagesWithUsers(
@@ -495,7 +502,8 @@ export class Channel {
   /**
    * Search for messages
    * @param params Message searching route data
-   * @returns The messages
+   * @requires `SavedMessages`, `DirectMessage`, `Group`, `TextChannel`
+   * @returns Messages
    */
   async search(params: Omit<OptionsMessageSearch, "include_users">) {
     const messages = (await this.#collection.client.api.post(
@@ -511,7 +519,8 @@ export class Channel {
   /**
    * Search for messages including the users that sent them
    * @param params Message searching route data
-   * @returns The messages
+   * @requires `SavedMessages`, `DirectMessage`, `Group`, `TextChannel`
+   * @returns Object including messages and users
    */
   async searchWithUsers(params: Omit<OptionsMessageSearch, "include_users">) {
     const data = (await this.#collection.client.api.post(
@@ -535,17 +544,23 @@ export class Channel {
     };
   }
 
+  /**
+   * Delete many messages by their IDs
+   * @param ids List of message IDs
+   * @requires `SavedMessages`, `DirectMessage`, `Group`, `TextChannel`
+   */
   async deleteMessages(ids: string[]) {
     await this.#collection.client.api.delete(
       `/channels/${this.id as ""}/messages/bulk`,
       {
-        data: { ids },
+        ids,
       }
     );
   }
 
   /**
    * Create an invite to the channel
+   * @requires `TextChannel`, `VoiceChannel`
    * @returns Newly created invite code
    */
   async createInvite() {
@@ -561,6 +576,7 @@ export class Channel {
    * Mark a channel as read
    * @param message Last read message or its ID
    * @param skipRateLimiter Whether to skip the internal rate limiter
+   * @requires `SavedMessages`, `DirectMessage`, `Group`, `TextChannel`
    */
   async ack(message?: Message | string, skipRateLimiter?: boolean) {
     const lastMessageId =
@@ -606,6 +622,7 @@ export class Channel {
    * Set role permissions
    * @param role_id Role Id, set to 'default' to affect all users
    * @param permissions Permission value
+   * @requires `Group`, `TextChannel`, `VoiceChannel`
    */
   async setPermissions(role_id = "default", permissions: Override) {
     return await this.#collection.client.api.put(
@@ -616,6 +633,7 @@ export class Channel {
 
   /**
    * Start typing in this channel
+   * @requires `DirectMessage`, `Group`, `TextChannel`
    */
   startTyping() {
     this.#collection.client.events.send({
@@ -626,6 +644,7 @@ export class Channel {
 
   /**
    * Stop typing in this channel
+   * @requires `DirectMessage`, `Group`, `TextChannel`
    */
   stopTyping() {
     this.#collection.client.events.send({
