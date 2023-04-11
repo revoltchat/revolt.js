@@ -145,16 +145,14 @@ export class User {
     }
 
     if (
-      this.#collection.client.channels
-        .toList()
-        .find(
-          (channel) =>
-            (channel.type === "Group" || channel.type === "DirectMessage") &&
-            channel.recipientIds.has(this.#collection.client.user!.id)
-        ) ||
-      this.#collection.client.serverMembers
-        .toList()
-        .find((member) => member.id.user === this.#collection.client.user!.id)
+      this.#collection.client.channels.find(
+        (channel) =>
+          (channel.type === "Group" || channel.type === "DirectMessage") &&
+          channel.recipientIds.has(this.id)
+      ) ||
+      this.#collection.client.serverMembers.find(
+        (member) => member.id.user === this.id
+      )
     ) {
       if (this.#collection.client.user?.bot || this.bot) {
         permissions |= UserPermission.SendMessage;
