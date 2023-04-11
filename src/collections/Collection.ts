@@ -55,6 +55,14 @@ export abstract class Collection<T> {
   abstract entries(): IterableIterator<[string, T]>;
 
   /**
+   * Execute a provided function over each key, value pair in the map
+   * @param cb Callback for each pair
+   */
+  abstract forEach(
+    cb: (value: T, key: string, map: ReactiveMap<string, T>) => void
+  ): void;
+
+  /**
    * List of values in the map
    * @returns List
    */
@@ -63,12 +71,32 @@ export abstract class Collection<T> {
   }
 
   /**
-   * Execute a provided function over each key, value pair in the map
-   * @param cb Callback for each pair
+   * Filter the collection by a given predicate
+   * @param predicate Predicate to satisfy
    */
-  abstract forEach(
-    cb: (value: T, key: string, map: ReactiveMap<string, T>) => void
-  ): void;
+  filter(predicate: (value: T, key: string) => boolean): T[] {
+    const list: T[] = [];
+    for (const [key, value] of this.entries()) {
+      if (predicate(value, key)) {
+        list.push(value);
+      }
+    }
+
+    return list;
+  }
+
+  /**
+   * Map the collection using a given callback
+   * @param cb Callback
+   */
+  map<O>(cb: (value: T, key: string) => O): O[] {
+    const list: O[] = [];
+    for (const [key, value] of this.entries()) {
+      list.push(cb(value, key));
+    }
+
+    return list;
+  }
 }
 
 /**
