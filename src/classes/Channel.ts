@@ -118,9 +118,9 @@ export class Channel {
    * Users currently trying in channel
    */
   get typing() {
-    return [
-      ...this.#collection.getUnderlyingObject(this.id).typingIds.values(),
-    ].map((id) => this.#collection.client.users.get(id)!);
+    return [...this.typingIds.values()].map(
+      (id) => this.#collection.client.users.get(id)!
+    );
   }
 
   /**
