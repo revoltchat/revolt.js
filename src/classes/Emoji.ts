@@ -70,4 +70,17 @@ export class Emoji {
   get mature() {
     return this.#collection.getUnderlyingObject(this.id).nsfw;
   }
+
+  /**
+   * Delete Emoji
+   */
+  async delete() {
+    await this.#collection.client.api.delete(`/custom/emoji/${this.id}`);
+
+    const emoji = this.#collection.getUnderlyingObject(this.id);
+    if (emoji) {
+      this.#collection.client.emit("emojiDelete", emoji);
+      this.#collection.delete(this.id);
+    }
+  }
 }
