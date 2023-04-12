@@ -42,7 +42,7 @@ export function calculatePermission(
 
   if (target instanceof Server) {
     // 1. Check if owner.
-    if (target.owner === user?.id) {
+    if (target.ownerId === user?.id) {
       return Permission.GrantAllSafe;
     } else {
       // 2. Get ServerMember.
