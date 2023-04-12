@@ -8,6 +8,8 @@ import { ClassCollection } from ".";
 export class ServerCollection extends ClassCollection<Server, HydratedServer> {
   /**
    * Fetch server by ID
+   *
+   * This will not fetch channels!
    * @param id Id
    * @returns Server
    */

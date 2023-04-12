@@ -2,6 +2,7 @@ import type {
   Category,
   DataBanCreate,
   DataCreateChannel,
+  DataCreateEmoji,
   DataEditRole,
   DataEditServer,
   Override,
@@ -14,6 +15,8 @@ import { bitwiseAndEq, calculatePermission } from "../permissions/calculator";
 import { Permission } from "../permissions/definitions";
 
 import { Channel } from "./Channel";
+import { ChannelInvite } from "./Invite";
+import { ServerBan } from "./ServerBan";
 
 /**
  * Server Class
@@ -359,7 +362,10 @@ export class Server {
    * @param user User
    * @param options Ban options
    */
-  async banUser(user: string | User | ServerMember, options?: DataBanCreate) {
+  async banUser(
+    user: string | User | ServerMember,
+    options: DataBanCreate = {}
+  ) {
     const userId =
       user instanceof User
         ? user.id
@@ -367,10 +373,12 @@ export class Server {
         ? user.id.user
         : user;
 
-    return await this.#collection.client.api.put(
-      `/servers/${this.id as ""}/bans/${userId}`,
+    const ban = await this.#collection.client.api.put(
+      `/servers/${this.id as ""}/bans/${userId as ""}`,
       options
     );
+
+    return new ServerBan(this.#collection.client, ban);
   }
 
   /**
@@ -406,8 +414,12 @@ export class Server {
    * @returns An array of the server's invites
    */
   async fetchInvites() {
-    return await this.#collection.client.api.get(
+    const invites = await this.#collection.client.api.get(
       `/servers/${this.id as ""}/invites`
+    );
+
+    return invites.map((invite) =>
+      ChannelInvite.from(this.#collection.client, invite)
     );
   }
 
@@ -416,9 +428,15 @@ export class Server {
    * @returns An array of the server's bans.
    */
   async fetchBans() {
-    return await this.#collection.client.api.get(
+    const { users, bans } = await this.#collection.client.api.get(
       `/servers/${this.id as ""}/bans`
     );
+
+    users.forEach((user) =>
+      this.#collection.client.users.getOrCreate(user._id, user)
+    );
+
+    return bans.map((ban) => new ServerBan(this.#collection.client, ban));
   }
 
   /**
@@ -547,12 +565,39 @@ export class Server {
   }
 
   /**
+   * Create an emoji on the server
+   * @param autumnId Autumn Id
+   * @param options Options
+   */
+  async createEmoji(
+    autumnId: string,
+    options: Omit<DataCreateEmoji, "parent">
+  ) {
+    const emoji = await this.#collection.client.api.put(
+      `/custom/emoji/${autumnId as ""}`,
+      {
+        parent: {
+          type: "Server",
+          id: this.id,
+        },
+        ...options,
+      }
+    );
+
+    return this.#collection.client.emojis.getOrCreate(emoji._id, emoji, true);
+  }
+
+  /**
    * Fetch a server's emoji
    * @returns List of server emoji
    */
   async fetchEmojis() {
-    return await this.#collection.client.api.get(
+    const emojis = await this.#collection.client.api.get(
       `/servers/${this.id as ""}/emojis`
+    );
+
+    return emojis.map((emoji) =>
+      this.#collection.client.emojis.getOrCreate(emoji._id, emoji)
     );
   }
 }
