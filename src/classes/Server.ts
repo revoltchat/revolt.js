@@ -338,13 +338,11 @@ export class Server {
   /**
    * Delete or leave a server
    * @param leaveSilently Whether to not send a message on leave
-   * @param noRequest Whether to not send a request
    */
-  async delete(leaveSilently?: boolean, avoidReq?: boolean) {
-    if (!avoidReq)
-      await this.#collection.client.api.delete(`/servers/${this.id as ""}`, {
-        leave_silently: leaveSilently,
-      });
+  async delete(leaveSilently?: boolean) {
+    await this.#collection.client.api.delete(`/servers/${this.id as ""}`, {
+      leave_silently: leaveSilently,
+    });
 
     this.#collection.delete(this.id);
   }

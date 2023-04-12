@@ -1,3 +1,4 @@
+import { botHydration } from "./bot";
 import { channelHydration } from "./channel";
 import { channelUnreadHydration } from "./channelUnread";
 import { emojiHydration } from "./emoji";
@@ -66,6 +67,7 @@ function hydrateInternal<Input extends object, Output>(
 }
 
 const hydrators = {
+  bot: botHydration,
   channel: channelHydration,
   channelUnread: channelUnreadHydration,
   emoji: emojiHydration,

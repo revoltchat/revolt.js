@@ -358,21 +358,19 @@ export class Channel {
   /**
    * Delete or leave a channel
    * @param leaveSilently Whether to not send a message on leave
-   * @param noRequest Whether to not send a request
    * @requires `DirectMessage`, `Group`, `TextChannel`, `VoiceChannel`
    */
-  async delete(leaveSilently?: boolean, noRequest?: boolean) {
-    if (!noRequest)
-      await this.#collection.client.api.delete(`/channels/${this.id as ""}`, {
-        leave_silently: leaveSilently,
-      });
+  async delete(leaveSilently?: boolean) {
+    await this.#collection.client.api.delete(`/channels/${this.id as ""}`, {
+      leave_silently: leaveSilently,
+    });
 
     if (this.type === "DirectMessage") {
       this.#collection.updateUnderlyingObject(this.id, "active", false);
       return;
     }
 
-    this.#collection.client.channels.delete(this.id);
+    this.#collection.delete(this.id);
   }
 
   /**

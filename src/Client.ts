@@ -6,6 +6,7 @@ import type { DataLogin, RevoltConfig } from "revolt-api";
 
 import { Channel, Emoji, Message, Server, ServerMember, User } from "./classes";
 import {
+  BotCollection,
   ChannelCollection,
   ChannelUnreadCollection,
   EmojiCollection,
@@ -134,13 +135,14 @@ export type ClientOptions = Partial<EventClientOptions> & {
  * Revolt.js Clients
  */
 export class Client extends EventEmitter<Events> {
+  readonly bots;
   readonly channels;
   readonly channelUnreads;
   readonly emojis;
   readonly messages;
-  readonly users;
   readonly servers;
   readonly serverMembers;
+  readonly users;
 
   readonly api: API;
   readonly options: ClientOptions;
@@ -199,6 +201,7 @@ export class Client extends EventEmitter<Events> {
     this.connectionFailureCount = connectionFailureCount;
     this.#setConnectionFailureCount = setConnectionFailureCount;
 
+    this.bots = new BotCollection(this);
     this.channels = new ChannelCollection(this);
     this.channelUnreads = new ChannelUnreadCollection(this);
     this.emojis = new EmojiCollection(this);

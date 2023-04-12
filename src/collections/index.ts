@@ -1,5 +1,6 @@
 export * from "./Collection";
 
+export { BotCollection } from "./BotCollection";
 export { ChannelCollection } from "./ChannelCollection";
 export { ChannelUnreadCollection } from "./ChannelUnreadCollection";
 export { EmojiCollection } from "./EmojiCollection";

@@ -32,13 +32,13 @@ export const userHydration: Hydrate<ApiUser, HydratedUser> = {
   functions: {
     id: (user) => user._id,
     username: (user) => user.username,
-    relationship: (user) => user.relationship ?? "None",
+    relationship: (user) => user.relationship!,
 
     online: (user) => user.online!,
     privileged: (user) => user.privileged,
 
-    badges: (user) => user.badges ?? 0,
-    flags: (user) => user.flags ?? 0,
+    badges: (user) => user.badges!,
+    flags: (user) => user.flags!,
 
     avatar: (user, ctx) => new File(ctx, user.avatar!),
     status: (user) => user.status!,
