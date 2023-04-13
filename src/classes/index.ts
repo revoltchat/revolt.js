@@ -11,4 +11,5 @@ export * from "./PublicInvite";
 export * from "./Server";
 export * from "./ServerBan";
 export * from "./ServerMember";
+export * from "./SystemMessage";
 export * from "./User";

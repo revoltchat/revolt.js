@@ -215,48 +215,6 @@ export class Message {
   }
 
   /**
-   * Populated system message
-   */
-  get populatedSystemMessage() {
-    const system = this.systemMessage;
-    if (!system) return { type: "none" };
-
-    const { type } = system;
-
-    /**
-     * Get user by their id
-     * @param id Id
-     * @returns User
-     */
-    const get = (id: string) => this.#collection.client.users.get(id);
-
-    switch (system.type) {
-      case "text":
-        return system;
-      case "user_added":
-        return { type, user: get(system.id), by: get(system.by) };
-      case "user_remove":
-        return { type, user: get(system.id), by: get(system.by) };
-      case "user_joined":
-        return { type, user: get(system.id) };
-      case "user_left":
-        return { type, user: get(system.id) };
-      case "user_kicked":
-        return { type, user: get(system.id) };
-      case "user_banned":
-        return { type, user: get(system.id) };
-      case "channel_renamed":
-        return { type, name: system.name, by: get(system.by) };
-      case "channel_description_changed":
-        return { type, by: get(system.by) };
-      case "channel_icon_changed":
-        return { type, by: get(system.by) };
-      case "channel_ownership_changed":
-        return { type, from: get(system.from), to: get(system.to) };
-    }
-  }
-
-  /**
    * Edit a message
    * @param data Message edit route data
    */
