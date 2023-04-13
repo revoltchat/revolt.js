@@ -32,7 +32,7 @@ export class ServerMemberCollection extends ClassCollection<
    * @returns Message
    */
   async fetch(serverId: string, userId: string): Promise<ServerMember> {
-    const member = this.get(userId);
+    const member = this.get(serverId + userId);
     if (member) return member;
 
     const data = await this.client.api.get(
