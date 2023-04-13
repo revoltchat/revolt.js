@@ -103,6 +103,13 @@ export type ClientOptions = Partial<EventClientOptions> & {
   partials: boolean;
 
   /**
+   * Whether to eagerly fetch users and members for incoming events
+   * @default true
+   * @deprecated
+   */
+  eagerFetching: boolean;
+
+  /**
    * Whether to automatically sync unreads information
    * @default false
    */
@@ -168,6 +175,7 @@ export class Client extends EventEmitter<Events> {
     this.options = {
       baseURL: "https://api.revolt.chat",
       partials: false,
+      eagerFetching: true,
       syncUnreads: false,
       autoReconnect: true,
       /**

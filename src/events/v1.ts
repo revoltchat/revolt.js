@@ -244,6 +244,14 @@ export async function handleEvent(
     }
     case "Message": {
       if (!client.messages.has(event._id)) {
+        // TODO: this should not be necessary in future protocols:
+        if (event.author && client.options.eagerFetching) {
+          await client.users.fetch(event.author);
+          let serverId = client.channels.get(event.channel)?.serverId;
+          if (serverId)
+            await client.serverMembers.fetch(serverId, event.author);
+        }
+
         client.messages.getOrCreate(event._id, event, true);
       }
       break;
