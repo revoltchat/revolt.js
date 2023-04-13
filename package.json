@@ -1,6 +1,6 @@
 {
   "name": "revolt.js",
-  "version": "7.0.0-beta.0",
+  "version": "7.0.0-beta.1",
   "main": "lib/cjs/index.js",
   "module": "src/index.ts",
   "types": "src/index.ts",
