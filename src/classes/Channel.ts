@@ -111,7 +111,7 @@ export class Channel {
    * User ids of people currently typing in channel
    */
   get typingIds() {
-    return this.#collection.getUnderlyingObject(this.id).recipientIds;
+    return this.#collection.getUnderlyingObject(this.id).typingIds;
   }
 
   /**
