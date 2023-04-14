@@ -3,6 +3,9 @@ import { HydratedUser } from "../hydration";
 
 import { ClassCollection } from ".";
 
+/**
+ * Collection of Users
+ */
 export class UserCollection extends ClassCollection<User, HydratedUser> {
   /**
    * Fetch user by ID

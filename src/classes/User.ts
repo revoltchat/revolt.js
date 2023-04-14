@@ -22,8 +22,8 @@ export class User {
   }
 
   /**
-   * Convert to string
-   * @returns String
+   * Write to string as a user mention
+   * @returns Formatted String
    */
   toString() {
     return `<@${this.id}>`;

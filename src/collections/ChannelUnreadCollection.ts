@@ -4,6 +4,9 @@ import { HydratedChannelUnread } from "../hydration";
 
 import { ClassCollection } from ".";
 
+/**
+ * Collection of Channel Unreads
+ */
 export class ChannelUnreadCollection extends ClassCollection<
   ChannelUnread,
   HydratedChannelUnread

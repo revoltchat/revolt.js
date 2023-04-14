@@ -1,6 +1,5 @@
 import type {
   DataBanCreate,
-  DataEditMessage,
   DataMemberEdit,
   MemberCompositeKey,
 } from "revolt-api";

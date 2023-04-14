@@ -57,6 +57,11 @@ export abstract class SystemMessage {
 export class TextSystemMessage extends SystemMessage {
   readonly content: string;
 
+  /**
+   * Construct System Message
+   * @param client Client
+   * @param systemMessage System Message
+   */
   constructor(
     client: Client,
     systemMessage: API.SystemMessage & { type: "text" }
@@ -72,6 +77,11 @@ export class TextSystemMessage extends SystemMessage {
 export class UserSystemMessage extends SystemMessage {
   readonly userId: string;
 
+  /**
+   * Construct System Message
+   * @param client Client
+   * @param systemMessage System Message
+   */
   constructor(
     client: Client,
     systemMessage: API.SystemMessage & {
@@ -102,6 +112,11 @@ export class UserSystemMessage extends SystemMessage {
 export class UserModeratedSystemMessage extends UserSystemMessage {
   readonly byId: string;
 
+  /**
+   * Construct System Message
+   * @param client Client
+   * @param systemMessage System Message
+   */
   constructor(
     client: Client,
     systemMessage: API.SystemMessage & {
@@ -127,6 +142,11 @@ export class UserModeratedSystemMessage extends UserSystemMessage {
 export class ChannelEditSystemMessage extends SystemMessage {
   readonly byId: string;
 
+  /**
+   * Construct System Message
+   * @param client Client
+   * @param systemMessage System Message
+   */
   constructor(
     client: Client,
     systemMessage: API.SystemMessage & {
@@ -154,6 +174,11 @@ export class ChannelEditSystemMessage extends SystemMessage {
 export class ChannelRenamedSystemMessage extends ChannelEditSystemMessage {
   readonly name: string;
 
+  /**
+   * Construct System Message
+   * @param client Client
+   * @param systemMessage System Message
+   */
   constructor(
     client: Client,
     systemMessage: API.SystemMessage & {
@@ -172,6 +197,11 @@ export class ChannelOwnershipChangeSystemMessage extends SystemMessage {
   readonly fromId: string;
   readonly toId: string;
 
+  /**
+   * Construct System Message
+   * @param client Client
+   * @param systemMessage System Message
+   */
   constructor(
     client: Client,
     systemMessage: API.SystemMessage & {

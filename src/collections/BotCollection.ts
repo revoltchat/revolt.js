@@ -5,6 +5,9 @@ import { HydratedBot } from "../hydration/bot";
 
 import { ClassCollection } from ".";
 
+/**
+ * Collection of Bots
+ */
 export class BotCollection extends ClassCollection<Bot, HydratedBot> {
   /**
    * Fetch bot by ID

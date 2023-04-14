@@ -3,6 +3,9 @@ import { HydratedServerMember } from "../hydration";
 
 import { ClassCollection } from ".";
 
+/**
+ * Collection of Server Members
+ */
 export class ServerMemberCollection extends ClassCollection<
   ServerMember,
   HydratedServerMember

@@ -32,6 +32,10 @@ export class Channel {
     this.id = id;
   }
 
+  /**
+   * Write to string as a channel mention
+   * @returns Formatted String
+   */
   toString() {
     return `<#${this.id}>`;
   }
@@ -594,6 +598,9 @@ export class Channel {
       }
     }
 
+    /**
+     * Send the actual acknowledgement request
+     */
     const performAck = () => {
       this.#ackLimit = undefined;
       this.#collection.client.api.put(

@@ -168,7 +168,7 @@ export abstract class StoreCollection<T, V> extends Collection<T> {
     id: string,
     type: keyof Hydrators,
     instance: T,
-    context: any,
+    context: unknown,
     data?: unknown
   ) {
     this.#storage.hydrate(id, type, context, data);
@@ -232,6 +232,10 @@ export abstract class StoreCollection<T, V> extends Collection<T> {
 export class ClassCollection<T, V> extends StoreCollection<T, V> {
   readonly client: Client;
 
+  /**
+   * Create generic class collection
+   * @param client Client
+   */
   constructor(client: Client) {
     super();
     this.client = client;

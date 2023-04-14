@@ -5,6 +5,9 @@ import { HydratedServer } from "../hydration";
 
 import { ClassCollection } from ".";
 
+/**
+ * Collection of Servers
+ */
 export class ServerCollection extends ClassCollection<Server, HydratedServer> {
   /**
    * Fetch server by ID

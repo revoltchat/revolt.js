@@ -3,6 +3,9 @@ import { HydratedMessage } from "../hydration";
 
 import { ClassCollection } from ".";
 
+/**
+ * Collection of Messages
+ */
 export class MessageCollection extends ClassCollection<
   Message,
   HydratedMessage

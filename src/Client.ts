@@ -1,7 +1,7 @@
 import { Accessor, Setter, createSignal } from "solid-js";
 
 import EventEmitter from "eventemitter3";
-import { API, DataCreateAccount, Metadata, Role } from "revolt-api";
+import { API, DataCreateAccount, Role } from "revolt-api";
 import type { DataLogin, RevoltConfig } from "revolt-api";
 
 import { Channel, Emoji, Message, Server, ServerMember, User } from "./classes";

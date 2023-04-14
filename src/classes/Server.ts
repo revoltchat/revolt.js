@@ -322,7 +322,7 @@ export class Server {
    * @returns The newly-created channel
    */
   async createChannel(data: DataCreateChannel) {
-    let channel = await this.#collection.client.api.post(
+    const channel = await this.#collection.client.api.post(
       `/servers/${this.id as ""}/channels`,
       data
     );

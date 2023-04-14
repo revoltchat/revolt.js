@@ -35,7 +35,7 @@ export class ObjectStorage<T> {
    * @param context Context
    * @param data Input Data
    */
-  hydrate(id: string, type: keyof Hydrators, context: any, data?: unknown) {
+  hydrate(id: string, type: keyof Hydrators, context: unknown, data?: unknown) {
     if (data) {
       this.set(id, hydrate(type, data as never, context, true) as T);
     }

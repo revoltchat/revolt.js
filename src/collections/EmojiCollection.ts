@@ -3,6 +3,9 @@ import { HydratedEmoji } from "../hydration";
 
 import { ClassCollection } from ".";
 
+/**
+ * Collection of Emoji
+ */
 export class EmojiCollection extends ClassCollection<Emoji, HydratedEmoji> {
   /**
    * Fetch emoji by ID

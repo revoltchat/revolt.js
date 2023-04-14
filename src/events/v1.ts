@@ -247,7 +247,7 @@ export async function handleEvent(
         // TODO: this should not be necessary in future protocols:
         if (event.author && client.options.eagerFetching) {
           await client.users.fetch(event.author);
-          let serverId = client.channels.get(event.channel)?.serverId;
+          const serverId = client.channels.get(event.channel)?.serverId;
           if (serverId)
             await client.serverMembers.fetch(serverId, event.author);
         }
@@ -772,20 +772,7 @@ export async function handleEvent(
       break;
     }
     case "Auth": {
-      /*if (typeof client.#session === "string") throw "Unreachable code";
-
-      switch (event.event_type) {
-        case "DeleteSession":
-          if (event.session_id === client.#session!._id) {
-            // TODO: logout
-          }
-          break;
-        case "DeleteAllSessions":
-          if (event.exclude_session_id !== client.#session!._id) {
-            // TODO: logout
-          }
-          break;
-      }*/
+      // TODO: implement DeleteSession and DeleteAllSessions
       break;
     }
   }

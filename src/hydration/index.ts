@@ -25,7 +25,7 @@ export type { HydratedUser } from "./user";
  */
 export type MappingFns<Input, Output, Key extends keyof Output> = Record<
   Key,
-  (value: Input, context: any) => Output[Key]
+  (value: Input, context: unknown) => Output[Key]
 >;
 
 /**
@@ -51,7 +51,7 @@ export type Hydrate<Input, Output> = {
 function hydrateInternal<Input extends object, Output>(
   hydration: Hydrate<Input, Output>,
   input: Input,
-  context: any
+  context: unknown
 ): Output {
   return (Object.keys(input) as (keyof Input)[]).reduce((acc, key) => {
     let targetKey, value;
@@ -100,7 +100,7 @@ type ExtractOutput<T> = T extends Hydrate<any, infer O> ? O : never;
 export function hydrate<T extends keyof Hydrators>(
   type: T,
   input: Partial<ExtractInput<Hydrators[T]>>,
-  context: any,
+  context: unknown,
   initial?: boolean
 ) {
   return hydrateInternal(

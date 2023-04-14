@@ -3,6 +3,9 @@ import { HydratedChannel } from "../hydration";
 
 import { ClassCollection } from ".";
 
+/**
+ * Collection of Channels
+ */
 export class ChannelCollection extends ClassCollection<
   Channel,
   HydratedChannel
@@ -12,7 +15,7 @@ export class ChannelCollection extends ClassCollection<
    * @param id Id
    */
   override delete(id: string): void {
-    let channel = this.get(id);
+    const channel = this.get(id);
     channel?.server?.channelIds.delete(id);
     super.delete(id);
   }

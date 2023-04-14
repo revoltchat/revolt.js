@@ -85,7 +85,7 @@ export class File {
   }
 
   /**
-   * Whether this file should be spoilered
+   * Whether this file should have a spoiler
    */
   get isSpoiler() {
     return this.filename.toLowerCase().startsWith("spoiler_");
