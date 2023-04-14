@@ -1,9 +1,9 @@
 # build
 node_modules
 .env
-dist
 docs
-esm
+todo
+/lib
 
 # yarn
 .pnp.*

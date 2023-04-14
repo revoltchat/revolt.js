@@ -1,94 +1,55 @@
 {
-    "name": "revolt.js",
-    "version": "6.0.20",
-    "main": "dist/index.js",
-    "typings": "dist/index.d.ts",
-    "module": "esm/index.js",
-    "repository": "https://github.com/revoltchat/revolt.js",
-    "author": "Paul Makles <insrt.uk>",
-    "license": "MIT",
-    "dependencies": {
-        "@insertish/exponential-backoff": "3.1.0-patch.2",
-        "@insertish/isomorphic-ws": "^4.0.1",
-        "axios": "^0.21.4",
-        "eventemitter3": "^4.0.7",
-        "lodash.defaultsdeep": "^4.6.1",
-        "lodash.flatten": "^4.4.0",
-        "lodash.isequal": "^4.5.0",
-        "long": "^5.2.0",
-        "mobx": "^6.3.2",
-        "revolt-api": "0.5.17",
-        "ulid": "^2.3.0",
-        "ws": "^8.2.2"
-    },
-    "devDependencies": {
-        "@types/events": "^3.0.0",
-        "@types/lodash": "^4.14.168",
-        "@types/lodash.defaultsdeep": "^4.6.6",
-        "@types/lodash.flatten": "^4.4.6",
-        "@types/lodash.isequal": "^4.5.5",
-        "@types/node": "^14.14.31",
-        "@types/ws": "^7.2.1",
-        "@typescript-eslint/eslint-plugin": "^5.3.1",
-        "@typescript-eslint/parser": "^5.3.1",
-        "dotenv": "^8.2.0",
-        "eslint": "^8.2.0",
-        "in-publish": "^2.0.1",
-        "jsdoc-babel": "^0.5.0",
-        "node-fetch": "^2.6.1",
-        "prettier": "^2.4.1",
-        "rimraf": "^3.0.2",
-        "tsc-watch": "^4.1.0",
-        "typedoc": "^0.21.4",
-        "typescript": "^4.4.4"
-    },
-    "eslintConfig": {
-        "parser": "@typescript-eslint/parser",
-        "plugins": [
-            "mobx"
-        ],
-        "extends": [
-            "plugin:@typescript-eslint/recommended",
-            "plugin:mobx/recommended"
-        ],
-        "ignorePatterns": [
-            "build/"
-        ],
-        "rules": {
-            "radix": "off",
-            "no-spaced-func": "off",
-            "react/no-danger": "off",
-            "@typescript-eslint/explicit-module-boundary-types": "off",
-            "@typescript-eslint/no-non-null-assertion": "off",
-            "@typescript-eslint/no-unused-vars": [
-                "warn",
-                {
-                    "varsIgnorePattern": "^_"
-                }
-            ],
-            "no-unused-vars": [
-                "warn",
-                {
-                    "varsIgnorePattern": "^_"
-                }
-            ]
-        }
-    },
-    "scripts": {
-        "dev": "tsc-watch --onSuccess \"node --experimental-specifier-resolution=node dist/tester\"",
-        "prepublish": "in-publish && tsc || echo Skipping build.",
-        "build": "rimraf dist esm && tsc && tsc -p tsconfig.cjs.json",
-        "build:watch": "tsc-watch",
-        "typecheck": "tsc --noEmit",
-        "docs": "typedoc --readme README.md src/",
-        "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
-        "fmt": "prettier --write 'src/**/*.{js,jsx,ts,tsx}'"
-    },
-    "files": [
-        "README.md",
-        "dist",
-        "esm"
-    ],
-    "description": "Library for interacting with the Revolt API.",
-    "packageManager": "yarn@3.2.3"
+  "name": "revolt.js",
+  "version": "7.0.0-beta.1",
+  "main": "lib/cjs/index.js",
+  "module": "src/index.ts",
+  "types": "src/index.ts",
+  "repository": "https://github.com/revoltchat/revolt.js",
+  "author": "Paul Makles <insrt.uk>",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc-watch --onSuccess \"node .\"",
+    "lint": "eslint --ext .ts,.tsx src/",
+    "lint:fix": "eslint --fix --ext .ts,.tsx src/",
+    "typecheck": "tsc --noEmit",
+    "docs": "typedoc --plugin @mxssfd/typedoc-theme --theme my-theme --readme README.md src/",
+    "fmt": "prettier --write 'src/**/*.{js,jsx,ts,tsx}'",
+    "fmt:check": "prettier --check 'src/**/*.{js,jsx,ts,tsx}'"
+  },
+  "files": [
+    "README.md",
+    "lib"
+  ],
+  "description": "Library for interacting with the Revolt API.",
+  "packageManager": "pnpm@7.14.2",
+  "dependencies": {
+    "@mxssfd/typedoc-theme": "^1.1.1",
+    "@solid-primitives/map": "^0.4.3",
+    "@solid-primitives/set": "^0.4.3",
+    "eventemitter3": "^5.0.0",
+    "isomorphic-ws": "^5.0.0",
+    "long": "^5.2.1",
+    "revolt-api": "^0.5.17",
+    "solid-js": "^1.7.2",
+    "typedoc": "^0.24.1",
+    "ulid": "^2.3.0",
+    "ws": "^8.13.0"
+  },
+  "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^4.1.1",
+    "@types/node": "^18.15.11",
+    "@types/ws": "^8.5.4",
+    "@typescript-eslint/eslint-plugin": "^5.57.1",
+    "@typescript-eslint/parser": "^5.57.1",
+    "dotenv": "^16.0.3",
+    "eslint": "^8.37.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-solid": "^0.12.0",
+    "eslint-plugin-spellcheck": "^0.0.20",
+    "prettier": "^2.8.7",
+    "tsc-watch": "^6.0.0",
+    "typed-emitter": "^2.1.0",
+    "typescript": "^5.0.3"
+  }
 }
