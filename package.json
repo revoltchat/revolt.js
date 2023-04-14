@@ -13,7 +13,7 @@
     "lint": "eslint --ext .ts,.tsx src/",
     "lint:fix": "eslint --fix --ext .ts,.tsx src/",
     "typecheck": "tsc --noEmit",
-    "docs": "typedoc --readme README.md src/",
+    "docs": "typedoc --plugin @mxssfd/typedoc-theme --theme my-theme --readme README.md src/",
     "fmt": "prettier --write 'src/**/*.{js,jsx,ts,tsx}'",
     "fmt:check": "prettier --check 'src/**/*.{js,jsx,ts,tsx}'"
   },
@@ -24,6 +24,7 @@
   "description": "Library for interacting with the Revolt API.",
   "packageManager": "pnpm@7.14.2",
   "dependencies": {
+    "@mxssfd/typedoc-theme": "^1.1.1",
     "@solid-primitives/map": "^0.4.3",
     "@solid-primitives/set": "^0.4.3",
     "eventemitter3": "^5.0.0",

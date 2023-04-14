@@ -7,6 +7,11 @@ import { serverHydration } from "./server";
 import { serverMemberHydration } from "./serverMember";
 import { userHydration } from "./user";
 
+export { BotFlags } from "./bot";
+export { ServerFlags } from "./server";
+export { UserBadges, UserFlags } from "./user";
+
+export type { HydratedBot } from "./bot";
 export type { HydratedChannel } from "./channel";
 export type { HydratedChannelUnread } from "./channelUnread";
 export type { HydratedEmoji } from "./emoji";
