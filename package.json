@@ -11,7 +11,11 @@
     "build": "tsc",
     "build:watch": "tsc-watch --onSuccess \"node .\"",
     "lint": "eslint --ext .ts,.tsx src/",
-    "lint:fix": "eslint --fix --ext .ts,.tsx src/"
+    "lint:fix": "eslint --fix --ext .ts,.tsx src/",
+    "typecheck": "tsc --noEmit",
+    "docs": "typedoc --readme README.md src/",
+    "fmt": "prettier --write 'src/**/*.{js,jsx,ts,tsx}'",
+    "fmt:check": "prettier --check 'src/**/*.{js,jsx,ts,tsx}'"
   },
   "files": [
     "README.md",
@@ -27,6 +31,7 @@
     "long": "^5.2.1",
     "revolt-api": "^0.5.17",
     "solid-js": "^1.7.2",
+    "typedoc": "^0.24.1",
     "ulid": "^2.3.0",
     "ws": "^8.13.0"
   },

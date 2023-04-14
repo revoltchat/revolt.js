@@ -1,12 +1,18 @@
-name: Publish Documentation
+name: Lint
 
 on:
   push:
     branches: [master]
+  pull_request:
+    branches: [master]
 
 jobs:
-  docs:
+  build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x]
+
     steps:
       - name: Checkout repository and submodules
         uses: actions/checkout@v3
@@ -15,19 +21,17 @@ jobs:
       - uses: pnpm/action-setup@v2.2.4
         with:
           version: 7
-      - name: Use Node.js 18
+      - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: ${{ matrix.node-version }}
           cache: "pnpm"
       - name: Install packages
         run: pnpm install
 
-      - name: Build
-        run: pnpm run docs
-
-      - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@4.1.5
-        with:
-          branch: docs
-          folder: docs
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Code Formatting
+        run: pnpm fmt:check
+      - name: Lint
+        run: pnpm lint
