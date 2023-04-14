@@ -75,7 +75,13 @@ export class UserSystemMessage extends SystemMessage {
   constructor(
     client: Client,
     systemMessage: API.SystemMessage & {
-      type: "user_joined" | "user_left" | "user_kicked" | "user_banned";
+      type:
+        | "user_added"
+        | "user_remove"
+        | "user_joined"
+        | "user_left"
+        | "user_kicked"
+        | "user_banned";
     }
   ) {
     super(client, systemMessage.type);
@@ -93,8 +99,7 @@ export class UserSystemMessage extends SystemMessage {
 /**
  * User Moderated System Message
  */
-export class UserModeratedSystemMessage extends SystemMessage {
-  readonly userId: string;
+export class UserModeratedSystemMessage extends UserSystemMessage {
   readonly byId: string;
 
   constructor(
@@ -103,22 +108,15 @@ export class UserModeratedSystemMessage extends SystemMessage {
       type: "user_added" | "user_remove";
     }
   ) {
-    super(client, "text");
-    this.userId = systemMessage.id;
+    super(client, systemMessage);
     this.byId = systemMessage.by;
-  }
-
-  /**
-   * User this message concerns
-   */
-  get user() {
-    return this.client!.users.get(this.userId);
   }
 
   /**
    * User this action was performed by
    */
   get by() {
+    console.info("deez!", this.byId);
     return this.client!.users.get(this.byId);
   }
 }
