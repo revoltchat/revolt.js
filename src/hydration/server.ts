@@ -7,7 +7,7 @@ import {
   SystemMessageChannels,
 } from "revolt-api";
 
-import { File } from "..";
+import { Client, File } from "..";
 
 import { Hydrate } from ".";
 
@@ -55,8 +55,8 @@ export const serverHydration: Hydrate<ApiServer, HydratedServer> = {
         Object.keys(server.roles!).map((id) => [id, server.roles![id]])
       ),
     defaultPermissions: (server) => server.default_permissions,
-    icon: (server, ctx) => new File(ctx, server.icon!),
-    banner: (server, ctx) => new File(ctx, server.banner!),
+    icon: (server, ctx) => new File(ctx as Client, server.icon!),
+    banner: (server, ctx) => new File(ctx as Client, server.banner!),
     flags: (server) => server.flags!,
     analytics: (server) => server.analytics || false,
     discoverable: (server) => server.discoverable || false,

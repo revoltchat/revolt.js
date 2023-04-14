@@ -5,7 +5,7 @@ import {
   UserStatus,
 } from "revolt-api";
 
-import { File } from "..";
+import { Client, File } from "..";
 
 import { Hydrate } from ".";
 
@@ -40,7 +40,7 @@ export const userHydration: Hydrate<ApiUser, HydratedUser> = {
     badges: (user) => user.badges!,
     flags: (user) => user.flags!,
 
-    avatar: (user, ctx) => new File(ctx, user.avatar!),
+    avatar: (user, ctx) => new File(ctx as Client, user.avatar!),
     status: (user) => user.status!,
     bot: (user) => user.bot!,
   },

@@ -1,7 +1,7 @@
 import { ReactiveMap } from "@solid-primitives/map";
 import { ReactiveSet } from "@solid-primitives/set";
 
-import { API, File, MessageEmbed, SystemMessage } from "..";
+import { API, Client, File, MessageEmbed, SystemMessage } from "..";
 import type { Merge } from "../lib/merge";
 
 import { Hydrate } from ".";
@@ -39,12 +39,13 @@ export const messageHydration: Hydrate<Merge<API.Message>, HydratedMessage> = {
     channelId: (message) => message.channel,
     authorId: (message) => message.author,
     content: (message) => message.content!,
-    systemMessage: (message, ctx) => SystemMessage.from(ctx, message.system!),
+    systemMessage: (message, ctx) =>
+      SystemMessage.from(ctx as Client, message.system!),
     attachments: (message, ctx) =>
-      message.attachments!.map((file) => new File(ctx, file)),
+      message.attachments!.map((file) => new File(ctx as Client, file)),
     editedAt: (message) => new Date(message.edited!),
     embeds: (message, ctx) =>
-      message.embeds!.map((embed) => MessageEmbed.from(ctx, embed)),
+      message.embeds!.map((embed) => MessageEmbed.from(ctx as Client, embed)),
     mentionIds: (message) => message.mentions!,
     replyIds: (message) => message.replies!,
     reactions: (message) => {
