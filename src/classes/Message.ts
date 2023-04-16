@@ -101,7 +101,7 @@ export class Message {
    * Content
    */
   get content() {
-    return this.#collection.getUnderlyingObject(this.id).content;
+    return this.#collection.getUnderlyingObject(this.id).content ?? "";
   }
 
   /**
