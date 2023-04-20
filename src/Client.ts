@@ -169,7 +169,7 @@ export class Client extends EventEmitter<Events> {
   /**
    * Create Revolt.js Client
    */
-  constructor(options?: Partial<ClientOptions>) {
+  constructor(options?: Partial<ClientOptions>, configuration?: RevoltConfig) {
     super();
 
     this.options = {
@@ -196,6 +196,8 @@ export class Client extends EventEmitter<Events> {
       },
       ...options,
     };
+
+    this.configuration = configuration;
 
     this.api = new API({
       baseURL: this.options.baseURL,
@@ -369,6 +371,8 @@ export class Client extends EventEmitter<Events> {
       return `${
         this.configuration.features.january.url
       }/proxy?url=${encodeURIComponent(url)}`;
+    } else {
+      return url;
     }
   }
 }
