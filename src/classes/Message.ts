@@ -31,7 +31,7 @@ export class Message {
    * Absolute pathname to this message in the client
    */
   get path() {
-    return `${this.channel!.path}/${this.id}`;
+    return `${this.channel?.path}/${this.id}`;
   }
 
   /**
@@ -68,7 +68,7 @@ export class Message {
    * Server this message was sent in
    */
   get server() {
-    return this.channel!.server;
+    return this.channel?.server;
   }
 
   /**
@@ -76,7 +76,7 @@ export class Message {
    */
   get member() {
     return this.#collection.client.serverMembers.getByKey({
-      server: this.channel!.serverId,
+      server: this.channel?.serverId as string,
       user: this.authorId!,
     });
   }
