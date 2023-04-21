@@ -259,7 +259,7 @@ export class Client extends EventEmitter<Events> {
     this.events.disconnect();
     this.#setReady(false);
     this.events.connect(
-      "wss://ws.revolt.chat",
+      this.configuration?.ws ?? "wss://ws.revolt.chat",
       typeof this.#session === "string" ? this.#session : this.#session!.token
     );
   }
