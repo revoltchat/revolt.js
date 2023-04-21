@@ -19,7 +19,7 @@ specifiers:
   long: ^5.2.1
   prettier: ^2.8.7
   revolt-api: ^0.5.17
-  solid-js: ^1.7.2
+  solid-js: ^1.7.3
   tsc-watch: ^6.0.0
   typed-emitter: ^2.1.0
   typedoc: ^0.24.1
@@ -29,13 +29,13 @@ specifiers:
 
 dependencies:
   '@mxssfd/typedoc-theme': 1.1.1_typedoc@0.24.1
-  '@solid-primitives/map': 0.4.3_solid-js@1.7.2
-  '@solid-primitives/set': 0.4.3_solid-js@1.7.2
+  '@solid-primitives/map': 0.4.3_solid-js@1.7.3
+  '@solid-primitives/set': 0.4.3_solid-js@1.7.3
   eventemitter3: 5.0.0
   isomorphic-ws: 5.0.0_ws@8.13.0
   long: 5.2.1
   revolt-api: 0.5.17
-  solid-js: 1.7.2
+  solid-js: 1.7.3
   typedoc: 0.24.1_typescript@5.0.3
   ulid: 2.3.0
   ws: 8.13.0
@@ -271,39 +271,39 @@ packages:
       fastq: 1.15.0
     dev: true
 
-  /@solid-primitives/map/0.4.3_solid-js@1.7.2:
+  /@solid-primitives/map/0.4.3_solid-js@1.7.3:
     resolution: {integrity: sha512-9cpa8MjhLNg+PTVQaIhDUuc192kXoyIAbSCGNTxjzqq7u4OwakhvZlt4C3rIkvLX6yThNlC4IBhOnOSpos5DQA==}
     peerDependencies:
       solid-js: ^1.6.12
     dependencies:
-      '@solid-primitives/trigger': 1.0.5_solid-js@1.7.2
-      solid-js: 1.7.2
+      '@solid-primitives/trigger': 1.0.5_solid-js@1.7.3
+      solid-js: 1.7.3
     dev: false
 
-  /@solid-primitives/set/0.4.3_solid-js@1.7.2:
+  /@solid-primitives/set/0.4.3_solid-js@1.7.3:
     resolution: {integrity: sha512-n/owKQy/76IWPLZkvLSWZ+0Ji4fndvQ6vj4idXEm5vS8hj/xvGHP2Fw6uBf2XrijGr3BVuSuq9zvnaGjIAB12w==}
     peerDependencies:
       solid-js: ^1.6.12
     dependencies:
-      '@solid-primitives/trigger': 1.0.5_solid-js@1.7.2
-      solid-js: 1.7.2
+      '@solid-primitives/trigger': 1.0.5_solid-js@1.7.3
+      solid-js: 1.7.3
     dev: false
 
-  /@solid-primitives/trigger/1.0.5_solid-js@1.7.2:
+  /@solid-primitives/trigger/1.0.5_solid-js@1.7.3:
     resolution: {integrity: sha512-NAnLYmUFPvJoH05qBf90IEcSTROM+woFdqcGgGmlcYcewewLNLIuJDB69CvPvM+O9yHvRk7UXcpapV25iXcoDQ==}
     peerDependencies:
       solid-js: ^1.6.12
     dependencies:
-      '@solid-primitives/utils': 6.0.0_solid-js@1.7.2
-      solid-js: 1.7.2
+      '@solid-primitives/utils': 6.0.0_solid-js@1.7.3
+      solid-js: 1.7.3
     dev: false
 
-  /@solid-primitives/utils/6.0.0_solid-js@1.7.2:
+  /@solid-primitives/utils/6.0.0_solid-js@1.7.3:
     resolution: {integrity: sha512-SSu12+vvU6J8SVWW9eGV+dqiMsc0WG1Oy8YYY9AWzRzssmzNXg/uexaW+0eqTuj8JcRAaGplMDjhraB01HOidA==}
     peerDependencies:
       solid-js: ^1.6.12
     dependencies:
-      solid-js: 1.7.2
+      solid-js: 1.7.3
     dev: false
 
   /@trivago/prettier-plugin-sort-imports/4.1.1_prettier@2.8.7:
@@ -1748,8 +1748,8 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /solid-js/1.7.2:
-    resolution: {integrity: sha512-01f8GIc+HTTlfDXtK+TFku3AllHyJ3hNsIpxM2qpObRP4VbEGVIP6VbULnThPlpse+J1y/I/1N9QeQ9MNkE8Ow==}
+  /solid-js/1.7.3:
+    resolution: {integrity: sha512-4hwaF/zV/xbNeBBIYDyu3dcReOZBECbO//mrra6GqOrKy4Soyo+fnKjpZSa0nODm6j1aL0iQRh/7ofYowH+jzw==}
     dependencies:
       csstype: 3.1.2
       seroval: 0.5.1
