@@ -1,4 +1,4 @@
-import { API, User } from "..";
+import { API, Client, User } from "..";
 import { HydratedUser } from "../hydration";
 
 import { ClassCollection } from ".";
@@ -7,6 +7,19 @@ import { ClassCollection } from ".";
  * Collection of Users
  */
 export class UserCollection extends ClassCollection<User, HydratedUser> {
+  /**
+   * Construct User collection
+   */
+  constructor(client: Client) {
+    super(client);
+
+    const SYSTEM_ID = "0".repeat(26);
+    this.getOrCreate(SYSTEM_ID, {
+      _id: SYSTEM_ID,
+      username: "Revolt",
+    });
+  }
+
   /**
    * Fetch user by ID
    * @param id Id
