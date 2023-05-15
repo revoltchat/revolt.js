@@ -95,7 +95,7 @@ export function calculatePermission(
       case "Group": {
         // 2. Check if user is owner.
         if (target.ownerId === user!.id) {
-          return DEFAULT_PERMISSION_DIRECT_MESSAGE;
+          return Permission.GrantAllSafe;
         } else {
           // 3. Pull out group permissions.
           return target.permissions ?? DEFAULT_PERMISSION_DIRECT_MESSAGE;
