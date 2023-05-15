@@ -108,7 +108,7 @@ export function calculatePermission(
         if (typeof server === "undefined") return 0;
 
         // 3. If server owner, just grant all permissions.
-        if (server.owner === user?.id) {
+        if (server.ownerId === user?.id) {
           return Permission.GrantAllSafe;
         } else {
           // 4. Get ServerMember.
