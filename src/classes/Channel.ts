@@ -337,6 +337,19 @@ export class Channel {
   }
 
   /**
+   * Check whether we have at least one of the given permissions in a channel
+   * @param permission Permission Names
+   * @returns Whether we have one of the permissions
+   */
+  orPermission(...permission: (keyof typeof Permission)[]) {
+    return (
+      permission.findIndex((x) =>
+        bitwiseAndEq(this.permission, Permission[x])
+      ) !== -1
+    );
+  }
+
+  /**
    * Fetch a channel's members.
    * @requires `Group`
    * @returns An array of the channel's members.

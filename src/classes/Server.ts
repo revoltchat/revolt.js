@@ -317,6 +317,19 @@ export class Server {
   }
 
   /**
+   * Check whether we have at least one of the given permissions in a server
+   * @param permission Permission Names
+   * @returns Whether we have one of the permissions
+   */
+  orPermission(...permission: (keyof typeof Permission)[]) {
+    return (
+      permission.findIndex((x) =>
+        bitwiseAndEq(this.permission, Permission[x])
+      ) !== -1
+    );
+  }
+
+  /**
    * Create a channel
    * @param data Channel create route data
    * @returns The newly-created channel
