@@ -1,4 +1,3 @@
-import { DataEditSession } from "revolt-api";
 import { decodeTime } from "ulid";
 
 import { SessionCollection } from "../collections";

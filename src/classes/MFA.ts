@@ -47,15 +47,16 @@ export class MFA {
   createTicket(params: MFAResponse) {
     return this.#client.api
       .put("/auth/mfa/ticket", params)
-      .then((ticket) => new MFATicket(this.#client, ticket));
+      .then((ticket) => new MFATicket(this.#client, ticket, this.#store[1]));
   }
 
   /**
    * Enable authenticator using token generated from secret found earlier
    * @param token Token
    */
-  enableAuthenticator(token: string) {
-    return this.#client.api.put("/auth/mfa/totp", { totp_code: token });
+  async enableAuthenticator(token: string) {
+    await this.#client.api.put("/auth/mfa/totp", { totp_code: token });
+    this.#store[1]("totp_mfa", true);
   }
 }
 
@@ -65,16 +66,23 @@ export class MFA {
 export class MFATicket {
   #client: Client;
   #ticket: TicketType;
+  #mutate: SetStoreFunction<MultiFactorStatus>;
   #used = false;
 
   /**
    * Construct MFA Ticket
    * @param client Client
    * @param ticket Ticket
+   * @param mutate Mutate the store
    */
-  constructor(client: Client, ticket: TicketType) {
+  constructor(
+    client: Client,
+    ticket: TicketType,
+    mutate: SetStoreFunction<MultiFactorStatus>
+  ) {
     this.#client = client;
     this.#ticket = ticket;
+    this.#mutate = mutate;
   }
 
   /**
@@ -109,13 +117,21 @@ export class MFATicket {
    * Generate new set of recovery codes
    * @returns List of codes
    */
-  generateRecoveryCodes() {
+  async generateRecoveryCodes() {
     this.#consume();
-    return this.#client.api.patch("/auth/mfa/recovery", undefined, {
-      headers: {
-        "X-MFA-Ticket": this.token,
-      },
-    });
+
+    const codes = await this.#client.api.patch(
+      "/auth/mfa/recovery",
+      undefined,
+      {
+        headers: {
+          "X-MFA-Ticket": this.token,
+        },
+      }
+    );
+
+    this.#mutate("recovery_active", true);
+    return codes;
   }
 
   /**
@@ -136,13 +152,16 @@ export class MFATicket {
   /**
    * Disable authenticator
    */
-  disableAuthenticator() {
+  async disableAuthenticator() {
     this.#consume();
-    return this.#client.api.delete("/auth/mfa/totp", undefined, {
+
+    await this.#client.api.delete("/auth/mfa/totp", undefined, {
       headers: {
         "X-MFA-Ticket": this.token,
       },
     });
+
+    this.#mutate("totp_mfa", false);
   }
 
   /**
