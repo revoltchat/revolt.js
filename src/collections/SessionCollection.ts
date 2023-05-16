@@ -21,6 +21,16 @@ export class SessionCollection extends ClassCollection<
   }
 
   /**
+   * Delete all sessions, optionally including self
+   * @param revokeSelf Whether to remove current session too
+   */
+  async deleteAll(revokeSelf = false) {
+    await this.client.api.delete("/auth/session/all", {
+      revoke_self: revokeSelf,
+    });
+  }
+
+  /**
    * Get or create
    * @param id Id
    * @param data Data

@@ -1,7 +1,7 @@
 import { Accessor, Setter, createSignal } from "solid-js";
 
 import EventEmitter from "eventemitter3";
-import { API, DataCreateAccount, Role } from "revolt-api";
+import { API, Role } from "revolt-api";
 import type { DataLogin, RevoltConfig } from "revolt-api";
 
 import { Channel, Emoji, Message, Server, ServerMember, User } from "./classes";
@@ -16,6 +16,7 @@ import {
   SessionCollection,
   UserCollection,
 } from "./collections";
+import { AccountCollection } from "./collections/AccountCollection";
 import {
   ConnectionState,
   EventClient,
@@ -143,6 +144,7 @@ export type ClientOptions = Partial<EventClientOptions> & {
  * Revolt.js Clients
  */
 export class Client extends EventEmitter<Events> {
+  readonly account;
   readonly bots;
   readonly channels;
   readonly channelUnreads;
@@ -213,6 +215,7 @@ export class Client extends EventEmitter<Events> {
     this.connectionFailureCount = connectionFailureCount;
     this.#setConnectionFailureCount = setConnectionFailureCount;
 
+    this.account = new AccountCollection(this);
     this.bots = new BotCollection(this);
     this.channels = new ChannelCollection(this);
     this.channelUnreads = new ChannelUnreadCollection(this);
@@ -332,15 +335,6 @@ export class Client extends EventEmitter<Events> {
     this.#session = token;
     this.#updateHeaders();
     this.connect();
-  }
-
-  /**
-   * Register for a new account
-   * @param data Registration data object
-   * @returns A promise containing a registration response object
-   */
-  register(data: DataCreateAccount) {
-    return this.api.post("/auth/account/create", data);
   }
 
   /**
