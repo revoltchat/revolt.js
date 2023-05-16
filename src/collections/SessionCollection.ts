@@ -28,6 +28,11 @@ export class SessionCollection extends ClassCollection<
     await this.client.api.delete("/auth/session/all", {
       revoke_self: revokeSelf,
     });
+
+    for (const entry of this.toList()) {
+      if (!revokeSelf && entry.current) continue;
+      this.delete(entry.id);
+    }
   }
 
   /**

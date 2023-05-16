@@ -36,6 +36,13 @@ export class Session {
   }
 
   /**
+   * Whether this is the current session
+   */
+  get current() {
+    return this.id === this.#collection.client.sessionId;
+  }
+
+  /**
    * Name
    */
   get name() {
