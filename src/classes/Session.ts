@@ -50,11 +50,15 @@ export class Session {
   }
 
   /**
-   * Edit a session
-   * @param data Changes
+   * Rename a session
+   * @param name New name
    */
-  async edit(data: DataEditSession) {
-    await this.#collection.client.api.patch(`/auth/session/${this.id}`, data);
+  async rename(name: string) {
+    await this.#collection.client.api.patch(`/auth/session/${this.id}`, {
+      friendly_name: name,
+    });
+
+    this.#collection.updateUnderlyingObject(this.id, "name", name);
   }
 
   /**
