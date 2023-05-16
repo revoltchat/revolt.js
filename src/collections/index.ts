@@ -7,4 +7,5 @@ export { EmojiCollection } from "./EmojiCollection";
 export { MessageCollection } from "./MessageCollection";
 export { ServerCollection } from "./ServerCollection";
 export { ServerMemberCollection } from "./ServerMemberCollection";
+export { SessionCollection } from "./SessionCollection";
 export { UserCollection } from "./UserCollection";

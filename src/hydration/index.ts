@@ -5,6 +5,7 @@ import { emojiHydration } from "./emoji";
 import { messageHydration } from "./message";
 import { serverHydration } from "./server";
 import { serverMemberHydration } from "./serverMember";
+import { sessionHydration } from "./session";
 import { userHydration } from "./user";
 
 export { BotFlags } from "./bot";
@@ -19,6 +20,7 @@ export type { HydratedMessage } from "./message";
 export type { HydratedServer } from "./server";
 export type { HydratedServerMember } from "./serverMember";
 export type { HydratedUser } from "./user";
+export type { HydratedSession } from "./session";
 
 /**
  * Functions to map from one object to another
@@ -79,6 +81,7 @@ const hydrators = {
   message: messageHydration,
   server: serverHydration,
   serverMember: serverMemberHydration,
+  session: sessionHydration,
   user: userHydration,
 };
 

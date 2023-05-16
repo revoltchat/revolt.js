@@ -12,4 +12,5 @@ export * from "./Server";
 export * from "./ServerBan";
 export * from "./ServerMember";
 export * from "./SystemMessage";
+export * from "./Session";
 export * from "./User";

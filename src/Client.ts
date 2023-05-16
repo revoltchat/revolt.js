@@ -13,6 +13,7 @@ import {
   MessageCollection,
   ServerCollection,
   ServerMemberCollection,
+  SessionCollection,
   UserCollection,
 } from "./collections";
 import {
@@ -149,6 +150,7 @@ export class Client extends EventEmitter<Events> {
   readonly messages;
   readonly servers;
   readonly serverMembers;
+  readonly sessions;
   readonly users;
 
   readonly api: API;
@@ -216,9 +218,10 @@ export class Client extends EventEmitter<Events> {
     this.channelUnreads = new ChannelUnreadCollection(this);
     this.emojis = new EmojiCollection(this);
     this.messages = new MessageCollection(this);
-    this.users = new UserCollection(this);
     this.servers = new ServerCollection(this);
     this.serverMembers = new ServerMemberCollection(this);
+    this.sessions = new SessionCollection(this);
+    this.users = new UserCollection(this);
 
     this.events = new EventClient(1, "json", this.options);
     this.events.on("error", (error) => this.emit("error", error));
@@ -249,6 +252,13 @@ export class Client extends EventEmitter<Events> {
     this.events.on("event", (event) =>
       handleEventV1(this, event, this.#setReady)
     );
+  }
+
+  /**
+   * Current session id
+   */
+  get sessionId() {
+    return typeof this.#session === "string" ? undefined : this.#session?._id;
   }
 
   /**
