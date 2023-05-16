@@ -1,6 +1,7 @@
 import { SetStoreFunction, createStore } from "solid-js/store";
 
 import {
+  MFAMethod,
   MFAResponse,
   MultiFactorStatus,
   MFATicket as TicketType,
@@ -37,6 +38,17 @@ export class MFA {
    */
   get recoveryEnabled() {
     return this.#store[0].recovery_active;
+  }
+
+  /**
+   * Available MFA methods for generating tickets
+   */
+  get availableMethods(): MFAMethod[] {
+    return this.authenticatorEnabled
+      ? this.recoveryEnabled
+        ? ["Totp", "Recovery"]
+        : ["Totp"]
+      : ["Password"];
   }
 
   /**
