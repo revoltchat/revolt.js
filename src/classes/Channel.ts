@@ -320,6 +320,29 @@ export class Channel {
   }
 
   /**
+   * Whether this channel may be hidden to some users
+   */
+  get potentiallyRestrictedChannel() {
+    if (!this.serverId) return false;
+    return (
+      bitwiseAndEq(this.defaultPermissions?.d ?? 0, Permission.ViewChannel) ||
+      !bitwiseAndEq(this.server!.defaultPermissions, Permission.ViewChannel) ||
+      [...(this.server?.roles.keys() ?? [])].find((role) => {
+        return (
+          bitwiseAndEq(
+            this.rolePermissions?.[role]?.d ?? 0,
+            Permission.ViewChannel
+          ) ||
+          bitwiseAndEq(
+            this.server?.roles.get(role)?.permissions.d ?? 0,
+            Permission.ViewChannel
+          )
+        );
+      })
+    );
+  }
+
+  /**
    * Permission the currently authenticated user has against this channel
    */
   get permission() {
