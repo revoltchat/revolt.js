@@ -327,8 +327,8 @@ export class Channel {
     return (
       bitwiseAndEq(this.defaultPermissions?.d ?? 0, Permission.ViewChannel) ||
       !bitwiseAndEq(this.server!.defaultPermissions, Permission.ViewChannel) ||
-      [...(this.server?.roles.keys() ?? [])].find((role) => {
-        return (
+      [...(this.server?.roles.keys() ?? [])].find(
+        (role) =>
           bitwiseAndEq(
             this.rolePermissions?.[role]?.d ?? 0,
             Permission.ViewChannel
@@ -337,8 +337,7 @@ export class Channel {
             this.server?.roles.get(role)?.permissions.d ?? 0,
             Permission.ViewChannel
           )
-        );
-      })
+      )
     );
   }
 
