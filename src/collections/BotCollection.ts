@@ -1,3 +1,5 @@
+import { batch } from "solid-js";
+
 import { OwnedBotsResponse } from "revolt-api";
 
 import { API, Bot, PublicBot } from "..";
@@ -28,8 +30,12 @@ export class BotCollection extends ClassCollection<Bot, HydratedBot> {
    */
   async fetchOwned(): Promise<Bot[]> {
     const data = (await this.client.api.get("/bots/@me")) as OwnedBotsResponse;
-    data.users.forEach((user) => this.client.users.getOrCreate(user._id, user));
-    return data.bots.map((bot) => this.getOrCreate(bot._id, bot));
+    return batch(() => {
+      data.users.forEach((user) =>
+        this.client.users.getOrCreate(user._id, user)
+      );
+      return data.bots.map((bot) => this.getOrCreate(bot._id, bot));
+    });
   }
 
   /**

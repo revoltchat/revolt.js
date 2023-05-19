@@ -1,3 +1,5 @@
+import { batch } from "solid-js";
+
 import { API, Client, File } from "..";
 import { ServerFlags } from "../hydration/server";
 
@@ -99,10 +101,12 @@ export class ServerPublicInvite extends PublicChannelInvite {
       `/invites/${this.code as ""}`
     );
 
-    for (const channel of channels) {
-      this.client!.channels.getOrCreate(channel._id, channel);
-    }
+    return batch(() => {
+      for (const channel of channels) {
+        this.client!.channels.getOrCreate(channel._id, channel);
+      }
 
-    return this.client!.servers.getOrCreate(server._id, server, true);
+      return this.client!.servers.getOrCreate(server._id, server, true);
+    });
   }
 }

@@ -1,3 +1,5 @@
+import { batch } from "solid-js";
+
 import type {
   Member as ApiMember,
   Message as ApiMessage,
@@ -359,8 +361,10 @@ export class Channel {
       `/channels/${this.id as ""}/members`
     );
 
-    return members.map((user) =>
-      this.#collection.client.users.getOrCreate(user._id, user)
+    return batch(() =>
+      members.map((user) =>
+        this.#collection.client.users.getOrCreate(user._id, user)
+      )
     );
   }
 
@@ -501,7 +505,7 @@ export class Channel {
       { ...params, include_users: true }
     )) as { messages: ApiMessage[]; users: ApiUser[]; members?: ApiMember[] };
 
-    return {
+    return batch(() => ({
       messages: data.messages.map((message) =>
         this.#collection.client.messages.getOrCreate(message._id, message)
       ),
@@ -511,7 +515,7 @@ export class Channel {
       members: data.members?.map((member) =>
         this.#collection.client.serverMembers.getOrCreate(member._id, member)
       ),
-    };
+    }));
   }
 
   /**
@@ -526,8 +530,10 @@ export class Channel {
       params
     )) as ApiMessage[];
 
-    return messages.map((message) =>
-      this.#collection.client.messages.getOrCreate(message._id, message)
+    return batch(() =>
+      messages.map((message) =>
+        this.#collection.client.messages.getOrCreate(message._id, message)
+      )
     );
   }
 
@@ -546,7 +552,7 @@ export class Channel {
       }
     )) as { messages: ApiMessage[]; users: ApiUser[]; members?: ApiMember[] };
 
-    return {
+    return batch(() => ({
       messages: data.messages.map((message) =>
         this.#collection.client.messages.getOrCreate(message._id, message)
       ),
@@ -556,7 +562,7 @@ export class Channel {
       members: data.members?.map((member) =>
         this.#collection.client.serverMembers.getOrCreate(member._id, member)
       ),
-    };
+    }));
   }
 
   /**

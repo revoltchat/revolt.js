@@ -1,3 +1,5 @@
+import { batch } from "solid-js";
+
 import type {
   Category,
   DataBanCreate,
@@ -545,29 +547,31 @@ export class Server {
       { exclude_offline: excludeOffline }
     );
 
-    if (excludeOffline) {
-      for (let i = 0; i < data.users.length; i++) {
-        const user = data.users[i];
-        if (user.online) {
-          this.#collection.client.users.getOrCreate(user._id, user);
+    batch(() => {
+      if (excludeOffline) {
+        for (let i = 0; i < data.users.length; i++) {
+          const user = data.users[i];
+          if (user.online) {
+            this.#collection.client.users.getOrCreate(user._id, user);
+            this.#collection.client.serverMembers.getOrCreate(
+              data.members[i]._id,
+              data.members[i]
+            );
+          }
+        }
+      } else {
+        for (let i = 0; i < data.users.length; i++) {
+          this.#collection.client.users.getOrCreate(
+            data.users[i]._id,
+            data.users[i]
+          );
           this.#collection.client.serverMembers.getOrCreate(
             data.members[i]._id,
             data.members[i]
           );
         }
       }
-    } else {
-      for (let i = 0; i < data.users.length; i++) {
-        this.#collection.client.users.getOrCreate(
-          data.users[i]._id,
-          data.users[i]
-        );
-        this.#collection.client.serverMembers.getOrCreate(
-          data.members[i]._id,
-          data.members[i]
-        );
-      }
-    }
+    });
   }
 
   /**
@@ -579,14 +583,14 @@ export class Server {
       `/servers/${this.id as ""}/members`
     );
 
-    return {
+    return batch(() => ({
       members: data.members.map((member) =>
         this.#collection.client.serverMembers.getOrCreate(member._id, member)
       ),
       users: data.users.map((user) =>
         this.#collection.client.users.getOrCreate(user._id, user)
       ),
-    };
+    }));
   }
 
   /**
@@ -621,8 +625,10 @@ export class Server {
       `/servers/${this.id as ""}/emojis`
     );
 
-    return emojis.map((emoji) =>
-      this.#collection.client.emojis.getOrCreate(emoji._id, emoji)
+    return batch(() =>
+      emojis.map((emoji) =>
+        this.#collection.client.emojis.getOrCreate(emoji._id, emoji)
+      )
     );
   }
 }

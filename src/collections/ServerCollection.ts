@@ -1,3 +1,5 @@
+import { batch } from "solid-js";
+
 import { DataCreateServer } from "revolt-api";
 
 import { API, Server } from "..";
@@ -68,10 +70,12 @@ export class ServerCollection extends ClassCollection<Server, HydratedServer> {
       data
     );
 
-    for (const channel of channels) {
-      this.client.channels.getOrCreate(channel._id, channel);
-    }
+    return batch(() => {
+      for (const channel of channels) {
+        this.client.channels.getOrCreate(channel._id, channel);
+      }
 
-    return this.getOrCreate(server._id, server, true);
+      return this.getOrCreate(server._id, server, true);
+    });
   }
 }

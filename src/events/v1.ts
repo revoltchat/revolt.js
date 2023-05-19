@@ -1,4 +1,4 @@
-import { Setter } from "solid-js";
+import { Setter, batch } from "solid-js";
 
 import { ReactiveSet } from "@solid-primitives/set";
 import type {
@@ -209,29 +209,31 @@ export async function handleEvent(
       break;
     }
     case "Ready": {
-      for (const user of event.users) {
-        const u = client.users.getOrCreate(user._id, user);
+      batch(() => {
+        for (const user of event.users) {
+          const u = client.users.getOrCreate(user._id, user);
 
-        if (u.relationship === "User") {
-          client.user = u;
+          if (u.relationship === "User") {
+            client.user = u;
+          }
         }
-      }
 
-      for (const server of event.servers) {
-        client.servers.getOrCreate(server._id, server);
-      }
+        for (const server of event.servers) {
+          client.servers.getOrCreate(server._id, server);
+        }
 
-      for (const member of event.members) {
-        client.serverMembers.getOrCreate(member._id, member);
-      }
+        for (const member of event.members) {
+          client.serverMembers.getOrCreate(member._id, member);
+        }
 
-      for (const channel of event.channels) {
-        client.channels.getOrCreate(channel._id, channel);
-      }
+        for (const channel of event.channels) {
+          client.channels.getOrCreate(channel._id, channel);
+        }
 
-      for (const emoji of event.emojis) {
-        client.emojis.getOrCreate(emoji._id, emoji);
-      }
+        for (const emoji of event.emojis) {
+          client.emojis.getOrCreate(emoji._id, emoji);
+        }
+      });
 
       if (client.options.syncUnreads) {
         await client.channelUnreads.sync();
@@ -298,20 +300,22 @@ export async function handleEvent(
       break;
     }
     case "BulkMessageDelete": {
-      client.emit(
-        "messageDeleteBulk",
-        event.ids
-          .map((id) => {
-            if (client.messages.has(id)) {
-              const message = client.messages.getUnderlyingObject(id);
-              client.messages.delete(id);
-              return message!;
-            }
+      batch(() =>
+        client.emit(
+          "messageDeleteBulk",
+          event.ids
+            .map((id) => {
+              if (client.messages.has(id)) {
+                const message = client.messages.getUnderlyingObject(id);
+                client.messages.delete(id);
+                return message!;
+              }
 
-            return undefined!;
-          })
-          .filter((x) => x),
-        client.channels.get(event.channel)
+              return undefined!;
+            })
+            .filter((x) => x),
+          client.channels.get(event.channel)
+        )
       );
       break;
     }
@@ -492,11 +496,13 @@ export async function handleEvent(
     }
     case "ServerCreate": {
       if (!client.servers.has(event.server._id)) {
-        for (const channel of event.channels) {
-          client.channels.getOrCreate(channel._id, channel);
-        }
+        batch(() => {
+          for (const channel of event.channels) {
+            client.channels.getOrCreate(channel._id, channel);
+          }
 
-        client.servers.getOrCreate(event.server._id, event.server, true);
+          client.servers.getOrCreate(event.server._id, event.server, true);
+        });
       }
       break;
     }
@@ -540,13 +546,15 @@ export async function handleEvent(
     }
     case "ServerDelete": {
       if (client.servers.getOrPartial(event.id)) {
-        const server = client.servers.getUnderlyingObject(event.id);
-        client.emit("serverDelete", server);
-        client.servers.delete(event.id);
+        batch(() => {
+          const server = client.servers.getUnderlyingObject(event.id);
+          client.emit("serverDelete", server);
+          client.servers.delete(event.id);
 
-        for (const channel of server.channelIds) {
-          client.channels.delete(channel);
-        }
+          for (const channel of server.channelIds) {
+            client.channels.delete(channel);
+          }
+        });
       }
       break;
     }
@@ -725,35 +733,37 @@ export async function handleEvent(
       break;
     }
     case "UserPlatformWipe": {
-      handleEvent(
-        client,
-        {
-          type: "BulkMessageDelete",
-          channel: "0",
-          ids: client.messages
-            .toList()
-            .filter((message) => message.authorId === event.user_id)
-            .map((message) => message.id),
-        },
-        setReady
-      );
-
-      handleEvent(
-        client,
-        {
-          type: "UserUpdate",
-          id: event.user_id,
-          data: {
-            username: `Deleted User`,
-            online: false,
-            flags: event.flags,
-            badges: 0,
-            relationship: "None",
+      batch(() => {
+        handleEvent(
+          client,
+          {
+            type: "BulkMessageDelete",
+            channel: "0",
+            ids: client.messages
+              .toList()
+              .filter((message) => message.authorId === event.user_id)
+              .map((message) => message.id),
           },
-          clear: ["Avatar", "StatusPresence", "StatusText"],
-        },
-        setReady
-      );
+          setReady
+        );
+
+        handleEvent(
+          client,
+          {
+            type: "UserUpdate",
+            id: event.user_id,
+            data: {
+              username: `Deleted User`,
+              online: false,
+              flags: event.flags,
+              badges: 0,
+              relationship: "None",
+            },
+            clear: ["Avatar", "StatusPresence", "StatusText"],
+          },
+          setReady
+        );
+      });
 
       break;
     }

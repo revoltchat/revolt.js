@@ -125,7 +125,7 @@ export abstract class StoreCollection<T, V> extends Collection<T> {
    */
   constructor() {
     super();
-    this.getUnderlyingObject = this.#storage.get;
+    this.getUnderlyingObject = (key) => this.#storage.get(key) ?? ({} as V);
     this.updateUnderlyingObject = this.#storage.set;
   }
 
