@@ -140,10 +140,10 @@ export class User {
    * @returns Status message
    */
   statusMessage(translate: (presence: Presence) => string = (a) => a) {
-    return (
-      this.status?.text ??
-      (this.presence === "Focus" ? translate("Focus") : undefined)
-    );
+    return this.online
+      ? this.status?.text ??
+          (this.presence === "Focus" ? translate("Focus") : undefined)
+      : undefined;
   }
 
   /**
