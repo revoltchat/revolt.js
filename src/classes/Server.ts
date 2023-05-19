@@ -11,6 +11,7 @@ import { decodeTime } from "ulid";
 
 import { ServerMember, User } from "..";
 import { ServerCollection } from "../collections";
+import { hydrate } from "../hydration";
 import { bitwiseAndEq, calculatePermission } from "../permissions/calculator";
 import { Permission } from "../permissions/definitions";
 
@@ -348,7 +349,18 @@ export class Server {
    * @param data Changes
    */
   async edit(data: DataEditServer) {
-    await this.#collection.client.api.patch(`/servers/${this.id as ""}`, data);
+    this.#collection.updateUnderlyingObject(
+      this.id,
+      hydrate(
+        "server",
+        await this.#collection.client.api.patch(
+          `/servers/${this.id as ""}`,
+          data
+        ),
+        this.#collection.client,
+        false
+      )
+    );
   }
 
   /**
