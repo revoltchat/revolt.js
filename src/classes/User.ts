@@ -1,4 +1,4 @@
-import { DataEditUser } from "revolt-api";
+import { DataEditUser, Presence } from "revolt-api";
 import { decodeTime } from "ulid";
 
 import { UserCollection } from "../collections";
@@ -124,6 +124,25 @@ export class User {
     return (
       this.avatar?.createFileURL({ max_side: 256 }, true) ??
       this.defaultAvatarURL
+    );
+  }
+
+  /**
+   * Presence
+   */
+  get presence() {
+    return this.status?.presence ?? (this.online ? "Online" : "Invisible");
+  }
+
+  /**
+   * Generate status message
+   * @param translate Translation function
+   * @returns Status message
+   */
+  statusMessage(translate: (presence: Presence) => string = (a) => a) {
+    return (
+      this.status?.text ??
+      (this.presence === "Focus" ? translate("Focus") : undefined)
     );
   }
 

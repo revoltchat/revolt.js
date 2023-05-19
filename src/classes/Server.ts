@@ -537,11 +537,15 @@ export class Server {
     );
   }
 
+  #synced: undefined | "partial" | "full";
+
   /**
    * Optimised member fetch route
    * @param excludeOffline
    */
   async syncMembers(excludeOffline?: boolean) {
+    if (this.#synced && (this.#synced === "full" || excludeOffline)) return;
+
     const data = await this.#collection.client.api.get(
       `/servers/${this.id as ""}/members`,
       { exclude_offline: excludeOffline }
@@ -572,6 +576,13 @@ export class Server {
         }
       }
     });
+  }
+
+  /**
+   * Reset member sync status
+   */
+  resetSyncStatus() {
+    this.#synced = undefined;
   }
 
   /**

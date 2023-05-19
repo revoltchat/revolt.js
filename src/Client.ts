@@ -1,4 +1,4 @@
-import { Accessor, Setter, createSignal } from "solid-js";
+import { Accessor, Setter, batch, createSignal } from "solid-js";
 
 import EventEmitter from "eventemitter3";
 import { API, Role } from "revolt-api";
@@ -231,8 +231,11 @@ export class Client extends EventEmitter<Events> {
     this.events.on("state", (state) => {
       switch (state) {
         case ConnectionState.Connected:
-          this.#setConnectionFailureCount(0);
-          this.emit("connected");
+          batch(() => {
+            this.servers.forEach((server) => server.resetSyncStatus());
+            this.#setConnectionFailureCount(0);
+            this.emit("connected");
+          });
           break;
         case ConnectionState.Connecting:
           this.emit("connecting");
