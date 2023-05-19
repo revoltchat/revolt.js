@@ -131,7 +131,7 @@ export class User {
    * Presence
    */
   get presence() {
-    return this.status?.presence ?? (this.online ? "Online" : "Invisible");
+    return this.online ? this.status?.presence ?? "Online" : "Invisible";
   }
 
   /**
