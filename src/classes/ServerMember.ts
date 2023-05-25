@@ -187,6 +187,13 @@ export class ServerMember {
   }
 
   /**
+   * Username within a server
+   */
+  get username() {
+    return this.nickname ?? this.user?.username;
+  }
+
+  /**
    * URL to the member's avatar
    */
   get avatarURL() {
