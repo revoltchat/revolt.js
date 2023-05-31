@@ -20,7 +20,12 @@ export class PublicBot {
     this.#client = client;
     this.id = data._id;
     this.username = data.username;
-    this.avatar = data.avatar ? new File(client, data.avatar) : undefined;
+    this.avatar = data.avatar
+      ? new File(client, {
+          _id: data.avatar,
+          tag: "avatars",
+        } as API.File)
+      : undefined;
     this.description = data.description!;
   }
 

@@ -21,7 +21,10 @@ export class ServerCollection extends ClassCollection<Server, HydratedServer> {
   async fetch(id: string): Promise<Server> {
     const server = this.get(id);
     if (server) return server;
-    const data = await this.client.api.get(`/servers/${id as ""}`);
+    const data = (await this.client.api.get(
+      // @ts-expect-error TODO weird typing issue
+      `/servers/${id as ""}`
+    )) as API.Server;
     return this.getOrCreate(data._id, data);
   }
 

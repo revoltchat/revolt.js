@@ -1,6 +1,7 @@
 import { batch } from "solid-js";
 
 import type {
+  AllMemberResponse,
   Category,
   DataBanCreate,
   DataCreateChannel,
@@ -590,9 +591,10 @@ export class Server {
    * @returns List of the server's members and their user objects
    */
   async fetchMembers() {
-    const data = await this.#collection.client.api.get(
+    const data = (await this.#collection.client.api.get(
+      // @ts-expect-error TODO weird typing issue
       `/servers/${this.id as ""}/members`
-    );
+    )) as AllMemberResponse;
 
     return batch(() => ({
       members: data.members.map((member) =>
