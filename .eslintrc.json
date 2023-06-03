@@ -17,7 +17,7 @@
         "strings": false,
         "identifiers": false,
         "templates": false,
-        "skipWords": ["uri", "webhook", "unreads"],
+        "skipWords": ["uri", "webhook", "webhooks", "unreads"],
         "minLength": 3
       }
     ],

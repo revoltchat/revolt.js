@@ -391,6 +391,23 @@ export class Channel {
   }
 
   /**
+   * Fetch a channel's webhooks
+   * @requires `TextChannel`, `Group`
+   * @returns Webhooks
+   */
+  async fetchWebhooks() {
+    const webhooks = await this.#collection.client.api.get(
+      `/channels/${this.id as ""}/webhooks`
+    );
+
+    return batch(() =>
+      webhooks.map((webhook) =>
+        this.#collection.client.channelWebhooks.getOrCreate(webhook.id, webhook)
+      )
+    );
+  }
+
+  /**
    * Edit a channel
    * @param data Changes
    */

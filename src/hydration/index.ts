@@ -1,6 +1,7 @@
 import { botHydration } from "./bot";
 import { channelHydration } from "./channel";
 import { channelUnreadHydration } from "./channelUnread";
+import { channelWebhookHydration } from "./channelWebhook";
 import { emojiHydration } from "./emoji";
 import { messageHydration } from "./message";
 import { serverHydration } from "./server";
@@ -15,6 +16,7 @@ export { UserBadges, UserFlags } from "./user";
 export type { HydratedBot } from "./bot";
 export type { HydratedChannel } from "./channel";
 export type { HydratedChannelUnread } from "./channelUnread";
+export type { HydratedChannelWebhook } from "./channelWebhook";
 export type { HydratedEmoji } from "./emoji";
 export type { HydratedMessage } from "./message";
 export type { HydratedServer } from "./server";
@@ -77,6 +79,7 @@ const hydrators = {
   bot: botHydration,
   channel: channelHydration,
   channelUnread: channelUnreadHydration,
+  channelWebhook: channelWebhookHydration,
   emoji: emojiHydration,
   message: messageHydration,
   server: serverHydration,

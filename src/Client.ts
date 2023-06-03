@@ -9,6 +9,7 @@ import {
   BotCollection,
   ChannelCollection,
   ChannelUnreadCollection,
+  ChannelWebhookCollection,
   EmojiCollection,
   MessageCollection,
   ServerCollection,
@@ -148,6 +149,7 @@ export class Client extends EventEmitter<Events> {
   readonly bots;
   readonly channels;
   readonly channelUnreads;
+  readonly channelWebhooks;
   readonly emojis;
   readonly messages;
   readonly servers;
@@ -219,6 +221,7 @@ export class Client extends EventEmitter<Events> {
     this.bots = new BotCollection(this);
     this.channels = new ChannelCollection(this);
     this.channelUnreads = new ChannelUnreadCollection(this);
+    this.channelWebhooks = new ChannelWebhookCollection(this);
     this.emojis = new EmojiCollection(this);
     this.messages = new MessageCollection(this);
     this.servers = new ServerCollection(this);
