@@ -1,7 +1,14 @@
 import { ReactiveMap } from "@solid-primitives/map";
 import { ReactiveSet } from "@solid-primitives/set";
 
-import { API, Client, File, MessageEmbed, SystemMessage } from "..";
+import {
+  API,
+  Client,
+  File,
+  MessageEmbed,
+  MessageWebhook,
+  SystemMessage,
+} from "..";
 import type { Merge } from "../lib/merge";
 
 import { Hydrate } from ".";
@@ -11,6 +18,7 @@ export type HydratedMessage = {
   nonce?: string;
   channelId: string;
   authorId?: string;
+  webhook?: MessageWebhook;
   content?: string;
   systemMessage?: SystemMessage;
   attachments?: File[];
@@ -38,6 +46,10 @@ export const messageHydration: Hydrate<Merge<API.Message>, HydratedMessage> = {
     nonce: (message) => message.nonce!,
     channelId: (message) => message.channel,
     authorId: (message) => message.author,
+    webhook: (message, ctx) =>
+      message.webhook
+        ? new MessageWebhook(ctx as Client, message.webhook, message.author)
+        : undefined,
     content: (message) => message.content!,
     systemMessage: (message, ctx) =>
       SystemMessage.from(ctx as Client, message.system!),

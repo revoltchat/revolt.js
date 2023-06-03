@@ -1,6 +1,11 @@
-import { DataEditMessage, DataMessageSend } from "revolt-api";
+import {
+  MessageWebhook as ApiMessageWebhook,
+  DataEditMessage,
+  DataMessageSend,
+} from "revolt-api";
 import { decodeTime } from "ulid";
 
+import { Client, File } from "..";
 import { MessageCollection } from "../collections";
 
 /**
@@ -82,7 +87,7 @@ export class Message {
   }
 
   /**
-   * Id of user this message was sent by
+   * Id of user or webhook this message was sent by
    */
   get authorId() {
     return this.#collection.getUnderlyingObject(this.id).authorId;
@@ -95,6 +100,13 @@ export class Message {
     return this.#collection.client.users.get(
       this.#collection.getUnderlyingObject(this.id).authorId!
     );
+  }
+
+  /**
+   * Webhook information for this message
+   */
+  get webhook() {
+    return this.#collection.getUnderlyingObject(this.id).webhook!;
   }
 
   /**
@@ -171,8 +183,11 @@ export class Message {
    * Get the username for this message
    */
   get username() {
+    const webhook = this.webhook;
+
     return (
-      this.masquerade?.name ?? this.member?.nickname ?? this.author?.username
+      this.masquerade?.name ??
+      (webhook ? webhook.name : this.member?.nickname ?? this.author?.username)
     );
   }
 
@@ -187,10 +202,13 @@ export class Message {
    * Get the avatar URL for this message
    */
   get avatarURL() {
+    const webhook = this.webhook;
+
     return (
       this.masqueradeAvatarURL ??
-      this.member?.avatarURL ??
-      this.author?.avatarURL
+      (webhook
+        ? webhook.avatarURL
+        : this.member?.avatarURL ?? this.author?.avatarURL)
     );
   }
 
@@ -198,9 +216,13 @@ export class Message {
    * Get the animated avatar URL for this message
    */
   get animatedAvatarURL() {
+    const webhook = this.webhook;
+
     return (
       this.masqueradeAvatarURL ??
-      (this.member
+      (webhook
+        ? webhook.avatarURL
+        : this.member
         ? this.member?.animatedAvatarURL
         : this.author?.animatedAvatarURL)
     );
@@ -289,6 +311,49 @@ export class Message {
       `/channels/${this.channelId as ""}/messages/${this.id as ""}/reactions/${
         emoji as ""
       }`
+    );
+  }
+}
+
+/**
+ * Message Webhook Class
+ */
+export class MessageWebhook {
+  #client: Client;
+
+  readonly id: string;
+  readonly name: string;
+  readonly avatar?: File;
+
+  /**
+   * Construct Message Webhook
+   * @param client Client
+   * @param webhook Webhook data
+   */
+  constructor(client: Client, webhook: ApiMessageWebhook, id: string) {
+    this.#client = client;
+    this.id = id;
+    this.name = webhook.name;
+    this.avatar = webhook.avatar
+      ? new File(client, {
+          _id: webhook.avatar,
+          tag: "avatars",
+          metadata: {
+            type: "Image",
+            width: 256,
+            height: 256,
+          },
+        })
+      : undefined;
+  }
+
+  /**
+   * Get the avatar URL for this message webhook
+   */
+  get avatarURL() {
+    return (
+      this.avatar?.createFileURL({ max_side: 256 }) ??
+      `${this.#client.options.baseURL}/users/${this.id}/default_avatar`
     );
   }
 }

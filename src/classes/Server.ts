@@ -607,6 +607,30 @@ export class Server {
   }
 
   /**
+   * Query members from a server by name
+   * @param query Name
+   * @returns List of the server's members and their user objects
+   */
+  async queryMembersExperimental(query: string) {
+    const data = (await this.#collection.client.api.get(
+      `/servers/${
+        this.id as ""
+      }/members_experimental_query?experimental_api=true&query=${encodeURIComponent(
+        query
+      )}` as never
+    )) as AllMemberResponse;
+
+    return batch(() => ({
+      members: data.members.map((member) =>
+        this.#collection.client.serverMembers.getOrCreate(member._id, member)
+      ),
+      users: data.users.map((user) =>
+        this.#collection.client.users.getOrCreate(user._id, user)
+      ),
+    }));
+  }
+
+  /**
    * Create an emoji on the server
    * @param autumnId Autumn Id
    * @param options Options

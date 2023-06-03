@@ -21,7 +21,7 @@ export class File {
   /**
    * Original filename
    */
-  readonly filename: string;
+  readonly filename?: string;
 
   /**
    * Parsed metadata of the file
@@ -31,19 +31,22 @@ export class File {
   /**
    * Raw content type of this file
    */
-  readonly contentType: string;
+  readonly contentType?: string;
 
   /**
    * Size of the file (in bytes)
    */
-  readonly size: number;
+  readonly size?: number;
 
   /**
    * Construct File
    * @param client Client
    * @param file File
    */
-  constructor(client: Client, file: API.File) {
+  constructor(
+    client: Client,
+    file: Pick<API.File, "_id" | "tag" | "metadata"> & Partial<API.File>
+  ) {
     this.#client = client;
     this.id = file._id;
     this.tag = file.tag;
@@ -75,6 +78,8 @@ export class File {
    * Human readable file size
    */
   get humanReadableSize() {
+    if (!this.size) return "Unknown size";
+
     if (this.size > 1e6) {
       return `${(this.size / 1e6).toFixed(2)} MB`;
     } else if (this.size > 1e3) {
@@ -88,7 +93,7 @@ export class File {
    * Whether this file should have a spoiler
    */
   get isSpoiler() {
-    return this.filename.toLowerCase().startsWith("spoiler_");
+    return this.filename?.toLowerCase().startsWith("spoiler_") ?? false;
   }
 
   /**
@@ -110,7 +115,7 @@ export class File {
     if (!autumn?.enabled) return;
 
     // TODO: server-side
-    if (this.metadata.type === "Image") {
+    if (this.metadata?.type === "Image") {
       if (
         Math.min(this.metadata.width, this.metadata.height) <= 0 ||
         (this.contentType === "image/gif" &&
