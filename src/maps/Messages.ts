@@ -227,7 +227,18 @@ export class Message {
         apply("embeds");
         apply("mentions", "mention_ids");
         apply("masquerade");
-        apply("reactions");
+        apply("reactions", undefined, (reactions) => {
+            const v = reactions as Record<string, string[]>;
+            const newMap = new ObservableMap();
+            for (const reaction of Object.keys(v)) {
+                this.reactions.set(
+                    reaction,
+                    new ObservableSet(data.reactions![reaction]),
+                );
+            }
+
+            return newMap;
+        });
         apply("interactions");
     }
 
