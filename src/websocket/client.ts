@@ -238,7 +238,7 @@ export class WebSocketClient {
                                                 break;
                                         }
                                     }
-                                } else {
+                                } else if (!packet.webhook) {
                                     await this.client.users.fetch(
                                         packet.author,
                                     );

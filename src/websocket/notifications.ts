@@ -42,7 +42,9 @@ export type ClientboundNotification =
     | ({ type: "Error" } & WebSocketError)
     | { type: "Authenticated" }
     | ReadyPacket
-    | ({ type: "Message" } & Message)
+    | ({ type: "Message" } & Message & {
+              webhook?: { name: string; avatar?: string };
+          })
     | {
           type: "MessageUpdate";
           id: string;

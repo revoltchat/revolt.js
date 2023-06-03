@@ -31,6 +31,7 @@ export class Message {
     nonce?: string;
     channel_id: string;
     author_id: string;
+    webhook?: { name: string; avatar?: string };
 
     content: Nullable<string>;
     system: Nullable<SystemMessage>;
@@ -90,7 +91,12 @@ export class Message {
      * Get the username for this message.
      */
     get username() {
-        return this.masquerade?.name ?? this.member?.nickname ?? this.author?.username;
+        return (
+            this.masquerade?.name ??
+            this.webhook?.name ??
+            this.member?.nickname ??
+            this.author?.username
+        );
     }
 
     /**
@@ -104,20 +110,22 @@ export class Message {
      * Get the avatar URL for this message.
      */
     get avatarURL() {
-        return this.generateMasqAvatarURL()
-            ?? (this.member
-                ? this.member?.avatarURL
-                : this.author?.avatarURL);
+        return this.generateMasqAvatarURL() ?? this.webhook?.avatar
+            ? `https://autumn.revolt.chat/avatars/${this.webhook?.avatar}`
+            : this.member
+            ? this.member?.avatarURL
+            : this.author?.avatarURL;
     }
 
     /**
      * Get the animated avatar URL for this message.
      */
     get animatedAvatarURL() {
-        return this.generateMasqAvatarURL()
-            ?? (this.member
-                ? this.member?.animatedAvatarURL
-                : this.author?.animatedAvatarURL);
+        return this.generateMasqAvatarURL() ?? this.webhook?.avatar
+            ? `https://autumn.revolt.chat/avatars/${this.webhook?.avatar}`
+            : this.member
+            ? this.member?.animatedAvatarURL
+            : this.author?.animatedAvatarURL;
     }
 
     @computed generateMasqAvatarURL() {
@@ -164,6 +172,7 @@ export class Message {
         this.nonce = data.nonce ?? undefined;
         this.channel_id = data.channel;
         this.author_id = data.author;
+        this.webhook = toNullable((data as any).webhook);
 
         this.content = toNullable(data.content);
         this.system = toNullable(data.system);
@@ -211,6 +220,7 @@ export class Message {
             }
         };
 
+        apply("webhook");
         apply("content");
         apply("attachments");
         apply("edited", undefined, toNullableDate as (obj: unknown) => unknown);
