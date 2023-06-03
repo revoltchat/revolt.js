@@ -254,9 +254,11 @@ export class WebSocketClient {
                                         await this.client.servers.fetch(
                                             channel.server_id!,
                                         );
+
                                     if (
                                         packet.author !==
-                                        "00000000000000000000000000"
+                                            "00000000000000000000000000" &&
+                                        !packet.webhook
                                     )
                                         await server.fetchMember(packet.author);
                                 }
