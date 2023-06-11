@@ -141,7 +141,7 @@ export class User {
      */
     async addFriend() {
         return await this.client.api.post(`/users/friend`, {
-            username: this.username,
+            username: this.username + "#" + this.discriminator,
         });
     }
 
