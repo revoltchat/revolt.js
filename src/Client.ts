@@ -472,7 +472,7 @@ export class Client extends EventEmitter {
                 const user = this.users.get(id as string);
 
                 if (user) {
-                    return `@${user.username}`;
+                    return `${user.display_name ?? user.username}`;
                 }
 
                 return sub;
