@@ -2,7 +2,12 @@ import { runInAction } from "mobx";
 
 import { Client } from "../Client";
 
-import { InviteBotDestination, DataEditBot, DataCreateBot, OwnedBotsResponse } from 'revolt-api';
+import {
+    InviteBotDestination,
+    DataEditBot,
+    DataCreateBot,
+    OwnedBotsResponse,
+} from "revolt-api";
 
 export default class Bots {
     client: Client;
@@ -17,9 +22,7 @@ export default class Bots {
      * @returns Bot and User object
      */
     async fetch(id: string) {
-        const { bot, user } = await this.client.api.get(
-            `/bots/${id as ''}`,
-        );
+        const { bot, user } = await this.client.api.get(`/bots/${id as ""}`);
 
         return {
             bot,
@@ -32,7 +35,7 @@ export default class Bots {
      * @param id Bot ID
      */
     async delete(id: string) {
-        await this.client.api.delete(`/bots/${id as ''}`);
+        await this.client.api.delete(`/bots/${id as ""}`);
     }
 
     /**
@@ -41,9 +44,7 @@ export default class Bots {
      * @returns Public Bot object
      */
     async fetchPublic(id: string) {
-        return await this.client.api.get(
-            `/bots/${id as ''}/invite`,
-        );
+        return await this.client.api.get(`/bots/${id as ""}/invite`);
     }
 
     /**
@@ -51,12 +52,9 @@ export default class Bots {
      * @param id Bot ID
      * @param destination The group or server to add to
      */
-    async invite(
-        id: string,
-        destination: InviteBotDestination,
-    ) {
+    async invite(id: string, destination: InviteBotDestination) {
         return await this.client.api.post(
-            `/bots/${id as ''}/invite`,
+            `/bots/${id as ""}/invite`,
             destination,
         );
     }
@@ -67,9 +65,9 @@ export default class Bots {
      * @returns Bot and User objects
      */
     async fetchOwned() {
-        const { bots, users: userObjects } = await this.client.api.get(
+        const { bots, users: userObjects } = (await this.client.api.get(
             `/bots/@me`,
-        ) as OwnedBotsResponse;
+        )) as OwnedBotsResponse;
 
         const users = [];
         for (const obj of userObjects) {
@@ -85,7 +83,7 @@ export default class Bots {
      * @param data Bot edit data object
      */
     async edit(id: string, data: DataEditBot) {
-        await this.client.api.patch(`/bots/${id as ''}`, data);
+        await this.client.api.patch(`/bots/${id as ""}`, data);
 
         if (data.name) {
             const user = this.client.users.get(id);
@@ -106,6 +104,8 @@ export default class Bots {
         const user = await this.client.users.fetch(bot._id, {
             _id: bot._id,
             username: data.name,
+            discriminator: "0000", // no data
+            display_name: data.name, // typing issue
             bot: {
                 owner: this.client.user!._id,
             },

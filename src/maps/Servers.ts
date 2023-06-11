@@ -431,6 +431,7 @@ export class Server {
     async fetchMembers() {
         const data = await this.client.api.get(
             `/servers/${this._id as ""}/members`,
+            { exclude_offline: false },
         );
 
         // Note: this takes 986 ms (Testers server)
@@ -509,7 +510,11 @@ export default class Servers extends Collection<string, Server> {
      */
     async fetch(id: string, data?: ServerI, channels?: ChannelI[]) {
         if (this.has(id)) return this.$get(id, data);
-        const res = data ?? (await this.client.api.get(`/servers/${id as ""}`));
+        const res =
+            data ??
+            (await this.client.api.get(`/servers/${id as ""}`, {
+                include_channels: false,
+            }));
 
         return runInAction(async () => {
             if (channels) {
