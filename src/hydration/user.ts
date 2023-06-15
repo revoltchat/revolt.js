@@ -12,6 +12,8 @@ import { Hydrate } from ".";
 export type HydratedUser = {
   id: string;
   username: string;
+  discriminator: string;
+  displayName?: string;
   relationship: RelationshipStatus;
 
   online: boolean;
@@ -32,6 +34,8 @@ export const userHydration: Hydrate<ApiUser, HydratedUser> = {
   functions: {
     id: (user) => user._id,
     username: (user) => user.username,
+    discriminator: (user) => user.discriminator,
+    displayName: (user) => user.display_name!,
     relationship: (user) => user.relationship!,
 
     online: (user) => user.online!,

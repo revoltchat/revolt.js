@@ -21,11 +21,19 @@ export class ServerCollection extends ClassCollection<Server, HydratedServer> {
   async fetch(id: string): Promise<Server> {
     const server = this.get(id);
     if (server) return server;
-    const data = (await this.client.api.get(
-      // @ts-expect-error TODO weird typing issue
-      `/servers/${id as ""}`
-    )) as API.Server;
-    return this.getOrCreate(data._id, data);
+    const data = await this.client.api.get(`/servers/${id as ""}`, {
+      include_channels: true,
+    });
+
+    return batch(() => {
+      for (const channel of data.channels as unknown as API.Channel[]) {
+        if (typeof channel !== "string") {
+          this.client.channels.getOrCreate(channel._id, channel);
+        }
+      }
+
+      return this.getOrCreate(data._id, data);
+    });
   }
 
   /**

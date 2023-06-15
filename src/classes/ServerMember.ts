@@ -187,10 +187,10 @@ export class ServerMember {
   }
 
   /**
-   * Username within a server
+   * Display name
    */
-  get username() {
-    return this.nickname ?? this.user?.username;
+  get displayName() {
+    return this.nickname ?? this.user?.displayName;
   }
 
   /**

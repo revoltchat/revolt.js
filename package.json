@@ -1,6 +1,6 @@
 {
   "name": "revolt.js",
-  "version": "7.0.0-beta.6",
+  "version": "7.0.0-beta.7",
   "main": "lib/cjs/index.js",
   "module": "lib/esm/index.js",
   "types": "src/index.ts",
@@ -24,7 +24,7 @@
     "lib"
   ],
   "description": "Library for interacting with the Revolt API.",
-  "packageManager": "pnpm@7.14.2",
+  "packageManager": "pnpm@8.3.1",
   "dependencies": {
     "@mxssfd/typedoc-theme": "^1.1.1",
     "@solid-primitives/map": "^0.4.3",

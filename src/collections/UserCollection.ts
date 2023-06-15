@@ -17,6 +17,7 @@ export class UserCollection extends ClassCollection<User, HydratedUser> {
     this.getOrCreate(SYSTEM_ID, {
       _id: SYSTEM_ID,
       username: "Revolt",
+      discriminator: "0000",
     });
   }
 

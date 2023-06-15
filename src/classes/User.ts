@@ -44,6 +44,23 @@ export class User {
   }
 
   /**
+   * Discriminator
+   */
+  get discriminator() {
+    return this.#collection.getUnderlyingObject(this.id).discriminator;
+  }
+
+  /**
+   * Display Name
+   */
+  get displayName() {
+    return (
+      this.#collection.getUnderlyingObject(this.id).displayName ??
+      this.#collection.getUnderlyingObject(this.id).username
+    );
+  }
+
+  /**
    * Avatar
    */
   get avatar() {
