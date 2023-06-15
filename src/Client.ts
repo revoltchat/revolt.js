@@ -310,6 +310,9 @@ export class Client extends EventEmitter<Events> {
    * @returns An on-boarding function if on-boarding is required, undefined otherwise
    */
   async login(details: DataLogin) {
+      if (!token) {
+        throw new Error("Token is empty or null");
+    }
     await this.#fetchConfiguration();
     const data = await this.api.post("/auth/session/login", details);
     if (data.result === "Success") {
@@ -337,6 +340,9 @@ export class Client extends EventEmitter<Events> {
    * @param token Bot token
    */
   async loginBot(token: string) {
+      if (!token) {
+        throw new Error("Token is empty or null");
+    }
     await this.#fetchConfiguration();
     this.#session = token;
     this.#updateHeaders();
