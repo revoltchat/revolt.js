@@ -247,7 +247,12 @@ export async function handleEvent(
     case "Message": {
       if (!client.messages.has(event._id)) {
         // TODO: this should not be necessary in future protocols:
-        if (event.author && event.author != "00000000000000000000000000" && !event.webhook && client.options.eagerFetching) {
+        if (
+          event.author &&
+          event.author != "00000000000000000000000000" &&
+          !event.webhook &&
+          client.options.eagerFetching
+        ) {
           await client.users.fetch(event.author);
           const serverId = client.channels.get(event.channel)?.serverId;
           if (serverId)
