@@ -30,6 +30,7 @@ export type HydratedUser = {
 export const userHydration: Hydrate<ApiUser, HydratedUser> = {
   keyMapping: {
     _id: "id",
+    display_name: "displayName",
   },
   functions: {
     id: (user) => user._id,
