@@ -19,6 +19,7 @@ import type {
 } from "revolt-api";
 
 import { Client } from "..";
+import { hydrate } from "../hydration";
 import { Merge } from "../lib/merge";
 
 /**
@@ -271,7 +272,7 @@ export async function handleEvent(
         };
 
         client.messages.updateUnderlyingObject(event.id, {
-          ...(event.data as object),
+          ...hydrate("message", event.data, client, false),
           editedAt: new Date(),
         });
 
@@ -518,9 +519,7 @@ export async function handleEvent(
           ...client.servers.getUnderlyingObject(event.id),
         };
 
-        const changes = {
-          ...event.data,
-        };
+        const changes = hydrate("server", event.data, client, false);
 
         if (event.clear) {
           for (const remove of event.clear) {
@@ -532,7 +531,7 @@ export async function handleEvent(
                 changes["categories"] = undefined;
                 break;
               case "SystemMessages":
-                changes["system_messages"] = undefined;
+                changes["systemMessages"] = undefined;
                 break;
               case "Description":
                 changes["description"] = undefined;
@@ -544,7 +543,7 @@ export async function handleEvent(
           }
         }
 
-        client.servers.updateUnderlyingObject(event.id, changes as never);
+        client.servers.updateUnderlyingObject(event.id, changes);
         client.emit("serverUpdate", server, previousServer);
       }
       break;
@@ -618,9 +617,7 @@ export async function handleEvent(
           ),
         };
 
-        const changes = {
-          ...event.data,
-        };
+        const changes = hydrate("serverMember", event.data, client, false);
 
         if (event.clear) {
           for (const remove of event.clear) {
@@ -632,7 +629,7 @@ export async function handleEvent(
                 changes["avatar"] = undefined;
                 break;
               case "Roles":
-                changes["roles"] = undefined;
+                changes["roles"] = [];
                 break;
               case "Timeout":
                 changes["timeout"] = undefined;
@@ -672,9 +669,7 @@ export async function handleEvent(
           ...client.users.getUnderlyingObject(event.id),
         };
 
-        const changes = {
-          ...event.data,
-        };
+        const changes = hydrate("user", event.data, client, false);
 
         if (event.clear) {
           for (const remove of event.clear) {
