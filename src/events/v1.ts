@@ -392,9 +392,7 @@ export async function handleEvent(
           ...client.channels.getUnderlyingObject(event.id),
         };
 
-        const changes = {
-          ...(event.data as Merge<Channel>),
-        };
+        const changes = hydrate("channel", event.data, client, false);
 
         if (event.clear) {
           for (const remove of event.clear) {
@@ -403,7 +401,7 @@ export async function handleEvent(
                 changes["description"] = undefined;
                 break;
               case "DefaultPermissions":
-                changes["default_permissions"] = undefined;
+                changes["defaultPermissions"] = undefined;
                 break;
               case "Icon":
                 changes["icon"] = undefined;
@@ -412,7 +410,7 @@ export async function handleEvent(
           }
         }
 
-        client.channels.updateUnderlyingObject(event.id, changes as never);
+        client.channels.updateUnderlyingObject(event.id, changes);
         client.emit("channelUpdate", channel, previousChannel);
       }
       break;
