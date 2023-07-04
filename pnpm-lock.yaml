@@ -24,8 +24,8 @@ dependencies:
     specifier: ^5.2.1
     version: 5.2.1
   revolt-api:
-    specifier: 0.6.4
-    version: 0.6.4
+    specifier: 0.6.5
+    version: 0.6.5
   solid-js:
     specifier: ^1.7.3
     version: 1.7.3
@@ -1689,8 +1689,8 @@ packages:
     engines: {iojs: '>=1.0.0', node: '>=0.10.0'}
     dev: true
 
-  /revolt-api@0.6.4:
-    resolution: {integrity: sha512-5Q6K1CH9P6An40Jime9B11kT1Q1emw1+ipz0Hz4Y78sV6fHQDBuFZF9FdLfCWUdiW9/TZgHVbSVnoDr/jp8lVw==}
+  /revolt-api@0.6.5:
+    resolution: {integrity: sha512-1PNcc6DvWplwt4v9unEKKVVqa/X2gE0yT0RgPR8pM5uerpzPKDhikrbr5zudqnoBQ1t+92rKKDdMMAeBWH0mUA==}
     dependencies:
       '@insertish/oapi': 0.1.18
       axios: 0.26.1
