@@ -1,4 +1,4 @@
-import { ChannelUnreadCollection } from "../collections";
+import { ChannelUnreadCollection } from "../collections/index.js";
 
 /**
  * Channel Unread Class

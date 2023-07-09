@@ -2,10 +2,10 @@ import { batch } from "solid-js";
 
 import { DataCreateServer } from "revolt-api";
 
-import { API, Server } from "..";
-import { HydratedServer } from "../hydration";
+import { HydratedServer } from "../hydration/index.js";
+import { API, Server } from "../index.js";
 
-import { ClassCollection } from ".";
+import { ClassCollection } from "./index.js";
 
 /**
  * Collection of Servers

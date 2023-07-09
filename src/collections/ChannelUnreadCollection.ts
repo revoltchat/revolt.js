@@ -1,8 +1,8 @@
-import { API } from "..";
-import { ChannelUnread } from "../classes/ChannelUnread";
-import { HydratedChannelUnread } from "../hydration";
+import { ChannelUnread } from "../classes/ChannelUnread.js";
+import { HydratedChannelUnread } from "../hydration/index.js";
+import { API } from "../index.js";
 
-import { ClassCollection } from ".";
+import { ClassCollection } from "./index.js";
 
 /**
  * Collection of Channel Unreads

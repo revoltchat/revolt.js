@@ -1,6 +1,6 @@
 import Long from "long";
 
-import { Channel, Client, Server, ServerMember } from "..";
+import { Channel, Client, Server, ServerMember } from "../index.js";
 
 import {
   ALLOW_IN_TIMEOUT,
@@ -8,7 +8,7 @@ import {
   DEFAULT_PERMISSION_VIEW_ONLY,
   Permission,
   UserPermission,
-} from "./definitions";
+} from "./definitions.js";
 
 /**
  * Check whether `b` is present in `a`

@@ -5,8 +5,8 @@ import {
 } from "revolt-api";
 import { decodeTime } from "ulid";
 
-import { Client, File } from "..";
-import { MessageCollection } from "../collections";
+import { MessageCollection } from "../collections/index.js";
+import { Client, File } from "../index.js";
 
 /**
  * Message Class

@@ -1,6 +1,6 @@
 import { SetStoreFunction, createStore } from "solid-js/store";
 
-import { Hydrators, hydrate } from "../hydration";
+import { Hydrators, hydrate } from "../hydration/index.js";
 
 /**
  * Wrapper around Solid.js store

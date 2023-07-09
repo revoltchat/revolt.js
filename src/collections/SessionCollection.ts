@@ -1,10 +1,10 @@
 import { batch } from "solid-js";
 
-import { API } from "..";
-import { Session } from "../classes";
-import { HydratedSession } from "../hydration/session";
+import { Session } from "../classes/index.js";
+import { HydratedSession } from "../hydration/session.js";
+import { API } from "../index.js";
 
-import { ClassCollection } from ".";
+import { ClassCollection } from "./index.js";
 
 /**
  * Collection of Sessions

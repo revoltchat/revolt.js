@@ -1,6 +1,6 @@
 import { decodeTime } from "ulid";
 
-import { EmojiCollection } from "../collections";
+import { EmojiCollection } from "../collections/index.js";
 
 /**
  * Emoji Class
