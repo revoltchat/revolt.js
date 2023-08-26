@@ -32,7 +32,7 @@
     "eventemitter3": "^5.0.0",
     "isomorphic-ws": "^5.0.0",
     "long": "^5.2.1",
-    "revolt-api": "0.6.6",
+    "revolt-api": "0.6.7",
     "solid-js": "^1.7.3",
     "typedoc": "^0.24.1",
     "ulid": "^2.3.0",
