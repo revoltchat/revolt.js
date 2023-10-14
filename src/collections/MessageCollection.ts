@@ -60,13 +60,4 @@ export class MessageCollection extends ClassCollection<
       return instance;
     }
   }
-
-  /**
-   * Globally fetch messages
-   * @requires Admin
-   * @param query Message query
-   */
-  async queryMessages(query: API.MessageQuery) {
-    return this.client.api.post("/admin/messages", query);
-  }
 }
