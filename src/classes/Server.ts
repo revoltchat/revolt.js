@@ -334,6 +334,18 @@ export class Server {
   }
 
   /**
+   * Helper function to retrieve cached server member by their ID in this server
+   * @param userId User's ID
+   * @returns Server Member (if cached)
+   */
+  getMember(userId: string) {
+    return this.#collection.client.serverMembers.getByKey({
+      server: this.id,
+      user: userId,
+    });
+  }
+
+  /**
    * Create a channel
    * @param data Channel create route data
    * @returns The newly-created channel
