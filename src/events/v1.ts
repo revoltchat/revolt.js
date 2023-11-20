@@ -260,7 +260,14 @@ export async function handleEvent(
             await client.serverMembers.fetch(serverId, event.author);
         }
 
-        client.messages.getOrCreate(event._id, event, true);
+        batch(() => {
+          client.messages.getOrCreate(event._id, event, true);
+          client.channels.updateUnderlyingObject(
+            event.channel,
+            "lastMessageId",
+            event._id
+          );
+        });
       }
       break;
     }
