@@ -117,6 +117,13 @@ export class User {
   }
 
   /**
+   * Whether this user is ourselves
+   */
+  get self() {
+    return this.#collection.client.user === this;
+  }
+
+  /**
    * URL to the user's default avatar
    */
   get defaultAvatarURL() {
