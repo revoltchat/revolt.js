@@ -4,8 +4,8 @@ import type {
   AllMemberResponse,
   Category,
   DataBanCreate,
-  DataCreateChannel,
   DataCreateEmoji,
+  DataCreateServerChannel,
   DataEditRole,
   DataEditServer,
   Override,
@@ -350,7 +350,7 @@ export class Server {
    * @param data Channel create route data
    * @returns The newly-created channel
    */
-  async createChannel(data: DataCreateChannel) {
+  async createChannel(data: DataCreateServerChannel) {
     const channel = await this.#collection.client.api.post(
       `/servers/${this.id as ""}/channels`,
       data
@@ -394,6 +394,12 @@ export class Server {
    * Mark a server as read
    */
   async ack() {
+    batch(() => {
+      for (const channel of this.channels) {
+        channel.ack(undefined, false, true);
+      }
+    });
+
     await this.#collection.client.api.put(`/servers/${this.id}/ack`);
   }
 
