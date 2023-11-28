@@ -152,6 +152,13 @@ export class Message {
   }
 
   /**
+   * Whether this message mentions us
+   */
+  get mentioned() {
+    return this.mentionIds?.includes(this.#collection.client.user!.id);
+  }
+
+  /**
    * IDs of messages this message replies to
    */
   get replyIds() {
