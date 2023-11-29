@@ -48,6 +48,13 @@ export class Server {
   }
 
   /**
+   * Whether this object exists
+   */
+  get $exists() {
+    return !!this.#collection.getUnderlyingObject(this.id).id;
+  }
+
+  /**
    * Time when this server was created
    */
   get createdAt() {
@@ -379,6 +386,33 @@ export class Server {
   }
 
   /**
+   * Delete the underlying server
+   * @param leaveEvent Whether we are leaving
+   */
+  $delete(leaveEvent?: boolean) {
+    batch(() => {
+      const server = this.#collection.client.servers.getUnderlyingObject(
+        this.id
+      );
+
+      // Avoid race conditions
+      if (server.id) {
+        this.#collection.client.emit(
+          leaveEvent ? "serverLeave" : "serverDelete",
+          server
+        );
+
+        for (const channel of this.channelIds) {
+          this.#collection.client.channels.delete(channel);
+        }
+
+        this.#collection.delete(this.id);
+      }
+      // TODO: delete members, emoji, etc
+    });
+  }
+
+  /**
    * Delete or leave a server
    * @param leaveSilently Whether to not send a message on leave
    */
@@ -387,7 +421,7 @@ export class Server {
       leave_silently: leaveSilently,
     });
 
-    this.#collection.delete(this.id);
+    this.$delete();
   }
 
   /**
@@ -432,13 +466,6 @@ export class Server {
    * @param user User
    */
   async kickUser(user: string | User | ServerMember) {
-    const userId =
-      user instanceof User
-        ? user.id
-        : user instanceof ServerMember
-        ? user.id.user
-        : user;
-
     return await this.#collection.client.api.delete(
       `/servers/${this.id as ""}/members/${userId}`
     );

@@ -43,6 +43,13 @@ export class Channel {
   }
 
   /**
+   * Whether this object exists
+   */
+  get $exists() {
+    return !!this.#collection.getUnderlyingObject(this.id).id;
+  }
+
+  /**
    * Time when this server was created
    */
   get createdAt() {

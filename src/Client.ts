@@ -68,6 +68,7 @@ type Events = {
   serverCreate(server: Server): void;
   serverUpdate(server: Server, previousServer: HydratedServer): void;
   serverDelete(server: HydratedServer): void;
+  serverLeave(server: HydratedServer): void;
   serverRoleUpdate(server: Server, roleId: string, previousRole: Role): void;
   serverRoleDelete(server: Server, roleId: string, role: Role): void;
 

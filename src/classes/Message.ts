@@ -26,6 +26,13 @@ export class Message {
   }
 
   /**
+   * Whether this object exists
+   */
+  get $exists() {
+    return !!this.#collection.getUnderlyingObject(this.id).id;
+  }
+
+  /**
    * Time when this message was posted
    */
   get createdAt() {

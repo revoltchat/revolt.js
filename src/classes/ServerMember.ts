@@ -46,6 +46,13 @@ export class ServerMember {
   }
 
   /**
+   * Whether this object exists
+   */
+  get $exists() {
+    return !this.#collection.getUnderlyingObject(key(this.id)).id;
+  }
+
+  /**
    * Server this member belongs to
    */
   get server() {

@@ -18,6 +18,13 @@ export class ChannelUnread {
   }
 
   /**
+   * Whether this object exists
+   */
+  get $exists() {
+    return !!this.#collection.getUnderlyingObject(this.id).id;
+  }
+
+  /**
    * Last read message id
    */
   get lastMessageId() {

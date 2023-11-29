@@ -30,6 +30,13 @@ export class User {
   }
 
   /**
+   * Whether this object exists
+   */
+  get $exists() {
+    return !!this.#collection.getUnderlyingObject(this.id).id;
+  }
+
+  /**
    * Time when this user created their account
    */
   get createdAt() {

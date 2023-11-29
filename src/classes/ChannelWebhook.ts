@@ -21,6 +21,13 @@ export class ChannelWebhook {
   }
 
   /**
+   * Whether this object exists
+   */
+  get $exists() {
+    return !!this.#collection.getUnderlyingObject(this.id).id;
+  }
+
+  /**
    * Webhook name
    */
   get name() {
