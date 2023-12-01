@@ -467,7 +467,13 @@ export class Server {
    */
   async kickUser(user: string | User | ServerMember) {
     return await this.#collection.client.api.delete(
-      `/servers/${this.id as ""}/members/${userId}`
+      `/servers/${this.id as ""}/members/${
+        typeof user === "string"
+          ? user
+          : user instanceof User
+          ? user.id
+          : user.id.user
+      }`
     );
   }
 
