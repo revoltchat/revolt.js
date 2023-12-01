@@ -645,19 +645,21 @@ export class Channel {
    * @param message Last read message or its ID
    * @param skipRateLimiter Whether to skip the internal rate limiter
    * @param skipRequest For internal updates only
+   * @param skipNextMarking For internal usage only
    * @requires `SavedMessages`, `DirectMessage`, `Group`, `TextChannel`
    */
   async ack(
     message?: Message | string,
     skipRateLimiter?: boolean,
-    skipRequest?: boolean
+    skipRequest?: boolean,
+    skipNextMarking?: boolean
   ) {
     if (!message && this.#manuallyMarked) {
       this.#manuallyMarked = false;
       return;
     }
     // Skip the next unread marking
-    else if (message instanceof Message) {
+    else if (skipNextMarking) {
       this.#manuallyMarked = true;
     }
 
