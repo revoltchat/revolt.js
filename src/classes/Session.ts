@@ -28,6 +28,13 @@ export class Session {
   }
 
   /**
+   * Whether this object exists
+   */
+  get $exists() {
+    return !!this.#collection.getUnderlyingObject(this.id).id;
+  }
+
+  /**
    * Time when this session was created
    */
   get createdAt() {

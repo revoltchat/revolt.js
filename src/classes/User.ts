@@ -30,6 +30,13 @@ export class User {
   }
 
   /**
+   * Whether this object exists
+   */
+  get $exists() {
+    return !!this.#collection.getUnderlyingObject(this.id).id;
+  }
+
+  /**
    * Time when this user created their account
    */
   get createdAt() {
@@ -114,6 +121,13 @@ export class User {
    */
   get bot() {
     return this.#collection.getUnderlyingObject(this.id).bot;
+  }
+
+  /**
+   * Whether this user is ourselves
+   */
+  get self() {
+    return this.#collection.client.user === this;
   }
 
   /**

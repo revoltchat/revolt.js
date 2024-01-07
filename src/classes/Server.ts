@@ -4,8 +4,8 @@ import type {
   AllMemberResponse,
   Category,
   DataBanCreate,
-  DataCreateChannel,
   DataCreateEmoji,
+  DataCreateServerChannel,
   DataEditRole,
   DataEditServer,
   Override,
@@ -48,6 +48,13 @@ export class Server {
    */
   toString() {
     return `<%${this.id}>`;
+  }
+
+  /**
+   * Whether this object exists
+   */
+  get $exists() {
+    return !!this.#collection.getUnderlyingObject(this.id).id;
   }
 
   /**
@@ -337,11 +344,23 @@ export class Server {
   }
 
   /**
+   * Helper function to retrieve cached server member by their ID in this server
+   * @param userId User's ID
+   * @returns Server Member (if cached)
+   */
+  getMember(userId: string) {
+    return this.#collection.client.serverMembers.getByKey({
+      server: this.id,
+      user: userId,
+    });
+  }
+
+  /**
    * Create a channel
    * @param data Channel create route data
    * @returns The newly-created channel
    */
-  async createChannel(data: DataCreateChannel) {
+  async createChannel(data: DataCreateServerChannel) {
     const channel = await this.#collection.client.api.post(
       `/servers/${this.id as ""}/channels`,
       data
@@ -370,6 +389,33 @@ export class Server {
   }
 
   /**
+   * Delete the underlying server
+   * @param leaveEvent Whether we are leaving
+   */
+  $delete(leaveEvent?: boolean) {
+    batch(() => {
+      const server = this.#collection.client.servers.getUnderlyingObject(
+        this.id
+      );
+
+      // Avoid race conditions
+      if (server.id) {
+        this.#collection.client.emit(
+          leaveEvent ? "serverLeave" : "serverDelete",
+          server
+        );
+
+        for (const channel of this.channelIds) {
+          this.#collection.client.channels.delete(channel);
+        }
+
+        this.#collection.delete(this.id);
+      }
+      // TODO: delete members, emoji, etc
+    });
+  }
+
+  /**
    * Delete or leave a server
    * @param leaveSilently Whether to not send a message on leave
    */
@@ -378,13 +424,19 @@ export class Server {
       leave_silently: leaveSilently,
     });
 
-    this.#collection.delete(this.id);
+    this.$delete();
   }
 
   /**
    * Mark a server as read
    */
   async ack() {
+    batch(() => {
+      for (const channel of this.channels) {
+        channel.ack(undefined, false, true);
+      }
+    });
+
     await this.#collection.client.api.put(`/servers/${this.id}/ack`);
   }
 
@@ -417,15 +469,14 @@ export class Server {
    * @param user User
    */
   async kickUser(user: string | User | ServerMember) {
-    const userId =
-      user instanceof User
-        ? user.id
-        : user instanceof ServerMember
-        ? user.id.user
-        : user;
-
     return await this.#collection.client.api.delete(
-      `/servers/${this.id as ""}/members/${userId}`
+      `/servers/${this.id as ""}/members/${
+        typeof user === "string"
+          ? user
+          : user instanceof User
+          ? user.id
+          : user.id.user
+      }`
     );
   }
 

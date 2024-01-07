@@ -28,6 +28,13 @@ export class Emoji {
   }
 
   /**
+   * Whether this object exists
+   */
+  get $exists() {
+    return !!this.#collection.getUnderlyingObject(this.id).id;
+  }
+
+  /**
    * Time when this emoji was created
    */
   get createdAt() {

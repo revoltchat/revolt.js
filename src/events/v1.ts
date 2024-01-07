@@ -201,6 +201,10 @@ export async function handleEvent(
   event: ServerMessage,
   setReady: Setter<boolean>
 ) {
+  if (client.options.debug) {
+    console.debug("[S->C]", event);
+  }
+
   switch (event.type) {
     case "Bulk": {
       for (const item of event.v) {
@@ -259,7 +263,14 @@ export async function handleEvent(
             await client.serverMembers.fetch(serverId, event.author);
         }
 
-        client.messages.getOrCreate(event._id, event, true);
+        batch(() => {
+          client.messages.getOrCreate(event._id, event, true);
+          client.channels.updateUnderlyingObject(
+            event.channel,
+            "lastMessageId",
+            event._id
+          );
+        });
       }
       break;
     }
@@ -546,16 +557,10 @@ export async function handleEvent(
       break;
     }
     case "ServerDelete": {
-      if (client.servers.getOrPartial(event.id)) {
-        batch(() => {
-          const server = client.servers.getUnderlyingObject(event.id);
-          client.emit("serverDelete", server);
-          client.servers.delete(event.id);
-
-          for (const channel of server.channelIds) {
-            client.channels.delete(channel);
-          }
-        });
+      const server = client.servers.getOrPartial(event.id);
+      if (server) {
+        // TODO: server should tell us if it's a leave or delete on our end
+        server.$delete();
       }
       break;
     }
@@ -595,6 +600,12 @@ export async function handleEvent(
       };
 
       if (!client.serverMembers.hasByKey(id)) {
+        if (!client.users.has(id.user)) {
+          if (client.options.eagerFetching) {
+            await client.users.fetch(id.user);
+          }
+        }
+
         client.emit(
           "serverMemberJoin",
           client.serverMembers.getOrCreate(id, {
@@ -645,6 +656,19 @@ export async function handleEvent(
       break;
     }
     case "ServerMemberLeave": {
+      if (event.user) {
+        handleEvent(
+          client,
+          {
+            type: "ServerDelete",
+            id: event.id,
+          },
+          setReady
+        );
+
+        return;
+      }
+
       const id = {
         server: event.id,
         user: event.user,
@@ -654,6 +678,7 @@ export async function handleEvent(
         const member = client.serverMembers.getUnderlyingObject(
           id.server + id.user
         );
+
         client.emit("serverMemberLeave", member);
         client.serverMembers.delete(id.server + id.user);
       }

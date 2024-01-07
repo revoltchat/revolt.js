@@ -46,6 +46,13 @@ export class Channel {
   }
 
   /**
+   * Whether this object exists
+   */
+  get $exists() {
+    return !!this.#collection.getUnderlyingObject(this.id).id;
+  }
+
+  /**
    * Time when this server was created
    */
   get createdAt() {
@@ -634,14 +641,31 @@ export class Channel {
 
   #ackTimeout?: number;
   #ackLimit?: number;
+  #manuallyMarked?: boolean;
 
   /**
    * Mark a channel as read
    * @param message Last read message or its ID
    * @param skipRateLimiter Whether to skip the internal rate limiter
+   * @param skipRequest For internal updates only
+   * @param skipNextMarking For internal usage only
    * @requires `SavedMessages`, `DirectMessage`, `Group`, `TextChannel`
    */
-  async ack(message?: Message | string, skipRateLimiter?: boolean) {
+  async ack(
+    message?: Message | string,
+    skipRateLimiter?: boolean,
+    skipRequest?: boolean,
+    skipNextMarking?: boolean
+  ) {
+    if (!message && this.#manuallyMarked) {
+      this.#manuallyMarked = false;
+      return;
+    }
+    // Skip the next unread marking
+    else if (skipNextMarking) {
+      this.#manuallyMarked = true;
+    }
+
     const lastMessageId =
       (typeof message === "string" ? message : message?.id) ??
       this.lastMessageId ??
@@ -658,6 +682,9 @@ export class Channel {
         channelUnread.messageMentionIds.clear();
       }
     }
+
+    // Skip request if not needed
+    if (skipRequest) return;
 
     /**
      * Send the actual acknowledgement request

@@ -1,7 +1,7 @@
 lockfileVersion: '6.0'
 
 settings:
-  autoInstallPeers: false
+  autoInstallPeers: true
   excludeLinksFromLockfile: false
 
 dependencies:
@@ -24,8 +24,8 @@ dependencies:
     specifier: ^5.2.1
     version: 5.2.1
   revolt-api:
-    specifier: 0.6.7
-    version: 0.6.7
+    specifier: 0.6.9
+    version: 0.6.9
   solid-js:
     specifier: ^1.7.3
     version: 1.7.3
@@ -1689,8 +1689,8 @@ packages:
     engines: {iojs: '>=1.0.0', node: '>=0.10.0'}
     dev: true
 
-  /revolt-api@0.6.7:
-    resolution: {integrity: sha512-CfMs8xCy9VcZIzyaJ9/t6ixcUR+YJ1hahIiunHd2FcoSKKiPgJNZvCXSV2vSWW1b8y2ftFeFygU/+AfdZocOeQ==}
+  /revolt-api@0.6.9:
+    resolution: {integrity: sha512-Z9YcsVh91bl+JVcVqzeL1tKWn1IExXDTwI0HMbEQ8X+eiuLhWG31HQSa6ESf12jI8eSv1c3jj99v5LbgGODYLA==}
     dependencies:
       '@insertish/oapi': 0.1.18
       axios: 0.26.1

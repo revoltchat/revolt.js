@@ -26,6 +26,13 @@ export class Message {
   }
 
   /**
+   * Whether this object exists
+   */
+  get $exists() {
+    return !!this.#collection.getUnderlyingObject(this.id).id;
+  }
+
+  /**
    * Time when this message was posted
    */
   get createdAt() {
@@ -149,6 +156,13 @@ export class Message {
    */
   get mentionIds() {
     return this.#collection.getUnderlyingObject(this.id).mentionIds;
+  }
+
+  /**
+   * Whether this message mentions us
+   */
+  get mentioned() {
+    return this.mentionIds?.includes(this.#collection.client.user!.id);
   }
 
   /**
