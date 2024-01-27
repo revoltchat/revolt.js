@@ -39,7 +39,7 @@ export type Session = { _id: string; token: string; user_id: string } | string;
 /**
  * Events provided by the client
  */
-type Events = {
+export type Events = {
   error(error: Error): void;
 
   connected(): void;
