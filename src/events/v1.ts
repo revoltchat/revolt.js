@@ -20,7 +20,6 @@ import type {
 
 import { Client } from "..";
 import { hydrate } from "../hydration";
-import { Merge } from "../lib/merge";
 
 /**
  * Version 1 of the events protocol
