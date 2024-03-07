@@ -1,8 +1,7 @@
 # revolt.js
 
-> **Warning**
-> revolt.js is currently being rewritten, it's pretty much ready for use for most applications but is still not entirely feature complete.
->
+> [!WARNING]
+> revolt.js is currently being rewritten. While it's ready for use for most applications, it is still not entirely feature complete. \
 > You can find the [version 6 README here](https://github.com/revoltchat/revolt.js/tree/v6).
 
 ![revolt.js](https://img.shields.io/npm/v/revolt.js) ![revolt-api](https://img.shields.io/npm/v/revolt-api?label=Revolt%20API)
@@ -49,10 +48,10 @@ function MyApp() {
 
 ## Revolt API Types
 
-All `revolt-api` types are re-exported from this library under `API`.
+> [!WARNING]
+> It is advised you do not use this unless necessary. If you find somewhere that isn't covered by the library, please open an issue as this library aims to transform all objects.
 
-> **Warning**
-> It is advised you do not use this unless necessary, if you find somewhere that isn't covered by the library, please open an issue as this library aims to transform all objects.
+All `revolt-api` types are re-exported from this library under `API`.
 
 ```typescript
 import { API } from "revolt.js";

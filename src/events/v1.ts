@@ -18,8 +18,8 @@ import type {
   User,
 } from "revolt-api";
 
-import { hydrate } from "../hydration/index.js";
 import { Client } from "../index.js";
+import { hydrate } from "../hydration/index.js";
 
 /**
  * Version 1 of the events protocol
