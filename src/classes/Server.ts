@@ -578,15 +578,7 @@ export class Server {
     });
 
     if (existing) return existing;
-
-    const member = await this.#collection.client.api.get(
-      `/servers/${this.id as ""}/members/${userId as ""}`
-    );
-
-    return this.#collection.client.serverMembers.getOrCreate(
-      member._id,
-      member
-    );
+    return this.#collection.client.serverMembers.fetch(this.id, userId);
   }
 
   #synced: undefined | "partial" | "full";
