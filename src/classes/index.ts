@@ -1,6 +1,7 @@
 export * from "./Bot";
 export * from "./Channel";
 export * from "./ChannelUnread";
+export * from "./ChannelWebhook";
 export * from "./Emoji";
 export * from "./File";
 export * from "./Invite";
