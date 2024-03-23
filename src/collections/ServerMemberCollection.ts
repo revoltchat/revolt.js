@@ -38,9 +38,13 @@ export class ServerMemberCollection extends ClassCollection<
     const member = this.get(serverId + userId);
     if (member) return member;
 
-    const data = await this.client.api.get(
-      `/servers/${serverId as ""}/members/${userId as ""}`
-    );
+    const data = (await this.client.api.get(
+      `/servers/${serverId as ""}/members/${userId as ""}`,
+      {
+        roles: false,
+      }
+      // TODO: fix typings in revolt-api
+    )) as API.Member;
 
     return this.getOrCreate(data._id, data);
   }

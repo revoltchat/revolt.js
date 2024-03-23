@@ -1,6 +1,7 @@
 export * from "./Bot.js";
 export * from "./Channel.js";
 export * from "./ChannelUnread.js";
+export * from "./ChannelWebhook.js
 export * from "./Emoji.js";
 export * from "./File.js";
 export * from "./Invite.js";
