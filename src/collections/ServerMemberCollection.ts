@@ -1,7 +1,7 @@
-import { API, ServerMember } from "..";
-import { HydratedServerMember } from "../hydration";
+import { HydratedServerMember } from "../hydration/index.js";
+import { API, ServerMember } from "../index.js";
 
-import { ClassCollection } from ".";
+import { ClassCollection } from "./index.js";
 
 /**
  * Collection of Server Members

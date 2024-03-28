@@ -8,10 +8,10 @@ import {
   MessageEmbed,
   MessageWebhook,
   SystemMessage,
-} from "..";
-import type { Merge } from "../lib/merge";
+} from "../index.js";
+import type { Merge } from "../lib/merge.js";
 
-import { Hydrate } from ".";
+import { Hydrate } from "./index.js";
 
 export type HydratedMessage = {
   id: string;

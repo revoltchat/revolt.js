@@ -2,10 +2,10 @@ import { batch } from "solid-js";
 
 import { OwnedBotsResponse } from "revolt-api";
 
-import { API, Bot, PublicBot } from "..";
-import { HydratedBot } from "../hydration/bot";
+import { HydratedBot } from "../hydration/bot.js";
+import { API, Bot, PublicBot } from "../index.js";
 
-import { ClassCollection } from ".";
+import { ClassCollection } from "./index.js";
 
 /**
  * Collection of Bots

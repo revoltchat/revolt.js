@@ -1,7 +1,7 @@
 import { DataEditWebhook } from "revolt-api";
 
-import { ChannelWebhookCollection } from "../collections";
-import { hydrate } from "../hydration";
+import { ChannelWebhookCollection } from "../collections/index.js";
+import { hydrate } from "../hydration/index.js";
 
 /**
  * Channel Webhook Class

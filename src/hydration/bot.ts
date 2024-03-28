@@ -1,6 +1,6 @@
 import { Bot as ApiBot } from "revolt-api";
 
-import { Hydrate } from ".";
+import { Hydrate } from "./index.js";
 
 export type HydratedBot = {
   id: string;

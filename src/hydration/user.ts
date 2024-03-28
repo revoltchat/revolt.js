@@ -5,9 +5,9 @@ import {
   UserStatus,
 } from "revolt-api";
 
-import { Client, File } from "..";
+import { Client, File } from "../index.js";
 
-import { Hydrate } from ".";
+import { Hydrate } from "./index.js";
 
 export type HydratedUser = {
   id: string;

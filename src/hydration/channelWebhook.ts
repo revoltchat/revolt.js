@@ -1,7 +1,7 @@
-import { API, Client, File } from "..";
-import type { Merge } from "../lib/merge";
+import { API, Client, File } from "../index.js";
+import type { Merge } from "../lib/merge.js";
 
-import { Hydrate } from ".";
+import { Hydrate } from "./index.js";
 
 export type HydratedChannelWebhook = {
   id: string;

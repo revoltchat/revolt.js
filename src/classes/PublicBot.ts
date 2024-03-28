@@ -1,4 +1,4 @@
-import { API, Channel, Client, File, Server } from "..";
+import { API, Channel, Client, File, Server } from "../index.js";
 
 /**
  * Public Bot Class

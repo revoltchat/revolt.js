@@ -1,9 +1,9 @@
 import { ReactiveSet } from "@solid-primitives/set";
 
-import { API } from "..";
-import type { Merge } from "../lib/merge";
+import { API } from "../index.js";
+import type { Merge } from "../lib/merge.js";
 
-import { Hydrate } from ".";
+import { Hydrate } from "./index.js";
 
 export type HydratedChannelUnread = {
   id: string;

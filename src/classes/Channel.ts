@@ -12,10 +12,13 @@ import type {
 import { APIRoutes } from "revolt-api/dist/routes";
 import { decodeTime, ulid } from "ulid";
 
-import { Message } from "..";
-import { ChannelCollection } from "../collections";
-import { bitwiseAndEq, calculatePermission } from "../permissions/calculator";
-import { Permission } from "../permissions/definitions";
+import { ChannelCollection } from "../collections/index.js";
+import { Message } from "../index.js";
+import {
+  bitwiseAndEq,
+  calculatePermission,
+} from "../permissions/calculator.js";
+import { Permission } from "../permissions/definitions.js";
 
 /**
  * Channel Class

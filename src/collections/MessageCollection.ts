@@ -1,7 +1,7 @@
-import { API, Message } from "..";
 import { HydratedMessage } from "../hydration";
+import { API, Message } from "../index.js";
 
-import { ClassCollection } from ".";
+import { ClassCollection } from "./index.js";
 
 /**
  * Collection of Messages

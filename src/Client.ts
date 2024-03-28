@@ -1,10 +1,18 @@
 import { Accessor, Setter, batch, createSignal } from "solid-js";
 
 import EventEmitter from "eventemitter3";
-import { API, Role } from "revolt-api";
 import type { DataLogin, RevoltConfig } from "revolt-api";
+import { API, Role } from "revolt-api";
 
-import { Channel, Emoji, Message, Server, ServerMember, User } from "./classes";
+import {
+  Channel,
+  Emoji,
+  Message,
+  Server,
+  ServerMember,
+  User,
+} from "./classes/index.js";
+import { AccountCollection } from "./collections/AccountCollection.js";
 import {
   BotCollection,
   ChannelCollection,
@@ -16,14 +24,13 @@ import {
   ServerMemberCollection,
   SessionCollection,
   UserCollection,
-} from "./collections";
-import { AccountCollection } from "./collections/AccountCollection";
+} from "./collections/index.js";
 import {
   ConnectionState,
   EventClient,
   EventClientOptions,
   handleEventV1,
-} from "./events";
+} from "./events/index.js";
 import {
   HydratedChannel,
   HydratedEmoji,
@@ -31,8 +38,8 @@ import {
   HydratedServer,
   HydratedServerMember,
   HydratedUser,
-} from "./hydration";
-import { RE_CHANNELS, RE_MENTIONS, RE_SPOILER } from "./lib/regex";
+} from "./hydration/index.js";
+import { RE_CHANNELS, RE_MENTIONS, RE_SPOILER } from "./lib/regex.js";
 
 export type Session = { _id: string; token: string; user_id: string } | string;
 

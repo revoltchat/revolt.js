@@ -1,9 +1,9 @@
 import { Member as ApiMember, MemberCompositeKey } from "revolt-api";
 
-import { Client, File } from "..";
-import type { Merge } from "../lib/merge";
+import { Client, File } from "../index.js";
+import type { Merge } from "../lib/merge.js";
 
-import { Hydrate } from ".";
+import { Hydrate } from "./index.js";
 
 export type HydratedServerMember = {
   id: MemberCompositeKey;

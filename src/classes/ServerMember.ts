@@ -4,12 +4,15 @@ import type {
   MemberCompositeKey,
 } from "revolt-api";
 
-import { ServerMemberCollection } from "../collections";
-import { bitwiseAndEq, calculatePermission } from "../permissions/calculator";
-import { Permission } from "../permissions/definitions";
+import { ServerMemberCollection } from "../collections/index.js";
+import {
+  bitwiseAndEq,
+  calculatePermission,
+} from "../permissions/calculator.js";
+import { Permission } from "../permissions/definitions.js";
 
-import { Channel } from "./Channel";
-import { Server } from "./Server";
+import { Channel } from "./Channel.js";
+import { Server } from "./Server.js";
 
 /**
  * Deterministic conversion of member composite key to string ID

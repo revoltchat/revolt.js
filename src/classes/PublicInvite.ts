@@ -1,7 +1,7 @@
 import { batch } from "solid-js";
 
-import { API, Client, File } from "..";
-import { ServerFlags } from "../hydration/server";
+import { ServerFlags } from "../hydration/server.js";
+import { API, Client, File } from "../index.js";
 
 /**
  * Public Channel Invite

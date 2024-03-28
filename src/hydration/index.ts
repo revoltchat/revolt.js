@@ -1,28 +1,28 @@
-import { botHydration } from "./bot";
-import { channelHydration } from "./channel";
-import { channelUnreadHydration } from "./channelUnread";
-import { channelWebhookHydration } from "./channelWebhook";
-import { emojiHydration } from "./emoji";
-import { messageHydration } from "./message";
-import { serverHydration } from "./server";
-import { serverMemberHydration } from "./serverMember";
-import { sessionHydration } from "./session";
-import { userHydration } from "./user";
+import { botHydration } from "./bot.js";
+import { channelHydration } from "./channel.js";
+import { channelUnreadHydration } from "./channelUnread.js";
+import { channelWebhookHydration } from "./channelWebhook.js";
+import { emojiHydration } from "./emoji.js";
+import { messageHydration } from "./message.js";
+import { serverHydration } from "./server.js";
+import { serverMemberHydration } from "./serverMember.js";
+import { sessionHydration } from "./session.js";
+import { userHydration } from "./user.js";
 
-export { BotFlags } from "./bot";
-export { ServerFlags } from "./server";
-export { UserBadges, UserFlags } from "./user";
+export { BotFlags } from "./bot.js";
+export { ServerFlags } from "./server.js";
+export { UserBadges, UserFlags } from "./user.js";
 
-export type { HydratedBot } from "./bot";
-export type { HydratedChannel } from "./channel";
-export type { HydratedChannelUnread } from "./channelUnread";
-export type { HydratedChannelWebhook } from "./channelWebhook";
-export type { HydratedEmoji } from "./emoji";
-export type { HydratedMessage } from "./message";
-export type { HydratedServer } from "./server";
-export type { HydratedServerMember } from "./serverMember";
-export type { HydratedUser } from "./user";
-export type { HydratedSession } from "./session";
+export type { HydratedBot } from "./bot.js";
+export type { HydratedChannel } from "./channel.js";
+export type { HydratedChannelUnread } from "./channelUnread.js";
+export type { HydratedChannelWebhook } from "./channelWebhook.js";
+export type { HydratedEmoji } from "./emoji.js";
+export type { HydratedMessage } from "./message.js";
+export type { HydratedServer } from "./server.js";
+export type { HydratedServerMember } from "./serverMember.js";
+export type { HydratedSession } from "./session.js";
+export type { HydratedUser } from "./user.js";
 
 /**
  * Functions to map from one object to another

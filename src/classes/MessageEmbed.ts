@@ -1,4 +1,4 @@
-import { API, Client, File } from "..";
+import { API, Client, File } from "../index.js";
 
 /**
  * Message Embed

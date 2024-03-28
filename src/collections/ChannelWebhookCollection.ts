@@ -1,8 +1,8 @@
-import { API } from "..";
-import { ChannelWebhook } from "../classes/ChannelWebhook";
-import { HydratedChannelWebhook } from "../hydration/channelWebhook";
+import { ChannelWebhook } from "../classes/ChannelWebhook.js";
+import { HydratedChannelWebhook } from "../hydration/channelWebhook.js";
+import { API } from "../index.js";
 
-import { ClassCollection } from ".";
+import { ClassCollection } from "./index.js";
 
 /**
  * Collection of Channel Webhooks

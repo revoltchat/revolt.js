@@ -1,8 +1,8 @@
 import { DataEditUser, Presence } from "revolt-api";
 import { decodeTime } from "ulid";
 
-import { UserCollection } from "../collections";
-import { U32_MAX, UserPermission } from "../permissions/definitions";
+import { UserCollection } from "../collections/index.js";
+import { U32_MAX, UserPermission } from "../permissions/definitions.js";
 
 /**
  * User Class

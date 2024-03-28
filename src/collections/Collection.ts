@@ -2,9 +2,9 @@ import { SetStoreFunction } from "solid-js/store";
 
 import { ReactiveMap } from "@solid-primitives/map";
 
-import { Client } from "..";
-import { Hydrators } from "../hydration";
-import { ObjectStorage } from "../storage/ObjectStorage";
+import { Hydrators } from "../hydration/index.js";
+import { Client } from "../index.js";
+import { ObjectStorage } from "../storage/ObjectStorage.js";
 
 /**
  * Abstract Collection type

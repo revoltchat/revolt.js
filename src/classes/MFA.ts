@@ -7,7 +7,7 @@ import {
   MFATicket as TicketType,
 } from "revolt-api";
 
-import { Client } from "..";
+import { Client } from "../index.js";
 
 /**
  * Multi-Factor Authentication
