@@ -85,6 +85,9 @@ export class User {
    * User Status
    */
   get status() {
+    // TODO: issue with API, upstream fix required #319
+    if (!this.online)
+      return { text: undefined, presence: "Invisible" as const };
     return this.#collection.getUnderlyingObject(this.id).status;
   }
 
