@@ -279,10 +279,16 @@ export async function handleEvent(
       if (message) {
         const previousMessage = {
           ...client.messages.getUnderlyingObject(event.id),
+          channelId: event.channel,
         };
 
         client.messages.updateUnderlyingObject(event.id, {
-          ...hydrate("message", event.data, client, false),
+          ...hydrate(
+            "message",
+            { ...event.data, channel: event.channel },
+            client,
+            false
+          ),
           editedAt: new Date(),
         });
 
@@ -295,12 +301,18 @@ export async function handleEvent(
       if (message) {
         const previousMessage = {
           ...client.messages.getUnderlyingObject(event.id),
+          channelId: event.channel,
         };
 
         client.messages.updateUnderlyingObject(
           event.id,
           "embeds",
           (embeds) => [...(embeds ?? []), event.append.embeds ?? []] as Embed[]
+        );
+        client.messages.updateUnderlyingObject(
+          event.id,
+          "channelId",
+          event.channel
         );
 
         client.emit("messageUpdate", message, previousMessage);
