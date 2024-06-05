@@ -20,7 +20,7 @@ export class ServerCollection extends ClassCollection<Server, HydratedServer> {
    */
   async fetch(id: string): Promise<Server> {
     const server = this.get(id);
-    if (server) return server;
+    if (server && !this.isPartial(id)) return server;
     const data = await this.client.api.get(`/servers/${id as ""}`, {
       include_channels: true,
     });
@@ -44,7 +44,7 @@ export class ServerCollection extends ClassCollection<Server, HydratedServer> {
    * @param isNew Whether this object is new
    */
   getOrCreate(id: string, data: API.Server, isNew = false) {
-    if (this.has(id)) {
+    if (this.has(id) && !this.isPartial(id)) {
       return this.get(id)!;
     } else {
       const instance = new Server(this, id);

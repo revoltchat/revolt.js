@@ -27,7 +27,7 @@ export class ChannelCollection extends ClassCollection<
    */
   async fetch(id: string): Promise<Channel> {
     const channel = this.get(id);
-    if (channel) return channel;
+    if (channel && !this.isPartial(id)) return channel;
     const data = await this.client.api.get(`/channels/${id as ""}`);
     return this.getOrCreate(data._id, data);
   }
@@ -39,7 +39,7 @@ export class ChannelCollection extends ClassCollection<
    * @param isNew Whether this object is new
    */
   getOrCreate(id: string, data: API.Channel, isNew = false) {
-    if (this.has(id)) {
+    if (this.has(id) && !this.isPartial(id)) {
       return this.get(id)!;
     } else {
       const instance = new Channel(this, id);
