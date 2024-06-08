@@ -1,5 +1,3 @@
-import { DataEditWebhook } from "revolt-api";
-
 import { ChannelWebhookCollection } from "../collections/index.js";
 import { hydrate } from "../hydration/index.js";
 
@@ -75,24 +73,29 @@ export class ChannelWebhook {
 
   /**
    * Edit this webhook
+   * TODO: not in production
    */
-  async edit(data: DataEditWebhook) {
+  async edit(data: any /*: DataEditWebhook*/) {
     const webhook = await this.#collection.client.api.patch(
+      // @ts-expect-error not in prod
       `/webhooks/${this.id as ""}/${this.token as ""}`,
       data
     );
 
     this.#collection.updateUnderlyingObject(
       this.id,
+      // @ts-expect-error not in prod
       hydrate("channelWebhook", webhook, this.#collection.client)
     );
   }
 
   /**
    * Delete this webhook
+   * TODO: not in production
    */
   async delete() {
     await this.#collection.client.api.delete(
+      // @ts-expect-error not in prod
       `/webhooks/${this.id}/${this.token}`
     );
 

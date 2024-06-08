@@ -1,6 +1,10 @@
-import { MemberCompositeKey } from "revolt-api";
+import {
+  BannedUser as ApiBannedUser,
+  ServerBan as ApiServerBan,
+  MemberCompositeKey,
+} from "revolt-api";
 
-import { API, Client } from "../index.js";
+import { BannedUser, Client } from "../index.js";
 
 /**
  * Server Ban
@@ -9,23 +13,18 @@ export class ServerBan {
   protected client: Client;
   readonly id: MemberCompositeKey;
   readonly reason?: string;
+  readonly user?: BannedUser;
 
   /**
    * Construct Server Ban
    * @param client Client
    * @param data Data
    */
-  constructor(client: Client, data: API.ServerBan) {
+  constructor(client: Client, data: ApiServerBan, user?: ApiBannedUser) {
     this.client = client;
     this.id = data._id;
     this.reason = data.reason!;
-  }
-
-  /**
-   * User
-   */
-  get user() {
-    return this.client.users.get(this.id.user);
+    this.user = user ? new BannedUser(client, user) : undefined;
   }
 
   /**

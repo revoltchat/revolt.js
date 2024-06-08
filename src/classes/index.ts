@@ -1,3 +1,4 @@
+export * from "./BannedUser.js";
 export * from "./Bot.js";
 export * from "./Channel.js";
 export * from "./ChannelUnread.js";
@@ -15,4 +16,3 @@ export * from "./ServerMember.js";
 export * from "./Session.js";
 export * from "./SystemMessage.js";
 export * from "./User.js";
-

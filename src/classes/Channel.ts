@@ -5,8 +5,8 @@ import type {
   Message as ApiMessage,
   User as ApiUser,
   DataEditChannel,
+  DataMessageSearch,
   DataMessageSend,
-  OptionsMessageSearch,
   Override,
 } from "revolt-api";
 import { APIRoutes } from "revolt-api/dist/routes";
@@ -573,7 +573,7 @@ export class Channel {
    * @requires `SavedMessages`, `DirectMessage`, `Group`, `TextChannel`
    * @returns Messages
    */
-  async search(params: Omit<OptionsMessageSearch, "include_users">) {
+  async search(params: Omit<DataMessageSearch, "include_users">) {
     const messages = (await this.#collection.client.api.post(
       `/channels/${this.id as ""}/search`,
       params
@@ -592,7 +592,7 @@ export class Channel {
    * @requires `SavedMessages`, `DirectMessage`, `Group`, `TextChannel`
    * @returns Object including messages and users
    */
-  async searchWithUsers(params: Omit<OptionsMessageSearch, "include_users">) {
+  async searchWithUsers(params: Omit<DataMessageSearch, "include_users">) {
     const data = (await this.#collection.client.api.post(
       `/channels/${this.id as ""}/search`,
       {

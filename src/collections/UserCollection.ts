@@ -18,6 +18,8 @@ export class UserCollection extends ClassCollection<User, HydratedUser> {
       _id: SYSTEM_ID,
       username: "Revolt",
       discriminator: "0000",
+      online: true,
+      relationship: "None",
     });
   }
 

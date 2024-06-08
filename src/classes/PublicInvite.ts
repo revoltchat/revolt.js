@@ -97,16 +97,22 @@ export class ServerPublicInvite extends PublicChannelInvite {
     const existingServer = this.client!.servers.get(this.serverId);
     if (existingServer) return existingServer;
 
-    const { server, channels } = await this.client!.api.post(
-      `/invites/${this.code as ""}`
-    );
+    const invite = await this.client!.api.post(`/invites/${this.code as ""}`);
 
-    return batch(() => {
-      for (const channel of channels) {
-        this.client!.channels.getOrCreate(channel._id, channel);
-      }
+    if (invite.type === "Server") {
+      return batch(() => {
+        for (const channel of invite.channels) {
+          this.client!.channels.getOrCreate(channel._id, channel);
+        }
 
-      return this.client!.servers.getOrCreate(server._id, server, true);
-    });
+        return this.client!.servers.getOrCreate(
+          invite.server._id,
+          invite.server,
+          true
+        );
+      });
+    } else {
+      throw "unreachable";
+    }
   }
 }

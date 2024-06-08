@@ -2,6 +2,7 @@ import { batch } from "solid-js";
 
 import type {
   AllMemberResponse,
+  BannedUser,
   Category,
   DataBanCreate,
   DataCreateEmoji,
@@ -514,11 +515,15 @@ export class Server {
       `/servers/${this.id as ""}/bans`
     );
 
-    users.forEach((user) =>
-      this.#collection.client.users.getOrCreate(user._id, user)
+    const userDict = users.reduce(
+      (d, c) => ({ ...d, [c._id]: c }),
+      {} as Record<string, BannedUser>
     );
 
-    return bans.map((ban) => new ServerBan(this.#collection.client, ban));
+    return bans.map(
+      (ban) =>
+        new ServerBan(this.#collection.client, ban, userDict[ban._id.user])
+    );
   }
 
   /**
@@ -720,8 +725,6 @@ export class Server {
    * @param emojiId Emoji ID
    */
   async deleteEmoji(emojiId: string) {
-    return await this.#collection.client.api.delete(
-      `/custom/emoji/${emojiId}`
-    );
+    return await this.#collection.client.api.delete(`/custom/emoji/${emojiId}`);
   }
 }

@@ -32,7 +32,6 @@ export class ServerCollection extends ClassCollection<Server, HydratedServer> {
         }
       }
 
-      // @ts-expect-error TODO
       return this.getOrCreate(data._id, data);
     });
   }
