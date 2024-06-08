@@ -1,7 +1,7 @@
 import { DataCreateAccount, WebPushSubscription } from "revolt-api";
 
-import { Client } from "..";
-import { MFA } from "../classes/MFA";
+import { MFA } from "../classes/MFA.js";
+import { Client } from "../index.js";
 
 /**
  * Utility functions for working with accounts

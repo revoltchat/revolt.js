@@ -12,15 +12,18 @@ import type {
 } from "revolt-api";
 import { decodeTime } from "ulid";
 
-import { ServerMember, User } from "..";
-import { ServerCollection } from "../collections";
-import { hydrate } from "../hydration";
-import { bitwiseAndEq, calculatePermission } from "../permissions/calculator";
-import { Permission } from "../permissions/definitions";
+import { ServerCollection } from "../collections/index.js";
+import { hydrate } from "../hydration/index.js";
+import { ServerMember, User } from "../index.js";
+import {
+  bitwiseAndEq,
+  calculatePermission,
+} from "../permissions/calculator.js";
+import { Permission } from "../permissions/definitions.js";
 
-import { Channel } from "./Channel";
-import { ChannelInvite } from "./Invite";
-import { ServerBan } from "./ServerBan";
+import { Channel } from "./Channel.js";
+import { ChannelInvite } from "./Invite.js";
+import { ServerBan } from "./ServerBan.js";
 
 /**
  * Server Class
