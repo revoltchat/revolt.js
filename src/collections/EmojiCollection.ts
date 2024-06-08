@@ -14,7 +14,7 @@ export class EmojiCollection extends ClassCollection<Emoji, HydratedEmoji> {
    */
   async fetch(id: string): Promise<Emoji> {
     const emoji = this.get(id);
-    if (emoji) return emoji;
+    if (emoji && !this.isPartial(id)) return emoji;
     const data = await this.client.api.get(`/custom/emoji/${id as ""}`);
     return this.getOrCreate(data._id, data);
   }
@@ -26,7 +26,7 @@ export class EmojiCollection extends ClassCollection<Emoji, HydratedEmoji> {
    * @param isNew Whether this object is new
    */
   getOrCreate(id: string, data: API.Emoji, isNew = false) {
-    if (this.has(id)) {
+    if (this.has(id) && !this.isPartial(id)) {
       return this.get(id)!;
     } else {
       const instance = new Emoji(this, id);

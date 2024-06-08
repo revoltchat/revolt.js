@@ -18,7 +18,7 @@ export class MessageCollection extends ClassCollection<
    */
   async fetch(channelId: string, messageId: string): Promise<Message> {
     const message = this.get(messageId);
-    if (message) return message;
+    if (message && !this.isPartial(messageId)) return message;
 
     const data = await this.client.api.get(
       `/channels/${channelId as ""}/messages/${messageId as ""}`
@@ -34,7 +34,7 @@ export class MessageCollection extends ClassCollection<
    * @param isNew Whether this object is new
    */
   getOrCreate(id: string, data: API.Message, isNew = false) {
-    if (this.has(id)) {
+    if (this.has(id) && !this.isPartial(id)) {
       return this.get(id)!;
     } else {
       const instance = new Message(this, id);

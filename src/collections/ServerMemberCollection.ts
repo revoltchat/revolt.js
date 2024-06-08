@@ -29,6 +29,15 @@ export class ServerMemberCollection extends ClassCollection<
   }
 
   /**
+   * check partial status by composite key
+   * @param id Id
+   * @returns Member
+   */
+  isPartialByKey(id: API.MemberCompositeKey) {
+    return super.isPartial(id.server + id.user);
+  }
+
+  /**
    * Fetch server member by Id
    * @param serverId Server Id
    * @param userId User Id
@@ -36,7 +45,7 @@ export class ServerMemberCollection extends ClassCollection<
    */
   async fetch(serverId: string, userId: string): Promise<ServerMember> {
     const member = this.get(serverId + userId);
-    if (member) return member;
+    if (member && !this.isPartial(serverId + userId)) return member;
 
     const data = (await this.client.api.get(
       `/servers/${serverId as ""}/members/${userId as ""}`,
@@ -55,7 +64,7 @@ export class ServerMemberCollection extends ClassCollection<
    * @param data Data
    */
   getOrCreate(id: API.MemberCompositeKey, data: API.Member) {
-    if (this.hasByKey(id)) {
+    if (this.hasByKey(id) && !this.isPartialByKey(id)) {
       return this.getByKey(id)!;
     } else {
       const instance = new ServerMember(this, id);

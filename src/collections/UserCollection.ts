@@ -28,7 +28,7 @@ export class UserCollection extends ClassCollection<User, HydratedUser> {
    */
   async fetch(id: string): Promise<User> {
     const user = this.get(id);
-    if (user) return user;
+    if (user && !this.isPartial(id)) return user;
     const data = await this.client.api.get(`/users/${id as ""}`);
     return this.getOrCreate(data._id, data);
   }
@@ -40,7 +40,7 @@ export class UserCollection extends ClassCollection<User, HydratedUser> {
    * @param isNew Whether this object is new
    */
   getOrCreate(id: string, data: API.User) {
-    if (this.has(id)) {
+    if (this.has(id) && !this.isPartial(id)) {
       return this.get(id)!;
     } else {
       const instance = new User(this, id);
