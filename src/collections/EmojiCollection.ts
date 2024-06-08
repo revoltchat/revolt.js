@@ -1,7 +1,7 @@
-import { API, Emoji } from "..";
-import { HydratedEmoji } from "../hydration";
+import { HydratedEmoji } from "../hydration/index.js";
+import { API, Emoji } from "../index.js";
 
-import { ClassCollection } from ".";
+import { ClassCollection } from "./index.js";
 
 /**
  * Collection of Emoji

@@ -1,7 +1,7 @@
-import { API, Client, User } from "..";
-import { HydratedUser } from "../hydration";
+import { HydratedUser } from "../hydration/index.js";
+import { API, Client, User } from "../index.js";
 
-import { ClassCollection } from ".";
+import { ClassCollection } from "./index.js";
 
 /**
  * Collection of Users

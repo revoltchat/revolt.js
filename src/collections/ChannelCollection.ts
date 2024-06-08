@@ -1,7 +1,7 @@
-import { API, Channel, User } from "..";
-import { HydratedChannel } from "../hydration";
+import { HydratedChannel } from "../hydration/index.js";
+import { API, Channel, User } from "../index.js";
 
-import { ClassCollection } from ".";
+import { ClassCollection } from "./index.js";
 
 /**
  * Collection of Channels

@@ -1,6 +1,6 @@
 import { MemberCompositeKey } from "revolt-api";
 
-import { API, Client } from "..";
+import { API, Client } from "../index.js";
 
 /**
  * Server Ban

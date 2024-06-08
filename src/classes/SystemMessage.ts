@@ -1,4 +1,4 @@
-import { API, Client } from "..";
+import { API, Client } from "../index.js";
 
 /**
  * System Message

@@ -3,7 +3,7 @@ import { Accessor, Setter, createSignal } from "solid-js";
 import EventEmitter from "eventemitter3";
 import WebSocket from "isomorphic-ws";
 
-import type { AvailableProtocols, EventProtocol } from ".";
+import type { AvailableProtocols, EventProtocol } from "./index.js";
 
 /**
  * All possible event client states.
