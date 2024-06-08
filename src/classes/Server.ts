@@ -714,4 +714,14 @@ export class Server {
       )
     );
   }
+
+  /**
+   * Delete emoji
+   * @param emojiId Emoji ID
+   */
+  async deleteEmoji(emojiId: string) {
+    return await this.#collection.client.api.delete(
+      `/custom/emoji/${emojiId}`
+    );
+  }
 }
