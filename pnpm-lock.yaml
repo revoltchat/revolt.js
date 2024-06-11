@@ -24,8 +24,8 @@ dependencies:
     specifier: ^5.2.3
     version: 5.2.3
   revolt-api:
-    specifier: 0.7.3
-    version: 0.7.3
+    specifier: 0.7.4
+    version: 0.7.4
   solid-js:
     specifier: ^1.8.15
     version: 1.8.17
@@ -1785,8 +1785,8 @@ packages:
     engines: {iojs: '>=1.0.0', node: '>=0.10.0'}
     dev: true
 
-  /revolt-api@0.7.3:
-    resolution: {integrity: sha512-NqEGrg+4dcS/NwynfctHKCMCpfMD1QABHVdTFmEUfDo1umFS1+yeC7eXTNKqUpHYVkBdkQQt7iwi5Il884wR7Q==}
+  /revolt-api@0.7.4:
+    resolution: {integrity: sha512-eAHYL9IHtIkxQ4CQOonBqkkEzhT17w6k4zxMVqpWxsNiz0X6ysfx6BOdVjiFI3qb6QiAezU+VrlNVx5IuuNuMw==}
     dependencies:
       axios: 0.26.1
       lodash.defaultsdeep: 4.6.1
