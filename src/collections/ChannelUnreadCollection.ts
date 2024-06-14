@@ -1,3 +1,5 @@
+import { batch } from "solid-js";
+
 import { ChannelUnread } from "../classes/ChannelUnread.js";
 import { HydratedChannelUnread } from "../hydration/index.js";
 import { API } from "../index.js";
@@ -16,10 +18,12 @@ export class ChannelUnreadCollection extends ClassCollection<
    */
   async sync() {
     const unreads = await this.client.api.get("/sync/unreads");
-    this.reset();
-    for (const unread of unreads) {
-      this.getOrCreate(unread._id.channel, unread);
-    }
+    batch(() => {
+      this.reset();
+      for (const unread of unreads) {
+        this.getOrCreate(unread._id.channel, unread);
+      }
+    });
   }
 
   /**
