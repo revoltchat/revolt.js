@@ -329,15 +329,11 @@ export class Client extends EventEmitter<Events> {
   }
 
   /**
-   * Use an existing session to log into Revolt
-   * @param session Session data object
-   * @returns An on-boarding function if on-boarding is required, undefined otherwise
+   * Use an existing session
    */
   async useExistingSession(session: Session) {
-    await this.#fetchConfiguration();
     this.#session = session;
     this.#updateHeaders();
-    this.connect();
   }
 
   /**
