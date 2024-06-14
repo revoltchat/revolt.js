@@ -68,6 +68,8 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
   #heartbeatIntervalReference: number | undefined;
   #pongTimeoutReference: number | undefined;
 
+  #lastError: any;
+
   /**
    * Create a new event client.
    * @param protocolVersion Target protocol version
@@ -118,6 +120,7 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
    */
   connect(uri: string, token: string) {
     this.disconnect();
+    this.#lastError = undefined;
     this.setState(ConnectionState.Connecting);
 
     this.#socket = new WebSocket(
@@ -137,6 +140,7 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
     };
 
     this.#socket.onerror = (error) => {
+      this.#lastError = error;
       this.emit("error", error as never);
     };
 
@@ -225,5 +229,9 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
           event.type
         } in state ${this.state()}.`;
     }
+  }
+
+  get lastError() {
+    return this.#lastError;
   }
 }
