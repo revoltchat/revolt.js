@@ -36,6 +36,12 @@ export interface EventClientOptions {
    * @default 10
    */
   pongTimeout: number;
+
+  /**
+   * Maximum time in seconds between init and first message
+   * @default 10
+   */
+  connectTimeout: number;
 }
 
 /**
@@ -67,6 +73,7 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
   #socket: WebSocket | undefined;
   #heartbeatIntervalReference: number | undefined;
   #pongTimeoutReference: number | undefined;
+  #connectTimeoutReference: number | undefined;
 
   #lastError: any;
 
@@ -89,6 +96,7 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
     this.options = {
       heartbeatInterval: 30,
       pongTimeout: 10,
+      connectTimeout: 10,
       debug: false,
       ...options,
     };
@@ -123,6 +131,11 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
     this.#lastError = undefined;
     this.setState(ConnectionState.Connecting);
 
+    this.#connectTimeoutReference = setTimeout(
+      () => this.disconnect(),
+      this.options.pongTimeout * 1e3
+    ) as never;
+
     this.#socket = new WebSocket(
       `${uri}?version=${this.#protocolVersion}&format=${
         this.#transportFormat
@@ -145,6 +158,8 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
     };
 
     this.#socket.onmessage = (event) => {
+      clearInterval(this.#connectTimeoutReference);
+
       if (this.#transportFormat === "json") {
         if (typeof event.data === "string") {
           this.handle(JSON.parse(event.data));
@@ -156,6 +171,7 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
     this.#socket.onclose = () => {
       if (closed) return;
       closed = true;
+      this.setState(ConnectionState.Disconnected);
       this.disconnect();
     };
   }
@@ -166,10 +182,11 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
   disconnect() {
     if (!this.#socket) return;
     clearInterval(this.#heartbeatIntervalReference);
+    clearInterval(this.#connectTimeoutReference);
+    clearInterval(this.#pongTimeoutReference);
     const socket = this.#socket;
     this.#socket = undefined;
     socket.close();
-    this.setState(ConnectionState.Disconnected);
   }
 
   /**

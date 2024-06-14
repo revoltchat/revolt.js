@@ -18,8 +18,8 @@ import type {
   User,
 } from "revolt-api";
 
-import { Client } from "../index.js";
 import { hydrate } from "../hydration/index.js";
+import { Client } from "../index.js";
 
 /**
  * Version 1 of the events protocol
@@ -255,6 +255,8 @@ export async function handleEvent(
           event.author &&
           event.author != "00000000000000000000000000" &&
           !event.webhook &&
+          // TODO: this is causing a lot of extra requests!
+          // usually 2 extra requests before a message can come through!!
           client.options.eagerFetching
         ) {
           await client.users.fetch(event.author);
