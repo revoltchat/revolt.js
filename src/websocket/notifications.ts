@@ -24,7 +24,8 @@ export type ServerboundNotification =
     | ({ type: "Authenticate" } & Session)
     | { type: "Authenticate"; token: string }
     | { type: "BeginTyping"; channel: string }
-    | { type: "EndTyping"; channel: string };
+    | { type: "EndTyping"; channel: string }
+    | { type: "Subscribe"; server_id: string };
 
 export type ReadyPacket = {
     type: "Ready";
