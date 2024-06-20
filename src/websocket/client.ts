@@ -671,6 +671,7 @@ export class WebSocketClient {
                         }
 
                         case "UserRelationship": {
+                            packet.status = packet.user.relationship!;
                             const user = this.client.users.get(packet.user._id);
                             if (user) {
                                 user.update({
