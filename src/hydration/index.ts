@@ -66,7 +66,7 @@ function hydrateInternal<Input extends object, Output>(
       if (key === "partial")
         return {
           ...acc,
-          partial: input,
+          partial: input["partial" as never],
         };
       if (key === "type") return acc;
       console.debug(`Skipping key ${String(key)} during hydration!`);
