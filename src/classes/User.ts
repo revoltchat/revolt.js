@@ -2,6 +2,7 @@ import { DataEditUser, Presence } from "revolt-api";
 import { decodeTime } from "ulid";
 
 import { UserCollection } from "../collections/index.js";
+import { UserProfile } from "../index.js";
 import { U32_MAX, UserPermission } from "../permissions/definitions.js";
 
 /**
@@ -307,8 +308,9 @@ export class User {
    * @returns The profile of the user
    */
   async fetchProfile() {
-    return await this.#collection.client.api.get(
-      `/users/${this.id as ""}/profile`
+    return new UserProfile(
+      this.#collection.client,
+      await this.#collection.client.api.get(`/users/${this.id as ""}/profile`)
     );
   }
 
