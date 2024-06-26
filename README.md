@@ -1,9 +1,5 @@
 # revolt.js
 
-> [!WARNING]
-> revolt.js is currently being rewritten. While it's ready for use for most applications, it is still not entirely feature complete. \
-> You can find the [version 6 README here](https://github.com/revoltchat/revolt.js/tree/v6).
-
 ![revolt.js](https://img.shields.io/npm/v/revolt.js) ![revolt-api](https://img.shields.io/npm/v/revolt-api?label=Revolt%20API)
 
 **revolt.js** is a JavaScript library for interacting with the entire Revolt API.
