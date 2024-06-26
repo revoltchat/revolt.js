@@ -1,4 +1,4 @@
-<!DOCTYPE html><html class="default" lang="en"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>ServerFlags | revolt.js</title><meta name="description" content="Documentation for revolt.js"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><link rel="stylesheet" href="../assets/my-theme.css"/><script defer src="../assets/main.js"></script><script async src="../assets/search.js" id="search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script></head><body><script>console.log(`Loaded ${location.href}`)</script><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os"</script><header class="tsd-page-toolbar">
+<!DOCTYPE html><html class="default" lang="en"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>MFA | revolt.js</title><meta name="description" content="Documentation for revolt.js"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><link rel="stylesheet" href="../assets/my-theme.css"/><script defer src="../assets/main.js"></script><script async src="../assets/search.js" id="search-script"></script><script async src="../assets/navigation.js" id="tsd-nav-script"></script></head><body><script>console.log(`Loaded ${location.href}`)</script><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os"</script><header class="tsd-page-toolbar">
 <div class="tsd-toolbar-contents container">
 <div class="table-cell" id="tsd-search" data-base="..">
 <div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><use href="#icon-search"></use></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div>
@@ -26,44 +26,197 @@
 <div class="tsd-page-title">
 <ul class="tsd-breadcrumb">
 <li><a href="../modules.html">revolt.js</a></li>
-<li><a href="ServerFlags.html">ServerFlags</a></li></ul>
-<h1>Enumeration ServerFlags</h1></div>
+<li><a href="MFA.html">MFA</a></li></ul>
+<h1>Class MFA</h1></div>
 <section class="tsd-panel tsd-comment">
-<div class="tsd-comment tsd-typography"><p>Flags attributed to servers</p>
+<div class="tsd-comment tsd-typography"><p>Multi-Factor Authentication</p>
 </div>
-<div class="tsd-comment tsd-typography"></div></section><aside class="tsd-sources">
+<div class="tsd-comment tsd-typography"></div></section>
+<section class="tsd-panel tsd-hierarchy">
+<h4>Hierarchy</h4>
+<ul class="tsd-hierarchy">
+<li><span class="target">MFA</span></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/dfdb45f/src/hydration/server.ts#L74">src/hydration/server.ts:74</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/dfdb45f/src/classes/MFA.ts#L15">src/classes/MFA.ts:15</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
 <h5 class="tsd-index-heading uppercase" role="button" aria-expanded="false" tabIndex=0><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><use href="#icon-chevronSmall"></use></svg> Index</h5></summary>
 <div class="tsd-accordion-details">
 <section class="tsd-index-section">
-<h3 class="tsd-index-heading">Enumeration Members</h3>
-<div class="tsd-index-list"><a href="ServerFlags.html#Official" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-16"></use></svg><span>Official</span></a>
-<a href="ServerFlags.html#Verified" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-16"></use></svg><span>Verified</span></a>
+<h3 class="tsd-index-heading">Constructors</h3>
+<div class="tsd-index-list"><a href="MFA.html#constructor" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-512"></use></svg><span>constructor</span></a>
+</div></section>
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading">Properties</h3>
+<div class="tsd-index-list"><a href="MFA.html#_client" class="tsd-index-link tsd-is-private"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>#client</span></a>
+<a href="MFA.html#_store" class="tsd-index-link tsd-is-private"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>#store</span></a>
+</div></section>
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading">Accessors</h3>
+<div class="tsd-index-list"><a href="MFA.html#authenticatorEnabled" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-262144"></use></svg><span>authenticator<wbr/>Enabled</span></a>
+<a href="MFA.html#availableMethods" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-262144"></use></svg><span>available<wbr/>Methods</span></a>
+<a href="MFA.html#recoveryEnabled" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-262144"></use></svg><span>recovery<wbr/>Enabled</span></a>
+</div></section>
+<section class="tsd-index-section">
+<h3 class="tsd-index-heading">Methods</h3>
+<div class="tsd-index-list"><a href="MFA.html#createTicket" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>create<wbr/>Ticket</span></a>
+<a href="MFA.html#enableAuthenticator" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>enable<wbr/>Authenticator</span></a>
 </div></section></div></details></section></section>
 <section class="tsd-panel-group tsd-member-group">
-<h2>Enumeration Members</h2>
-<section class="tsd-panel tsd-member"><a id="Official" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><span>Official</span><a href="#Official" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-enum-member">Official</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">1</span></div><aside class="tsd-sources">
+<h2>Constructors</h2>
+<section class="tsd-panel tsd-member"><a id="constructor" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>constructor</span><a href="#constructor" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="tsd-signature tsd-anchor-link" id="constructor.new_MFA"><span class="tsd-kind-constructor-signature">new MFA</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">client</span>, <span class="tsd-kind-parameter">state</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="MFA.html" class="tsd-signature-type tsd-kind-class">MFA</a><a href="#constructor.new_MFA" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Construct MFA helper</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">client</span>: <a href="Client.html" class="tsd-signature-type tsd-kind-class">Client</a></h5>
+<div class="tsd-comment tsd-typography"><p>Client</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li>
+<li>
+<h5><span class="tsd-kind-parameter">state</span>: <span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">email_mfa</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">email_otp</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">recovery_active</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">security_key_mfa</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">totp_mfa</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">trusted_handover</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></h5>
+<div class="tsd-comment tsd-typography"><p>State</p>
+</div>
+<div class="tsd-comment tsd-typography"></div>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">email_<wbr/>mfa</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">email_<wbr/>otp</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">recovery_<wbr/>active</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">security_<wbr/>key_<wbr/>mfa</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">totp_<wbr/>mfa</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">trusted_<wbr/>handover</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5></li></ul></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="MFA.html" class="tsd-signature-type tsd-kind-class">MFA</a></h4>
+<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/dfdb45f/src/hydration/server.ts#L75">src/hydration/server.ts:75</a></li></ul></aside></section>
-<section class="tsd-panel tsd-member"><a id="Verified" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><span>Verified</span><a href="#Verified" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-enum-member">Verified</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">2</span></div><aside class="tsd-sources">
+<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/dfdb45f/src/classes/MFA.ts#L24">src/classes/MFA.ts:24</a></li></ul></aside></li></ul></section></section>
+<section class="tsd-panel-group tsd-member-group">
+<h2>Properties</h2>
+<section class="tsd-panel tsd-member tsd-is-private"><a id="_client" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>#client</span><a href="#_client" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">#client</span><span class="tsd-signature-symbol">:</span> <a href="Client.html" class="tsd-signature-type tsd-kind-class">Client</a></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/dfdb45f/src/hydration/server.ts#L76">src/hydration/server.ts:76</a></li></ul></aside></section></section></div>
+<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/dfdb45f/src/classes/MFA.ts#L16">src/classes/MFA.ts:16</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-is-private"><a id="_store" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>#store</span><a href="#_store" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">#store</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">[</span><span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">email_mfa</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">email_otp</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">recovery_active</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">security_key_mfa</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">totp_mfa</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">trusted_handover</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type ">SetStoreFunction</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">email_mfa</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">email_otp</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">recovery_active</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">security_key_mfa</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">totp_mfa</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">trusted_handover</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">]</span></div>
+<div class="tsd-type-declaration">
+<h4>Type declaration</h4>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">email_<wbr/>mfa</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">email_<wbr/>otp</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">recovery_<wbr/>active</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">security_<wbr/>key_<wbr/>mfa</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">totp_<wbr/>mfa</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">trusted_<wbr/>handover</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5></li></ul></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/dfdb45f/src/classes/MFA.ts#L17">src/classes/MFA.ts:17</a></li></ul></aside></section></section>
+<section class="tsd-panel-group tsd-member-group">
+<h2>Accessors</h2>
+<section class="tsd-panel tsd-member"><a id="authenticatorEnabled" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>authenticator<wbr/>Enabled</span><a href="#authenticatorEnabled" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="tsd-signature" id="authenticatorEnabled.authenticatorEnabled-1"><span class="tsd-signature-symbol">get</span> authenticatorEnabled<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Whether authenticator app is enabled</p>
+</div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/dfdb45f/src/classes/MFA.ts#L32">src/classes/MFA.ts:32</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member"><a id="availableMethods" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>available<wbr/>Methods</span><a href="#availableMethods" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="tsd-signature" id="availableMethods.availableMethods-1"><span class="tsd-signature-symbol">get</span> availableMethods<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">&quot;Password&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;Recovery&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;Totp&quot;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Available MFA methods for generating tickets</p>
+</div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">&quot;Password&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;Recovery&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;Totp&quot;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span></h4>
+<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/dfdb45f/src/classes/MFA.ts#L46">src/classes/MFA.ts:46</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member"><a id="recoveryEnabled" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>recovery<wbr/>Enabled</span><a href="#recoveryEnabled" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="tsd-signature" id="recoveryEnabled.recoveryEnabled-1"><span class="tsd-signature-symbol">get</span> recoveryEnabled<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Whether recovery codes are enabled</p>
+</div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/dfdb45f/src/classes/MFA.ts#L39">src/classes/MFA.ts:39</a></li></ul></aside></li></ul></section></section>
+<section class="tsd-panel-group tsd-member-group">
+<h2>Methods</h2>
+<section class="tsd-panel tsd-member"><a id="createTicket" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>create<wbr/>Ticket</span><a href="#createTicket" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="tsd-signature tsd-anchor-link" id="createTicket.createTicket-1"><span class="tsd-kind-call-signature">create<wbr/>Ticket</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">params</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="MFATicket.html" class="tsd-signature-type tsd-kind-class">MFATicket</a><span class="tsd-signature-symbol">&gt;</span><a href="#createTicket.createTicket-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Create an MFA ticket</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">params</span>: <span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">password</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">recovery_code</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">totp_code</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></h5>
+<div class="tsd-comment tsd-typography"></div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="MFATicket.html" class="tsd-signature-type tsd-kind-class">MFATicket</a><span class="tsd-signature-symbol">&gt;</span></h4><p>Token</p>
+
+<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/dfdb45f/src/classes/MFA.ts#L59">src/classes/MFA.ts:59</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member"><a id="enableAuthenticator" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>enable<wbr/>Authenticator</span><a href="#enableAuthenticator" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="tsd-signature tsd-anchor-link" id="enableAuthenticator.enableAuthenticator-1"><span class="tsd-kind-call-signature">enable<wbr/>Authenticator</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">token</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span><a href="#enableAuthenticator.enableAuthenticator-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Enable authenticator using token generated from secret found earlier</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">token</span>: <span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>Token</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
+<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/dfdb45f/src/classes/MFA.ts#L69">src/classes/MFA.ts:69</a></li></ul></aside></li></ul></section></section></div>
 <div class="col-sidebar">
 <div class="page-menu">
 <details open class="tsd-index-accordion tsd-page-navigation"><summary class="tsd-accordion-summary">
 <h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><use href="#icon-chevronDown"></use></svg>On This Page</h3></summary>
 <div class="tsd-accordion-details">
 <ul>
-<li><a href="#Official" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-16"></use></svg><span>Official</span></a></li>
-<li><a href="#Verified" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-16"></use></svg><span>Verified</span></a></li></ul></div></details></div>
+<li><a href="#constructor" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-512"></use></svg><span>constructor</span></a></li>
+<li><a href="#_client" class="tsd-is-private"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>#client</span></a></li>
+<li><a href="#_store" class="tsd-is-private"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>#store</span></a></li>
+<li><a href="#authenticatorEnabled" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-262144"></use></svg><span>authenticator<wbr/>Enabled</span></a></li>
+<li><a href="#availableMethods" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-262144"></use></svg><span>available<wbr/>Methods</span></a></li>
+<li><a href="#recoveryEnabled" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-262144"></use></svg><span>recovery<wbr/>Enabled</span></a></li>
+<li><a href="#createTicket" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>create<wbr/>Ticket</span></a></li>
+<li><a href="#enableAuthenticator" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>enable<wbr/>Authenticator</span></a></li></ul></div></details></div>
 <div class="site-menu">
 <nav class="tsd-navigation"><a href="../modules.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1"></use></svg>
 <div>revolt.js</div></a>
@@ -73,7 +226,7 @@
 <div>API</div></a></summary>
 <div class="tsd-accordion-details">
 <ul class="tsd-nested-navigation">
-<li><a href="../classes/API.API.html" class="tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="API.API.html" class="tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>API
 <div class="menu-item-desc">API Client</div></div></a></li>
 <li><a href="../interfaces/API.Options.html" class="tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-256"></use></svg>
@@ -338,172 +491,172 @@
 <li><a href="../functions/API.getPathName.html" class="tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-64"></use></svg>
 <div>get<wbr/>Path<wbr/>Name
 <div class="menu-item-desc">Get the specific path name of any given path.</div></div></a></li></ul></div></details></li>
-<li><a href="BotFlags.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-8"></use></svg>
+<li><a href="../enums/BotFlags.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-8"></use></svg>
 <div>Bot<wbr/>Flags
 <div class="menu-item-desc">Flags attributed to users</div></div></a></li>
-<li><a href="ConnectionState.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-8"></use></svg>
+<li><a href="../enums/ConnectionState.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-8"></use></svg>
 <div>Connection<wbr/>State
 <div class="menu-item-desc">All possible event client states.</div></div></a></li>
-<li><a href="ServerFlags.html" class="current"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-8"></use></svg>
+<li><a href="../enums/ServerFlags.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-8"></use></svg>
 <div>Server<wbr/>Flags
 <div class="menu-item-desc">Flags attributed to servers</div></div></a></li>
-<li><a href="UserBadges.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-8"></use></svg>
+<li><a href="../enums/UserBadges.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-8"></use></svg>
 <div>User<wbr/>Badges
 <div class="menu-item-desc">Badges available to users</div></div></a></li>
-<li><a href="UserFlags.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-8"></use></svg>
+<li><a href="../enums/UserFlags.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-8"></use></svg>
 <div>User<wbr/>Flags
 <div class="menu-item-desc">Flags attributed to users</div></div></a></li>
-<li><a href="../classes/BannedUser.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="BannedUser.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Banned<wbr/>User
 <div class="menu-item-desc">Banned User</div></div></a></li>
-<li><a href="../classes/Bot.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="Bot.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Bot
 <div class="menu-item-desc">Bot Class</div></div></a></li>
-<li><a href="../classes/BotCollection.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="BotCollection.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Bot<wbr/>Collection
 <div class="menu-item-desc">Collection of Bots</div></div></a></li>
-<li><a href="../classes/Channel.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="Channel.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Channel
 <div class="menu-item-desc">Channel Class</div></div></a></li>
-<li><a href="../classes/ChannelCollection.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="ChannelCollection.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Channel<wbr/>Collection
 <div class="menu-item-desc">Collection of Channels</div></div></a></li>
-<li><a href="../classes/ChannelEditSystemMessage.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="ChannelEditSystemMessage.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Channel<wbr/>Edit<wbr/>System<wbr/>Message
 <div class="menu-item-desc">Channel Edit System Message</div></div></a></li>
-<li><a href="../classes/ChannelInvite.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="ChannelInvite.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Channel<wbr/>Invite
 <div class="menu-item-desc">Channel Invite</div></div></a></li>
-<li><a href="../classes/ChannelOwnershipChangeSystemMessage.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="ChannelOwnershipChangeSystemMessage.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Channel<wbr/>Ownership<wbr/>Change<wbr/>System<wbr/>Message
 <div class="menu-item-desc">Channel Ownership Change System Message</div></div></a></li>
-<li><a href="../classes/ChannelRenamedSystemMessage.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="ChannelRenamedSystemMessage.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Channel<wbr/>Renamed<wbr/>System<wbr/>Message
 <div class="menu-item-desc">Channel Renamed System Message</div></div></a></li>
-<li><a href="../classes/ChannelUnread.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="ChannelUnread.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Channel<wbr/>Unread
 <div class="menu-item-desc">Channel Unread Class</div></div></a></li>
-<li><a href="../classes/ChannelUnreadCollection.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="ChannelUnreadCollection.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Channel<wbr/>Unread<wbr/>Collection
 <div class="menu-item-desc">Collection of Channel Unreads</div></div></a></li>
-<li><a href="../classes/ChannelWebhook.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="ChannelWebhook.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Channel<wbr/>Webhook
 <div class="menu-item-desc">Channel Webhook Class</div></div></a></li>
-<li><a href="../classes/ChannelWebhookCollection.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="ChannelWebhookCollection.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Channel<wbr/>Webhook<wbr/>Collection
 <div class="menu-item-desc">Collection of Channel Webhooks</div></div></a></li>
-<li><a href="../classes/ClassCollection.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="ClassCollection.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Class<wbr/>Collection
 <div class="menu-item-desc">Generic class collection backed by store</div></div></a></li>
-<li><a href="../classes/Client.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="Client.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Client
 <div class="menu-item-desc">Revolt.js Clients</div></div></a></li>
-<li><a href="../classes/Collection.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="Collection.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Collection
 <div class="menu-item-desc">Abstract Collection type</div></div></a></li>
-<li><a href="../classes/Emoji.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="Emoji.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Emoji
 <div class="menu-item-desc">Emoji Class</div></div></a></li>
-<li><a href="../classes/EmojiCollection.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="EmojiCollection.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Emoji<wbr/>Collection
 <div class="menu-item-desc">Collection of Emoji</div></div></a></li>
-<li><a href="../classes/EventClient.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="EventClient.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Event<wbr/>Client
 <div class="menu-item-desc">Simple wrapper around the Revolt websocket service.</div></div></a></li>
-<li><a href="../classes/File.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="File.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>File
 <div class="menu-item-desc">Uploaded File</div></div></a></li>
-<li><a href="../classes/ImageEmbed.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="ImageEmbed.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Image<wbr/>Embed
 <div class="menu-item-desc">Image Embed</div></div></a></li>
-<li><a href="../classes/MFA.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="MFA.html" class="current"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>MFA
 <div class="menu-item-desc">Multi-Factor Authentication</div></div></a></li>
-<li><a href="../classes/MFATicket.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="MFATicket.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>MFATicket
 <div class="menu-item-desc">MFA Ticket</div></div></a></li>
-<li><a href="../classes/Message.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="Message.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Message
 <div class="menu-item-desc">Message Class</div></div></a></li>
-<li><a href="../classes/MessageCollection.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="MessageCollection.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Message<wbr/>Collection
 <div class="menu-item-desc">Collection of Messages</div></div></a></li>
-<li><a href="../classes/MessageEmbed.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="MessageEmbed.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Message<wbr/>Embed
 <div class="menu-item-desc">Message Embed</div></div></a></li>
-<li><a href="../classes/MessageWebhook.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="MessageWebhook.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Message<wbr/>Webhook
 <div class="menu-item-desc">Message Webhook Class</div></div></a></li>
-<li><a href="../classes/PublicBot.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="PublicBot.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Public<wbr/>Bot
 <div class="menu-item-desc">Public Bot Class</div></div></a></li>
-<li><a href="../classes/PublicChannelInvite.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="PublicChannelInvite.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Public<wbr/>Channel<wbr/>Invite
 <div class="menu-item-desc">Public Channel Invite</div></div></a></li>
-<li><a href="../classes/Server.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="Server.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Server
 <div class="menu-item-desc">Server Class</div></div></a></li>
-<li><a href="../classes/ServerBan.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="ServerBan.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Server<wbr/>Ban
 <div class="menu-item-desc">Server Ban</div></div></a></li>
-<li><a href="../classes/ServerCollection.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="ServerCollection.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Server<wbr/>Collection
 <div class="menu-item-desc">Collection of Servers</div></div></a></li>
-<li><a href="../classes/ServerInvite.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="ServerInvite.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Server<wbr/>Invite
 <div class="menu-item-desc">Server Invite</div></div></a></li>
-<li><a href="../classes/ServerMember.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="ServerMember.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Server<wbr/>Member
 <div class="menu-item-desc">Server Member Class</div></div></a></li>
-<li><a href="../classes/ServerMemberCollection.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="ServerMemberCollection.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Server<wbr/>Member<wbr/>Collection
 <div class="menu-item-desc">Collection of Server Members</div></div></a></li>
-<li><a href="../classes/ServerPublicInvite.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="ServerPublicInvite.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Server<wbr/>Public<wbr/>Invite
 <div class="menu-item-desc">Public Server Invite</div></div></a></li>
-<li><a href="../classes/Session.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="Session.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Session
 <div class="menu-item-desc">Session Class</div></div></a></li>
-<li><a href="../classes/SessionCollection.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="SessionCollection.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Session<wbr/>Collection
 <div class="menu-item-desc">Collection of Sessions</div></div></a></li>
-<li><a href="../classes/StoreCollection.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="StoreCollection.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Store<wbr/>Collection
 <div class="menu-item-desc">Collection backed by a Solid.js Store</div></div></a></li>
-<li><a href="../classes/SystemMessage.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="SystemMessage.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>System<wbr/>Message
 <div class="menu-item-desc">System Message</div></div></a></li>
-<li><a href="../classes/TextEmbed.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="TextEmbed.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Text<wbr/>Embed
 <div class="menu-item-desc">Text Embed</div></div></a></li>
-<li><a href="../classes/TextSystemMessage.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="TextSystemMessage.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Text<wbr/>System<wbr/>Message
 <div class="menu-item-desc">Text System Message</div></div></a></li>
-<li><a href="../classes/UnknownEmbed.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="UnknownEmbed.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Unknown<wbr/>Embed
 <div class="menu-item-desc">Embed of unknown type</div></div></a></li>
-<li><a href="../classes/UnknownInvite.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="UnknownInvite.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Unknown<wbr/>Invite
 <div class="menu-item-desc">Invite of unknown type</div></div></a></li>
-<li><a href="../classes/UnknownPublicInvite.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="UnknownPublicInvite.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Unknown<wbr/>Public<wbr/>Invite
 <div class="menu-item-desc">Public invite of unknown type</div></div></a></li>
-<li><a href="../classes/User.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="User.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>User
 <div class="menu-item-desc">User Class</div></div></a></li>
-<li><a href="../classes/UserCollection.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="UserCollection.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>User<wbr/>Collection
 <div class="menu-item-desc">Collection of Users</div></div></a></li>
-<li><a href="../classes/UserModeratedSystemMessage.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="UserModeratedSystemMessage.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>User<wbr/>Moderated<wbr/>System<wbr/>Message
 <div class="menu-item-desc">User Moderated System Message</div></div></a></li>
-<li><a href="../classes/UserSystemMessage.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="UserSystemMessage.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>User<wbr/>System<wbr/>Message
 <div class="menu-item-desc">User System Message</div></div></a></li>
-<li><a href="../classes/VideoEmbed.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="VideoEmbed.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Video<wbr/>Embed
 <div class="menu-item-desc">Video Embed</div></div></a></li>
-<li><a href="../classes/WebsiteEmbed.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
+<li><a href="WebsiteEmbed.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-128"></use></svg>
 <div>Website<wbr/>Embed
 <div class="menu-item-desc">Website Embed</div></div></a></li>
 <li><a href="../types/ClientOptions.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2097152"></use></svg>
