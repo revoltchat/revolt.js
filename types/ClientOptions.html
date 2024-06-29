@@ -28,7 +28,7 @@
 <li><a href="../modules.html">revolt.js</a></li>
 <li><a href="ClientOptions.html">ClientOptions</a></li></ul>
 <h1>Type alias ClientOptions</h1></div>
-<div class="tsd-signature"><span class="tsd-kind-type-alias">Client<wbr/>Options</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type ">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">EventClientOptions</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">autoReconnect</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">baseURL</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">eagerFetching</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">partials</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">syncUnreads</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-call-signature">channelIsMuted</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">channel</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-call-signature">retryDelayFunction</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">retryCount</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></div>
+<div class="tsd-signature"><span class="tsd-kind-type-alias">Client<wbr/>Options</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type ">Partial</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type ">EventClientOptions</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">autoReconnect</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">baseURL</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">eagerFetching</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">messageRewrites</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">partials</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">syncUnreads</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-call-signature">channelIsMuted</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">channel</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-call-signature">retryDelayFunction</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">retryCount</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></div>
 <div class="tsd-comment tsd-typography"><p>Client options object</p>
 </div>
 <div class="tsd-type-declaration">
@@ -56,6 +56,15 @@
 </code><button>Copy</button></pre>
 
 <h4>Deprecated</h4></div></li>
+<li class="tsd-parameter">
+<h5><span class="tsd-kind-property">message<wbr/>Rewrites</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5>
+<div class="tsd-comment tsd-typography"><p>Whether to rewrite sent messages that include identifiers such as</p>
+</div>
+<div class="tsd-comment tsd-typography">
+<h4>Silent</h4>
+<h4>Default</h4><pre><code class="language-ts"><span class="hl-5">true</span>
+</code><button>Copy</button></pre>
+</div></li>
 <li class="tsd-parameter">
 <h5><span class="tsd-kind-property">partials</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></h5>
 <div class="tsd-comment tsd-typography"><p>Whether to allow partial objects to emit from events</p>
@@ -94,7 +103,7 @@
 </code><button>Copy</button></pre>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/9673663/src/Client.ts#L149">src/Client.ts:149</a></li></ul></aside></li></ul></li>
+<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/0c0707c/src/Client.ts#L155">src/Client.ts:155</a></li></ul></aside></li></ul></li>
 <li class="tsd-parameter">
 <h5><span class="tsd-kind-method">retry<wbr/>Delay<wbr/>Function</span><span class="tsd-signature-symbol">:</span>function</h5>
 <ul class="tsd-signatures">
@@ -117,10 +126,10 @@
 </code><button>Copy</button></pre>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/9673663/src/Client.ts#L141">src/Client.ts:141</a></li></ul></aside></li></ul></li></ul></div>
+<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/0c0707c/src/Client.ts#L147">src/Client.ts:147</a></li></ul></aside></li></ul></li></ul></div>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/9673663/src/Client.ts#L104">src/Client.ts:104</a></li></ul></aside></div>
+<li>Defined in <a href="https://github.com/revoltchat/revolt.js/blob/0c0707c/src/Client.ts#L104">src/Client.ts:104</a></li></ul></aside></div>
 <div class="col-sidebar">
 <div class="page-menu"></div>
 <div class="site-menu">
@@ -154,6 +163,8 @@
 <div>Bot</div></a></li>
 <li><a href="API.BotInformation.html" class="tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2097152"></use></svg>
 <div>Bot<wbr/>Information</div></a></li>
+<li><a href="API.BotWithUserResponse.html" class="tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2097152"></use></svg>
+<div>Bot<wbr/>With<wbr/>User<wbr/>Response</div></a></li>
 <li><a href="API.BuildInformation.html" class="tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2097152"></use></svg>
 <div>Build<wbr/>Information</div></a></li>
 <li><a href="API.BulkMessageResponse.html" class="tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2097152"></use></svg>
