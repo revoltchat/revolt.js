@@ -133,6 +133,12 @@ export type ClientOptions = Partial<EventClientOptions> & {
   autoReconnect: boolean;
 
   /**
+   * Whether to rewrite sent messages that include identifiers such as @silent
+   * @default true
+   */
+  messageRewrites: boolean;
+
+  /**
    * Retry delay function
    * @param retryCount Count
    * @returns Delay in seconds
@@ -192,6 +198,7 @@ export class Client extends EventEmitter<Events> {
       eagerFetching: true,
       syncUnreads: false,
       autoReconnect: true,
+      messageRewrites: true,
       /**
        * Retry delay function
        * @param retryCount Count

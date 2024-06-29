@@ -29,6 +29,7 @@ export type HydratedMessage = {
   reactions: ReactiveMap<string, ReactiveSet<string>>;
   interactions?: API.Interactions;
   masquerade?: API.Masquerade;
+  flags?: number;
 };
 
 export const messageHydration: Hydrate<Merge<API.Message>, HydratedMessage> = {
@@ -71,6 +72,7 @@ export const messageHydration: Hydrate<Merge<API.Message>, HydratedMessage> = {
     },
     interactions: (message) => message.interactions,
     masquerade: (message) => message.masquerade!,
+    flags: (message) => message.flags!,
   },
   initialHydration: () => ({
     reactions: new ReactiveMap(),

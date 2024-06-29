@@ -478,6 +478,13 @@ export class Channel {
     const msg: DataMessageSend =
       typeof data === "string" ? { content: data } : data;
 
+    // Mark as silent message
+    if (msg.content?.startsWith("@silent ")) {
+      msg.content = msg.content.substring(8);
+      msg.flags ||= 1;
+      msg.flags |= 1;
+    }
+
     const message = await this.#collection.client.api.post(
       `/channels/${this.id as ""}/messages`,
       msg,

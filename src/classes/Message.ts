@@ -194,6 +194,13 @@ export class Message {
   }
 
   /**
+   * Flags
+   */
+  get flags() {
+    return this.#collection.getUnderlyingObject(this.id).flags || 0;
+  }
+
+  /**
    * Get the username for this message
    */
   get username() {
@@ -248,6 +255,13 @@ export class Message {
   get masqueradeAvatarURL() {
     const avatar = this.masquerade?.avatar;
     return avatar ? this.#collection.client.proxyFile(avatar) : undefined;
+  }
+
+  /**
+   * Whether this message has suppressed desktop/push notifications
+   */
+  get isSuppressed() {
+    return (this.flags & 1) === 1;
   }
 
   /**
