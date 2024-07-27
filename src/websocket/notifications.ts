@@ -127,7 +127,7 @@ export type ClientboundNotification =
           data: Partial<User>;
           clear?: FieldsUser[];
       }
-    | { type: "UserRelationship"; user: User; status: RelationshipStatus }
+    | { type: "UserRelationship"; user: User }
     | { type: "UserPresence"; id: string; online: boolean }
     | {
           type: "UserSettingsUpdate";
