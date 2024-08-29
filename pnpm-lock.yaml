@@ -18,7 +18,7 @@ specifiers:
   isomorphic-ws: ^5.0.0
   long: ^5.2.3
   prettier: ^2.8.8
-  revolt-api: 0.7.15
+  revolt-api: 0.7.16
   solid-js: ^1.8.15
   tsc-watch: ^6.0.4
   typed-emitter: ^2.1.0
@@ -33,7 +33,7 @@ dependencies:
   eventemitter3: 5.0.1
   isomorphic-ws: 5.0.0_ws@8.18.0
   long: 5.2.3
-  revolt-api: 0.7.15
+  revolt-api: 0.7.16
   solid-js: 1.8.18
   ulid: 2.3.0
   ws: 8.18.0
@@ -1807,8 +1807,8 @@ packages:
     engines: {iojs: '>=1.0.0', node: '>=0.10.0'}
     dev: true
 
-  /revolt-api/0.7.15:
-    resolution: {integrity: sha512-rWRnjBFvoXt/RHRxHg9KuP+x1Jk61KdsOpKOczVJg5tIqGDmqp/6QZHw5rJTtG+wCH3Ah3YKwY+MM5NHfg1W3Q==}
+  /revolt-api/0.7.16:
+    resolution: {integrity: sha512-Buoc5XQAjAud2GxG210bNHiRne4lOSybuSYoN3FQJXQz1JApFuDx20PPnqJQS2r3/9eWZSgr1HlyBasvzACqTQ==}
     dependencies:
       axios: 0.26.1
       lodash.defaultsdeep: 4.6.1
