@@ -406,9 +406,9 @@ export class Server {
           server
         );
 
-        for (const channel of this.channelIds) {
-          this.#collection.client.channels.delete(channel);
-        }
+        // for (const channel of this.channelIds) {
+        //   this.#collection.client.channels.delete(channel);
+        // }
 
         this.#collection.delete(this.id);
       }
