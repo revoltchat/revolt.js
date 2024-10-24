@@ -1,6 +1,7 @@
 import {
   User as ApiUser,
   BotInformation,
+  Relationship,
   RelationshipStatus,
   UserStatus,
 } from "revolt-api";
@@ -15,6 +16,7 @@ export type HydratedUser = {
   discriminator: string;
   displayName?: string;
   relationship: RelationshipStatus;
+  relations: Relationship[];
 
   online: boolean;
   privileged: boolean;
@@ -38,6 +40,7 @@ export const userHydration: Hydrate<ApiUser, HydratedUser> = {
     discriminator: (user) => user.discriminator,
     displayName: (user) => user.display_name!,
     relationship: (user) => user.relationship!,
+    relations: (user) => user.relations!,
 
     online: (user) => user.online!,
     privileged: (user) => user.privileged,
