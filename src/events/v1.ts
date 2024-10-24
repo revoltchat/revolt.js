@@ -670,7 +670,7 @@ export async function handleEvent(
       break;
     }
     case "ServerMemberLeave": {
-      if (event.user) {
+      if (event.user && event.user === client.user!.id) {
         handleEvent(
           client,
           {
