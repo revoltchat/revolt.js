@@ -1,7 +1,7 @@
 import { Accessor, Setter, batch, createSignal } from "solid-js";
 
 import EventEmitter from "eventemitter3";
-import type { DataLogin, RevoltConfig } from "revolt-api";
+import type { DataLogin, Error, RevoltConfig } from "revolt-api";
 import { API, Role } from "revolt-api";
 
 import {
@@ -47,7 +47,8 @@ export type Session = { _id: string; token: string; user_id: string } | string;
  * Events provided by the client
  */
 export type Events = {
-  error(error: Error): void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  error(error: any): void;
 
   connected(): void;
   connecting(): void;

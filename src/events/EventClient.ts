@@ -2,6 +2,7 @@ import { Accessor, Setter, createSignal } from "solid-js";
 
 import EventEmitter from "eventemitter3";
 import WebSocket from "isomorphic-ws";
+import { Error } from "revolt-api";
 
 import type { AvailableProtocols, EventProtocol } from "./index.js";
 
@@ -75,7 +76,8 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
   #pongTimeoutReference: number | undefined;
   #connectTimeoutReference: number | undefined;
 
-  #lastError: any;
+  #lastError: // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  { type: "socket"; data: any } | { type: "revolt"; data: Error } | undefined;
 
   /**
    * Create a new event client.
@@ -153,7 +155,7 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
     };
 
     this.#socket.onerror = (error) => {
-      this.#lastError = error;
+      this.#lastError = { type: "socket", data: error };
       this.emit("error", error as never);
     };
 
@@ -171,6 +173,7 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
     this.#socket.onclose = () => {
       if (closed) return;
       closed = true;
+      this.#socket = undefined;
       this.setState(ConnectionState.Disconnected);
       this.disconnect();
     };
@@ -218,6 +221,10 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
         this.options.debug && console.debug(`[ping] ${this.ping()}ms`);
         return;
       case "Error":
+        this.#lastError = {
+          type: "revolt",
+          data: event.data,
+        };
         this.emit("error", event as never);
         this.disconnect();
         return;
@@ -248,6 +255,9 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
     }
   }
 
+  /**
+   * Last error encountered by events client
+   */
   get lastError() {
     return this.#lastError;
   }

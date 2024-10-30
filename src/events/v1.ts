@@ -5,6 +5,7 @@ import type {
   Channel,
   Embed,
   Emoji,
+  Error,
   FieldsChannel,
   FieldsMember,
   FieldsServer,
@@ -55,7 +56,7 @@ type ClientMessage =
  * Messages sent from the server
  */
 type ServerMessage =
-  | ({ type: "Error" } & WebSocketError)
+  | { type: "Error"; data: Error }
   | { type: "Bulk"; v: ServerMessage[] }
   | { type: "Authenticated" }
   | ({ type: "Ready" } & ReadyData)
