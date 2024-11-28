@@ -3,7 +3,6 @@ import { Setter, batch } from "solid-js";
 import { ReactiveSet } from "@solid-primitives/set";
 import type {
   Channel,
-  Embed,
   Emoji,
   Error,
   FieldsChannel,
@@ -20,7 +19,7 @@ import type {
 } from "revolt-api";
 
 import { hydrate } from "../hydration/index.js";
-import { Client } from "../index.js";
+import { Client, MessageEmbed } from "../index.js";
 
 /**
  * Version 1 of the events protocol
@@ -181,17 +180,6 @@ type ReadyData = {
 };
 
 /**
- * Websocket error packet
- */
-type WebSocketError = {
-  error:
-    | "InternalError"
-    | "InvalidSession"
-    | "OnboardingNotFinished"
-    | "AlreadyAuthenticated";
-};
-
-/**
  * Handle an event for the Client
  * @param client Client
  * @param event Event
@@ -307,12 +295,12 @@ export async function handleEvent(
           channelId: event.channel,
         };
 
-        client.messages.updateUnderlyingObject(
-          event.id,
-          "embeds",
-          (embeds) =>
-            [...(embeds ?? []), ...(event.append.embeds ?? [])] as Embed[]
-        );
+        client.messages.updateUnderlyingObject(event.id, "embeds", (embeds) => [
+          ...(embeds ?? []),
+          ...(event.append.embeds?.map((embed) =>
+            MessageEmbed.from(client, embed)
+          ) ?? []),
+        ]);
 
         client.messages.updateUnderlyingObject(
           event.id,
