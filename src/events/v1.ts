@@ -310,8 +310,10 @@ export async function handleEvent(
         client.messages.updateUnderlyingObject(
           event.id,
           "embeds",
-          (embeds) => [...(embeds ?? []), event.append.embeds ?? []] as Embed[]
+          (embeds) =>
+            [...(embeds ?? []), ...(event.append.embeds ?? [])] as Embed[]
         );
+
         client.messages.updateUnderlyingObject(
           event.id,
           "channelId",
