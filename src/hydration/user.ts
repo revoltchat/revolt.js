@@ -15,6 +15,7 @@ export type HydratedUser = {
   discriminator: string;
   displayName?: string;
   relationship: RelationshipStatus;
+  relations: null;
 
   online: boolean;
   privileged: boolean;
@@ -38,6 +39,7 @@ export const userHydration: Hydrate<ApiUser, HydratedUser> = {
     discriminator: (user) => user.discriminator,
     displayName: (user) => user.display_name!,
     relationship: (user) => user.relationship!,
+    relations: () => null,
 
     online: (user) => user.online!,
     privileged: (user) => user.privileged,

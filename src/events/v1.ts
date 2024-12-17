@@ -239,22 +239,18 @@ export async function handleEvent(
     }
     case "Message": {
       if (!client.messages.has(event._id)) {
-        // TODO: this should not be necessary in future protocols:
-        if (
-          event.author &&
-          event.author != "00000000000000000000000000" &&
-          !event.webhook &&
-          // TODO: this is causing a lot of extra requests!
-          // usually 2 extra requests before a message can come through!!
-          client.options.eagerFetching
-        ) {
-          await client.users.fetch(event.author);
-          const serverId = client.channels.get(event.channel)?.serverId;
-          if (serverId)
-            await client.serverMembers.fetch(serverId, event.author);
-        }
-
         batch(() => {
+          if (event.member) {
+            client.serverMembers.getOrCreate(event.member._id, event.member);
+          }
+
+          if (event.user) {
+            client.users.getOrCreate(event.user._id, event.user);
+          }
+
+          delete event.member;
+          delete event.user;
+
           client.messages.getOrCreate(event._id, event, true);
           client.channels.updateUnderlyingObject(
             event.channel,
