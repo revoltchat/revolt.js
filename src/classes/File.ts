@@ -98,41 +98,16 @@ export class File {
 
   /**
    * Creates a URL to a given file with given options.
-   * @param options Optional query parameters to modify object
-   * @param allowAnimation Returns GIF if applicable, no operations occur on image
+   * @param forceAnimation Returns GIF if applicable (for avatars/icons)
    * @returns Generated URL or nothing
    */
-  createFileURL(
-    options?: {
-      max_side?: number;
-      size?: number;
-      width?: number;
-      height?: number;
-    },
-    allowAnimation?: boolean
-  ) {
+  createFileURL(forceAnimation?: boolean) {
     const autumn = this.#client.configuration?.features.autumn;
     if (!autumn?.enabled) return;
 
-    // TODO: server-side
-    if (this.metadata?.type === "Image") {
-      if (
-        Math.min(this.metadata.width, this.metadata.height) <= 0 ||
-        (this.contentType === "image/gif" &&
-          Math.max(this.metadata.width, this.metadata.height) >= 4096)
-      )
-        return;
-    }
-
     let query = "";
-    if (options) {
-      if (!allowAnimation || this.contentType !== "image/gif") {
-        query =
-          "?" +
-          Object.keys(options)
-            .map((k) => `${k}=${options[k as keyof typeof options]}`)
-            .join("&");
-      }
+    if (forceAnimation && this.contentType === "image/gif") {
+      query = "/original";
     }
 
     return `${autumn.url}/${this.tag}/${this.id}${query}`;

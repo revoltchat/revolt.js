@@ -380,7 +380,7 @@ export class MessageWebhook {
    */
   get avatarURL() {
     return (
-      this.avatar?.createFileURL({ max_side: 256 }) ??
+      this.avatar?.createFileURL() ??
       `${this.#client.options.baseURL}/users/${this.id}/default_avatar`
     );
   }

@@ -307,26 +307,14 @@ export class Channel {
    * URL to the channel icon
    */
   get iconURL() {
-    return (
-      this.icon?.createFileURL({ max_side: 256 }) ?? this.recipient?.avatarURL
-    );
-  }
-
-  /**
-   * URL to a small variant of the channel icon
-   */
-  get smallIconURL() {
-    return this.icon?.createFileURL({ max_side: 64 });
+    return this.icon?.createFileURL() ?? this.recipient?.avatarURL;
   }
 
   /**
    * URL to the animated channel icon
    */
   get animatedIconURL() {
-    return (
-      this.icon?.createFileURL({ max_side: 256 }, true) ??
-      this.recipient?.animatedAvatarURL
-    );
+    return this.icon?.createFileURL(true) ?? this.recipient?.animatedAvatarURL;
   }
 
   /**

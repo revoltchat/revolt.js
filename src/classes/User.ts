@@ -147,19 +147,14 @@ export class User {
    * URL to the user's avatar
    */
   get avatarURL() {
-    return (
-      this.avatar?.createFileURL({ max_side: 256 }) ?? this.defaultAvatarURL
-    );
+    return this.avatar?.createFileURL() ?? this.defaultAvatarURL;
   }
 
   /**
    * URL to the user's animated avatar
    */
   get animatedAvatarURL() {
-    return (
-      this.avatar?.createFileURL({ max_side: 256 }, true) ??
-      this.defaultAvatarURL
-    );
+    return this.avatar?.createFileURL(true) ?? this.defaultAvatarURL;
   }
 
   /**

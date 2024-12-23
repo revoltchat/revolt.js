@@ -207,19 +207,14 @@ export class ServerMember {
    * URL to the member's avatar
    */
   get avatarURL() {
-    return (
-      this.avatar?.createFileURL({ max_side: 256 }) ?? this.user?.avatarURL
-    );
+    return this.avatar?.createFileURL() ?? this.user?.avatarURL;
   }
 
   /**
    * URL to the member's animated avatar
    */
   get animatedAvatarURL() {
-    return (
-      this.avatar?.createFileURL({ max_side: 256 }, true) ??
-      this.user?.animatedAvatarURL
-    );
+    return this.avatar?.createFileURL(true) ?? this.user?.animatedAvatarURL;
   }
 
   /**

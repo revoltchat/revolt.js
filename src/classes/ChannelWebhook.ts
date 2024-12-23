@@ -45,7 +45,7 @@ export class ChannelWebhook {
   get avatarURL() {
     return this.#collection
       .getUnderlyingObject(this.id)
-      .avatar?.createFileURL({ max_side: 256 });
+      .avatar?.createFileURL();
   }
 
   /**

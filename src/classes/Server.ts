@@ -285,21 +285,21 @@ export class Server {
    * URL to the server's icon
    */
   get iconURL() {
-    return this.icon?.createFileURL({ max_side: 256 });
+    return this.icon?.createFileURL();
   }
 
   /**
    * URL to the server's animated icon
    */
   get animatedIconURL() {
-    return this.icon?.createFileURL({ max_side: 256 }, true);
+    return this.icon?.createFileURL(true);
   }
 
   /**
    * URL to the server's banner
    */
   get bannerURL() {
-    return this.banner?.createFileURL({ max_side: 256 }, true);
+    return this.banner?.createFileURL();
   }
 
   /**
