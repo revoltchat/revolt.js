@@ -23,13 +23,13 @@ export class UserProfile {
    * URL to the user's banner
    */
   get bannerURL() {
-    return this.banner?.createFileURL({ width: 1000 });
+    return this.banner?.createFileURL();
   }
 
   /**
    * URL to the user's animated banner
    */
   get animatedBannerURL() {
-    return this.banner?.createFileURL({ width: 1000 }, true);
+    return this.banner?.createFileURL(true);
   }
 }
