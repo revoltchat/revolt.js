@@ -276,7 +276,7 @@ export class User {
    */
   async addFriend() {
     const user = await this.#collection.client.api.post(`/users/friend`, {
-      username: this.username,
+      username: this.username + "#" + this.discriminator,
     });
 
     return this.#collection.getOrCreate(user._id, user);
