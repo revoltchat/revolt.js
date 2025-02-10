@@ -287,6 +287,15 @@ export class Client extends EventEmitter<Events> {
   }
 
   /**
+   * Get authentication header
+   */
+  get authenticationHeader() {
+    return typeof this.#session === "string"
+      ? ["X-Bot-Token", this.#session]
+      : ["X-Session-Token", this.#session?.token as string];
+  }
+
+  /**
    * Connect to Revolt
    */
   connect() {
