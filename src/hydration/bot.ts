@@ -1,4 +1,4 @@
-import { Bot as ApiBot } from "revolt-api";
+import { Bot } from "revolt-api";
 
 import { Hydrate } from "./index.js";
 
@@ -15,7 +15,7 @@ export type HydratedBot = {
   flags: BotFlags;
 };
 
-export const botHydration: Hydrate<ApiBot, HydratedBot> = {
+export const botHydration: Hydrate<Bot, HydratedBot> = {
   keyMapping: {
     _id: "id",
     owner: "ownerId",

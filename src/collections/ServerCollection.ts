@@ -1,11 +1,9 @@
-import { batch } from "solid-js";
+import { Server as APIServer, Channel, DataCreateServer } from "revolt-api";
 
-import { DataCreateServer } from "revolt-api";
+import { Server } from "../classes/Server.js";
+import { HydratedServer } from "../hydration/server.js";
 
-import { HydratedServer } from "../hydration/index.js";
-import { API, Server } from "../index.js";
-
-import { ClassCollection } from "./index.js";
+import { ClassCollection } from "./Collection.js";
 
 /**
  * Collection of Servers
@@ -25,15 +23,13 @@ export class ServerCollection extends ClassCollection<Server, HydratedServer> {
       include_channels: true,
     });
 
-    return batch(() => {
-      for (const channel of data.channels as unknown as API.Channel[]) {
-        if (typeof channel !== "string") {
-          this.client.channels.getOrCreate(channel._id, channel);
-        }
+    for (const channel of data.channels as unknown as Channel[]) {
+      if (typeof channel !== "string") {
+        this.client.channels.getOrCreate(channel._id, channel);
       }
+    }
 
-      return this.getOrCreate(data._id, data);
-    });
+    return this.getOrCreate(data._id, data);
   }
 
   /**
@@ -42,13 +38,13 @@ export class ServerCollection extends ClassCollection<Server, HydratedServer> {
    * @param data Data
    * @param isNew Whether this object is new
    */
-  getOrCreate(id: string, data: API.Server, isNew = false) {
+  getOrCreate(id: string, data: APIServer, isNew = false) {
     if (this.has(id) && !this.isPartial(id)) {
       return this.get(id)!;
     } else {
       const instance = new Server(this, id);
       this.create(id, "server", instance, this.client, data);
-      isNew && this.client.emit("serverCreate", instance);
+      if (isNew) this.client.emit("serverCreate", instance);
       return instance;
     }
   }
@@ -78,15 +74,13 @@ export class ServerCollection extends ClassCollection<Server, HydratedServer> {
   async createServer(data: DataCreateServer) {
     const { server, channels } = await this.client.api.post(
       `/servers/create`,
-      data
+      data,
     );
 
-    return batch(() => {
-      for (const channel of channels) {
-        this.client.channels.getOrCreate(channel._id, channel);
-      }
+    for (const channel of channels) {
+      this.client.channels.getOrCreate(channel._id, channel);
+    }
 
-      return this.getOrCreate(server._id, server, true);
-    });
+    return this.getOrCreate(server._id, server, true);
   }
 }

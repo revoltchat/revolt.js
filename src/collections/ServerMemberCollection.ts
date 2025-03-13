@@ -1,7 +1,9 @@
-import { HydratedServerMember } from "../hydration/index.js";
-import { API, ServerMember } from "../index.js";
+import { Member, MemberCompositeKey } from "revolt-api";
 
-import { ClassCollection } from "./index.js";
+import { ServerMember } from "../classes/ServerMember.js";
+import { HydratedServerMember } from "../hydration/serverMember.js";
+
+import { ClassCollection } from "./Collection.js";
 
 /**
  * Collection of Server Members
@@ -15,7 +17,7 @@ export class ServerMemberCollection extends ClassCollection<
    * @param id Id
    * @returns Whether it exists
    */
-  hasByKey(id: API.MemberCompositeKey) {
+  hasByKey(id: MemberCompositeKey) {
     return super.has(id.server + id.user);
   }
 
@@ -24,7 +26,7 @@ export class ServerMemberCollection extends ClassCollection<
    * @param id Id
    * @returns Member
    */
-  getByKey(id: API.MemberCompositeKey) {
+  getByKey(id: MemberCompositeKey) {
     return super.get(id.server + id.user);
   }
 
@@ -33,7 +35,7 @@ export class ServerMemberCollection extends ClassCollection<
    * @param id Id
    * @returns Member
    */
-  isPartialByKey(id: API.MemberCompositeKey) {
+  isPartialByKey(id: MemberCompositeKey) {
     return super.isPartial(id.server + id.user);
   }
 
@@ -51,9 +53,9 @@ export class ServerMemberCollection extends ClassCollection<
       `/servers/${serverId as ""}/members/${userId as ""}`,
       {
         roles: false,
-      }
+      },
       // TODO: fix typings in revolt-api
-    )) as API.Member;
+    )) as Member;
 
     return this.getOrCreate(data._id, data);
   }
@@ -63,7 +65,7 @@ export class ServerMemberCollection extends ClassCollection<
    * @param id Id
    * @param data Data
    */
-  getOrCreate(id: API.MemberCompositeKey, data: API.Member) {
+  getOrCreate(id: MemberCompositeKey, data: Member): ServerMember {
     if (this.hasByKey(id) && !this.isPartialByKey(id)) {
       return this.getByKey(id)!;
     } else {
@@ -73,7 +75,7 @@ export class ServerMemberCollection extends ClassCollection<
         "serverMember",
         instance,
         this.client,
-        data
+        data,
       );
       return instance;
     }
@@ -83,7 +85,7 @@ export class ServerMemberCollection extends ClassCollection<
    * Get or return partial
    * @param id Id
    */
-  getOrPartial(id: API.MemberCompositeKey) {
+  getOrPartial(id: MemberCompositeKey): ServerMember | undefined {
     if (this.hasByKey(id)) {
       return this.getByKey(id)!;
     } else if (this.client.options.partials) {

@@ -1,7 +1,7 @@
 import { DataCreateAccount, WebPushSubscription } from "revolt-api";
 
+import { Client } from "../Client.js";
 import { MFA } from "../classes/MFA.js";
-import { Client } from "../index.js";
 
 /**
  * Utility functions for working with accounts
@@ -89,7 +89,7 @@ export class AccountCollection {
   confirmPasswordReset(
     token: string,
     newPassword: string,
-    removeSessions: boolean
+    removeSessions: boolean,
   ) {
     return this.client.api.patch("/auth/account/reset_password", {
       token,

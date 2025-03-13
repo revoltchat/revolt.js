@@ -1,4 +1,4 @@
-import { Emoji as ApiEmoji, EmojiParent } from "revolt-api";
+import { Emoji, EmojiParent } from "revolt-api";
 
 import type { Merge } from "../lib/merge.js";
 
@@ -13,7 +13,7 @@ export type HydratedEmoji = {
   nsfw: boolean;
 };
 
-export const emojiHydration: Hydrate<Merge<ApiEmoji>, HydratedEmoji> = {
+export const emojiHydration: Hydrate<Merge<Emoji>, HydratedEmoji> = {
   keyMapping: {
     _id: "id",
     creator_id: "creatorId",

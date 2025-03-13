@@ -1,18 +1,22 @@
-import { API, Client, File } from "../index.js";
+import { Embed, ImageSize, Special } from "revolt-api";
+
+import { Client } from "../Client.js";
+
+import { File } from "./File.js";
 
 /**
  * Message Embed
  */
 export abstract class MessageEmbed {
   protected client?: Client;
-  readonly type: API.Embed["type"];
+  readonly type: Embed["type"];
 
   /**
    * Construct Embed
    * @param client Client
    * @param type Type
    */
-  constructor(client?: Client, type: API.Embed["type"] = "None") {
+  constructor(client?: Client, type: Embed["type"] = "None") {
     this.client = client;
     this.type = type;
   }
@@ -23,7 +27,7 @@ export abstract class MessageEmbed {
    * @param embed Data
    * @returns Embed
    */
-  static from(client: Client, embed: API.Embed): MessageEmbed {
+  static from(client: Client, embed: Embed): MessageEmbed {
     switch (embed.type) {
       case "Image":
         return new ImageEmbed(client, embed);
@@ -51,17 +55,14 @@ export class ImageEmbed extends MessageEmbed {
   readonly url: string;
   readonly width: number;
   readonly height: number;
-  readonly size: API.ImageSize;
+  readonly size: ImageSize;
 
   /**
    * Construct Image Embed
    * @param client Client
    * @param embed Embed
    */
-  constructor(
-    client: Client,
-    embed: Omit<API.Embed & { type: "Image" }, "type">
-  ) {
+  constructor(client: Client, embed: Omit<Embed & { type: "Image" }, "type">) {
     super(client, "Image");
 
     this.url = embed.url;
@@ -91,10 +92,7 @@ export class VideoEmbed extends MessageEmbed {
    * @param client Client
    * @param embed Embed
    */
-  constructor(
-    client: Client,
-    embed: Omit<API.Embed & { type: "Video" }, "type">
-  ) {
+  constructor(client: Client, embed: Omit<Embed & { type: "Video" }, "type">) {
     super(client, "Video");
 
     this.url = embed.url;
@@ -116,7 +114,7 @@ export class VideoEmbed extends MessageEmbed {
 export class WebsiteEmbed extends MessageEmbed {
   readonly url?: string;
   readonly originalUrl?: string;
-  readonly specialContent?: API.Special;
+  readonly specialContent?: Special;
   readonly title?: string;
   readonly description?: string;
   readonly image?: ImageEmbed;
@@ -132,7 +130,7 @@ export class WebsiteEmbed extends MessageEmbed {
    */
   constructor(
     client: Client,
-    embed: Omit<API.Embed & { type: "Website" }, "type">
+    embed: Omit<Embed & { type: "Website" }, "type">,
   ) {
     super(client, "Website");
 
@@ -179,7 +177,7 @@ export class WebsiteEmbed extends MessageEmbed {
         return `https://open.spotify.com/embed/${this.specialContent.content_type}/${this.specialContent.id}`;
       case "Soundcloud":
         return `https://w.soundcloud.com/player/?url=${encodeURIComponent(
-          this.url!
+          this.url!,
         )}&color=%23FF7F50&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true`;
       case "Bandcamp": {
         return `https://bandcamp.com/EmbeddedPlayer/${this.specialContent.content_type.toLowerCase()}=${
@@ -209,10 +207,7 @@ export class TextEmbed extends MessageEmbed {
    * @param client Client
    * @param embed Embed
    */
-  constructor(
-    client: Client,
-    embed: Omit<API.Embed & { type: "Text" }, "type">
-  ) {
+  constructor(client: Client, embed: Omit<Embed & { type: "Text" }, "type">) {
     super(client, "Text");
 
     this.iconUrl = embed.icon_url!;

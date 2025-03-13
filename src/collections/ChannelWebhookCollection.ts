@@ -1,8 +1,9 @@
+import { Webhook } from "revolt-api";
+
 import { ChannelWebhook } from "../classes/ChannelWebhook.js";
 import { HydratedChannelWebhook } from "../hydration/channelWebhook.js";
-import { API } from "../index.js";
 
-import { ClassCollection } from "./index.js";
+import { ClassCollection } from "./Collection.js";
 
 /**
  * Collection of Channel Webhooks
@@ -22,7 +23,7 @@ export class ChannelWebhookCollection extends ClassCollection<
     // @ts-expect-error not in prod
     const data = await this.client.api.get(`/webhooks/${id as ""}`);
     // @ts-expect-error not in prod
-    return this.getOrCreate(data.id, data as API.Webhook);
+    return this.getOrCreate(data.id, data as Webhook);
   }
 
   /**
@@ -36,7 +37,7 @@ export class ChannelWebhookCollection extends ClassCollection<
     if (webhook) return webhook;
     const data = await this.client.api.get(
       // @ts-expect-error not in prod
-      `/webhooks/${id as ""}/${token as ""}`
+      `/webhooks/${id as ""}/${token as ""}`,
     );
     // @ts-expect-error not in prod
     return this.getOrCreate(data.id, data);
@@ -47,7 +48,7 @@ export class ChannelWebhookCollection extends ClassCollection<
    * @param id Id
    * @param data Data
    */
-  getOrCreate(id: string, data: API.Webhook) {
+  getOrCreate(id: string, data: Webhook) {
     if (this.has(id)) {
       return this.get(id)!;
     } else {

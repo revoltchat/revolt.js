@@ -1,4 +1,8 @@
-import { API, Client, File } from "../index.js";
+import { UserProfile as APIUserProfile } from "revolt-api";
+
+import { Client } from "../Client.js";
+
+import { File } from "./File.js";
 
 /**
  * User Profile Class
@@ -12,7 +16,7 @@ export class UserProfile {
    * @param client Client
    * @param data Data
    */
-  constructor(client: Client, data: API.UserProfile) {
+  constructor(client: Client, data: APIUserProfile) {
     this.content = data.content!;
     this.banner = data.background
       ? new File(client, data.background)

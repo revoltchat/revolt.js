@@ -1,18 +1,20 @@
-import { API, Client } from "../index.js";
+import { Invite } from "revolt-api";
+
+import { Client } from "../Client.js";
 
 /**
  * Channel Invite
  */
 export abstract class ChannelInvite {
   protected client?: Client;
-  readonly type: API.Invite["type"] | "None";
+  readonly type: Invite["type"] | "None";
 
   /**
    * Construct Channel Invite
    * @param client Client
    * @param type Type
    */
-  constructor(client?: Client, type: API.Invite["type"] | "None" = "None") {
+  constructor(client?: Client, type: Invite["type"] | "None" = "None") {
     this.client = client;
     this.type = type;
   }
@@ -23,7 +25,7 @@ export abstract class ChannelInvite {
    * @param invite Data
    * @returns Invite
    */
-  static from(client: Client, invite: API.Invite): ChannelInvite {
+  static from(client: Client, invite: Invite): ChannelInvite {
     switch (invite.type) {
       case "Server":
         return new ServerInvite(client, invite);
@@ -52,7 +54,7 @@ export class ServerInvite extends ChannelInvite {
    * @param client Client
    * @param invite Invite
    */
-  constructor(client: Client, invite: API.Invite & { type: "Server" }) {
+  constructor(client: Client, invite: Invite & { type: "Server" }) {
     super(client, "Server");
 
     this.id = invite._id;

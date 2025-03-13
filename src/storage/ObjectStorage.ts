@@ -1,23 +1,10 @@
-import { SetStoreFunction, createStore } from "solid-js/store";
-
 import { Hydrators, hydrate } from "../hydration/index.js";
 
 /**
  * Wrapper around Solid.js store
  */
 export class ObjectStorage<T> {
-  private store: Record<string, T>;
-  readonly set: SetStoreFunction<Record<string, T>>;
-
-  /**
-   * Create new object storage
-   */
-  constructor() {
-    const [store, setStore] = createStore({});
-    this.store = store as never;
-    this.set = setStore;
-    this.get = this.get.bind(this);
-  }
+  private store: Record<string, T> = {};
 
   /**
    * Get object by ID
@@ -26,6 +13,15 @@ export class ObjectStorage<T> {
    */
   get(id: string) {
     return this.store[id];
+  }
+
+  /**
+   * Set object by ID
+   * @param id ID
+   * @param value New value
+   */
+  set(id: string, value: T) {
+    this.store[id] = value;
   }
 
   /**

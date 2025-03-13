@@ -1,6 +1,7 @@
-import { Member as ApiMember, MemberCompositeKey } from "revolt-api";
+import { Member, MemberCompositeKey } from "revolt-api";
 
-import { Client, File } from "../index.js";
+import { Client } from "../Client.js";
+import { File } from "../classes/File.js";
 import type { Merge } from "../lib/merge.js";
 
 import { Hydrate } from "./index.js";
@@ -15,7 +16,7 @@ export type HydratedServerMember = {
 };
 
 export const serverMemberHydration: Hydrate<
-  Merge<ApiMember>,
+  Merge<Member>,
   HydratedServerMember
 > = {
   keyMapping: {

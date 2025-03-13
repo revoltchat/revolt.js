@@ -1,9 +1,10 @@
 import { DataEditUser, Presence } from "revolt-api";
 import { decodeTime } from "ulid";
 
-import { UserCollection } from "../collections/index.js";
-import { UserProfile } from "../index.js";
+import { UserCollection } from "../collections/UserCollection.js";
 import { U32_MAX, UserPermission } from "../permissions/definitions.js";
+
+import { UserProfile } from "./UserProfile.js";
 
 /**
  * User Class
@@ -87,8 +88,9 @@ export class User {
    */
   get status() {
     // TODO: issue with API, upstream fix required #319
-    if (!this.online)
+    if (!this.online) {
       return { text: undefined, presence: "Invisible" as const };
+    }
     return this.#collection.getUnderlyingObject(this.id).status;
   }
 
@@ -138,9 +140,7 @@ export class User {
    * URL to the user's default avatar
    */
   get defaultAvatarURL() {
-    return `${this.#collection.client.options.baseURL}/users/${
-      this.id
-    }/default_avatar`;
+    return `${this.#collection.client.options.baseURL}/users/${this.id}/default_avatar`;
   }
 
   /**
@@ -161,7 +161,7 @@ export class User {
    * Presence
    */
   get presence() {
-    return this.online ? this.status?.presence ?? "Online" : "Invisible";
+    return this.online ? (this.status?.presence ?? "Online") : "Invisible";
   }
 
   /**
@@ -171,8 +171,8 @@ export class User {
    */
   statusMessage(translate: (presence: Presence) => string = (a) => a) {
     return this.online
-      ? this.status?.text ??
-          (this.presence === "Focus" ? translate("Focus") : undefined)
+      ? (this.status?.text ??
+          (this.presence === "Focus" ? translate("Focus") : undefined))
       : undefined;
   }
 
@@ -197,10 +197,10 @@ export class User {
       this.#collection.client.channels.find(
         (channel) =>
           (channel.type === "Group" || channel.type === "DirectMessage") &&
-          channel.recipientIds.has(this.id)
+          channel.recipientIds.has(this.id),
       ) ||
       this.#collection.client.serverMembers.find(
-        (member) => member.id.user === this.id
+        (member) => member.id.user === this.id,
       )
     ) {
       if (this.#collection.client.user?.bot || this.bot) {
@@ -222,7 +222,7 @@ export class User {
       `/users/${
         this.id === this.#collection.client.user?.id ? "@me" : this.id
       }`,
-      data
+      data,
     );
   }
 
@@ -244,20 +244,20 @@ export class User {
    */
   async openDM() {
     let dm = [...this.#collection.client.channels.values()].find(
-      (x) => x.type === "DirectMessage" && x.recipient == this
+      (x) => x.type === "DirectMessage" && x.recipient == this,
     );
 
     if (dm) {
       if (!dm.active) {
-        this.#collection.client.channels.updateUnderlyingObject(
+        this.#collection.client.channels.setKeyUnderlyingObject(
           dm.id,
           "active",
-          true
+          true,
         );
       }
     } else {
       const data = await this.#collection.client.api.get(
-        `/users/${this.id as ""}/dm`
+        `/users/${this.id as ""}/dm`,
       );
 
       dm = this.#collection.client.channels.getOrCreate(data._id, data)!;
@@ -305,7 +305,7 @@ export class User {
   async fetchProfile() {
     return new UserProfile(
       this.#collection.client,
-      await this.#collection.client.api.get(`/users/${this.id as ""}/profile`)
+      await this.#collection.client.api.get(`/users/${this.id as ""}/profile`),
     );
   }
 
@@ -315,7 +315,7 @@ export class User {
    */
   async fetchMutual() {
     return await this.#collection.client.api.get(
-      `/users/${this.id as ""}/mutual`
+      `/users/${this.id as ""}/mutual`,
     );
   }
 }

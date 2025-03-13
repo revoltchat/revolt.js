@@ -1,10 +1,12 @@
 import {
-  BannedUser as ApiBannedUser,
-  ServerBan as ApiServerBan,
+  BannedUser as APIBannedUser,
+  ServerBan as APIServerBan,
   MemberCompositeKey,
 } from "revolt-api";
 
-import { BannedUser, Client } from "../index.js";
+import { Client } from "../Client.js";
+
+import { BannedUser } from "./BannedUser.js";
 
 /**
  * Server Ban
@@ -20,7 +22,7 @@ export class ServerBan {
    * @param client Client
    * @param data Data
    */
-  constructor(client: Client, data: ApiServerBan, user?: ApiBannedUser) {
+  constructor(client: Client, data: APIServerBan, user?: APIBannedUser) {
     this.client = client;
     this.id = data._id;
     this.reason = data.reason!;
@@ -39,7 +41,7 @@ export class ServerBan {
    */
   async pardon() {
     await this.client.api.delete(
-      `/servers/${this.id.server as ""}/bans/${this.id.user as ""}`
+      `/servers/${this.id.server as ""}/bans/${this.id.user as ""}`,
     );
   }
 }

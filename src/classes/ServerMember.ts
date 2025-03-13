@@ -4,7 +4,7 @@ import type {
   MemberCompositeKey,
 } from "revolt-api";
 
-import { ServerMemberCollection } from "../collections/index.js";
+import { ServerMemberCollection } from "../collections/ServerMemberCollection.js";
 import {
   bitwiseAndEq,
   calculatePermission,
@@ -183,7 +183,7 @@ export class ServerMember {
   ) {
     return bitwiseAndEq(
       this.getPermissions(target),
-      ...permission.map((x) => Permission[x])
+      ...permission.map((x) => Permission[x]),
     );
   }
 
@@ -224,7 +224,7 @@ export class ServerMember {
   async edit(data: DataMemberEdit) {
     await this.#collection.client.api.patch(
       `/servers/${this.id.server as ""}/members/${this.id.user as ""}`,
-      data
+      data,
     );
   }
 

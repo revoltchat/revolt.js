@@ -1,6 +1,6 @@
-import "dotenv/config";
-
-import { Client } from "./lib/esm/index.js";
+#!/usr/bin/env -S node --env-file test.mjs
+/* eslint-disable no-undef */
+import { Client } from "./lib/index.js";
 
 const client = new Client({ debug: true });
 

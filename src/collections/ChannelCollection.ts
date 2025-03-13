@@ -1,7 +1,10 @@
-import { HydratedChannel } from "../hydration/index.js";
-import { API, Channel, User } from "../index.js";
+import { Channel as APIChannel } from "revolt-api";
 
-import { ClassCollection } from "./index.js";
+import { Channel } from "../classes/Channel.js";
+import { User } from "../classes/User.js";
+import { HydratedChannel } from "../hydration/channel.js";
+
+import { ClassCollection } from "./Collection.js";
 
 /**
  * Collection of Channels
@@ -38,13 +41,13 @@ export class ChannelCollection extends ClassCollection<
    * @param data Data
    * @param isNew Whether this object is new
    */
-  getOrCreate(id: string, data: API.Channel, isNew = false) {
+  getOrCreate(id: string, data: APIChannel, isNew = false) {
     if (this.has(id) && !this.isPartial(id)) {
       return this.get(id)!;
     } else {
       const instance = new Channel(this, id);
       this.create(id, "channel", instance, this.client, data);
-      isNew && this.client.emit("channelCreate", instance);
+      if (isNew) this.client.emit("channelCreate", instance);
       return instance;
     }
   }

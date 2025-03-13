@@ -1,7 +1,7 @@
 import { DataEditBot } from "revolt-api";
 import { decodeTime } from "ulid";
 
-import { BotCollection } from "../collections/index.js";
+import { BotCollection } from "../collections/BotCollection.js";
 
 /**
  * Bot Class

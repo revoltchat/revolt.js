@@ -6,7 +6,7 @@
     "rootDir": "./src",
     "declaration": true,
     "declarationMap": true,
-    "outDir": "./lib/esm",
+    "outDir": "./lib",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,

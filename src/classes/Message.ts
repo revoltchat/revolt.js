@@ -1,12 +1,14 @@
 import {
-  MessageWebhook as ApiMessageWebhook,
+  MessageWebhook as APIMessageWebhook,
   DataEditMessage,
   DataMessageSend,
 } from "revolt-api";
 import { decodeTime } from "ulid";
 
-import { MessageCollection } from "../collections/index.js";
-import { Client, File } from "../index.js";
+import { Client } from "../Client.js";
+import { MessageCollection } from "../collections/MessageCollection.js";
+
+import { File } from "./File.js";
 
 /**
  * Message Class
@@ -72,7 +74,7 @@ export class Message {
    */
   get channel() {
     return this.#collection.client.channels.get(
-      this.#collection.getUnderlyingObject(this.id).channelId
+      this.#collection.getUnderlyingObject(this.id).channelId,
     );
   }
 
@@ -105,7 +107,7 @@ export class Message {
    */
   get author() {
     return this.#collection.client.users.get(
-      this.#collection.getUnderlyingObject(this.id).authorId!
+      this.#collection.getUnderlyingObject(this.id).authorId!,
     );
   }
 
@@ -208,7 +210,9 @@ export class Message {
 
     return (
       this.masquerade?.name ??
-      (webhook ? webhook.name : this.member?.nickname ?? this.author?.username)
+      (webhook
+        ? webhook.name
+        : (this.member?.nickname ?? this.author?.username))
     );
   }
 
@@ -229,7 +233,7 @@ export class Message {
       this.masqueradeAvatarURL ??
       (webhook
         ? webhook.avatarURL
-        : this.member?.avatarURL ?? this.author?.avatarURL)
+        : (this.member?.avatarURL ?? this.author?.avatarURL))
     );
   }
 
@@ -244,8 +248,8 @@ export class Message {
       (webhook
         ? webhook.avatarURL
         : this.member
-        ? this.member?.animatedAvatarURL
-        : this.author?.animatedAvatarURL)
+          ? this.member?.animatedAvatarURL
+          : this.author?.animatedAvatarURL)
     );
   }
 
@@ -271,7 +275,7 @@ export class Message {
   async edit(data: DataEditMessage) {
     return await this.#collection.client.api.patch(
       `/channels/${this.channelId as ""}/messages/${this.id as ""}`,
-      data
+      data,
     );
   }
 
@@ -280,7 +284,7 @@ export class Message {
    */
   async delete() {
     return await this.#collection.client.api.delete(
-      `/channels/${this.channelId as ""}/messages/${this.id as ""}`
+      `/channels/${this.channelId as ""}/messages/${this.id as ""}`,
     );
   }
 
@@ -300,7 +304,7 @@ export class Message {
       | (Omit<DataMessageSend, "nonce"> & {
           nonce?: string;
         }),
-    mention = true
+    mention = true,
   ) {
     const obj = typeof data === "string" ? { content: data } : data;
     return this.channel?.sendMessage({
@@ -314,7 +318,7 @@ export class Message {
    */
   async clearReactions() {
     return await this.#collection.client.api.delete(
-      `/channels/${this.channelId as ""}/messages/${this.id as ""}/reactions`
+      `/channels/${this.channelId as ""}/messages/${this.id as ""}/reactions`,
     );
   }
 
@@ -326,7 +330,7 @@ export class Message {
     return await this.#collection.client.api.put(
       `/channels/${this.channelId as ""}/messages/${this.id as ""}/reactions/${
         emoji as ""
-      }`
+      }`,
     );
   }
 
@@ -338,7 +342,7 @@ export class Message {
     return await this.#collection.client.api.delete(
       `/channels/${this.channelId as ""}/messages/${this.id as ""}/reactions/${
         emoji as ""
-      }`
+      }`,
     );
   }
 }
@@ -358,7 +362,7 @@ export class MessageWebhook {
    * @param client Client
    * @param webhook Webhook data
    */
-  constructor(client: Client, webhook: ApiMessageWebhook, id: string) {
+  constructor(client: Client, webhook: APIMessageWebhook, id: string) {
     this.#client = client;
     this.id = id;
     this.name = webhook.name;

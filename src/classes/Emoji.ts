@@ -1,6 +1,6 @@
 import { decodeTime } from "ulid";
 
-import { EmojiCollection } from "../collections/index.js";
+import { EmojiCollection } from "../collections/EmojiCollection.js";
 
 /**
  * Emoji Class
@@ -53,7 +53,7 @@ export class Emoji {
    */
   get creator() {
     return this.#collection.client.users.get(
-      this.#collection.getUnderlyingObject(this.id).creatorId
+      this.#collection.getUnderlyingObject(this.id).creatorId,
     );
   }
 

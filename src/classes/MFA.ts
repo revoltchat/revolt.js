@@ -1,5 +1,3 @@
-import { SetStoreFunction, createStore } from "solid-js/store";
-
 import {
   MFAMethod,
   MFAResponse,
@@ -7,14 +5,14 @@ import {
   MFATicket as TicketType,
 } from "revolt-api";
 
-import { Client } from "../index.js";
+import { Client } from "../Client.js";
 
 /**
  * Multi-Factor Authentication
  */
 export class MFA {
   #client: Client;
-  #store: [MultiFactorStatus, SetStoreFunction<MultiFactorStatus>];
+  #store: MultiFactorStatus;
 
   /**
    * Construct MFA helper
@@ -23,21 +21,30 @@ export class MFA {
    */
   constructor(client: Client, state: MultiFactorStatus) {
     this.#client = client;
-    this.#store = createStore(state);
+    this.#store = state;
+  }
+
+  /**
+   * Set MFA status
+   * @param key key to set
+   * @param value boolean
+   */
+  #setStore(key: keyof MultiFactorStatus, value: boolean) {
+    this.#store[key] = value;
   }
 
   /**
    * Whether authenticator app is enabled
    */
   get authenticatorEnabled() {
-    return this.#store[0].totp_mfa;
+    return this.#store.totp_mfa;
   }
 
   /**
    * Whether recovery codes are enabled
    */
   get recoveryEnabled() {
-    return this.#store[0].recovery_active;
+    return this.#store.recovery_active;
   }
 
   /**
@@ -59,7 +66,7 @@ export class MFA {
   createTicket(params: MFAResponse) {
     return this.#client.api
       .put("/auth/mfa/ticket", params)
-      .then((ticket) => new MFATicket(this.#client, ticket, this.#store[1]));
+      .then((ticket) => new MFATicket(this.#client, ticket, this.#setStore));
   }
 
   /**
@@ -68,7 +75,7 @@ export class MFA {
    */
   async enableAuthenticator(token: string) {
     await this.#client.api.put("/auth/mfa/totp", { totp_code: token });
-    this.#store[1]("totp_mfa", true);
+    this.#setStore("totp_mfa", true);
   }
 }
 
@@ -78,7 +85,7 @@ export class MFA {
 export class MFATicket {
   #client: Client;
   #ticket: TicketType;
-  #mutate: SetStoreFunction<MultiFactorStatus>;
+  #mutate: (key: keyof MultiFactorStatus, value: boolean) => void;
   #used = false;
 
   /**
@@ -90,7 +97,7 @@ export class MFATicket {
   constructor(
     client: Client,
     ticket: TicketType,
-    mutate: SetStoreFunction<MultiFactorStatus>
+    mutate: (key: keyof MultiFactorStatus, value: boolean) => void,
   ) {
     this.#client = client;
     this.#ticket = ticket;
@@ -139,7 +146,7 @@ export class MFATicket {
         headers: {
           "X-MFA-Ticket": this.token,
         },
-      }
+      },
     );
 
     this.#mutate("recovery_active", true);

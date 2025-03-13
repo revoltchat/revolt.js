@@ -1,18 +1,20 @@
-import { API, Client } from "../index.js";
+import { SystemMessage as APISystemMessage } from "revolt-api";
+
+import { Client } from "../Client.js";
 
 /**
  * System Message
  */
 export abstract class SystemMessage {
   protected client?: Client;
-  readonly type: API.SystemMessage["type"];
+  readonly type: APISystemMessage["type"];
 
   /**
    * Construct System Message
    * @param client Client
    * @param type Type
    */
-  constructor(client: Client, type: API.SystemMessage["type"]) {
+  constructor(client: Client, type: APISystemMessage["type"]) {
     this.client = client;
     this.type = type;
   }
@@ -23,7 +25,7 @@ export abstract class SystemMessage {
    * @param embed Data
    * @returns System Message
    */
-  static from(client: Client, message: API.SystemMessage): SystemMessage {
+  static from(client: Client, message: APISystemMessage): SystemMessage {
     switch (message.type) {
       case "text":
         return new TextSystemMessage(client, message);
@@ -64,7 +66,7 @@ export class TextSystemMessage extends SystemMessage {
    */
   constructor(
     client: Client,
-    systemMessage: API.SystemMessage & { type: "text" }
+    systemMessage: APISystemMessage & { type: "text" },
   ) {
     super(client, systemMessage.type);
     this.content = systemMessage.content;
@@ -84,7 +86,7 @@ export class UserSystemMessage extends SystemMessage {
    */
   constructor(
     client: Client,
-    systemMessage: API.SystemMessage & {
+    systemMessage: APISystemMessage & {
       type:
         | "user_added"
         | "user_remove"
@@ -92,7 +94,7 @@ export class UserSystemMessage extends SystemMessage {
         | "user_left"
         | "user_kicked"
         | "user_banned";
-    }
+    },
   ) {
     super(client, systemMessage.type);
     this.userId = systemMessage.id;
@@ -119,9 +121,9 @@ export class UserModeratedSystemMessage extends UserSystemMessage {
    */
   constructor(
     client: Client,
-    systemMessage: API.SystemMessage & {
+    systemMessage: APISystemMessage & {
       type: "user_added" | "user_remove";
-    }
+    },
   ) {
     super(client, systemMessage);
     this.byId = systemMessage.by;
@@ -149,12 +151,12 @@ export class ChannelEditSystemMessage extends SystemMessage {
    */
   constructor(
     client: Client,
-    systemMessage: API.SystemMessage & {
+    systemMessage: APISystemMessage & {
       type:
         | "channel_renamed"
         | "channel_description_changed"
         | "channel_icon_changed";
-    }
+    },
   ) {
     super(client, systemMessage.type);
     this.byId = systemMessage.by;
@@ -181,9 +183,9 @@ export class ChannelRenamedSystemMessage extends ChannelEditSystemMessage {
    */
   constructor(
     client: Client,
-    systemMessage: API.SystemMessage & {
+    systemMessage: APISystemMessage & {
       type: "channel_renamed";
-    }
+    },
   ) {
     super(client, systemMessage);
     this.name = systemMessage.name;
@@ -204,9 +206,9 @@ export class ChannelOwnershipChangeSystemMessage extends SystemMessage {
    */
   constructor(
     client: Client,
-    systemMessage: API.SystemMessage & {
+    systemMessage: APISystemMessage & {
       type: "channel_ownership_changed";
-    }
+    },
   ) {
     super(client, systemMessage.type);
     this.fromId = systemMessage.from;

@@ -1,9 +1,5 @@
-import { SetStoreFunction } from "solid-js/store";
-
-import { ReactiveMap } from "@solid-primitives/map";
-
+import { Client } from "../Client.js";
 import { Hydrators } from "../hydration/index.js";
-import { Client } from "../index.js";
 import { ObjectStorage } from "../storage/ObjectStorage.js";
 
 /**
@@ -59,7 +55,7 @@ export abstract class Collection<T> {
    * @param cb Callback for each pair
    */
   abstract forEach(
-    cb: (value: T, key: string, map: ReactiveMap<string, T>) => void
+    cb: (value: T, key: string, map: Map<string, T>) => void,
   ): void;
 
   /**
@@ -116,9 +112,14 @@ export abstract class Collection<T> {
  */
 export abstract class StoreCollection<T, V> extends Collection<T> {
   #storage = new ObjectStorage<V>();
-  #objects = new ReactiveMap<string, T>();
+  #objects = new Map<string, T>();
   readonly getUnderlyingObject: (id: string) => V;
-  readonly updateUnderlyingObject: SetStoreFunction<Record<string, V>>;
+  readonly setKeyUnderlyingObject: <K extends keyof V>(
+    id: string,
+    key: K,
+    value: V[K],
+  ) => void;
+  readonly updateUnderlyingObject: (id: string, value: V) => void;
 
   /**
    * Construct store backed collection
@@ -126,6 +127,12 @@ export abstract class StoreCollection<T, V> extends Collection<T> {
   constructor() {
     super();
     this.getUnderlyingObject = (key) => this.#storage.get(key) ?? ({} as V);
+    this.setKeyUnderlyingObject = (id, key, value) => {
+      this.#storage.set(id, {
+        [key]: value,
+        ...this.getUnderlyingObject(id),
+      });
+    };
     this.updateUnderlyingObject = this.#storage.set;
   }
 
@@ -169,7 +176,7 @@ export abstract class StoreCollection<T, V> extends Collection<T> {
     type: keyof Hydrators,
     instance: T,
     context: unknown,
-    data?: unknown
+    data?: unknown,
   ) {
     this.#storage.hydrate(id, type, context, data);
     this.#objects.set(id, instance);
@@ -221,7 +228,7 @@ export abstract class StoreCollection<T, V> extends Collection<T> {
    * @param cb Callback for each pair
    * @returns Iterable
    */
-  forEach(cb: (value: T, key: string, map: ReactiveMap<string, T>) => void) {
+  forEach(cb: (value: T, key: string, map: Map<string, T>) => void) {
     return this.#objects.forEach(cb);
   }
 }

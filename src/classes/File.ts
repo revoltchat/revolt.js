@@ -1,6 +1,6 @@
-import { Metadata } from "revolt-api";
+import { File as APIFile, Metadata } from "revolt-api";
 
-import { API, Client } from "../index.js";
+import { Client } from "../Client.js";
 
 /**
  * Uploaded File
@@ -45,7 +45,7 @@ export class File {
    */
   constructor(
     client: Client,
-    file: Pick<API.File, "_id" | "tag" | "metadata"> & Partial<API.File>
+    file: Pick<APIFile, "_id" | "tag" | "metadata"> & Partial<APIFile>,
   ) {
     this.#client = client;
     this.id = file._id;
