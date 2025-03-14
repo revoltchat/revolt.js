@@ -421,7 +421,7 @@ export class Channel {
     });
 
     if (this.type === "DirectMessage") {
-      this.#collection.setKeyUnderlyingObject(this.id, "active", false);
+      this.#collection.setUnderlyingKey(this.id, "active", false);
       return;
     }
 
@@ -663,7 +663,7 @@ export class Channel {
     const unreads = this.#collection.client.channelUnreads;
     const channelUnread = unreads.get(this.id);
     if (channelUnread) {
-      unreads.updateUnderlyingObject(this.id, {
+      unreads.setUnderlyingObject(this.id, {
         ...channelUnread,
         lastMessageId,
         messageMentionIds: unreads.getUnderlyingObject(this.id)

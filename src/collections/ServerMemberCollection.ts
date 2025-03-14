@@ -3,12 +3,12 @@ import { Member, MemberCompositeKey } from "revolt-api";
 import { ServerMember } from "../classes/ServerMember.js";
 import { HydratedServerMember } from "../hydration/serverMember.js";
 
-import { ClassCollection } from "./Collection.js";
+import { Collection } from "./Collection.js";
 
 /**
  * Collection of Server Members
  */
-export class ServerMemberCollection extends ClassCollection<
+export class ServerMemberCollection extends Collection<
   ServerMember,
   HydratedServerMember
 > {
@@ -17,7 +17,7 @@ export class ServerMemberCollection extends ClassCollection<
    * @param id Id
    * @returns Whether it exists
    */
-  hasByKey(id: MemberCompositeKey) {
+  hasByKey(id: MemberCompositeKey): boolean {
     return super.has(id.server + id.user);
   }
 
@@ -26,7 +26,7 @@ export class ServerMemberCollection extends ClassCollection<
    * @param id Id
    * @returns Member
    */
-  getByKey(id: MemberCompositeKey) {
+  getByKey(id: MemberCompositeKey): ServerMember | undefined {
     return super.get(id.server + id.user);
   }
 
@@ -35,7 +35,7 @@ export class ServerMemberCollection extends ClassCollection<
    * @param id Id
    * @returns Member
    */
-  isPartialByKey(id: MemberCompositeKey) {
+  isPartialByKey(id: MemberCompositeKey): boolean {
     return super.isPartial(id.server + id.user);
   }
 

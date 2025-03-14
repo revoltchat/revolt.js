@@ -119,9 +119,9 @@ export class Server {
    * Channels
    */
   get channels() {
-    return [
-      ...this.#collection.getUnderlyingObject(this.id).channelIds.values(),
-    ]
+    return Array.from(
+      this.#collection.getUnderlyingObject(this.id).channelIds.values(),
+    )
       .map((id) => this.#collection.client.channels.get(id)!)
       .filter((x) => x);
   }
@@ -374,7 +374,7 @@ export class Server {
    * @param data Changes
    */
   async edit(data: DataEditServer) {
-    this.#collection.updateUnderlyingObject(
+    this.#collection.setUnderlyingObject(
       this.id,
       hydrate(
         "server",

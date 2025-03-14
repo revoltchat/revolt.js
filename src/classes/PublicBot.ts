@@ -28,9 +28,9 @@ export class PublicBot {
     this.username = data.username;
     this.avatar = data.avatar
       ? new File(client, {
-        _id: data.avatar,
-        tag: "avatars",
-      } as APIFile)
+          _id: data.avatar,
+          tag: "avatars",
+        } as APIFile)
       : undefined;
     this.description = data.description!;
   }

@@ -3,12 +3,12 @@ import { Server as APIServer, Channel, DataCreateServer } from "revolt-api";
 import { Server } from "../classes/Server.js";
 import { HydratedServer } from "../hydration/server.js";
 
-import { ClassCollection } from "./Collection.js";
+import { Collection } from "./Collection.js";
 
 /**
  * Collection of Servers
  */
-export class ServerCollection extends ClassCollection<Server, HydratedServer> {
+export class ServerCollection extends Collection<Server, HydratedServer> {
   /**
    * Fetch server by ID
    *
@@ -38,7 +38,7 @@ export class ServerCollection extends ClassCollection<Server, HydratedServer> {
    * @param data Data
    * @param isNew Whether this object is new
    */
-  getOrCreate(id: string, data: APIServer, isNew = false) {
+  getOrCreate(id: string, data: APIServer, isNew = false): Server {
     if (this.has(id) && !this.isPartial(id)) {
       return this.get(id)!;
     } else {
@@ -53,7 +53,7 @@ export class ServerCollection extends ClassCollection<Server, HydratedServer> {
    * Get or return partial
    * @param id Id
    */
-  getOrPartial(id: string) {
+  getOrPartial(id: string): Server | undefined {
     if (this.has(id)) {
       return this.get(id)!;
     } else if (this.client.options.partials) {
@@ -71,7 +71,7 @@ export class ServerCollection extends ClassCollection<Server, HydratedServer> {
    * @param data Server options
    * @returns The newly-created server
    */
-  async createServer(data: DataCreateServer) {
+  async createServer(data: DataCreateServer): Promise<Server> {
     const { server, channels } = await this.client.api.post(
       `/servers/create`,
       data,

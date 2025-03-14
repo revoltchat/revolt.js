@@ -249,7 +249,7 @@ export class User {
 
     if (dm) {
       if (!dm.active) {
-        this.#collection.client.channels.setKeyUnderlyingObject(
+        this.#collection.client.channels.setUnderlyingKey(
           dm.id,
           "active",
           true,

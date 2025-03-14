@@ -247,7 +247,7 @@ export async function handleEvent(
         delete event.user;
 
         client.messages.getOrCreate(event._id, event, true);
-        client.channels.setKeyUnderlyingObject(
+        client.channels.setUnderlyingKey(
           event.channel,
           "lastMessageId",
           event._id,
@@ -263,7 +263,7 @@ export async function handleEvent(
           channelId: event.channel,
         };
 
-        client.messages.updateUnderlyingObject(event.id, {
+        client.messages.setUnderlyingObject(event.id, {
           ...hydrate(
             "message",
             { ...event.data, channel: event.channel },
@@ -285,18 +285,14 @@ export async function handleEvent(
           channelId: event.channel,
         };
 
-        client.messages.setKeyUnderlyingObject(event.id, "embeds", [
+        client.messages.setUnderlyingKey(event.id, "embeds", [
           ...(previousMessage.embeds ?? []),
           ...(event.append.embeds?.map((embed) =>
             MessageEmbed.from(client, embed),
           ) ?? []),
         ]);
 
-        client.messages.setKeyUnderlyingObject(
-          event.id,
-          "channelId",
-          event.channel,
-        );
+        client.messages.setUnderlyingKey(event.id, "channelId", event.channel);
 
         client.emit("messageUpdate", message, previousMessage);
       }
@@ -304,8 +300,10 @@ export async function handleEvent(
     }
     case "MessageDelete": {
       if (client.messages.getOrPartial(event.id)) {
-        const message = client.messages.getUnderlyingObject(event.id);
-        client.emit("messageDelete", message);
+        client.emit(
+          "messageDelete",
+          client.messages.getUnderlyingObject(event.id),
+        );
         client.messages.delete(event.id);
       }
       break;
@@ -391,9 +389,7 @@ export async function handleEvent(
     case "ChannelUpdate": {
       const channel = client.channels.getOrPartial(event.id);
       if (channel) {
-        const previousChannel = {
-          ...client.channels.getUnderlyingObject(event.id),
-        };
+        const previousChannel = client.channels.getUnderlyingObject(event.id);
 
         const changes = hydrate("channel", event.data, client, false);
 
@@ -413,15 +409,17 @@ export async function handleEvent(
           }
         }
 
-        client.channels.updateUnderlyingObject(event.id, changes);
+        client.channels.setUnderlyingObject(event.id, changes);
         client.emit("channelUpdate", channel, previousChannel);
       }
       break;
     }
     case "ChannelDelete": {
       if (client.channels.getOrPartial(event.id)) {
-        const channel = client.channels.getUnderlyingObject(event.id);
-        client.emit("channelDelete", channel);
+        client.emit(
+          "channelDelete",
+          client.channels.getUnderlyingObject(event.id),
+        );
         client.channels.delete(event.id);
       }
       break;
@@ -514,9 +512,7 @@ export async function handleEvent(
     case "ServerUpdate": {
       const server = client.servers.getOrPartial(event.id);
       if (server) {
-        const previousServer = {
-          ...client.servers.getUnderlyingObject(event.id),
-        };
+        const previousServer = client.servers.getUnderlyingObject(event.id);
 
         const changes = hydrate("server", event.data, client, false);
 
@@ -542,7 +538,7 @@ export async function handleEvent(
           }
         }
 
-        client.servers.updateUnderlyingObject(event.id, changes);
+        client.servers.setUnderlyingObject(event.id, changes);
         client.emit("serverUpdate", server, previousServer);
       }
       break;
@@ -610,11 +606,9 @@ export async function handleEvent(
     case "ServerMemberUpdate": {
       const member = client.serverMembers.getOrPartial(event.id);
       if (member) {
-        const previousMember = {
-          ...client.serverMembers.getUnderlyingObject(
-            event.id.server + event.id.user,
-          ),
-        };
+        const previousMember = client.serverMembers.getUnderlyingObject(
+          event.id.server + event.id.user,
+        );
 
         const changes = hydrate("serverMember", event.data, client, false);
 
@@ -637,7 +631,7 @@ export async function handleEvent(
           }
         }
 
-        client.serverMembers.updateUnderlyingObject(
+        client.serverMembers.setUnderlyingObject(
           event.id.server + event.id.user,
           changes as never,
         );
@@ -678,9 +672,7 @@ export async function handleEvent(
     case "UserUpdate": {
       const user = client.users.getOrPartial(event.id);
       if (user) {
-        const previousUser = {
-          ...client.users.getUnderlyingObject(event.id),
-        };
+        const previousUser = client.users.getUnderlyingObject(event.id);
 
         const changes = hydrate("user", event.data, client, false);
 
@@ -708,7 +700,7 @@ export async function handleEvent(
           }
         }
 
-        client.users.updateUnderlyingObject(event.id, changes as never);
+        client.users.setUnderlyingObject(event.id, changes as never);
         client.emit("userUpdate", user, previousUser);
       }
       break;
@@ -786,8 +778,7 @@ export async function handleEvent(
     }
     case "EmojiDelete": {
       if (client.emojis.getOrPartial(event.id)) {
-        const emoji = client.emojis.getUnderlyingObject(event.id);
-        client.emit("emojiDelete", emoji);
+        client.emit("emojiDelete", client.emojis.getUnderlyingObject(event.id));
         client.emojis.delete(event.id);
       }
       break;

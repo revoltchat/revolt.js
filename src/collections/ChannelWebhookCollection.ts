@@ -3,12 +3,12 @@ import { Webhook } from "revolt-api";
 import { ChannelWebhook } from "../classes/ChannelWebhook.js";
 import { HydratedChannelWebhook } from "../hydration/channelWebhook.js";
 
-import { ClassCollection } from "./Collection.js";
+import { Collection } from "./Collection.js";
 
 /**
  * Collection of Channel Webhooks
  */
-export class ChannelWebhookCollection extends ClassCollection<
+export class ChannelWebhookCollection extends Collection<
   ChannelWebhook,
   HydratedChannelWebhook
 > {
@@ -48,7 +48,7 @@ export class ChannelWebhookCollection extends ClassCollection<
    * @param id Id
    * @param data Data
    */
-  getOrCreate(id: string, data: Webhook) {
+  getOrCreate(id: string, data: Webhook): ChannelWebhook {
     if (this.has(id)) {
       return this.get(id)!;
     } else {

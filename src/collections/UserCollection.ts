@@ -4,12 +4,12 @@ import { Client } from "../Client.js";
 import { User } from "../classes/User.js";
 import { HydratedUser } from "../hydration/user.js";
 
-import { ClassCollection } from "./Collection.js";
+import { Collection } from "./Collection.js";
 
 /**
  * Collection of Users
  */
-export class UserCollection extends ClassCollection<User, HydratedUser> {
+export class UserCollection extends Collection<User, HydratedUser> {
   /**
    * Construct User collection
    */
@@ -44,7 +44,7 @@ export class UserCollection extends ClassCollection<User, HydratedUser> {
    * @param data Data
    * @param isNew Whether this object is new
    */
-  getOrCreate(id: string, data: APIUser) {
+  getOrCreate(id: string, data: APIUser): User {
     if (this.has(id) && !this.isPartial(id)) {
       return this.get(id)!;
     } else {
@@ -58,7 +58,7 @@ export class UserCollection extends ClassCollection<User, HydratedUser> {
    * Get or return partial
    * @param id Id
    */
-  getOrPartial(id: string) {
+  getOrPartial(id: string): User | undefined {
     if (this.has(id)) {
       return this.get(id)!;
     } else if (this.client.options.partials) {
