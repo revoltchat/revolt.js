@@ -1,13 +1,13 @@
-import { botHydration } from "./bot.js";
-import { channelHydration } from "./channel.js";
-import { channelUnreadHydration } from "./channelUnread.js";
-import { channelWebhookHydration } from "./channelWebhook.js";
-import { emojiHydration } from "./emoji.js";
-import { messageHydration } from "./message.js";
-import { serverHydration } from "./server.js";
-import { serverMemberHydration } from "./serverMember.js";
-import { sessionHydration } from "./session.js";
-import { userHydration } from "./user.js";
+import { botHydration } from "./bot.ts";
+import { channelHydration } from "./channel.ts";
+import { channelUnreadHydration } from "./channelUnread.ts";
+import { channelWebhookHydration } from "./channelWebhook.ts";
+import { emojiHydration } from "./emoji.ts";
+import { messageHydration } from "./message.ts";
+import { serverHydration } from "./server.ts";
+import { serverMemberHydration } from "./serverMember.ts";
+import { sessionHydration } from "./session.ts";
+import { userHydration } from "./user.ts";
 
 /**
  * Functions to map from one object to another
@@ -81,10 +81,10 @@ const hydrators = {
 
 export type Hydrators = typeof hydrators;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// deno-lint-ignore no-explicit-any
 type ExtractInput<T> = T extends Hydrate<infer I, any> ? I : never;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// deno-lint-ignore no-explicit-any
 type ExtractOutput<T> = T extends Hydrate<any, infer O> ? O : never;
 
 /**

@@ -1,29 +1,29 @@
 import type {
   Channel as APIChannel,
-  Member as APIMember,
-  Message as APIMessage,
-  User as APIUser,
   DataEditChannel,
   DataMessageSearch,
   DataMessageSend,
+  Member as APIMember,
+  Message as APIMessage,
   Override,
+  User as APIUser,
 } from "revolt-api";
 import type { APIRoutes } from "revolt-api/dist/routes";
 import { decodeTime, ulid } from "ulid";
 
-import type { ChannelCollection } from "../collections/ChannelCollection.js";
+import type { ChannelCollection } from "../collections/ChannelCollection.ts";
 import {
   bitwiseAndEq,
   calculatePermission,
-} from "../permissions/calculator.js";
-import { Permission } from "../permissions/definitions.js";
+} from "../permissions/calculator.ts";
+import { Permission } from "../permissions/definitions.ts";
 
-import type { ChannelWebhook } from "./ChannelWebhook.js";
-import type { File } from "./File.js";
-import type { Message } from "./Message.js";
-import type { Server } from "./Server.js";
-import type { ServerMember } from "./ServerMember.js";
-import type { User } from "./User.js";
+import type { ChannelWebhook } from "./ChannelWebhook.ts";
+import type { File } from "./File.ts";
+import type { Message } from "./Message.ts";
+import type { Server } from "./Server.ts";
+import type { ServerMember } from "./ServerMember.ts";
+import type { User } from "./User.ts";
 
 /**
  * Channel Class
@@ -103,8 +103,8 @@ export class Channel {
     return this.type === "SavedMessages"
       ? this.user?.username
       : this.type === "DirectMessage"
-        ? this.recipient?.username
-        : this.name;
+      ? this.recipient?.username
+      : this.name;
   }
 
   /**
@@ -166,8 +166,8 @@ export class Channel {
   get recipient(): User | undefined {
     return this.type === "DirectMessage"
       ? this.recipients?.find(
-          (user) => user?.id !== this.#collection.client.user!.id,
-        )
+        (user) => user?.id !== this.#collection.client.user!.id,
+      )
       : undefined;
   }
 
@@ -293,7 +293,7 @@ export class Channel {
     return (
       (
         this.#collection.client.channelUnreads.get(this.id)?.lastMessageId ??
-        "0"
+          "0"
       ).localeCompare(this.lastMessageId) === -1
     );
   }
@@ -373,7 +373,7 @@ export class Channel {
   orPermission(...permission: (keyof typeof Permission)[]): boolean {
     return (
       permission.findIndex((x) =>
-        bitwiseAndEq(this.permission, Permission[x]),
+        bitwiseAndEq(this.permission, Permission[x])
       ) !== -1
     );
   }
@@ -389,7 +389,7 @@ export class Channel {
     );
 
     return members.map((user) =>
-      this.#collection.client.users.getOrCreate(user._id, user),
+      this.#collection.client.users.getOrCreate(user._id, user)
     );
   }
 
@@ -404,7 +404,7 @@ export class Channel {
     );
 
     return webhooks.map((webhook) =>
-      this.#collection.client.channelWebhooks.getOrCreate(webhook.id, webhook),
+      this.#collection.client.channelWebhooks.getOrCreate(webhook.id, webhook)
     );
   }
 
@@ -466,8 +466,9 @@ export class Channel {
     data: string | DataMessageSend,
     idempotencyKey: string = ulid(),
   ): Promise<Message> {
-    const msg: DataMessageSend =
-      typeof data === "string" ? { content: data } : data;
+    const msg: DataMessageSend = typeof data === "string"
+      ? { content: data }
+      : data;
 
     // Mark as silent message
     if (msg.content?.startsWith("@silent ")) {
@@ -528,7 +529,7 @@ export class Channel {
     )) as APIMessage[];
 
     return messages.map((message) =>
-      this.#collection.client.messages.getOrCreate(message._id, message),
+      this.#collection.client.messages.getOrCreate(message._id, message)
     );
   }
 
@@ -558,13 +559,13 @@ export class Channel {
 
     return {
       messages: data.messages.map((message) =>
-        this.#collection.client.messages.getOrCreate(message._id, message),
+        this.#collection.client.messages.getOrCreate(message._id, message)
       ),
       users: data.users.map((user) =>
-        this.#collection.client.users.getOrCreate(user._id, user),
+        this.#collection.client.users.getOrCreate(user._id, user)
       ),
       members: data.members?.map((member) =>
-        this.#collection.client.serverMembers.getOrCreate(member._id, member),
+        this.#collection.client.serverMembers.getOrCreate(member._id, member)
       ),
     };
   }
@@ -584,7 +585,7 @@ export class Channel {
     )) as APIMessage[];
 
     return messages.map((message) =>
-      this.#collection.client.messages.getOrCreate(message._id, message),
+      this.#collection.client.messages.getOrCreate(message._id, message)
     );
   }
 
@@ -611,13 +612,13 @@ export class Channel {
 
     return {
       messages: data.messages.map((message) =>
-        this.#collection.client.messages.getOrCreate(message._id, message),
+        this.#collection.client.messages.getOrCreate(message._id, message)
       ),
       users: data.users.map((user) =>
-        this.#collection.client.users.getOrCreate(user._id, user),
+        this.#collection.client.users.getOrCreate(user._id, user)
       ),
       members: data.members?.map((member) =>
-        this.#collection.client.serverMembers.getOrCreate(member._id, member),
+        this.#collection.client.serverMembers.getOrCreate(member._id, member)
       ),
     };
   }
@@ -643,12 +644,12 @@ export class Channel {
    */
   async createInvite(): Promise<
     | {
-        type: "Server";
-        _id: string;
-        server: string;
-        creator: string;
-        channel: string;
-      }
+      type: "Server";
+      _id: string;
+      server: string;
+      creator: string;
+      channel: string;
+    }
     | { type: "Group"; _id: string; creator: string; channel: string }
   > {
     return await this.#collection.client.api.post(
@@ -684,8 +685,8 @@ export class Channel {
 
     const lastMessageId =
       (typeof message === "string" ? message : message?.id) ??
-      this.lastMessageId ??
-      ulid();
+        this.lastMessageId ??
+        ulid();
 
     const unreads = this.#collection.client.channelUnreads;
     const channelUnread = unreads.get(this.id);

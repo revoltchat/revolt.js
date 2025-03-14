@@ -1,9 +1,9 @@
 import type { Webhook } from "revolt-api";
 
-import { ChannelWebhook } from "../classes/ChannelWebhook.js";
-import type { HydratedChannelWebhook } from "../hydration/channelWebhook.js";
+import { ChannelWebhook } from "../classes/ChannelWebhook.ts";
+import type { HydratedChannelWebhook } from "../hydration/channelWebhook.ts";
 
-import { Collection } from "./Collection.js";
+import { Collection } from "./Collection.ts";
 
 /**
  * Collection of Channel Webhooks

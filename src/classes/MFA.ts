@@ -1,11 +1,11 @@
 import type {
   MFAMethod,
   MFAResponse,
-  MultiFactorStatus,
   MFATicket as TicketType,
+  MultiFactorStatus,
 } from "revolt-api";
 
-import type { Client } from "../Client.js";
+import type { Client } from "../Client.ts";
 
 /**
  * Multi-Factor Authentication
@@ -52,9 +52,7 @@ export class MFA {
    */
   get availableMethods(): MFAMethod[] {
     return this.authenticatorEnabled
-      ? this.recoveryEnabled
-        ? ["Totp", "Recovery"]
-        : ["Totp"]
+      ? this.recoveryEnabled ? ["Totp", "Recovery"] : ["Totp"]
       : ["Password"];
   }
 

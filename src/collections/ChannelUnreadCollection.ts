@@ -1,9 +1,9 @@
 import type { ChannelUnread as APIChannelUnread } from "revolt-api";
 
-import { ChannelUnread } from "../classes/ChannelUnread.js";
-import type { HydratedChannelUnread } from "../hydration/channelUnread.js";
+import { ChannelUnread } from "../classes/ChannelUnread.ts";
+import type { HydratedChannelUnread } from "../hydration/channelUnread.ts";
 
-import { Collection } from "./Collection.js";
+import { Collection } from "./Collection.ts";
 
 /**
  * Collection of Channel Unreads

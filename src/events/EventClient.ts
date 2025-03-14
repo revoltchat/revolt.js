@@ -1,7 +1,7 @@
 import { AsyncEventEmitter } from "@vladfrangu/async_event_emitter";
 import type { Error } from "revolt-api";
 
-import type { ProtocolV1 } from "./v1.js";
+import type { ProtocolV1 } from "./v1.ts";
 
 /**
  * Available protocols to connect with
@@ -63,9 +63,9 @@ export interface EventClientOptions {
  * Events provided by the client.
  */
 type Events<T extends AvailableProtocols, P extends EventProtocol<T>> = {
-  error: [Error];
-  event: [P["server"]];
-  state: [ConnectionState];
+  error: [error: Error];
+  event: [event: P["server"]];
+  state: [state: ConnectionState];
 };
 
 /**
@@ -87,7 +87,7 @@ export class EventClient<
   #pongTimeoutReference: number | undefined;
   #connectTimeoutReference: number | undefined;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // deno-lint-ignore no-explicit-any
   #lastError?: { type: "socket"; data: any } | { type: "revolt"; data: Error };
 
   /**

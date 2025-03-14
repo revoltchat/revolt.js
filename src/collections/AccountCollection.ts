@@ -1,7 +1,7 @@
 import type { DataCreateAccount, WebPushSubscription } from "revolt-api";
 
-import type { Client } from "../Client.js";
-import { MFA } from "../classes/MFA.js";
+import type { Client } from "../Client.ts";
+import { MFA } from "../classes/MFA.ts";
 
 /**
  * Utility functions for working with accounts
@@ -137,15 +137,15 @@ export class AccountCollection {
     return await this.client.api.post("/sync/settings/fetch", { keys });
   }
 
-  /* eslint-disable @typescript-eslint/no-explicit-any */
   /**
    * Set settings
    * @param settings Settings
    * @param timestamp Timestamp
    */
   async setSettings(
+    // deno-lint-ignore no-explicit-any
     settings: Record<string, any>,
-    timestamp = new Date().getTime(),
+    timestamp: number = new Date().getTime(),
   ): Promise<void> {
     return await this.client.api.post("/sync/settings/set", {
       ...settings,

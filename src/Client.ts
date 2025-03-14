@@ -2,36 +2,36 @@ import { AsyncEventEmitter } from "@vladfrangu/async_event_emitter";
 import type { DataLogin, RevoltConfig } from "revolt-api";
 import { API, type Role } from "revolt-api";
 
-import type { Channel } from "./classes/Channel.js";
-import type { Emoji } from "./classes/Emoji.js";
-import type { Message } from "./classes/Message.js";
-import type { Server } from "./classes/Server.js";
-import type { ServerMember } from "./classes/ServerMember.js";
-import type { User } from "./classes/User.js";
-import { AccountCollection } from "./collections/AccountCollection.js";
-import { BotCollection } from "./collections/BotCollection.js";
-import { ChannelCollection } from "./collections/ChannelCollection.js";
-import { ChannelUnreadCollection } from "./collections/ChannelUnreadCollection.js";
-import { ChannelWebhookCollection } from "./collections/ChannelWebhookCollection.js";
-import { EmojiCollection } from "./collections/EmojiCollection.js";
-import { MessageCollection } from "./collections/MessageCollection.js";
-import { ServerCollection } from "./collections/ServerCollection.js";
-import { ServerMemberCollection } from "./collections/ServerMemberCollection.js";
-import { SessionCollection } from "./collections/SessionCollection.js";
-import { UserCollection } from "./collections/UserCollection.js";
+import type { Channel } from "./classes/Channel.ts";
+import type { Emoji } from "./classes/Emoji.ts";
+import type { Message } from "./classes/Message.ts";
+import type { Server } from "./classes/Server.ts";
+import type { ServerMember } from "./classes/ServerMember.ts";
+import type { User } from "./classes/User.ts";
+import { AccountCollection } from "./collections/AccountCollection.ts";
+import { BotCollection } from "./collections/BotCollection.ts";
+import { ChannelCollection } from "./collections/ChannelCollection.ts";
+import { ChannelUnreadCollection } from "./collections/ChannelUnreadCollection.ts";
+import { ChannelWebhookCollection } from "./collections/ChannelWebhookCollection.ts";
+import { EmojiCollection } from "./collections/EmojiCollection.ts";
+import { MessageCollection } from "./collections/MessageCollection.ts";
+import { ServerCollection } from "./collections/ServerCollection.ts";
+import { ServerMemberCollection } from "./collections/ServerMemberCollection.ts";
+import { SessionCollection } from "./collections/SessionCollection.ts";
+import { UserCollection } from "./collections/UserCollection.ts";
 import {
   ConnectionState,
   EventClient,
   type EventClientOptions,
-} from "./events/EventClient.js";
-import { handleEvent } from "./events/v1.js";
-import type { HydratedChannel } from "./hydration/channel.js";
-import type { HydratedEmoji } from "./hydration/emoji.js";
-import type { HydratedMessage } from "./hydration/message.js";
-import type { HydratedServer } from "./hydration/server.js";
-import type { HydratedServerMember } from "./hydration/serverMember.js";
-import type { HydratedUser } from "./hydration/user.js";
-import { RE_CHANNELS, RE_MENTIONS, RE_SPOILER } from "./lib/regex.js";
+} from "./events/EventClient.ts";
+import { handleEvent } from "./events/v1.ts";
+import type { HydratedChannel } from "./hydration/channel.ts";
+import type { HydratedEmoji } from "./hydration/emoji.ts";
+import type { HydratedMessage } from "./hydration/message.ts";
+import type { HydratedServer } from "./hydration/server.ts";
+import type { HydratedServerMember } from "./hydration/serverMember.ts";
+import type { HydratedUser } from "./hydration/user.ts";
+import { RE_CHANNELS, RE_MENTIONS, RE_SPOILER } from "./lib/regex.ts";
 
 export type Session = { _id: string; token: string; user_id: string } | string;
 
@@ -39,7 +39,7 @@ export type Session = { _id: string; token: string; user_id: string } | string;
  * Events provided by the client
  */
 export type Events = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // deno-lint-ignore no-explicit-any
   error: [any];
 
   connected: [];
@@ -48,41 +48,45 @@ export type Events = {
   ready: [];
   logout: [];
 
-  messageCreate: [Message];
-  messageUpdate: [Message, HydratedMessage];
-  messageDelete: [HydratedMessage];
-  messageDeleteBulk: [HydratedMessage[], Channel?];
-  messageReactionAdd: [Message, string, string];
-  messageReactionRemove: [Message, string, string];
-  messageReactionRemoveEmoji: [Message, string];
+  messageCreate: [message: Message];
+  messageUpdate: [message: Message, previousMessage: HydratedMessage];
+  messageDelete: [message: HydratedMessage];
+  messageDeleteBulk: [messages: HydratedMessage[], channel?: Channel];
+  messageReactionAdd: [message: Message, userId: string, emoji: string];
+  messageReactionRemove: [message: Message, userId: string, emoji: string];
+  messageReactionRemoveEmoji: [message: Message, emoji: string];
 
-  channelCreate: [Channel];
-  channelUpdate: [Channel, HydratedChannel];
-  channelDelete: [HydratedChannel];
-  channelGroupJoin: [Channel, User];
-  channelGroupLeave: [Channel, User?];
-  channelStartTyping: [Channel, User?];
-  channelStopTyping: [Channel, User?];
-  channelAcknowledged: [Channel, string];
+  channelCreate: [channel: Channel];
+  channelUpdate: [channel: Channel, previousChannel: HydratedChannel];
+  channelDelete: [channel: HydratedChannel];
+  channelGroupJoin: [channel: Channel, user: User];
+  channelGroupLeave: [channel: Channel, user?: User];
+  channelStartTyping: [channel: Channel, user?: User];
+  channelStopTyping: [channel: Channel, user?: User];
+  channelAcknowledged: [channel: Channel, messageId: string];
 
-  serverCreate: [Server];
-  serverUpdate: [Server, HydratedServer];
-  serverDelete: [HydratedServer];
-  serverLeave: [HydratedServer];
-  serverRoleUpdate: [Server, string, Role];
-  serverRoleDelete: [Server, string, Role];
+  serverCreate: [server: Server];
+  serverUpdate: [server: Server, previousServer: HydratedServer];
+  serverDelete: [server: HydratedServer];
+  serverLeave: [server: HydratedServer];
+  serverRoleUpdate: [server: Server, roleId: string, previousRole: Role];
+  serverRoleDelete: [server: Server, roleId: string, role: Role];
 
-  serverMemberUpdate: [ServerMember, HydratedServerMember];
-  serverMemberJoin: [ServerMember];
-  serverMemberLeave: [HydratedServerMember];
+  serverMemberUpdate: [
+    member: ServerMember,
+    previousMember: HydratedServerMember,
+  ];
+  serverMemberJoin: [member: ServerMember];
+  serverMemberLeave: [member: HydratedServerMember];
 
-  userUpdate: [User, HydratedUser];
-  // ^ userRelationshipChanged(user: User, previousRelationship: RelationshipStatus): void;
-  // ^ userPresenceChanged(user: User, previousPresence: boolean): void;
-  userSettingsUpdate: [string, Record<string, [number, string]>];
+  userUpdate: [user: User, previousUser: HydratedUser];
+  userSettingsUpdate: [
+    userId: string,
+    settings: Record<string, [number, string]>,
+  ];
 
-  emojiCreate: [Emoji];
-  emojiDelete: [HydratedEmoji];
+  emojiCreate: [emoji: Emoji];
+  emojiDelete: [emoji: HydratedEmoji];
 };
 
 /**
@@ -146,17 +150,21 @@ export type ClientOptions = Partial<EventClientOptions> & {
  * Revolt.js Clients
  */
 export class Client extends AsyncEventEmitter<Events> {
-  readonly account = new AccountCollection(this);
-  readonly bots = new BotCollection(this);
-  readonly channels = new ChannelCollection(this);
-  readonly channelUnreads = new ChannelUnreadCollection(this);
-  readonly channelWebhooks = new ChannelWebhookCollection(this);
-  readonly emojis = new EmojiCollection(this);
-  readonly messages = new MessageCollection(this);
-  readonly servers = new ServerCollection(this);
-  readonly serverMembers = new ServerMemberCollection(this);
-  readonly sessions = new SessionCollection(this);
-  readonly users = new UserCollection(this);
+  readonly account: AccountCollection = new AccountCollection(this);
+  readonly bots: BotCollection = new BotCollection(this);
+  readonly channels: ChannelCollection = new ChannelCollection(this);
+  readonly channelUnreads: ChannelUnreadCollection =
+    new ChannelUnreadCollection(this);
+  readonly channelWebhooks: ChannelWebhookCollection =
+    new ChannelWebhookCollection(this);
+  readonly emojis: EmojiCollection = new EmojiCollection(this);
+  readonly messages: MessageCollection = new MessageCollection(this);
+  readonly servers: ServerCollection = new ServerCollection(this);
+  readonly serverMembers: ServerMemberCollection = new ServerMemberCollection(
+    this,
+  );
+  readonly sessions: SessionCollection = new SessionCollection(this);
+  readonly users: UserCollection = new UserCollection(this);
 
   readonly api: API;
   readonly options: ClientOptions;
@@ -236,8 +244,9 @@ export class Client extends AsyncEventEmitter<Events> {
       }
     });
 
-    this.events.on("event", (event) =>
-      handleEvent(this, event, this.#setReady.bind(this)),
+    this.events.on(
+      "event",
+      (event) => handleEvent(this, event, this.#setReady.bind(this)),
     );
   }
 
@@ -324,7 +333,7 @@ export class Client extends AsyncEventEmitter<Events> {
   /**
    * Use an existing session
    */
-  async useExistingSession(session: Session): Promise<void> {
+  useExistingSession(session: Session): void {
     this.#session = session;
     this.#updateHeaders();
   }
@@ -375,9 +384,11 @@ export class Client extends AsyncEventEmitter<Events> {
    */
   proxyFile(url: string): string | undefined {
     if (this.configuration?.features.january.enabled) {
-      return `${this.configuration.features.january.url}/proxy?url=${encodeURIComponent(
-        url,
-      )}`;
+      return `${this.configuration.features.january.url}/proxy?url=${
+        encodeURIComponent(
+          url,
+        )
+      }`;
     } else {
       return url;
     }

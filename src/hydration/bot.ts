@@ -1,6 +1,6 @@
 import type { Bot } from "revolt-api";
 
-import type { Hydrate } from "./index.js";
+import type { Hydrate } from "./index.ts";
 
 export type HydratedBot = {
   id: string;
@@ -41,4 +41,5 @@ export const botHydration: Hydrate<Bot, HydratedBot> = {
 /**
  * Flags attributed to users
  */
+// deno-lint-ignore no-empty-enum
 export enum BotFlags {}

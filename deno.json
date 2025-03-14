@@ -1,0 +1,28 @@
+{
+  "name": "@revolt/revoltjs",
+  "version": "7.0.5",
+  "exports": "./src/index.ts",
+  "imports": {
+    "@vladfrangu/async_event_emitter": "npm:@vladfrangu/async_event_emitter@^2.4.6",
+    "revolt-api": "npm:revolt-api@0.8.3",
+    "ulid": "npm:ulid@^2.3.0"
+  },
+  "tasks": {
+    "docs": "deno run -A npm:typedoc --name revolt.js --readme README.md src/",
+    "npm": "deno run -A .github/workflows/npmPublish.ts"
+  },
+  "fmt": {
+    "indentWidth": 2,
+    "useTabs": false
+  },
+  "lint": {
+    "rules": {
+      "tags": ["recommended", "jsr"]
+    }
+  },
+  "publish": {
+    "exclude": [".github", ".vscode"]
+  },
+  "nodeModulesDir": "auto",
+  "lock": false
+}

@@ -9,27 +9,16 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18.x, 20.x]
-
     steps:
-      - name: Checkout repository and submodules
+      - name: Checkout repository
         uses: actions/checkout@v3
+      - name: Setup Deno 2.x
+        uses: denoland/setup-deno@v2
         with:
-          submodules: recursive
-      - uses: pnpm/action-setup@v4.0.0
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: "pnpm"
-      - name: Install packages
-        run: pnpm install
-
+          deno-version: 2.x
       - name: Typecheck
-        run: pnpm typecheck
+        run: deno check src/
       - name: Code Formatting
-        run: pnpm fmt:check
+        run: deno fmt --check
       - name: Lint
-        run: pnpm lint
+        run: deno lint

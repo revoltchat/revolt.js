@@ -1,10 +1,10 @@
 import type { Invite } from "revolt-api";
 
-import type { Client } from "../Client.js";
+import type { Client } from "../Client.ts";
 
-import type { Channel } from "./Channel.js";
-import type { Server } from "./Server.js";
-import type { User } from "./User.js";
+import type { Channel } from "./Channel.ts";
+import type { Server } from "./Server.ts";
+import type { User } from "./User.ts";
 
 /**
  * Channel Invite

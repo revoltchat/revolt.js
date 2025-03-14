@@ -1,18 +1,18 @@
 import type {
-  User as APIUser,
   DataEditUser,
   Presence,
   RelationshipStatus,
+  User as APIUser,
 } from "revolt-api";
 import { decodeTime } from "ulid";
 
-import type { UserCollection } from "../collections/UserCollection.js";
-import type { UserBadges, UserFlags } from "../hydration/user.js";
-import { U32_MAX, UserPermission } from "../permissions/definitions.js";
+import type { UserCollection } from "../collections/UserCollection.ts";
+import type { UserBadges, UserFlags } from "../hydration/user.ts";
+import { U32_MAX, UserPermission } from "../permissions/definitions.ts";
 
-import type { Channel } from "./Channel.js";
-import type { File } from "./File.js";
-import { UserProfile } from "./UserProfile.js";
+import type { Channel } from "./Channel.ts";
+import type { File } from "./File.ts";
+import { UserProfile } from "./UserProfile.ts";
 
 /**
  * User Class
@@ -73,7 +73,7 @@ export class User {
   get displayName(): string {
     return (
       this.#collection.getUnderlyingObject(this.id).displayName ??
-      this.#collection.getUnderlyingObject(this.id).username
+        this.#collection.getUnderlyingObject(this.id).username
     );
   }
 
@@ -184,7 +184,7 @@ export class User {
   ): string | undefined {
     return this.online
       ? (this.status?.text ??
-          (this.presence === "Focus" ? translate("Focus") : undefined))
+        (this.presence === "Focus" ? translate("Focus") : undefined))
       : undefined;
   }
 

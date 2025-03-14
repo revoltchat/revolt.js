@@ -1,6 +1,6 @@
 import type { File as APIFile, Metadata } from "revolt-api";
 
-import type { Client } from "../Client.js";
+import type { Client } from "../Client.ts";
 
 /**
  * Uploaded File

@@ -9,10 +9,7 @@ API.
 ## Example Usage
 
 ```javascript
-// esm / typescript
 import { Client } from "revolt.js";
-// ...or commonjs
-const { Client } = require("revolt.js");
 
 let client = new Client();
 

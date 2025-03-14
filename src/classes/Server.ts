@@ -1,5 +1,4 @@
 import type {
-  Server as APIServer,
   AllMemberResponse,
   BannedUser,
   Category,
@@ -10,25 +9,26 @@ import type {
   DataEditServer,
   Override,
   Role,
+  Server as APIServer,
 } from "revolt-api";
 import { decodeTime } from "ulid";
 
-import type { ServerCollection } from "../collections/ServerCollection.js";
-import { hydrate } from "../hydration/index.js";
-import type { ServerFlags } from "../hydration/server.js";
+import type { ServerCollection } from "../collections/ServerCollection.ts";
+import { hydrate } from "../hydration/index.ts";
+import type { ServerFlags } from "../hydration/server.ts";
 import {
   bitwiseAndEq,
   calculatePermission,
-} from "../permissions/calculator.js";
-import { Permission } from "../permissions/definitions.js";
+} from "../permissions/calculator.ts";
+import { Permission } from "../permissions/definitions.ts";
 
-import type { Channel } from "./Channel.js";
-import type { Emoji } from "./Emoji.js";
-import type { File } from "./File.js";
-import { ChannelInvite } from "./Invite.js";
-import { ServerBan } from "./ServerBan.js";
-import { ServerMember } from "./ServerMember.js";
-import { User } from "./User.js";
+import type { Channel } from "./Channel.ts";
+import type { Emoji } from "./Emoji.ts";
+import type { File } from "./File.ts";
+import { ChannelInvite } from "./Invite.ts";
+import { ServerBan } from "./ServerBan.ts";
+import { ServerMember } from "./ServerMember.ts";
+import { User } from "./User.ts";
 
 /**
  * Server Class
@@ -260,8 +260,8 @@ export class Server {
     const roles = this.roles;
     return roles
       ? [...roles.entries()]
-          .map(([id, role]) => ({ id, ...role }))
-          .sort((a, b) => (a.rank || 0) - (b.rank || 0))
+        .map(([id, role]) => ({ id, ...role }))
+        .sort((a, b) => (a.rank || 0) - (b.rank || 0))
       : [];
   }
 
@@ -279,7 +279,7 @@ export class Server {
    */
   get mentions(): string[] {
     const arr = this.channels.map((channel) =>
-      Array.from(channel.mentions?.values() ?? []),
+      Array.from(channel.mentions?.values() ?? [])
     );
 
     return ([] as string[]).concat(...arr);
@@ -343,7 +343,7 @@ export class Server {
   orPermission(...permission: (keyof typeof Permission)[]): boolean {
     return (
       permission.findIndex((x) =>
-        bitwiseAndEq(this.permission, Permission[x]),
+        bitwiseAndEq(this.permission, Permission[x])
       ) !== -1
     );
   }
@@ -448,12 +448,11 @@ export class Server {
     user: string | User | ServerMember,
     options: DataBanCreate = {},
   ): Promise<ServerBan> {
-    const userId =
-      user instanceof User
-        ? user.id
-        : user instanceof ServerMember
-          ? user.id.user
-          : user;
+    const userId = user instanceof User
+      ? user.id
+      : user instanceof ServerMember
+      ? user.id.user
+      : user;
 
     const ban = await this.#collection.client.api.put(
       `/servers/${this.id as ""}/bans/${userId as ""}`,
@@ -473,8 +472,8 @@ export class Server {
         typeof user === "string"
           ? user
           : user instanceof User
-            ? user.id
-            : user.id.user
+          ? user.id
+          : user.id.user
       }`,
     );
   }
@@ -500,7 +499,7 @@ export class Server {
     );
 
     return invites.map((invite) =>
-      ChannelInvite.from(this.#collection.client, invite),
+      ChannelInvite.from(this.#collection.client, invite)
     );
   }
 
@@ -648,10 +647,10 @@ export class Server {
 
     return {
       members: data.members.map((member) =>
-        this.#collection.client.serverMembers.getOrCreate(member._id, member),
+        this.#collection.client.serverMembers.getOrCreate(member._id, member)
       ),
       users: data.users.map((user) =>
-        this.#collection.client.users.getOrCreate(user._id, user),
+        this.#collection.client.users.getOrCreate(user._id, user)
       ),
     };
   }
@@ -665,19 +664,20 @@ export class Server {
     query: string,
   ): Promise<{ members: ServerMember[]; users: User[] }> {
     const data = (await this.#collection.client.api.get(
-      `/servers/${
-        this.id as ""
-      }/members_experimental_query?experimental_api=true&query=${encodeURIComponent(
-        query,
-      )}` as never,
+      `/servers/${this
+        .id as ""}/members_experimental_query?experimental_api=true&query=${
+        encodeURIComponent(
+          query,
+        )
+      }` as never,
     )) as AllMemberResponse;
 
     return {
       members: data.members.map((member) =>
-        this.#collection.client.serverMembers.getOrCreate(member._id, member),
+        this.#collection.client.serverMembers.getOrCreate(member._id, member)
       ),
       users: data.users.map((user) =>
-        this.#collection.client.users.getOrCreate(user._id, user),
+        this.#collection.client.users.getOrCreate(user._id, user)
       ),
     };
   }
@@ -715,7 +715,7 @@ export class Server {
     );
 
     return emojis.map((emoji) =>
-      this.#collection.client.emojis.getOrCreate(emoji._id, emoji),
+      this.#collection.client.emojis.getOrCreate(emoji._id, emoji)
     );
   }
 

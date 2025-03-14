@@ -1,7 +1,7 @@
 {
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.defaultFormatter": "denoland.vscode-deno",
   "editor.formatOnSave": true,
-  "[typescript]": {
+  "[github-actions-workflow]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   }
 }

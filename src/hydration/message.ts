@@ -1,13 +1,13 @@
 import type { Interactions, Masquerade, Message } from "revolt-api";
 
-import type { Client } from "../Client.js";
-import { File } from "../classes/File.js";
-import { MessageWebhook } from "../classes/Message.js";
-import { MessageEmbed } from "../classes/MessageEmbed.js";
-import { SystemMessage } from "../classes/SystemMessage.js";
-import type { Merge } from "../lib/merge.js";
+import type { Client } from "../Client.ts";
+import { File } from "../classes/File.ts";
+import { MessageWebhook } from "../classes/Message.ts";
+import { MessageEmbed } from "../classes/MessageEmbed.ts";
+import { SystemMessage } from "../classes/SystemMessage.ts";
+import type { Merge } from "../lib/merge.ts";
 
-import type { Hydrate } from "./index.js";
+import type { Hydrate } from "./index.ts";
 
 export type HydratedMessage = {
   id: string;

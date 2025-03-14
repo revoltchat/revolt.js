@@ -1,4 +1,4 @@
-import type { ChannelUnreadCollection } from "../collections/ChannelUnreadCollection.js";
+import type { ChannelUnreadCollection } from "../collections/ChannelUnreadCollection.ts";
 
 /**
  * Channel Unread Class

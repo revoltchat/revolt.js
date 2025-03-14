@@ -1,9 +1,9 @@
 import type { Category, Role, Server, SystemMessageChannels } from "revolt-api";
 
-import type { Client } from "../Client.js";
-import { File } from "../classes/File.js";
+import type { Client } from "../Client.ts";
+import { File } from "../classes/File.ts";
 
-import type { Hydrate } from "./index.js";
+import type { Hydrate } from "./index.ts";
 
 export type HydratedServer = {
   id: string;

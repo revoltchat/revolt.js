@@ -1,9 +1,9 @@
 import type { SessionInfo } from "revolt-api";
 
-import { Session } from "../classes/Session.js";
-import type { HydratedSession } from "../hydration/session.js";
+import { Session } from "../classes/Session.ts";
+import type { HydratedSession } from "../hydration/session.ts";
 
-import { Collection } from "./Collection.js";
+import { Collection } from "./Collection.ts";
 
 /**
  * Collection of Sessions

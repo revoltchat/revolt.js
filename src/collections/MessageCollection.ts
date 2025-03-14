@@ -1,9 +1,9 @@
 import type { Message as APIMessage } from "revolt-api";
 
-import { Message } from "../classes/Message.js";
-import type { HydratedMessage } from "../hydration/message.js";
+import { Message } from "../classes/Message.ts";
+import type { HydratedMessage } from "../hydration/message.ts";
 
-import { Collection } from "./Collection.js";
+import { Collection } from "./Collection.ts";
 
 /**
  * Collection of Messages

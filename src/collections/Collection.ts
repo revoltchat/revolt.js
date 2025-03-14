@@ -1,5 +1,5 @@
-import type { Client } from "../Client.js";
-import { type Hydrators, hydrate } from "../hydration/index.js";
+import type { Client } from "../Client.ts";
+import { hydrate, type Hydrators } from "../hydration/index.ts";
 
 /**
  * Collection backed by a store
@@ -119,7 +119,7 @@ export class Collection<T, V> {
    * Iterable of keys in the map
    * @returns Iterable
    */
-  keys(): MapIterator<string> {
+  keys(): IterableIterator<string> {
     return this.#objects.keys();
   }
 
@@ -127,7 +127,7 @@ export class Collection<T, V> {
    * Iterable of values in the map
    * @returns Iterable
    */
-  values(): MapIterator<T> {
+  values(): IterableIterator<T> {
     return this.#objects.values();
   }
 
@@ -135,7 +135,7 @@ export class Collection<T, V> {
    * Iterable of key, value pairs in the map
    * @returns Iterable
    */
-  entries(): MapIterator<[string, T]> {
+  entries(): IterableIterator<[string, T]> {
     return this.#objects.entries();
   }
 

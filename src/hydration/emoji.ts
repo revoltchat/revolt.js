@@ -1,8 +1,8 @@
 import type { Emoji, EmojiParent } from "revolt-api";
 
-import type { Merge } from "../lib/merge.js";
+import type { Merge } from "../lib/merge.ts";
 
-import type { Hydrate } from "./index.js";
+import type { Hydrate } from "./index.ts";
 
 export type HydratedEmoji = {
   id: string;
