@@ -1,8 +1,8 @@
-import { User as APIUser } from "revolt-api";
+import type { User as APIUser } from "revolt-api";
 
-import { Client } from "../Client.js";
+import type { Client } from "../Client.js";
 import { User } from "../classes/User.js";
-import { HydratedUser } from "../hydration/user.js";
+import type { HydratedUser } from "../hydration/user.js";
 
 import { Collection } from "./Collection.js";
 

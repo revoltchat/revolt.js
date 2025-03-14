@@ -1,7 +1,7 @@
-import { Client } from "../Client.js";
-import { Channel } from "../classes/Channel.js";
+import type { Client } from "../Client.js";
+import type { Channel } from "../classes/Channel.js";
 import { Server } from "../classes/Server.js";
-import { ServerMember } from "../classes/ServerMember.js";
+import type { ServerMember } from "../classes/ServerMember.js";
 
 import {
   ALLOW_IN_TIMEOUT,

@@ -1,5 +1,5 @@
-import { Client } from "../Client.js";
-import { Hydrators, hydrate } from "../hydration/index.js";
+import type { Client } from "../Client.js";
+import { type Hydrators, hydrate } from "../hydration/index.js";
 
 /**
  * Collection backed by a store

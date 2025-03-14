@@ -1,10 +1,10 @@
-import { Webhook } from "revolt-api";
+import type { Webhook } from "revolt-api";
 
-import { Client } from "../Client.js";
+import type { Client } from "../Client.js";
 import { File } from "../classes/File.js";
 import type { Merge } from "../lib/merge.js";
 
-import { Hydrate } from "./index.js";
+import type { Hydrate } from "./index.js";
 
 export type HydratedChannelWebhook = {
   id: string;

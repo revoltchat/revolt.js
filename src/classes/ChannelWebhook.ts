@@ -1,8 +1,8 @@
-import { ChannelWebhookCollection } from "../collections/ChannelWebhookCollection.js";
+import type { ChannelWebhookCollection } from "../collections/ChannelWebhookCollection.js";
 import { hydrate } from "../hydration/index.js";
 
-import { Channel } from "./Channel.js";
-import { File } from "./File.js";
+import type { Channel } from "./Channel.js";
+import type { File } from "./File.js";
 
 /**
  * Channel Webhook Class

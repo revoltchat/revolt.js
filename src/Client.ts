@@ -1,13 +1,13 @@
 import EventEmitter from "eventemitter3";
 import type { DataLogin, RevoltConfig } from "revolt-api";
-import { API, Role } from "revolt-api";
+import { API, type Role } from "revolt-api";
 
-import { Channel } from "./classes/Channel.js";
-import { Emoji } from "./classes/Emoji.js";
-import { Message } from "./classes/Message.js";
-import { Server } from "./classes/Server.js";
-import { ServerMember } from "./classes/ServerMember.js";
-import { User } from "./classes/User.js";
+import type { Channel } from "./classes/Channel.js";
+import type { Emoji } from "./classes/Emoji.js";
+import type { Message } from "./classes/Message.js";
+import type { Server } from "./classes/Server.js";
+import type { ServerMember } from "./classes/ServerMember.js";
+import type { User } from "./classes/User.js";
 import { AccountCollection } from "./collections/AccountCollection.js";
 import { BotCollection } from "./collections/BotCollection.js";
 import { ChannelCollection } from "./collections/ChannelCollection.js";
@@ -22,15 +22,15 @@ import { UserCollection } from "./collections/UserCollection.js";
 import {
   ConnectionState,
   EventClient,
-  EventClientOptions,
+  type EventClientOptions,
 } from "./events/EventClient.js";
 import { handleEvent } from "./events/v1.js";
-import { HydratedChannel } from "./hydration/channel.js";
-import { HydratedEmoji } from "./hydration/emoji.js";
-import { HydratedMessage } from "./hydration/message.js";
-import { HydratedServer } from "./hydration/server.js";
-import { HydratedServerMember } from "./hydration/serverMember.js";
-import { HydratedUser } from "./hydration/user.js";
+import type { HydratedChannel } from "./hydration/channel.js";
+import type { HydratedEmoji } from "./hydration/emoji.js";
+import type { HydratedMessage } from "./hydration/message.js";
+import type { HydratedServer } from "./hydration/server.js";
+import type { HydratedServerMember } from "./hydration/serverMember.js";
+import type { HydratedUser } from "./hydration/user.js";
 import { RE_CHANNELS, RE_MENTIONS, RE_SPOILER } from "./lib/regex.js";
 
 export type Session = { _id: string; token: string; user_id: string } | string;

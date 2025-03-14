@@ -1,6 +1,6 @@
-import { Bot } from "revolt-api";
+import type { Bot } from "revolt-api";
 
-import { Hydrate } from "./index.js";
+import type { Hydrate } from "./index.js";
 
 export type HydratedBot = {
   id: string;

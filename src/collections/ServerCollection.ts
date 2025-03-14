@@ -1,7 +1,11 @@
-import { Server as APIServer, Channel, DataCreateServer } from "revolt-api";
+import type {
+  Server as APIServer,
+  Channel,
+  DataCreateServer,
+} from "revolt-api";
 
 import { Server } from "../classes/Server.js";
-import { HydratedServer } from "../hydration/server.js";
+import type { HydratedServer } from "../hydration/server.js";
 
 import { Collection } from "./Collection.js";
 

@@ -1,11 +1,11 @@
-import {
+import type {
   MFAMethod,
   MFAResponse,
   MultiFactorStatus,
   MFATicket as TicketType,
 } from "revolt-api";
 
-import { Client } from "../Client.js";
+import type { Client } from "../Client.js";
 
 /**
  * Multi-Factor Authentication

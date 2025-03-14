@@ -1,13 +1,13 @@
-import {
+import type {
   BannedUser as APIBannedUser,
   ServerBan as APIServerBan,
   MemberCompositeKey,
 } from "revolt-api";
 
-import { Client } from "../Client.js";
+import type { Client } from "../Client.js";
 
 import { BannedUser } from "./BannedUser.js";
-import { Server } from "./Server.js";
+import type { Server } from "./Server.js";
 
 /**
  * Server Ban

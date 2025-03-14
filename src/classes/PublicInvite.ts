@@ -1,10 +1,10 @@
-import { Invite, InviteResponse } from "revolt-api";
+import type { Invite, InviteResponse } from "revolt-api";
 
-import { Client } from "../Client.js";
-import { ServerFlags } from "../hydration/server.js";
+import type { Client } from "../Client.js";
+import type { ServerFlags } from "../hydration/server.js";
 
 import { File } from "./File.js";
-import { Server } from "./Server.js";
+import type { Server } from "./Server.js";
 
 /**
  * Public Channel Invite

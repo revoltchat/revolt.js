@@ -8,22 +8,22 @@ import type {
   DataMessageSend,
   Override,
 } from "revolt-api";
-import { APIRoutes } from "revolt-api/dist/routes";
+import type { APIRoutes } from "revolt-api/dist/routes";
 import { decodeTime, ulid } from "ulid";
 
-import { ChannelCollection } from "../collections/ChannelCollection.js";
+import type { ChannelCollection } from "../collections/ChannelCollection.js";
 import {
   bitwiseAndEq,
   calculatePermission,
 } from "../permissions/calculator.js";
 import { Permission } from "../permissions/definitions.js";
 
-import { ChannelWebhook } from "./ChannelWebhook.js";
-import { File } from "./File.js";
-import { Message } from "./Message.js";
-import { Server } from "./Server.js";
-import { ServerMember } from "./ServerMember.js";
-import { User } from "./User.js";
+import type { ChannelWebhook } from "./ChannelWebhook.js";
+import type { File } from "./File.js";
+import type { Message } from "./Message.js";
+import type { Server } from "./Server.js";
+import type { ServerMember } from "./ServerMember.js";
+import type { User } from "./User.js";
 
 /**
  * Channel Class
@@ -668,12 +668,12 @@ export class Channel {
    * @param skipNextMarking For internal usage only
    * @requires `SavedMessages`, `DirectMessage`, `Group`, `TextChannel`
    */
-  async ack(
+  ack(
     message?: Message | string,
     skipRateLimiter?: boolean,
     skipRequest?: boolean,
     skipNextMarking?: boolean,
-  ): Promise<void> {
+  ): void {
     if (!message && this.#manuallyMarked) {
       this.#manuallyMarked = false;
       return;

@@ -1,6 +1,6 @@
-import { UserProfile as APIUserProfile } from "revolt-api";
+import type { UserProfile as APIUserProfile } from "revolt-api";
 
-import { Client } from "../Client.js";
+import type { Client } from "../Client.js";
 
 import { File } from "./File.js";
 

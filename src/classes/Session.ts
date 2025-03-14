@@ -1,6 +1,6 @@
 import { decodeTime } from "ulid";
 
-import { SessionCollection } from "../collections/SessionCollection.js";
+import type { SessionCollection } from "../collections/SessionCollection.js";
 
 /**
  * Session Class

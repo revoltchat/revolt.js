@@ -1,9 +1,9 @@
-import { EmojiParent } from "revolt-api";
+import type { EmojiParent } from "revolt-api";
 import { decodeTime } from "ulid";
 
-import { EmojiCollection } from "../collections/EmojiCollection.js";
+import type { EmojiCollection } from "../collections/EmojiCollection.js";
 
-import { User } from "./User.js";
+import type { User } from "./User.js";
 
 /**
  * Emoji Class

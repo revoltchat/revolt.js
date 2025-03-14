@@ -1,7 +1,7 @@
 import EventEmitter from "eventemitter3";
-import { Error } from "revolt-api";
+import type { Error } from "revolt-api";
 
-import { ProtocolV1 } from "./v1.js";
+import type { ProtocolV1 } from "./v1.js";
 
 /**
  * Available protocols to connect with

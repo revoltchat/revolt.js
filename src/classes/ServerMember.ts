@@ -5,17 +5,17 @@ import type {
   Role,
 } from "revolt-api";
 
-import { ServerMemberCollection } from "../collections/ServerMemberCollection.js";
+import type { ServerMemberCollection } from "../collections/ServerMemberCollection.js";
 import {
   bitwiseAndEq,
   calculatePermission,
 } from "../permissions/calculator.js";
 import { Permission } from "../permissions/definitions.js";
 
-import { Channel } from "./Channel.js";
-import { File } from "./File.js";
-import { Server } from "./Server.js";
-import { User } from "./User.js";
+import type { Channel } from "./Channel.js";
+import type { File } from "./File.js";
+import type { Server } from "./Server.js";
+import type { User } from "./User.js";
 
 /**
  * Deterministic conversion of member composite key to string ID
@@ -110,7 +110,7 @@ export class ServerMember {
   /**
    * Ordered list of roles for this member, from lowest to highest priority.
    */
-  get orderedRoles(): Partial<Role>[] {
+  get orderedRoles(): (Partial<Role> & { id: string })[] {
     const server = this.server!;
     return (
       this.roles
@@ -235,14 +235,14 @@ export class ServerMember {
    * Ban this member from the server
    * @param options Ban options
    */
-  async ban(options: DataBanCreate): Promise<void> {
+  ban(options: DataBanCreate): void {
     this.server?.banUser(this, options);
   }
 
   /**
    * Kick this member from the server
    */
-  async kick(): Promise<void> {
+  kick(): void {
     this.server?.kickUser(this);
   }
 }

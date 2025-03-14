@@ -1,8 +1,8 @@
-import { Channel as APIChannel } from "revolt-api";
+import type { Channel as APIChannel } from "revolt-api";
 
 import { Channel } from "../classes/Channel.js";
 import { User } from "../classes/User.js";
-import { HydratedChannel } from "../hydration/channel.js";
+import type { HydratedChannel } from "../hydration/channel.js";
 
 import { Collection } from "./Collection.js";
 

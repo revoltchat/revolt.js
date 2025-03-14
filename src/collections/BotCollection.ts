@@ -1,8 +1,8 @@
-import { Bot as APIBot, OwnedBotsResponse } from "revolt-api";
+import type { Bot as APIBot, OwnedBotsResponse } from "revolt-api";
 
 import { Bot } from "../classes/Bot.js";
 import { PublicBot } from "../classes/PublicBot.js";
-import { HydratedBot } from "../hydration/bot.js";
+import type { HydratedBot } from "../hydration/bot.js";
 
 import { Collection } from "./Collection.js";
 

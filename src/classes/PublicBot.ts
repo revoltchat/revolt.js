@@ -1,6 +1,6 @@
-import { File as APIFile, PublicBot as APIPublicBot } from "revolt-api";
+import type { File as APIFile, PublicBot as APIPublicBot } from "revolt-api";
 
-import { Client } from "../Client.js";
+import type { Client } from "../Client.js";
 
 import { Channel } from "./Channel.js";
 import { File } from "./File.js";

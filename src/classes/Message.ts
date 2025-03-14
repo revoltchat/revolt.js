@@ -1,4 +1,4 @@
-import {
+import type {
   Message as APIMessage,
   MessageWebhook as APIMessageWebhook,
   DataEditMessage,
@@ -6,16 +6,16 @@ import {
 } from "revolt-api";
 import { decodeTime } from "ulid";
 
-import { Client } from "../Client.js";
-import { MessageCollection } from "../collections/MessageCollection.js";
+import type { Client } from "../Client.js";
+import type { MessageCollection } from "../collections/MessageCollection.js";
 
-import { Channel } from "./Channel.js";
+import type { Channel } from "./Channel.js";
 import { File } from "./File.js";
-import { MessageEmbed } from "./MessageEmbed.js";
-import { Server } from "./Server.js";
-import { ServerMember } from "./ServerMember.js";
-import { SystemMessage } from "./SystemMessage.js";
-import { User } from "./User.js";
+import type { MessageEmbed } from "./MessageEmbed.js";
+import type { Server } from "./Server.js";
+import type { ServerMember } from "./ServerMember.js";
+import type { SystemMessage } from "./SystemMessage.js";
+import type { User } from "./User.js";
 
 /**
  * Message Class
@@ -335,9 +335,9 @@ export class Message {
    */
   async react(emoji: string): Promise<void> {
     return await this.#collection.client.api.put(
-      `/channels/${this.channelId as ""}/messages/${this.id as ""}/reactions/${
-        emoji as ""
-      }`,
+      `/channels/${this.channelId as ""}/messages/${
+        this.id as ""
+      }/reactions/${emoji as ""}`,
     );
   }
 
@@ -347,9 +347,9 @@ export class Message {
    */
   async unreact(emoji: string): Promise<void> {
     return await this.#collection.client.api.delete(
-      `/channels/${this.channelId as ""}/messages/${this.id as ""}/reactions/${
-        emoji as ""
-      }`,
+      `/channels/${this.channelId as ""}/messages/${
+        this.id as ""
+      }/reactions/${emoji as ""}`,
     );
   }
 }

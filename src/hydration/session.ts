@@ -1,6 +1,6 @@
-import { SessionInfo } from "revolt-api";
+import type { SessionInfo } from "revolt-api";
 
-import { Hydrate } from "./index.js";
+import type { Hydrate } from "./index.js";
 
 export type HydratedSession = {
   id: string;

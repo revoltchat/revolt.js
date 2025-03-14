@@ -1,7 +1,7 @@
-import { Emoji as APIEmoji } from "revolt-api";
+import type { Emoji as APIEmoji } from "revolt-api";
 
 import { Emoji } from "../classes/Emoji.js";
-import { HydratedEmoji } from "../hydration/emoji.js";
+import type { HydratedEmoji } from "../hydration/emoji.js";
 
 import { Collection } from "./Collection.js";
 

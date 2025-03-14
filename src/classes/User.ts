@@ -1,4 +1,4 @@
-import {
+import type {
   User as APIUser,
   DataEditUser,
   Presence,
@@ -6,12 +6,12 @@ import {
 } from "revolt-api";
 import { decodeTime } from "ulid";
 
-import { UserCollection } from "../collections/UserCollection.js";
-import { UserBadges, UserFlags } from "../hydration/user.js";
+import type { UserCollection } from "../collections/UserCollection.js";
+import type { UserBadges, UserFlags } from "../hydration/user.js";
 import { U32_MAX, UserPermission } from "../permissions/definitions.js";
 
-import { Channel } from "./Channel.js";
-import { File } from "./File.js";
+import type { Channel } from "./Channel.js";
+import type { File } from "./File.js";
 import { UserProfile } from "./UserProfile.js";
 
 /**

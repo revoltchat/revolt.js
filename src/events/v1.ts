@@ -15,7 +15,7 @@ import type {
   User,
 } from "revolt-api";
 
-import { Client } from "../Client.js";
+import type { Client } from "../Client.js";
 import { MessageEmbed } from "../classes/MessageEmbed.js";
 import { hydrate } from "../hydration/index.js";
 

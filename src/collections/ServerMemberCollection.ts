@@ -1,7 +1,7 @@
-import { Member, MemberCompositeKey } from "revolt-api";
+import type { Member, MemberCompositeKey } from "revolt-api";
 
 import { ServerMember } from "../classes/ServerMember.js";
-import { HydratedServerMember } from "../hydration/serverMember.js";
+import type { HydratedServerMember } from "../hydration/serverMember.js";
 
 import { Collection } from "./Collection.js";
 

@@ -13,18 +13,18 @@ import type {
 } from "revolt-api";
 import { decodeTime } from "ulid";
 
-import { ServerCollection } from "../collections/ServerCollection.js";
+import type { ServerCollection } from "../collections/ServerCollection.js";
 import { hydrate } from "../hydration/index.js";
-import { ServerFlags } from "../hydration/server.js";
+import type { ServerFlags } from "../hydration/server.js";
 import {
   bitwiseAndEq,
   calculatePermission,
 } from "../permissions/calculator.js";
 import { Permission } from "../permissions/definitions.js";
 
-import { Channel } from "./Channel.js";
-import { Emoji } from "./Emoji.js";
-import { File } from "./File.js";
+import type { Channel } from "./Channel.js";
+import type { Emoji } from "./Emoji.js";
+import type { File } from "./File.js";
 import { ChannelInvite } from "./Invite.js";
 import { ServerBan } from "./ServerBan.js";
 import { ServerMember } from "./ServerMember.js";
@@ -587,7 +587,7 @@ export class Server {
     });
 
     if (existing) return existing;
-    return this.#collection.client.serverMembers.fetch(this.id, userId);
+    return await this.#collection.client.serverMembers.fetch(this.id, userId);
   }
 
   #synced: undefined | "partial" | "full";
