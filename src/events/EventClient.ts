@@ -1,4 +1,4 @@
-import EventEmitter from "eventemitter3";
+import { AsyncEventEmitter } from "@vladfrangu/async_event_emitter";
 import type { Error } from "revolt-api";
 
 import type { ProtocolV1 } from "./v1.js";
@@ -63,17 +63,17 @@ export interface EventClientOptions {
  * Events provided by the client.
  */
 type Events<T extends AvailableProtocols, P extends EventProtocol<T>> = {
-  error: (error: Error) => void;
-  event: (event: P["server"]) => void;
-  state: (state: ConnectionState) => void;
+  error: [Error];
+  event: [P["server"]];
+  state: [ConnectionState];
 };
 
 /**
  * Simple wrapper around the Revolt websocket service.
  */
-export class EventClient<T extends AvailableProtocols> extends EventEmitter<
-  Events<T, EventProtocol<T>>
-> {
+export class EventClient<
+  T extends AvailableProtocols,
+> extends AsyncEventEmitter<Events<T, EventProtocol<T>>> {
   readonly options: EventClientOptions;
 
   #protocolVersion: T;

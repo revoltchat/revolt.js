@@ -1,4 +1,4 @@
-import EventEmitter from "eventemitter3";
+import { AsyncEventEmitter } from "@vladfrangu/async_event_emitter";
 import type { DataLogin, RevoltConfig } from "revolt-api";
 import { API, type Role } from "revolt-api";
 
@@ -40,55 +40,49 @@ export type Session = { _id: string; token: string; user_id: string } | string;
  */
 export type Events = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  error(error: any): void;
+  error: [any];
 
-  connected(): void;
-  connecting(): void;
-  disconnected(): void;
-  ready(): void;
-  logout(): void;
+  connected: [];
+  connecting: [];
+  disconnected: [];
+  ready: [];
+  logout: [];
 
-  messageCreate(message: Message): void;
-  messageUpdate(message: Message, previousMessage: HydratedMessage): void;
-  messageDelete(message: HydratedMessage): void;
-  messageDeleteBulk(messages: HydratedMessage[], channel?: Channel): void;
-  messageReactionAdd(message: Message, userId: string, emoji: string): void;
-  messageReactionRemove(message: Message, userId: string, emoji: string): void;
-  messageReactionRemoveEmoji(message: Message, emoji: string): void;
+  messageCreate: [Message];
+  messageUpdate: [Message, HydratedMessage];
+  messageDelete: [HydratedMessage];
+  messageDeleteBulk: [HydratedMessage[], Channel?];
+  messageReactionAdd: [Message, string, string];
+  messageReactionRemove: [Message, string, string];
+  messageReactionRemoveEmoji: [Message, string];
 
-  channelCreate(channel: Channel): void;
-  channelUpdate(channel: Channel, previousChannel: HydratedChannel): void;
-  channelDelete(channel: HydratedChannel): void;
-  channelGroupJoin(channel: Channel, user: User): void;
-  channelGroupLeave(channel: Channel, user?: User): void;
-  channelStartTyping(channel: Channel, user?: User): void;
-  channelStopTyping(channel: Channel, user?: User): void;
-  channelAcknowledged(channel: Channel, messageId: string): void;
+  channelCreate: [Channel];
+  channelUpdate: [Channel, HydratedChannel];
+  channelDelete: [HydratedChannel];
+  channelGroupJoin: [Channel, User];
+  channelGroupLeave: [Channel, User?];
+  channelStartTyping: [Channel, User?];
+  channelStopTyping: [Channel, User?];
+  channelAcknowledged: [Channel, string];
 
-  serverCreate(server: Server): void;
-  serverUpdate(server: Server, previousServer: HydratedServer): void;
-  serverDelete(server: HydratedServer): void;
-  serverLeave(server: HydratedServer): void;
-  serverRoleUpdate(server: Server, roleId: string, previousRole: Role): void;
-  serverRoleDelete(server: Server, roleId: string, role: Role): void;
+  serverCreate: [Server];
+  serverUpdate: [Server, HydratedServer];
+  serverDelete: [HydratedServer];
+  serverLeave: [HydratedServer];
+  serverRoleUpdate: [Server, string, Role];
+  serverRoleDelete: [Server, string, Role];
 
-  serverMemberUpdate(
-    member: ServerMember,
-    previousMember: HydratedServerMember,
-  ): void;
-  serverMemberJoin(member: ServerMember): void;
-  serverMemberLeave(member: HydratedServerMember): void;
+  serverMemberUpdate: [ServerMember, HydratedServerMember];
+  serverMemberJoin: [ServerMember];
+  serverMemberLeave: [HydratedServerMember];
 
-  userUpdate(user: User, previousUser: HydratedUser): void;
+  userUpdate: [User, HydratedUser];
   // ^ userRelationshipChanged(user: User, previousRelationship: RelationshipStatus): void;
   // ^ userPresenceChanged(user: User, previousPresence: boolean): void;
-  userSettingsUpdate(
-    id: string,
-    update: Record<string, [number, string]>,
-  ): void;
+  userSettingsUpdate: [string, Record<string, [number, string]>];
 
-  emojiCreate(emoji: Emoji): void;
-  emojiDelete(emoji: HydratedEmoji): void;
+  emojiCreate: [Emoji];
+  emojiDelete: [HydratedEmoji];
 };
 
 /**
@@ -151,7 +145,7 @@ export type ClientOptions = Partial<EventClientOptions> & {
 /**
  * Revolt.js Clients
  */
-export class Client extends EventEmitter<Events> {
+export class Client extends AsyncEventEmitter<Events> {
   readonly account = new AccountCollection(this);
   readonly bots = new BotCollection(this);
   readonly channels = new ChannelCollection(this);
