@@ -1,4 +1,6 @@
-import { ChannelUnreadCollection } from "../collections/index.js";
+import type { ReactiveSet } from "@solid-primitives/set";
+
+import type { ChannelUnreadCollection } from "../collections/ChannelUnreadCollection.js";
 
 /**
  * Channel Unread Class
@@ -20,21 +22,21 @@ export class ChannelUnread {
   /**
    * Whether this object exists
    */
-  get $exists() {
+  get $exists(): boolean {
     return !!this.#collection.getUnderlyingObject(this.id).id;
   }
 
   /**
    * Last read message id
    */
-  get lastMessageId() {
+  get lastMessageId(): string | undefined {
     return this.#collection.getUnderlyingObject(this.id).lastMessageId;
   }
 
   /**
    * List of message IDs that we were mentioned in
    */
-  get messageMentionIds() {
+  get messageMentionIds(): ReactiveSet<string> {
     return this.#collection.getUnderlyingObject(this.id).messageMentionIds;
   }
 }

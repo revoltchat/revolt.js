@@ -1,10 +1,28 @@
-import { Accessor, Setter, createSignal } from "solid-js";
+import type { Accessor, Setter } from "solid-js";
+import { createSignal } from "solid-js";
 
 import EventEmitter from "eventemitter3";
 import WebSocket from "isomorphic-ws";
-import { Error } from "revolt-api";
+import type { Error } from "revolt-api";
 
-import type { AvailableProtocols, EventProtocol } from "./index.js";
+import type { ProtocolV1 } from "./v1.js";
+
+/**
+ * Available protocols to connect with
+ */
+export type AvailableProtocols = 1;
+
+/**
+ * Protocol mapping
+ */
+type Protocols = {
+  1: ProtocolV1;
+};
+
+/**
+ * Select a protocol by its key
+ */
+export type EventProtocol<T extends AvailableProtocols> = Protocols[T];
 
 /**
  * All possible event client states.
@@ -118,7 +136,7 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
    * Set the current state
    * @param state state
    */
-  private setState(state: ConnectionState) {
+  private setState(state: ConnectionState): void {
     this.#setStateSetter(state);
     this.emit("state", state);
   }
@@ -128,7 +146,7 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
    * @param uri WebSocket URI
    * @param token Authentication token
    */
-  connect(uri: string, token: string) {
+  connect(uri: string, token: string): void {
     this.disconnect();
     this.#lastError = undefined;
     this.setState(ConnectionState.Connecting);
@@ -182,7 +200,7 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
   /**
    * Disconnect the websocket client.
    */
-  disconnect() {
+  disconnect(): void {
     if (!this.#socket) return;
     clearInterval(this.#heartbeatIntervalReference);
     clearInterval(this.#connectTimeoutReference);
@@ -196,7 +214,7 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
    * Send an event to the server.
    * @param event Event
    */
-  send(event: EventProtocol<T>["client"]) {
+  send(event: EventProtocol<T>["client"]): void {
     this.options.debug && console.debug("[C->S]", event);
     if (!this.#socket) throw "Socket closed, trying to send.";
     this.#socket.send(JSON.stringify(event));
@@ -206,7 +224,7 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
    * Handle events intended for client before passing them along.
    * @param event Event
    */
-  handle(event: EventProtocol<T>["server"]) {
+  handle(event: EventProtocol<T>["server"]): void {
     this.options.debug && console.debug("[S->C]", event);
     switch (event.type) {
       case "Ping":
@@ -258,7 +276,17 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
   /**
    * Last error encountered by events client
    */
-  get lastError() {
+  get lastError():
+    | {
+        type: "socket";
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        data: any;
+      }
+    | {
+        type: "revolt";
+        data: Error;
+      }
+    | undefined {
     return this.#lastError;
   }
 }

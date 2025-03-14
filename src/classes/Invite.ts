@@ -1,18 +1,24 @@
-import { API, Client } from "../index.js";
+import type { Invite } from "revolt-api";
+
+import type { Client } from "../Client.js";
+
+import type { Channel } from "./Channel.js";
+import type { Server } from "./Server.js";
+import type { User } from "./User.js";
 
 /**
  * Channel Invite
  */
 export abstract class ChannelInvite {
   protected client?: Client;
-  readonly type: API.Invite["type"] | "None";
+  readonly type: Invite["type"] | "None";
 
   /**
    * Construct Channel Invite
    * @param client Client
    * @param type Type
    */
-  constructor(client?: Client, type: API.Invite["type"] | "None" = "None") {
+  constructor(client?: Client, type: Invite["type"] | "None" = "None") {
     this.client = client;
     this.type = type;
   }
@@ -23,7 +29,7 @@ export abstract class ChannelInvite {
    * @param invite Data
    * @returns Invite
    */
-  static from(client: Client, invite: API.Invite): ChannelInvite {
+  static from(client: Client, invite: Invite): ChannelInvite {
     switch (invite.type) {
       case "Server":
         return new ServerInvite(client, invite);
@@ -52,7 +58,7 @@ export class ServerInvite extends ChannelInvite {
    * @param client Client
    * @param invite Invite
    */
-  constructor(client: Client, invite: API.Invite & { type: "Server" }) {
+  constructor(client: Client, invite: Invite & { type: "Server" }) {
     super(client, "Server");
 
     this.id = invite._id;
@@ -64,28 +70,28 @@ export class ServerInvite extends ChannelInvite {
   /**
    * Creator of the invite
    */
-  get creator() {
+  get creator(): User | undefined {
     return this.client!.users.get(this.creatorId);
   }
 
   /**
    * Server this invite points to
    */
-  get server() {
+  get server(): Server | undefined {
     return this.client!.servers.get(this.serverId);
   }
 
   /**
    * Channel this invite points to
    */
-  get channel() {
+  get channel(): Channel | undefined {
     return this.client!.channels.get(this.channelId);
   }
 
   /**
    * Delete the invite
    */
-  async delete() {
+  async delete(): Promise<void> {
     await this.client!.api.delete(`/invites/${this.id}`);
   }
 }

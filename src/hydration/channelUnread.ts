@@ -1,9 +1,9 @@
 import { ReactiveSet } from "@solid-primitives/set";
+import type { ChannelUnread } from "revolt-api";
 
-import { API } from "../index.js";
 import type { Merge } from "../lib/merge.js";
 
-import { Hydrate } from "./index.js";
+import type { Hydrate } from "./index.js";
 
 export type HydratedChannelUnread = {
   id: string;
@@ -12,7 +12,7 @@ export type HydratedChannelUnread = {
 };
 
 export const channelUnreadHydration: Hydrate<
-  Merge<API.ChannelUnread>,
+  Merge<ChannelUnread>,
   HydratedChannelUnread
 > = {
   keyMapping: {

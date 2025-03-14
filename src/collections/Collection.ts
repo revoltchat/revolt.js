@@ -1,9 +1,9 @@
-import { SetStoreFunction } from "solid-js/store";
+import type { SetStoreFunction } from "solid-js/store";
 
 import { ReactiveMap } from "@solid-primitives/map";
 
-import { Hydrators } from "../hydration/index.js";
-import { Client } from "../index.js";
+import type { Client } from "../Client.js";
+import type { Hydrators } from "../hydration/index.js";
 import { ObjectStorage } from "../storage/ObjectStorage.js";
 
 /**
@@ -59,14 +59,14 @@ export abstract class Collection<T> {
    * @param cb Callback for each pair
    */
   abstract forEach(
-    cb: (value: T, key: string, map: ReactiveMap<string, T>) => void
+    cb: (value: T, key: string, map: Map<string, T>) => void
   ): void;
 
   /**
    * List of values in the map
    * @returns List
    */
-  toList() {
+  toList(): T[] {
     return [...this.values()];
   }
 
@@ -143,7 +143,7 @@ export abstract class StoreCollection<T, V> extends Collection<T> {
    * @param id Id
    * @returns Whether it exists
    */
-  has(id: string) {
+  has(id: string): boolean {
     return this.#objects.has(id);
   }
 
@@ -170,7 +170,7 @@ export abstract class StoreCollection<T, V> extends Collection<T> {
     instance: T,
     context: unknown,
     data?: unknown
-  ) {
+  ): void {
     this.#storage.hydrate(id, type, context, data);
     this.#objects.set(id, instance);
   }
@@ -188,7 +188,7 @@ export abstract class StoreCollection<T, V> extends Collection<T> {
    * Number of stored objects
    * @returns Size
    */
-  size() {
+  size(): number {
     return this.#objects.size;
   }
 
@@ -196,7 +196,7 @@ export abstract class StoreCollection<T, V> extends Collection<T> {
    * Iterable of keys in the map
    * @returns Iterable
    */
-  keys() {
+  keys(): IterableIterator<string> {
     return this.#objects.keys();
   }
 
@@ -204,7 +204,7 @@ export abstract class StoreCollection<T, V> extends Collection<T> {
    * Iterable of values in the map
    * @returns Iterable
    */
-  values() {
+  values(): IterableIterator<T> {
     return this.#objects.values();
   }
 
@@ -212,7 +212,7 @@ export abstract class StoreCollection<T, V> extends Collection<T> {
    * Iterable of key, value pairs in the map
    * @returns Iterable
    */
-  entries() {
+  entries(): IterableIterator<[string, T]> {
     return this.#objects.entries();
   }
 
@@ -221,7 +221,7 @@ export abstract class StoreCollection<T, V> extends Collection<T> {
    * @param cb Callback for each pair
    * @returns Iterable
    */
-  forEach(cb: (value: T, key: string, map: ReactiveMap<string, T>) => void) {
+  forEach(cb: (value: T, key: string, map: Map<string, T>) => void): void {
     return this.#objects.forEach(cb);
   }
 }

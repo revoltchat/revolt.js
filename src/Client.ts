@@ -1,44 +1,39 @@
-import { Accessor, Setter, batch, createSignal } from "solid-js";
+import type { Accessor, Setter } from "solid-js";
+import { batch, createSignal } from "solid-js";
 
 import EventEmitter from "eventemitter3";
-import type { DataLogin, Error, RevoltConfig } from "revolt-api";
-import { API, Role } from "revolt-api";
+import type { DataLogin, RevoltConfig, Role } from "revolt-api";
+import { API } from "revolt-api";
 
-import {
-  Channel,
-  Emoji,
-  Message,
-  Server,
-  ServerMember,
-  User,
-} from "./classes/index.js";
+import type { Channel } from "./classes/Channel.js";
+import type { Emoji } from "./classes/Emoji.js";
+import type { Message } from "./classes/Message.js";
+import type { Server } from "./classes/Server.js";
+import type { ServerMember } from "./classes/ServerMember.js";
+import type { User } from "./classes/User.js";
 import { AccountCollection } from "./collections/AccountCollection.js";
-import {
-  BotCollection,
-  ChannelCollection,
-  ChannelUnreadCollection,
-  ChannelWebhookCollection,
-  EmojiCollection,
-  MessageCollection,
-  ServerCollection,
-  ServerMemberCollection,
-  SessionCollection,
-  UserCollection,
-} from "./collections/index.js";
+import { BotCollection } from "./collections/BotCollection.js";
+import { ChannelCollection } from "./collections/ChannelCollection.js";
+import { ChannelUnreadCollection } from "./collections/ChannelUnreadCollection.js";
+import { ChannelWebhookCollection } from "./collections/ChannelWebhookCollection.js";
+import { EmojiCollection } from "./collections/EmojiCollection.js";
+import { MessageCollection } from "./collections/MessageCollection.js";
+import { ServerCollection } from "./collections/ServerCollection.js";
+import { ServerMemberCollection } from "./collections/ServerMemberCollection.js";
+import { SessionCollection } from "./collections/SessionCollection.js";
+import { UserCollection } from "./collections/UserCollection.js";
 import {
   ConnectionState,
   EventClient,
-  EventClientOptions,
-  handleEventV1,
-} from "./events/index.js";
-import {
-  HydratedChannel,
-  HydratedEmoji,
-  HydratedMessage,
-  HydratedServer,
-  HydratedServerMember,
-  HydratedUser,
-} from "./hydration/index.js";
+  type EventClientOptions,
+} from "./events/EventClient.js";
+import { handleEvent } from "./events/v1.js";
+import type { HydratedChannel } from "./hydration/channel.js";
+import type { HydratedEmoji } from "./hydration/emoji.js";
+import type { HydratedMessage } from "./hydration/message.js";
+import type { HydratedServer } from "./hydration/server.js";
+import type { HydratedServerMember } from "./hydration/serverMember.js";
+import type { HydratedUser } from "./hydration/user.js";
 import { RE_CHANNELS, RE_MENTIONS, RE_SPOILER } from "./lib/regex.js";
 
 export type Session = { _id: string; token: string; user_id: string } | string;
@@ -275,21 +270,21 @@ export class Client extends EventEmitter<Events> {
     });
 
     this.events.on("event", (event) =>
-      handleEventV1(this, event, this.#setReady)
+      handleEvent(this, event, this.#setReady)
     );
   }
 
   /**
    * Current session id
    */
-  get sessionId() {
+  get sessionId(): string | undefined {
     return typeof this.#session === "string" ? undefined : this.#session?._id;
   }
 
   /**
    * Get authentication header
    */
-  get authenticationHeader() {
+  get authenticationHeader(): [string, string] {
     return typeof this.#session === "string"
       ? ["X-Bot-Token", this.#session]
       : ["X-Session-Token", this.#session?.token as string];
@@ -298,7 +293,7 @@ export class Client extends EventEmitter<Events> {
   /**
    * Connect to Revolt
    */
-  connect() {
+  connect(): void {
     clearTimeout(this.#reconnectTimeout);
     this.events.disconnect();
     this.#setReady(false);
@@ -311,7 +306,7 @@ export class Client extends EventEmitter<Events> {
   /**
    * Fetches the configuration of the server if it has not been already fetched.
    */
-  async #fetchConfiguration() {
+  async #fetchConfiguration(): Promise<void> {
     if (!this.configuration) {
       this.configuration = await this.api.get("/");
     }
@@ -320,7 +315,7 @@ export class Client extends EventEmitter<Events> {
   /**
    * Update API object to use authentication.
    */
-  #updateHeaders() {
+  #updateHeaders(): void {
     (this.api as API) = new API({
       baseURL: this.options.baseURL,
       authentication: {
@@ -334,7 +329,7 @@ export class Client extends EventEmitter<Events> {
    * @param details Login data object
    * @returns An on-boarding function if on-boarding is required, undefined otherwise
    */
-  async login(details: DataLogin) {
+  async login(details: DataLogin): Promise<void> {
     await this.#fetchConfiguration();
     const data = await this.api.post("/auth/session/login", details);
     if (data.result === "Success") {
@@ -348,7 +343,7 @@ export class Client extends EventEmitter<Events> {
   /**
    * Use an existing session
    */
-  async useExistingSession(session: Session) {
+  useExistingSession(session: Session): void {
     this.#session = session;
     this.#updateHeaders();
   }
@@ -357,7 +352,7 @@ export class Client extends EventEmitter<Events> {
    * Log in as a bot
    * @param token Bot token
    */
-  async loginBot(token: string) {
+  async loginBot(token: string): Promise<void> {
     await this.#fetchConfiguration();
     this.#session = token;
     this.#updateHeaders();
@@ -369,7 +364,7 @@ export class Client extends EventEmitter<Events> {
    * @param source Source markdown text
    * @returns Modified plain text
    */
-  markdownToText(source: string) {
+  markdownToText(source: string): string {
     return source
       .replace(RE_MENTIONS, (sub: string, id: string) => {
         const user = this.users.get(id as string);

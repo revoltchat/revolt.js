@@ -1,6 +1,9 @@
 import Long from "long";
 
-import { Channel, Client, Server, ServerMember } from "../index.js";
+import type { Client } from "../Client.js";
+import type { Channel } from "../classes/Channel.js";
+import { Server } from "../classes/Server.js";
+import type { ServerMember } from "../classes/ServerMember.js";
 
 import {
   ALLOW_IN_TIMEOUT,
@@ -15,7 +18,7 @@ import {
  * @param a Input A
  * @param b Inputs (OR'd together)
  */
-export function bitwiseAndEq(a: number, ...b: number[]) {
+export function bitwiseAndEq(a: number, ...b: number[]): boolean {
   const value = b.reduce((prev, cur) => prev.or(cur), Long.fromNumber(0));
   return value.and(a).eq(value);
 }

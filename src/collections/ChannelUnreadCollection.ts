@@ -1,10 +1,11 @@
 import { batch } from "solid-js";
 
-import { ChannelUnread } from "../classes/ChannelUnread.js";
-import { HydratedChannelUnread } from "../hydration/index.js";
-import { API } from "../index.js";
+import type { ChannelUnread as APIChannelUnread } from "revolt-api";
 
-import { ClassCollection } from "./index.js";
+import { ChannelUnread } from "../classes/ChannelUnread.js";
+import type { HydratedChannelUnread } from "../hydration/channelUnread.js";
+
+import { ClassCollection } from "./Collection.js";
 
 /**
  * Collection of Channel Unreads
@@ -16,7 +17,7 @@ export class ChannelUnreadCollection extends ClassCollection<
   /**
    * Load unread information from server
    */
-  async sync() {
+  async sync(): Promise<void> {
     const unreads = await this.client.api.get("/sync/unreads");
     batch(() => {
       this.reset();
@@ -29,7 +30,7 @@ export class ChannelUnreadCollection extends ClassCollection<
   /**
    * Clear all unread data
    */
-  reset() {
+  reset(): void {
     this.updateUnderlyingObject({});
   }
 
@@ -38,7 +39,7 @@ export class ChannelUnreadCollection extends ClassCollection<
    * @param id Id
    * @param data Data
    */
-  getOrCreate(id: string, data: API.ChannelUnread) {
+  getOrCreate(id: string, data: APIChannelUnread): ChannelUnread {
     if (this.has(id)) {
       return this.get(id)!;
     } else {

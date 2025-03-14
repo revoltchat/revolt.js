@@ -9,21 +9,6 @@ import { serverMemberHydration } from "./serverMember.js";
 import { sessionHydration } from "./session.js";
 import { userHydration } from "./user.js";
 
-export { BotFlags } from "./bot.js";
-export { ServerFlags } from "./server.js";
-export { UserBadges, UserFlags } from "./user.js";
-
-export type { HydratedBot } from "./bot.js";
-export type { HydratedChannel } from "./channel.js";
-export type { HydratedChannelUnread } from "./channelUnread.js";
-export type { HydratedChannelWebhook } from "./channelWebhook.js";
-export type { HydratedEmoji } from "./emoji.js";
-export type { HydratedMessage } from "./message.js";
-export type { HydratedServer } from "./server.js";
-export type { HydratedServerMember } from "./serverMember.js";
-export type { HydratedSession } from "./session.js";
-export type { HydratedUser } from "./user.js";
-
 /**
  * Functions to map from one object to another
  */
@@ -113,7 +98,7 @@ export function hydrate<T extends keyof Hydrators>(
   input: Partial<ExtractInput<Hydrators[T]>>,
   context: unknown,
   initial?: boolean
-) {
+): ExtractOutput<Hydrators[T]> {
   return hydrateInternal(
     hydrators[type] as never,
     initial ? { ...hydrators[type].initialHydration(), ...input } : input,

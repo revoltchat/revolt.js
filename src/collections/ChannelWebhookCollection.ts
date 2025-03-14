@@ -1,8 +1,9 @@
-import { ChannelWebhook } from "../classes/ChannelWebhook.js";
-import { HydratedChannelWebhook } from "../hydration/channelWebhook.js";
-import { API } from "../index.js";
+import type { Webhook } from "revolt-api";
 
-import { ClassCollection } from "./index.js";
+import { ChannelWebhook } from "../classes/ChannelWebhook.js";
+import type { HydratedChannelWebhook } from "../hydration/channelWebhook.js";
+
+import { ClassCollection } from "./Collection.js";
 
 /**
  * Collection of Channel Webhooks
@@ -22,7 +23,7 @@ export class ChannelWebhookCollection extends ClassCollection<
     // @ts-expect-error not in prod
     const data = await this.client.api.get(`/webhooks/${id as ""}`);
     // @ts-expect-error not in prod
-    return this.getOrCreate(data.id, data as API.Webhook);
+    return this.getOrCreate(data.id, data as Webhook);
   }
 
   /**
@@ -47,7 +48,7 @@ export class ChannelWebhookCollection extends ClassCollection<
    * @param id Id
    * @param data Data
    */
-  getOrCreate(id: string, data: API.Webhook) {
+  getOrCreate(id: string, data: Webhook): ChannelWebhook {
     if (this.has(id)) {
       return this.get(id)!;
     } else {

@@ -1,7 +1,9 @@
-import { HydratedMessage } from "../hydration";
-import { API, Message } from "../index.js";
+import type { Message as APIMessage } from "revolt-api";
 
-import { ClassCollection } from "./index.js";
+import { Message } from "../classes/Message.js";
+import type { HydratedMessage } from "../hydration/message.js";
+
+import { ClassCollection } from "./Collection.js";
 
 /**
  * Collection of Messages
@@ -33,7 +35,7 @@ export class MessageCollection extends ClassCollection<
    * @param data Data
    * @param isNew Whether this object is new
    */
-  getOrCreate(id: string, data: API.Message, isNew = false) {
+  getOrCreate(id: string, data: APIMessage, isNew = false): Message {
     if (this.has(id) && !this.isPartial(id)) {
       return this.get(id)!;
     } else {
@@ -48,7 +50,7 @@ export class MessageCollection extends ClassCollection<
    * Get or return partial
    * @param id Id
    */
-  getOrPartial(id: string) {
+  getOrPartial(id: string): Message | undefined {
     if (this.has(id)) {
       return this.get(id)!;
     } else if (this.client.options.partials) {

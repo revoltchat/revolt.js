@@ -1,4 +1,10 @@
-import { API, Channel, Client, File, Server } from "../index.js";
+import type { File as APIFile, PublicBot as APIPublicBot } from "revolt-api";
+
+import type { Client } from "../Client.js";
+
+import { Channel } from "./Channel.js";
+import { File } from "./File.js";
+import { Server } from "./Server.js";
 
 /**
  * Public Bot Class
@@ -16,7 +22,7 @@ export class PublicBot {
    * @param client Client
    * @param data Data
    */
-  constructor(client: Client, data: API.PublicBot) {
+  constructor(client: Client, data: APIPublicBot) {
     this.#client = client;
     this.id = data._id;
     this.username = data.username;
@@ -24,7 +30,7 @@ export class PublicBot {
       ? new File(client, {
           _id: data.avatar,
           tag: "avatars",
-        } as API.File)
+        } as APIFile)
       : undefined;
     this.description = data.description!;
   }
@@ -33,7 +39,7 @@ export class PublicBot {
    * Add the bot to a server
    * @param server Server
    */
-  addToServer(server: Server | string) {
+  addToServer(server: Server | string): void {
     this.#client.api.post(`/bots/${this.id as ""}/invite`, {
       server: server instanceof Server ? server.id : server,
     });
@@ -43,7 +49,7 @@ export class PublicBot {
    * Add the bot to a group
    * @param group Group
    */
-  addToGroup(group: Channel | string) {
+  addToGroup(group: Channel | string): void {
     // TODO: should use GroupChannel once that is added
     this.#client.api.post(`/bots/${this.id as ""}/invite`, {
       group: group instanceof Channel ? group.id : group,

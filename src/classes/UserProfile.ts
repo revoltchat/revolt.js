@@ -1,4 +1,8 @@
-import { API, Client, File } from "../index.js";
+import type { UserProfile as APIUserProfile } from "revolt-api";
+
+import type { Client } from "../Client.js";
+
+import { File } from "./File.js";
 
 /**
  * User Profile Class
@@ -12,7 +16,7 @@ export class UserProfile {
    * @param client Client
    * @param data Data
    */
-  constructor(client: Client, data: API.UserProfile) {
+  constructor(client: Client, data: APIUserProfile) {
     this.content = data.content!;
     this.banner = data.background
       ? new File(client, data.background)
@@ -22,14 +26,14 @@ export class UserProfile {
   /**
    * URL to the user's banner
    */
-  get bannerURL() {
+  get bannerURL(): string | undefined {
     return this.banner?.createFileURL();
   }
 
   /**
    * URL to the user's animated banner
    */
-  get animatedBannerURL() {
+  get animatedBannerURL(): string | undefined {
     return this.banner?.createFileURL(true);
   }
 }

@@ -1,4 +1,5 @@
-import { Setter, batch } from "solid-js";
+import type { Setter } from "solid-js";
+import { batch } from "solid-js";
 
 import { ReactiveSet } from "@solid-primitives/set";
 import type {
@@ -18,8 +19,9 @@ import type {
   User,
 } from "revolt-api";
 
+import type { Client } from "../Client.js";
+import { MessageEmbed } from "../classes/MessageEmbed.js";
 import { hydrate } from "../hydration/index.js";
-import { Client, MessageEmbed } from "../index.js";
 
 /**
  * Version 1 of the events protocol
@@ -189,7 +191,7 @@ export async function handleEvent(
   client: Client,
   event: ServerMessage,
   setReady: Setter<boolean>
-) {
+): Promise<void> {
   if (client.options.debug) {
     console.debug("[S->C]", event);
   }
