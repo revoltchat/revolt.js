@@ -59,7 +59,7 @@ export abstract class Collection<T> {
    * @param cb Callback for each pair
    */
   abstract forEach(
-    cb: (value: T, key: string, map: ReactiveMap<string, T>) => void,
+    cb: (value: T, key: string, map: Map<string, T>) => void,
   ): void;
 
   /**
@@ -221,7 +221,7 @@ export abstract class StoreCollection<T, V> extends Collection<T> {
    * @param cb Callback for each pair
    * @returns Iterable
    */
-  forEach(cb: (value: T, key: string, map: ReactiveMap<string, T>) => void) {
+  forEach(cb: (value: T, key: string, map: Map<string, T>) => void) {
     return this.#objects.forEach(cb);
   }
 }

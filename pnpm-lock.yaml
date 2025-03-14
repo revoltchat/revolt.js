@@ -9,11 +9,11 @@ importers:
   .:
     dependencies:
       '@solid-primitives/map':
-        specifier: ^0.4.11
-        version: 0.4.13(solid-js@1.9.5)
+        specifier: ^0.6.0
+        version: 0.6.0(solid-js@1.9.5)
       '@solid-primitives/set':
-        specifier: ^0.4.11
-        version: 0.4.12(solid-js@1.9.5)
+        specifier: ^0.6.0
+        version: 0.6.0(solid-js@1.9.5)
       '@vladfrangu/async_event_emitter':
         specifier: ^2.4.6
         version: 2.4.6
@@ -203,13 +203,13 @@ packages:
   '@shikijs/vscode-textmate@10.0.2':
     resolution: {integrity: sha512-83yeghZ2xxin3Nj8z1NMd/NCuca+gsYXswywDy5bHvwlWL8tpTQmzGeUuHd9FC3E/SBEMvzJRwWEOz5gGes9Qg==}
 
-  '@solid-primitives/map@0.4.13':
-    resolution: {integrity: sha512-B1zyFbsiTQvqPr+cuPCXO72sRuczG9Swncqk5P74NCGw1VE8qa/Ry9GlfI1e/VdeQYHjan+XkbE3rO2GW/qKew==}
+  '@solid-primitives/map@0.6.0':
+    resolution: {integrity: sha512-h8uCJNxUTvzNK/aTW9vJCd/PQeBkUL8i7AyLPvTFqMgcMnJ1I5GzAi5JODzxpxQwffxoqJyQtOE1vBqFzDv0Vw==}
     peerDependencies:
       solid-js: ^1.6.12
 
-  '@solid-primitives/set@0.4.12':
-    resolution: {integrity: sha512-p0CTabELYGK0oHDpET0f0p9CZtOqPocPDlZxL5MFSke0ewUByNVfNssK6aOECwvvYWL/rinFOUneOC/KLAXmwA==}
+  '@solid-primitives/set@0.6.0':
+    resolution: {integrity: sha512-P1Tp001m8ib5XCi/LEJHh2QsoS2uPO86HewtbrSxr2axt5te9EGc0UOwNKTPxNvNSLNHteUw5IrzDsEklW4m3g==}
     peerDependencies:
       solid-js: ^1.6.12
 
@@ -981,12 +981,12 @@ snapshots:
 
   '@shikijs/vscode-textmate@10.0.2': {}
 
-  '@solid-primitives/map@0.4.13(solid-js@1.9.5)':
+  '@solid-primitives/map@0.6.0(solid-js@1.9.5)':
     dependencies:
       '@solid-primitives/trigger': 1.2.0(solid-js@1.9.5)
       solid-js: 1.9.5
 
-  '@solid-primitives/set@0.4.12(solid-js@1.9.5)':
+  '@solid-primitives/set@0.6.0(solid-js@1.9.5)':
     dependencies:
       '@solid-primitives/trigger': 1.2.0(solid-js@1.9.5)
       solid-js: 1.9.5
