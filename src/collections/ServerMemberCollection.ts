@@ -51,7 +51,7 @@ export class ServerMemberCollection extends ClassCollection<
       `/servers/${serverId as ""}/members/${userId as ""}`,
       {
         roles: false,
-      }
+      },
       // TODO: fix typings in revolt-api
     )) as API.Member;
 
@@ -73,7 +73,7 @@ export class ServerMemberCollection extends ClassCollection<
         "serverMember",
         instance,
         this.client,
-        data
+        data,
       );
       return instance;
     }

@@ -44,7 +44,7 @@ export class ChannelCollection extends ClassCollection<
     } else {
       const instance = new Channel(this, id);
       this.create(id, "channel", instance, this.client, data);
-      isNew && this.client.emit("channelCreate", instance);
+      if (isNew) this.client.emit("channelCreate", instance);
       return instance;
     }
   }

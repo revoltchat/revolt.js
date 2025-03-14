@@ -188,7 +188,7 @@ type ReadyData = {
 export async function handleEvent(
   client: Client,
   event: ServerMessage,
-  setReady: Setter<boolean>
+  setReady: Setter<boolean>,
 ) {
   if (client.options.debug) {
     console.debug("[S->C]", event);
@@ -255,7 +255,7 @@ export async function handleEvent(
           client.channels.updateUnderlyingObject(
             event.channel,
             "lastMessageId",
-            event._id
+            event._id,
           );
         });
       }
@@ -274,7 +274,7 @@ export async function handleEvent(
             "message",
             { ...event.data, channel: event.channel },
             client,
-            false
+            false,
           ),
           editedAt: new Date(),
         });
@@ -294,14 +294,14 @@ export async function handleEvent(
         client.messages.updateUnderlyingObject(event.id, "embeds", (embeds) => [
           ...(embeds ?? []),
           ...(event.append.embeds?.map((embed) =>
-            MessageEmbed.from(client, embed)
+            MessageEmbed.from(client, embed),
           ) ?? []),
         ]);
 
         client.messages.updateUnderlyingObject(
           event.id,
           "channelId",
-          event.channel
+          event.channel,
         );
 
         client.emit("messageUpdate", message, previousMessage);
@@ -331,8 +331,8 @@ export async function handleEvent(
               return undefined!;
             })
             .filter((x) => x),
-          client.channels.get(event.channel)
-        )
+          client.channels.get(event.channel),
+        ),
       );
       break;
     }
@@ -352,7 +352,7 @@ export async function handleEvent(
           "messageReactionAdd",
           message,
           event.user_id,
-          event.emoji_id
+          event.emoji_id,
         );
       }
       break;
@@ -371,7 +371,7 @@ export async function handleEvent(
           "messageReactionRemove",
           message,
           event.user_id,
-          event.emoji_id
+          event.emoji_id,
         );
       }
       break;
@@ -446,7 +446,7 @@ export async function handleEvent(
         client.emit(
           "channelGroupJoin",
           channel,
-          await client.users.fetch(event.user)
+          await client.users.fetch(event.user),
         );
       }
       break;
@@ -463,7 +463,7 @@ export async function handleEvent(
         client.emit(
           "channelGroupLeave",
           channel,
-          client.users.getOrPartial(event.user)!
+          client.users.getOrPartial(event.user)!,
         );
       }
       break;
@@ -480,7 +480,7 @@ export async function handleEvent(
         client.emit(
           "channelStartTyping",
           channel,
-          client.users.getOrPartial(event.user)!
+          client.users.getOrPartial(event.user)!,
         );
       }
       break;
@@ -497,7 +497,7 @@ export async function handleEvent(
         client.emit(
           "channelStopTyping",
           channel,
-          client.users.getOrPartial(event.user)!
+          client.users.getOrPartial(event.user)!,
         );
       }
       break;
@@ -612,7 +612,7 @@ export async function handleEvent(
           client.serverMembers.getOrCreate(id, {
             _id: id,
             joined_at: new Date().toUTCString(),
-          })
+          }),
         );
       }
       break;
@@ -622,7 +622,7 @@ export async function handleEvent(
       if (member) {
         const previousMember = {
           ...client.serverMembers.getUnderlyingObject(
-            event.id.server + event.id.user
+            event.id.server + event.id.user,
           ),
         };
 
@@ -649,7 +649,7 @@ export async function handleEvent(
 
         client.serverMembers.updateUnderlyingObject(
           event.id.server + event.id.user,
-          changes as never
+          changes as never,
         );
 
         client.emit("serverMemberUpdate", member, previousMember);
@@ -664,7 +664,7 @@ export async function handleEvent(
             type: "ServerDelete",
             id: event.id,
           },
-          setReady
+          setReady,
         );
 
         return;
@@ -677,7 +677,7 @@ export async function handleEvent(
 
       if (client.serverMembers.getOrPartial(id)) {
         const member = client.serverMembers.getUnderlyingObject(
-          id.server + id.user
+          id.server + id.user,
         );
 
         client.emit("serverMemberLeave", member);
@@ -733,7 +733,7 @@ export async function handleEvent(
             relationship: event.user.relationship!,
           },
         },
-        setReady
+        setReady,
       );
       break;
     }
@@ -747,7 +747,7 @@ export async function handleEvent(
             online: event.online,
           },
         },
-        setReady
+        setReady,
       );
       break;
     }
@@ -767,7 +767,7 @@ export async function handleEvent(
               .filter((message) => message.authorId === event.user_id)
               .map((message) => message.id),
           },
-          setReady
+          setReady,
         );
 
         handleEvent(
@@ -784,7 +784,7 @@ export async function handleEvent(
             },
             clear: ["Avatar", "StatusPresence", "StatusText"],
           },
-          setReady
+          setReady,
         );
       });
 

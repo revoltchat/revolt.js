@@ -1,4 +1,4 @@
-import { Accessor, batch, createSignal, Setter } from "solid-js";
+import { Accessor, Setter, batch, createSignal } from "solid-js";
 
 import { AsyncEventEmitter } from "@vladfrangu/async_event_emitter";
 import type { DataLogin, RevoltConfig } from "revolt-api";
@@ -271,9 +271,8 @@ export class Client extends AsyncEventEmitter<Events> {
       }
     });
 
-    this.events.on(
-      "event",
-      (event) => handleEventV1(this, event, this.#setReady),
+    this.events.on("event", (event) =>
+      handleEventV1(this, event, this.#setReady),
     );
   }
 
@@ -397,9 +396,9 @@ export class Client extends AsyncEventEmitter<Events> {
    */
   proxyFile(url: string): string | undefined {
     if (this.configuration?.features.january.enabled) {
-      return `${this.configuration.features.january.url}/proxy?url=${
-        encodeURIComponent(url)
-      }`;
+      return `${this.configuration.features.january.url}/proxy?url=${encodeURIComponent(
+        url,
+      )}`;
     } else {
       return url;
     }

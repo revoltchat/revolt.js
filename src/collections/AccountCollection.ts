@@ -89,7 +89,7 @@ export class AccountCollection {
   confirmPasswordReset(
     token: string,
     newPassword: string,
-    removeSessions: boolean
+    removeSessions: boolean,
   ) {
     return this.client.api.patch("/auth/account/reset_password", {
       token,

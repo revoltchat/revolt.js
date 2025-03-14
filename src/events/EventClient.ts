@@ -1,4 +1,4 @@
-import { Accessor, createSignal, Setter } from "solid-js";
+import { Accessor, Setter, createSignal } from "solid-js";
 
 import { AsyncEventEmitter } from "@vladfrangu/async_event_emitter";
 import { Error } from "revolt-api";
@@ -56,10 +56,9 @@ type Events<T extends AvailableProtocols, P extends EventProtocol<T>> = {
 /**
  * Simple wrapper around the Revolt websocket service.
  */
-export class EventClient<T extends AvailableProtocols>
-  extends AsyncEventEmitter<
-    Events<T, EventProtocol<T>>
-  > {
+export class EventClient<
+  T extends AvailableProtocols,
+> extends AsyncEventEmitter<Events<T, EventProtocol<T>>> {
   readonly options: EventClientOptions;
 
   #protocolVersion: T;
@@ -77,7 +76,7 @@ export class EventClient<T extends AvailableProtocols>
   #connectTimeoutReference: number | undefined;
 
   #lastError: // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    { type: "socket"; data: any } | { type: "revolt"; data: Error } | undefined;
+  { type: "socket"; data: any } | { type: "revolt"; data: Error } | undefined;
 
   /**
    * Create a new event client.
@@ -195,7 +194,7 @@ export class EventClient<T extends AvailableProtocols>
    * @param event Event
    */
   send(event: EventProtocol<T>["client"]) {
-    this.options.debug && console.debug("[C->S]", event);
+    if (this.options.debug) console.debug("[C->S]", event);
     if (!this.#socket) throw "Socket closed, trying to send.";
     this.#socket.send(JSON.stringify(event));
   }
@@ -205,7 +204,7 @@ export class EventClient<T extends AvailableProtocols>
    * @param event Event
    */
   handle(event: EventProtocol<T>["server"]) {
-    this.options.debug && console.debug("[S->C]", event);
+    if (this.options.debug) console.debug("[S->C]", event);
     switch (event.type) {
       case "Ping":
         this.send({
@@ -216,7 +215,7 @@ export class EventClient<T extends AvailableProtocols>
       case "Pong":
         clearTimeout(this.#pongTimeoutReference);
         this.#setPing(+new Date() - event.data);
-        this.options.debug && console.debug(`[ping] ${this.ping()}ms`);
+        if (this.options.debug) console.debug(`[ping] ${this.ping()}ms`);
         return;
       case "Error":
         this.#lastError = {

@@ -60,7 +60,7 @@ export class ChannelWebhook {
    */
   get channel() {
     return this.#collection.client.channels.get(
-      this.#collection.getUnderlyingObject(this.id).channelId
+      this.#collection.getUnderlyingObject(this.id).channelId,
     );
   }
 
@@ -75,17 +75,18 @@ export class ChannelWebhook {
    * Edit this webhook
    * TODO: not in production
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async edit(data: any /*: DataEditWebhook*/) {
     const webhook = await this.#collection.client.api.patch(
       // @ts-expect-error not in prod
       `/webhooks/${this.id as ""}/${this.token as ""}`,
-      data
+      data,
     );
 
     this.#collection.updateUnderlyingObject(
       this.id,
       // @ts-expect-error not in prod
-      hydrate("channelWebhook", webhook, this.#collection.client)
+      hydrate("channelWebhook", webhook, this.#collection.client),
     );
   }
 
@@ -96,7 +97,7 @@ export class ChannelWebhook {
   async delete() {
     await this.#collection.client.api.delete(
       // @ts-expect-error not in prod
-      `/webhooks/${this.id}/${this.token}`
+      `/webhooks/${this.id}/${this.token}`,
     );
 
     this.#collection.delete(this.id);
