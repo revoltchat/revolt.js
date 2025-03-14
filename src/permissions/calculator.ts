@@ -136,7 +136,7 @@ export function calculatePermission(
             for (const id of roles) {
               const override = target.rolePermissions[id];
               if (override) {
-                perm = perm & BigInt(override.a) & ~BigInt(override.d);
+                perm = (perm | BigInt(override.a)) & ~BigInt(override.d);
               }
             }
           }
