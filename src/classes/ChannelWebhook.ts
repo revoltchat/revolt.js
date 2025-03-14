@@ -82,7 +82,7 @@ export class ChannelWebhook {
       data
     );
 
-    this.#collection.updateUnderlyingObject(
+    this.#collection.setUnderlyingObject(
       this.id,
       // @ts-expect-error not in prod
       hydrate("channelWebhook", webhook, this.#collection.client)

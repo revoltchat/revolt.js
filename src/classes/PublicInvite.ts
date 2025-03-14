@@ -1,5 +1,3 @@
-import { batch } from "solid-js";
-
 import { ServerFlags } from "../hydration/server.js";
 import { API, Client, File } from "../index.js";
 
@@ -100,17 +98,15 @@ export class ServerPublicInvite extends PublicChannelInvite {
     const invite = await this.client!.api.post(`/invites/${this.code as ""}`);
 
     if (invite.type === "Server") {
-      return batch(() => {
-        for (const channel of invite.channels) {
-          this.client!.channels.getOrCreate(channel._id, channel);
-        }
+      for (const channel of invite.channels) {
+        this.client!.channels.getOrCreate(channel._id, channel);
+      }
 
-        return this.client!.servers.getOrCreate(
-          invite.server._id,
-          invite.server,
-          true
-        );
-      });
+      return this.client!.servers.getOrCreate(
+        invite.server._id,
+        invite.server,
+        true
+      );
     } else {
       throw "unreachable";
     }

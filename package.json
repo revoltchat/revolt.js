@@ -26,8 +26,6 @@
   "description": "Library for interacting with the Revolt API.",
   "packageManager": "pnpm@9.4.0",
   "dependencies": {
-    "@solid-primitives/map": "^0.4.11",
-    "@solid-primitives/set": "^0.4.11",
     "eventemitter3": "^5.0.1",
     "isomorphic-ws": "^5.0.0",
     "long": "^5.2.3",
@@ -46,7 +44,6 @@
     "dotenv": "^16.4.5",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^8.10.0",
-    "eslint-plugin-solid": "^0.12.1",
     "eslint-plugin-spellcheck": "^0.0.20",
     "prettier": "^2.8.8",
     "tsc-watch": "^6.0.4",

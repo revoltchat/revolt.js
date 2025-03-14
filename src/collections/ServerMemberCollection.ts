@@ -1,12 +1,12 @@
 import { HydratedServerMember } from "../hydration/index.js";
 import { API, ServerMember } from "../index.js";
 
-import { ClassCollection } from "./index.js";
+import { Collection } from "./index.js";
 
 /**
  * Collection of Server Members
  */
-export class ServerMemberCollection extends ClassCollection<
+export class ServerMemberCollection extends Collection<
   ServerMember,
   HydratedServerMember
 > {

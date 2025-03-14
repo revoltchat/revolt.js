@@ -1,12 +1,12 @@
 import { HydratedUser } from "../hydration/index.js";
 import { API, Client, User } from "../index.js";
 
-import { ClassCollection } from "./index.js";
+import { Collection } from "./index.js";
 
 /**
  * Collection of Users
  */
-export class UserCollection extends ClassCollection<User, HydratedUser> {
+export class UserCollection extends Collection<User, HydratedUser> {
   /**
    * Construct User collection
    */

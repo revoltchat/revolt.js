@@ -1,15 +1,13 @@
-import { batch } from "solid-js";
-
 import { ChannelUnread } from "../classes/ChannelUnread.js";
 import { HydratedChannelUnread } from "../hydration/index.js";
 import { API } from "../index.js";
 
-import { ClassCollection } from "./index.js";
+import { Collection } from "./index.js";
 
 /**
  * Collection of Channel Unreads
  */
-export class ChannelUnreadCollection extends ClassCollection<
+export class ChannelUnreadCollection extends Collection<
   ChannelUnread,
   HydratedChannelUnread
 > {
@@ -18,19 +16,19 @@ export class ChannelUnreadCollection extends ClassCollection<
    */
   async sync() {
     const unreads = await this.client.api.get("/sync/unreads");
-    batch(() => {
-      this.reset();
-      for (const unread of unreads) {
-        this.getOrCreate(unread._id.channel, unread);
-      }
-    });
+    this.reset();
+    for (const unread of unreads) {
+      this.getOrCreate(unread._id.channel, unread);
+    }
   }
 
   /**
    * Clear all unread data
    */
   reset() {
-    this.updateUnderlyingObject({});
+    for (const key of this.keys()) {
+      this.setUnderlyingObject(key, {} as never);
+    }
   }
 
   /**

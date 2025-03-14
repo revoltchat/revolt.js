@@ -1,7 +1,5 @@
-import { Accessor, Setter, batch, createSignal } from "solid-js";
-
 import EventEmitter from "eventemitter3";
-import type { DataLogin, Error, RevoltConfig } from "revolt-api";
+import type { DataLogin, RevoltConfig } from "revolt-api";
 import { API, Role } from "revolt-api";
 
 import {
@@ -180,11 +178,9 @@ export class Client extends EventEmitter<Events> {
   #session: Session | undefined;
   user: User | undefined;
 
-  readonly ready: Accessor<boolean>;
-  #setReady: Setter<boolean>;
+  ready = false;
+  connectionFailureCount = 0;
 
-  readonly connectionFailureCount: Accessor<number>;
-  #setConnectionFailureCount: Setter<number>;
   #reconnectTimeout: number | undefined;
 
   /**
@@ -225,14 +221,6 @@ export class Client extends EventEmitter<Events> {
       baseURL: this.options.baseURL,
     });
 
-    const [ready, setReady] = createSignal(false);
-    this.ready = ready;
-    this.#setReady = setReady;
-
-    const [connectionFailureCount, setConnectionFailureCount] = createSignal(0);
-    this.connectionFailureCount = connectionFailureCount;
-    this.#setConnectionFailureCount = setConnectionFailureCount;
-
     this.account = new AccountCollection(this);
     this.bots = new BotCollection(this);
     this.channels = new ChannelCollection(this);
@@ -250,11 +238,9 @@ export class Client extends EventEmitter<Events> {
     this.events.on("state", (state) => {
       switch (state) {
         case ConnectionState.Connected:
-          batch(() => {
-            this.servers.forEach((server) => server.resetSyncStatus());
-            this.#setConnectionFailureCount(0);
-            this.emit("connected");
-          });
+          this.servers.forEach((server) => server.resetSyncStatus());
+          this.connectionFailureCount = 0;
+          this.emit("connected");
           break;
         case ConnectionState.Connecting:
           this.emit("connecting");
@@ -264,18 +250,23 @@ export class Client extends EventEmitter<Events> {
           if (this.options.autoReconnect) {
             this.#reconnectTimeout = setTimeout(
               () => this.connect(),
-              this.options.retryDelayFunction(this.connectionFailureCount()) *
-                1e3
+              this.options.retryDelayFunction(this.connectionFailureCount) * 1e3
             ) as never;
 
-            this.#setConnectionFailureCount((count) => count + 1);
+            this.connectionFailureCount += 1;
           }
           break;
       }
     });
 
     this.events.on("event", (event) =>
-      handleEventV1(this, event, this.#setReady)
+      handleEventV1(
+        this,
+        event,
+        ((value: boolean) => {
+          this.ready = value;
+        }).bind(this)
+      )
     );
   }
 
@@ -301,7 +292,7 @@ export class Client extends EventEmitter<Events> {
   connect() {
     clearTimeout(this.#reconnectTimeout);
     this.events.disconnect();
-    this.#setReady(false);
+    this.ready = false;
     this.events.connect(
       this.configuration?.ws ?? "wss://ws.revolt.chat",
       typeof this.#session === "string" ? this.#session : this.#session!.token

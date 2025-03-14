@@ -1,15 +1,12 @@
 import { HydratedChannel } from "../hydration/index.js";
 import { API, Channel, User } from "../index.js";
 
-import { ClassCollection } from "./index.js";
+import { Collection } from "./index.js";
 
 /**
  * Collection of Channels
  */
-export class ChannelCollection extends ClassCollection<
-  Channel,
-  HydratedChannel
-> {
+export class ChannelCollection extends Collection<Channel, HydratedChannel> {
   /**
    * Delete an object
    * @param id Id

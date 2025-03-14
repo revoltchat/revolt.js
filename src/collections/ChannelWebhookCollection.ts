@@ -2,12 +2,12 @@ import { ChannelWebhook } from "../classes/ChannelWebhook.js";
 import { HydratedChannelWebhook } from "../hydration/channelWebhook.js";
 import { API } from "../index.js";
 
-import { ClassCollection } from "./index.js";
+import { Collection } from "./index.js";
 
 /**
  * Collection of Channel Webhooks
  */
-export class ChannelWebhookCollection extends ClassCollection<
+export class ChannelWebhookCollection extends Collection<
   ChannelWebhook,
   HydratedChannelWebhook
 > {

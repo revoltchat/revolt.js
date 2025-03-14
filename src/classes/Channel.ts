@@ -1,5 +1,3 @@
-import { batch } from "solid-js";
-
 import type {
   Member as ApiMember,
   Message as ApiMessage,
@@ -381,10 +379,8 @@ export class Channel {
       `/channels/${this.id as ""}/members`
     );
 
-    return batch(() =>
-      members.map((user) =>
-        this.#collection.client.users.getOrCreate(user._id, user)
-      )
+    return members.map((user) =>
+      this.#collection.client.users.getOrCreate(user._id, user)
     );
   }
 
@@ -398,10 +394,8 @@ export class Channel {
       `/channels/${this.id as ""}/webhooks`
     );
 
-    return batch(() =>
-      webhooks.map((webhook) =>
-        this.#collection.client.channelWebhooks.getOrCreate(webhook.id, webhook)
-      )
+    return webhooks.map((webhook) =>
+      this.#collection.client.channelWebhooks.getOrCreate(webhook.id, webhook)
     );
   }
 
@@ -424,7 +418,7 @@ export class Channel {
     });
 
     if (this.type === "DirectMessage") {
-      this.#collection.updateUnderlyingObject(this.id, "active", false);
+      this.#collection.setUnderlyingKey(this.id, "active", false);
       return;
     }
 
@@ -549,7 +543,7 @@ export class Channel {
       { ...params, include_users: true }
     )) as { messages: ApiMessage[]; users: ApiUser[]; members?: ApiMember[] };
 
-    return batch(() => ({
+    return {
       messages: data.messages.map((message) =>
         this.#collection.client.messages.getOrCreate(message._id, message)
       ),
@@ -559,7 +553,7 @@ export class Channel {
       members: data.members?.map((member) =>
         this.#collection.client.serverMembers.getOrCreate(member._id, member)
       ),
-    }));
+    };
   }
 
   /**
@@ -574,10 +568,8 @@ export class Channel {
       params
     )) as ApiMessage[];
 
-    return batch(() =>
-      messages.map((message) =>
-        this.#collection.client.messages.getOrCreate(message._id, message)
-      )
+    return messages.map((message) =>
+      this.#collection.client.messages.getOrCreate(message._id, message)
     );
   }
 
@@ -596,7 +588,7 @@ export class Channel {
       }
     )) as { messages: ApiMessage[]; users: ApiUser[]; members?: ApiMember[] };
 
-    return batch(() => ({
+    return {
       messages: data.messages.map((message) =>
         this.#collection.client.messages.getOrCreate(message._id, message)
       ),
@@ -606,7 +598,7 @@ export class Channel {
       members: data.members?.map((member) =>
         this.#collection.client.serverMembers.getOrCreate(member._id, member)
       ),
-    }));
+    };
   }
 
   /**
@@ -669,7 +661,8 @@ export class Channel {
     const unreads = this.#collection.client.channelUnreads;
     const channelUnread = unreads.get(this.id);
     if (channelUnread) {
-      unreads.updateUnderlyingObject(this.id, {
+      unreads.setUnderlyingObject(this.id, {
+        ...unreads.getUnderlyingObject(this.id),
         lastMessageId,
       });
 

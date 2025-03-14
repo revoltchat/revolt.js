@@ -1,27 +1,20 @@
-import { batch } from "solid-js";
-
 import { Session } from "../classes/index.js";
 import { HydratedSession } from "../hydration/session.js";
 import { API } from "../index.js";
 
-import { ClassCollection } from "./index.js";
+import { Collection } from "./index.js";
 
 /**
  * Collection of Sessions
  */
-export class SessionCollection extends ClassCollection<
-  Session,
-  HydratedSession
-> {
+export class SessionCollection extends Collection<Session, HydratedSession> {
   /**
    * Fetch active sessions
    * @returns List of sessions
    */
   async fetch(): Promise<Session[]> {
     const data = await this.client.api.get("/auth/session/all");
-    return batch(() =>
-      data.map((session) => this.getOrCreate(session._id, session))
-    );
+    return data.map((session) => this.getOrCreate(session._id, session));
   }
 
   /**

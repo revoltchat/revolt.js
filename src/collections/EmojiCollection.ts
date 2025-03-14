@@ -1,12 +1,12 @@
 import { HydratedEmoji } from "../hydration/index.js";
 import { API, Emoji } from "../index.js";
 
-import { ClassCollection } from "./index.js";
+import { Collection } from "./index.js";
 
 /**
  * Collection of Emoji
  */
-export class EmojiCollection extends ClassCollection<Emoji, HydratedEmoji> {
+export class EmojiCollection extends Collection<Emoji, HydratedEmoji> {
   /**
    * Fetch emoji by ID
    * @param id Id

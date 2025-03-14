@@ -1,15 +1,12 @@
 import { HydratedMessage } from "../hydration";
 import { API, Message } from "../index.js";
 
-import { ClassCollection } from "./index.js";
+import { Collection } from "./index.js";
 
 /**
  * Collection of Messages
  */
-export class MessageCollection extends ClassCollection<
-  Message,
-  HydratedMessage
-> {
+export class MessageCollection extends Collection<Message, HydratedMessage> {
   /**
    * Fetch message by Id
    * @param channelId Channel Id

@@ -1,5 +1,3 @@
-import { Accessor, Setter, createSignal } from "solid-js";
-
 import EventEmitter from "eventemitter3";
 import WebSocket from "isomorphic-ws";
 import { Error } from "revolt-api";
@@ -65,11 +63,8 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
   #protocolVersion: T;
   #transportFormat: "json" | "msgpack";
 
-  readonly ping: Accessor<number>;
-  #setPing: Setter<number>;
-
-  readonly state: Accessor<ConnectionState>;
-  #setStateSetter: Setter<ConnectionState>;
+  ping = -1;
+  state = ConnectionState.Idle;
 
   #socket: WebSocket | undefined;
   #heartbeatIntervalReference: number | undefined;
@@ -103,14 +98,6 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
       ...options,
     };
 
-    const [state, setState] = createSignal(ConnectionState.Idle);
-    this.state = state;
-    this.#setStateSetter = setState;
-
-    const [ping, setPing] = createSignal(-1);
-    this.ping = ping;
-    this.#setPing = setPing;
-
     this.disconnect = this.disconnect.bind(this);
   }
 
@@ -119,7 +106,7 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
    * @param state state
    */
   private setState(state: ConnectionState) {
-    this.#setStateSetter(state);
+    this.state = state;
     this.emit("state", state);
   }
 
@@ -217,8 +204,8 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
         return;
       case "Pong":
         clearTimeout(this.#pongTimeoutReference);
-        this.#setPing(+new Date() - event.data);
-        this.options.debug && console.debug(`[ping] ${this.ping()}ms`);
+        this.ping = +new Date() - event.data;
+        this.options.debug && console.debug(`[ping] ${this.ping}ms`);
         return;
       case "Error":
         this.#lastError = {
@@ -230,7 +217,7 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
         return;
     }
 
-    switch (this.state()) {
+    switch (this.state) {
       case ConnectionState.Connecting:
         if (event.type === "Authenticated") {
           // no-op
@@ -249,9 +236,7 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
         }
         break;
       default:
-        throw `Unreachable code. Received ${
-          event.type
-        } in state ${this.state()}.`;
+        throw `Unreachable code. Received ${event.type} in state ${this.state}.`;
     }
   }
 
