@@ -1,5 +1,3 @@
-import Long from "long";
-
 import { Channel, Client, Server, ServerMember } from "../index.js";
 
 import {
@@ -16,8 +14,8 @@ import {
  * @param b Inputs (OR'd together)
  */
 export function bitwiseAndEq(a: number, ...b: number[]) {
-  const value = b.reduce((prev, cur) => prev.or(cur), Long.fromNumber(0));
-  return value.and(a).eq(value);
+  const value = b.reduce((prev, cur) => prev | BigInt(cur), 0n);
+  return (value & BigInt(a)) === value;
 }
 
 /**
@@ -33,7 +31,7 @@ export function calculatePermission(
      * Pretend to be another ServerMember
      */
     member?: ServerMember;
-  }
+  },
 ): number {
   const user = options?.member ? options?.member.user : client.user;
   if (user?.privileged) {
@@ -55,26 +53,26 @@ export function calculatePermission(
       if (!member) return 0;
 
       // 3. Apply allows from default_permissions.
-      let perm = Long.fromNumber(target.defaultPermissions);
+      let perm = BigInt(target.defaultPermissions);
 
       // 4. If user has roles, iterate in order.
       if (member.roles && target.roles) {
         // 5. Apply allows and denies from roles.
         const permissions = member.orderedRoles.map(
-          (role) => role.permissions ?? { a: 0, d: 0 }
+          (role) => role.permissions ?? { a: 0, d: 0 },
         );
 
         for (const permission of permissions) {
-          perm = perm.or(permission.a).and(Long.fromNumber(permission.d).not());
+          perm = (perm | BigInt(permission.a)) & (~BigInt(permission.d));
         }
       }
 
       // 5. Revoke permissions if ServerMember is timed out.
       if (member.timeout && member.timeout > new Date()) {
-        perm = perm.and(ALLOW_IN_TIMEOUT);
+        perm = perm & BigInt(ALLOW_IN_TIMEOUT);
       }
 
-      return perm.toNumber();
+      return Number(perm);
     }
   } else {
     // 1. Check channel type.
@@ -121,15 +119,14 @@ export function calculatePermission(
           if (!member) return 0;
 
           // 5. Calculate server base permissions.
-          let perm = Long.fromNumber(
-            calculatePermission(client, server, options)
+          let perm = BigInt(
+            calculatePermission(client, server, options),
           );
 
           // 6. Apply default allows and denies for channel.
           if (target.defaultPermissions) {
-            perm = perm
-              .or(target.defaultPermissions.a)
-              .and(Long.fromNumber(target.defaultPermissions.d).not());
+            perm = (perm | BigInt(target.defaultPermissions.a)) &
+              (~BigInt(target.defaultPermissions.d));
           }
 
           // 7. If user has roles, iterate in order.
@@ -140,19 +137,17 @@ export function calculatePermission(
             for (const id of roles) {
               const override = target.rolePermissions[id];
               if (override) {
-                perm = perm
-                  .or(override.a)
-                  .and(Long.fromNumber(override.d).not());
+                perm = (perm & BigInt(override.a)) & (~BigInt(override.d));
               }
             }
           }
 
           // 8. Revoke permissions if ServerMember is timed out.
           if (member.timeout && member.timeout > new Date()) {
-            perm = perm.and(ALLOW_IN_TIMEOUT);
+            perm = perm & BigInt(ALLOW_IN_TIMEOUT);
           }
 
-          return perm.toNumber();
+          return Number(perm);
         }
       }
     }
