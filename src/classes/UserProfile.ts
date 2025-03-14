@@ -26,14 +26,14 @@ export class UserProfile {
   /**
    * URL to the user's banner
    */
-  get bannerURL() {
+  get bannerURL(): string | undefined {
     return this.banner?.createFileURL();
   }
 
   /**
    * URL to the user's animated banner
    */
-  get animatedBannerURL() {
+  get animatedBannerURL(): string | undefined {
     return this.banner?.createFileURL(true);
   }
 }

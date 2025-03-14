@@ -29,21 +29,21 @@ export class MFA {
    * @param key key to set
    * @param value boolean
    */
-  #setStore(key: keyof MultiFactorStatus, value: boolean) {
+  #setStore(key: keyof MultiFactorStatus, value: boolean): void {
     this.#store[key] = value;
   }
 
   /**
    * Whether authenticator app is enabled
    */
-  get authenticatorEnabled() {
+  get authenticatorEnabled(): boolean {
     return this.#store.totp_mfa;
   }
 
   /**
    * Whether recovery codes are enabled
    */
-  get recoveryEnabled() {
+  get recoveryEnabled(): boolean {
     return this.#store.recovery_active;
   }
 
@@ -63,17 +63,19 @@ export class MFA {
    * @param params
    * @returns Token
    */
-  createTicket(params: MFAResponse) {
-    return this.#client.api
-      .put("/auth/mfa/ticket", params)
-      .then((ticket) => new MFATicket(this.#client, ticket, this.#setStore));
+  async createTicket(params: MFAResponse): Promise<MFATicket> {
+    return new MFATicket(
+      this.#client,
+      await this.#client.api.put("/auth/mfa/ticket", params),
+      this.#setStore,
+    );
   }
 
   /**
    * Enable authenticator using token generated from secret found earlier
    * @param token Token
    */
-  async enableAuthenticator(token: string) {
+  async enableAuthenticator(token: string): Promise<void> {
     await this.#client.api.put("/auth/mfa/totp", { totp_code: token });
     this.#setStore("totp_mfa", true);
   }
@@ -107,14 +109,14 @@ export class MFATicket {
   /**
    * Token
    */
-  get token() {
+  get token(): string {
     return this.#ticket.token;
   }
 
   /**
    * Use the ticket
    */
-  #consume() {
+  #consume(): void {
     if (this.#used) throw "Already used this ticket!";
     this.#used = true;
   }
@@ -123,7 +125,7 @@ export class MFATicket {
    * Fetch recovery codes
    * @returns List of codes
    */
-  fetchRecoveryCodes() {
+  fetchRecoveryCodes(): Promise<string[]> {
     this.#consume();
     return this.#client.api.post("/auth/mfa/recovery", undefined, {
       headers: {
@@ -136,7 +138,7 @@ export class MFATicket {
    * Generate new set of recovery codes
    * @returns List of codes
    */
-  async generateRecoveryCodes() {
+  async generateRecoveryCodes(): Promise<string[]> {
     this.#consume();
 
     const codes = await this.#client.api.patch(
@@ -157,21 +159,20 @@ export class MFATicket {
    * Generate new authenticator secret
    * @returns Secret
    */
-  generateAuthenticatorSecret() {
+  async generateAuthenticatorSecret(): Promise<string> {
     this.#consume();
-    return this.#client.api
-      .post("/auth/mfa/totp", undefined, {
-        headers: {
-          "X-MFA-Ticket": this.token,
-        },
-      })
-      .then((response) => response.secret);
+    const response = await this.#client.api.post("/auth/mfa/totp", undefined, {
+      headers: {
+        "X-MFA-Ticket": this.token,
+      },
+    });
+    return response.secret;
   }
 
   /**
    * Disable authenticator
    */
-  async disableAuthenticator() {
+  async disableAuthenticator(): Promise<void> {
     this.#consume();
 
     await this.#client.api.delete("/auth/mfa/totp", undefined, {
@@ -186,7 +187,7 @@ export class MFATicket {
   /**
    * Disable account
    */
-  disableAccount() {
+  disableAccount(): Promise<void> {
     this.#consume();
     return this.#client.api.post("/auth/account/disable", undefined, {
       headers: {
@@ -198,7 +199,7 @@ export class MFATicket {
   /**
    * Delete account
    */
-  deleteAccount() {
+  deleteAccount(): Promise<void> {
     this.#consume();
     return this.#client.api.post("/auth/account/delete", undefined, {
       headers: {

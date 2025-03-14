@@ -7,6 +7,7 @@ import {
 import { Client } from "../Client.js";
 
 import { BannedUser } from "./BannedUser.js";
+import { Server } from "./Server.js";
 
 /**
  * Server Ban
@@ -32,14 +33,14 @@ export class ServerBan {
   /**
    * Server
    */
-  get server() {
+  get server(): Server | undefined {
     return this.client.servers.get(this.id.server);
   }
 
   /**
    * Remove this server ban
    */
-  async pardon() {
+  async pardon(): Promise<void> {
     await this.client.api.delete(
       `/servers/${this.id.server as ""}/bans/${this.id.user as ""}`,
     );

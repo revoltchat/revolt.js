@@ -187,7 +187,7 @@ export async function handleEvent(
   client: Client,
   event: ServerMessage,
   setReady: (value: boolean) => void,
-) {
+): Promise<void> {
   if (client.options.debug) {
     console.debug("[S->C]", event);
   }

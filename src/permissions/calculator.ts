@@ -16,7 +16,7 @@ import {
  * @param a Input A
  * @param b Inputs (OR'd together)
  */
-export function bitwiseAndEq(a: number, ...b: number[]) {
+export function bitwiseAndEq(a: number, ...b: number[]): boolean {
   const value = b.reduce((prev, cur) => prev | BigInt(cur), 0n);
   return (value & BigInt(a)) === value;
 }

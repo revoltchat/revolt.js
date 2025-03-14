@@ -121,7 +121,7 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
    * Set the current state
    * @param state state
    */
-  private setState(state: ConnectionState) {
+  private setState(state: ConnectionState): void {
     this.state = state;
     this.emit("state", state);
   }
@@ -131,7 +131,7 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
    * @param uri WebSocket URI
    * @param token Authentication token
    */
-  connect(uri: string, token: string) {
+  connect(uri: string, token: string): void {
     this.disconnect();
     this.#lastError = undefined;
     this.setState(ConnectionState.Connecting);
@@ -183,7 +183,7 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
   /**
    * Disconnect the websocket client.
    */
-  disconnect() {
+  disconnect(): void {
     if (!this.#socket) return;
     clearInterval(this.#heartbeatIntervalReference);
     clearInterval(this.#connectTimeoutReference);
@@ -197,7 +197,7 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
    * Send an event to the server.
    * @param event Event
    */
-  send(event: EventProtocol<T>["client"]) {
+  send(event: EventProtocol<T>["client"]): void {
     if (this.options.debug) console.debug("[C->S]", event);
     if (!this.#socket) throw "Socket closed, trying to send.";
     this.#socket.send(JSON.stringify(event));
@@ -207,7 +207,7 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
    * Handle events intended for client before passing them along.
    * @param event Event
    */
-  handle(event: EventProtocol<T>["server"]) {
+  handle(event: EventProtocol<T>["server"]): void {
     if (this.options.debug) console.debug("[S->C]", event);
     switch (event.type) {
       case "Ping":
@@ -257,7 +257,10 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
   /**
    * Last error encountered by events client
    */
-  get lastError() {
+  get lastError():
+    | { type: "socket"; data: unknown }
+    | { type: "revolt"; data: Error }
+    | undefined {
     return this.#lastError;
   }
 }

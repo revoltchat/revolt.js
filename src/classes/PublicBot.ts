@@ -39,7 +39,7 @@ export class PublicBot {
    * Add the bot to a server
    * @param server Server
    */
-  addToServer(server: Server | string) {
+  addToServer(server: Server | string): void {
     this.#client.api.post(`/bots/${this.id as ""}/invite`, {
       server: server instanceof Server ? server.id : server,
     });
@@ -49,7 +49,7 @@ export class PublicBot {
    * Add the bot to a group
    * @param group Group
    */
-  addToGroup(group: Channel | string) {
+  addToGroup(group: Channel | string): void {
     // TODO: should use GroupChannel once that is added
     this.#client.api.post(`/bots/${this.id as ""}/invite`, {
       group: group instanceof Channel ? group.id : group,

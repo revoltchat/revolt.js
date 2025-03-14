@@ -23,35 +23,35 @@ export class Session {
    * Convert to string
    * @returns String
    */
-  toString() {
+  toString(): string {
     return this.name;
   }
 
   /**
    * Whether this object exists
    */
-  get $exists() {
+  get $exists(): boolean {
     return !!this.#collection.getUnderlyingObject(this.id).id;
   }
 
   /**
    * Time when this session was created
    */
-  get createdAt() {
+  get createdAt(): Date {
     return new Date(decodeTime(this.id));
   }
 
   /**
    * Whether this is the current session
    */
-  get current() {
+  get current(): boolean {
     return this.id === this.#collection.client.sessionId;
   }
 
   /**
    * Name
    */
-  get name() {
+  get name(): string {
     return this.#collection.getUnderlyingObject(this.id).name;
   }
 
@@ -59,7 +59,7 @@ export class Session {
    * Rename a session
    * @param name New name
    */
-  async rename(name: string) {
+  async rename(name: string): Promise<void> {
     await this.#collection.client.api.patch(`/auth/session/${this.id}`, {
       friendly_name: name,
     });
@@ -70,7 +70,7 @@ export class Session {
   /**
    * Delete a session
    */
-  async delete() {
+  async delete(): Promise<void> {
     await this.#collection.client.api.delete(`/auth/session/${this.id as ""}`);
     this.#collection.delete(this.id);
   }

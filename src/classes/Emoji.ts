@@ -1,6 +1,9 @@
+import { EmojiParent } from "revolt-api";
 import { decodeTime } from "ulid";
 
 import { EmojiCollection } from "../collections/EmojiCollection.js";
+
+import { User } from "./User.js";
 
 /**
  * Emoji Class
@@ -23,35 +26,35 @@ export class Emoji {
    * Convert to string
    * @returns String
    */
-  toString() {
+  toString(): string {
     return `:${this.id}:`;
   }
 
   /**
    * Whether this object exists
    */
-  get $exists() {
+  get $exists(): boolean {
     return !!this.#collection.getUnderlyingObject(this.id).id;
   }
 
   /**
    * Time when this emoji was created
    */
-  get createdAt() {
+  get createdAt(): Date {
     return new Date(decodeTime(this.id));
   }
 
   /**
    * Information about the parent of this emoji
    */
-  get parent() {
+  get parent(): EmojiParent {
     return this.#collection.getUnderlyingObject(this.id).parent;
   }
 
   /**
    * Creator of the emoji
    */
-  get creator() {
+  get creator(): User | undefined {
     return this.#collection.client.users.get(
       this.#collection.getUnderlyingObject(this.id).creatorId,
     );
@@ -60,28 +63,28 @@ export class Emoji {
   /**
    * Name
    */
-  get name() {
+  get name(): string {
     return this.#collection.getUnderlyingObject(this.id).name;
   }
 
   /**
    * Whether the emoji is animated
    */
-  get animated() {
+  get animated(): boolean {
     return this.#collection.getUnderlyingObject(this.id).animated;
   }
 
   /**
    * Whether the emoji is marked as mature
    */
-  get mature() {
+  get mature(): boolean {
     return this.#collection.getUnderlyingObject(this.id).nsfw;
   }
 
   /**
    * Delete Emoji
    */
-  async delete() {
+  async delete(): Promise<void> {
     await this.#collection.client.api.delete(`/custom/emoji/${this.id}`);
 
     const emoji = this.#collection.getUnderlyingObject(this.id);

@@ -74,7 +74,7 @@ export class ImageEmbed extends MessageEmbed {
   /**
    * Proxied image URL
    */
-  get proxiedURL() {
+  get proxiedURL(): string | undefined {
     return this.client?.proxyFile(this.url);
   }
 }
@@ -103,7 +103,7 @@ export class VideoEmbed extends MessageEmbed {
   /**
    * Proxied video URL
    */
-  get proxiedURL() {
+  get proxiedURL(): string | undefined {
     return this.client?.proxyFile(this.url);
   }
 }
@@ -149,14 +149,14 @@ export class WebsiteEmbed extends MessageEmbed {
   /**
    * Proxied icon URL
    */
-  get proxiedIconURL() {
+  get proxiedIconURL(): string | undefined {
     return this.iconUrl ? this.client?.proxyFile(this.iconUrl) : undefined;
   }
 
   /**
    * If special content is present, generate the embed URL
    */
-  get embedURL() {
+  get embedURL(): string | undefined {
     switch (this.specialContent?.type) {
       case "YouTube": {
         let timestamp = "";
@@ -221,7 +221,7 @@ export class TextEmbed extends MessageEmbed {
   /**
    * Proxied icon URL
    */
-  get proxiedIconURL() {
+  get proxiedIconURL(): string | undefined {
     return this.iconUrl ? this.client?.proxyFile(this.iconUrl) : undefined;
   }
 }

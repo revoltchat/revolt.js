@@ -1,9 +1,17 @@
-import { DataEditUser, Presence } from "revolt-api";
+import {
+  User as APIUser,
+  DataEditUser,
+  Presence,
+  RelationshipStatus,
+} from "revolt-api";
 import { decodeTime } from "ulid";
 
 import { UserCollection } from "../collections/UserCollection.js";
+import { UserBadges, UserFlags } from "../hydration/user.js";
 import { U32_MAX, UserPermission } from "../permissions/definitions.js";
 
+import { Channel } from "./Channel.js";
+import { File } from "./File.js";
 import { UserProfile } from "./UserProfile.js";
 
 /**
@@ -27,42 +35,42 @@ export class User {
    * Write to string as a user mention
    * @returns Formatted String
    */
-  toString() {
+  toString(): string {
     return `<@${this.id}>`;
   }
 
   /**
    * Whether this object exists
    */
-  get $exists() {
+  get $exists(): boolean {
     return !!this.#collection.getUnderlyingObject(this.id).id;
   }
 
   /**
    * Time when this user created their account
    */
-  get createdAt() {
+  get createdAt(): Date {
     return new Date(decodeTime(this.id));
   }
 
   /**
    * Username
    */
-  get username() {
+  get username(): string {
     return this.#collection.getUnderlyingObject(this.id).username;
   }
 
   /**
    * Discriminator
    */
-  get discriminator() {
+  get discriminator(): string {
     return this.#collection.getUnderlyingObject(this.id).discriminator;
   }
 
   /**
    * Display Name
    */
-  get displayName() {
+  get displayName(): string {
     return (
       this.#collection.getUnderlyingObject(this.id).displayName ??
       this.#collection.getUnderlyingObject(this.id).username
@@ -72,21 +80,23 @@ export class User {
   /**
    * Avatar
    */
-  get avatar() {
+  get avatar(): File | undefined {
     return this.#collection.getUnderlyingObject(this.id).avatar;
   }
 
   /**
    * Badges
    */
-  get badges() {
+  get badges(): UserBadges {
     return this.#collection.getUnderlyingObject(this.id).badges;
   }
 
   /**
    * User Status
    */
-  get status() {
+  get status():
+    | { text?: string | null; presence?: Presence | null }
+    | undefined {
     // TODO: issue with API, upstream fix required #319
     if (!this.online) {
       return { text: undefined, presence: "Invisible" as const };
@@ -97,70 +107,70 @@ export class User {
   /**
    * Relationship with user
    */
-  get relationship() {
+  get relationship(): RelationshipStatus {
     return this.#collection.getUnderlyingObject(this.id).relationship;
   }
 
   /**
    * Whether the user is online
    */
-  get online() {
+  get online(): boolean {
     return this.#collection.getUnderlyingObject(this.id).online;
   }
 
   /**
    * Whether the user is privileged
    */
-  get privileged() {
+  get privileged(): boolean {
     return this.#collection.getUnderlyingObject(this.id).privileged;
   }
 
   /**
    * Flags
    */
-  get flags() {
+  get flags(): UserFlags {
     return this.#collection.getUnderlyingObject(this.id).flags;
   }
 
   /**
    * Bot information
    */
-  get bot() {
+  get bot(): { owner: string } | undefined {
     return this.#collection.getUnderlyingObject(this.id).bot;
   }
 
   /**
    * Whether this user is ourselves
    */
-  get self() {
+  get self(): boolean {
     return this.#collection.client.user === this;
   }
 
   /**
    * URL to the user's default avatar
    */
-  get defaultAvatarURL() {
+  get defaultAvatarURL(): string {
     return `${this.#collection.client.options.baseURL}/users/${this.id}/default_avatar`;
   }
 
   /**
    * URL to the user's avatar
    */
-  get avatarURL() {
+  get avatarURL(): string {
     return this.avatar?.createFileURL() ?? this.defaultAvatarURL;
   }
 
   /**
    * URL to the user's animated avatar
    */
-  get animatedAvatarURL() {
+  get animatedAvatarURL(): string {
     return this.avatar?.createFileURL(true) ?? this.defaultAvatarURL;
   }
 
   /**
    * Presence
    */
-  get presence() {
+  get presence(): Presence {
     return this.online ? (this.status?.presence ?? "Online") : "Invisible";
   }
 
@@ -169,7 +179,9 @@ export class User {
    * @param translate Translation function
    * @returns Status message
    */
-  statusMessage(translate: (presence: Presence) => string = (a) => a) {
+  statusMessage(
+    translate: (presence: Presence) => string = (a) => a,
+  ): string | undefined {
     return this.online
       ? (this.status?.text ??
           (this.presence === "Focus" ? translate("Focus") : undefined))
@@ -179,7 +191,7 @@ export class User {
   /**
    * Permissions against this user
    */
-  get permission() {
+  get permission(): number {
     let permissions = 0;
     switch (this.relationship) {
       case "Friend":
@@ -217,7 +229,7 @@ export class User {
    * Edit the user
    * @param data Changes
    */
-  async edit(data: DataEditUser) {
+  async edit(data: DataEditUser): Promise<void> {
     await this.#collection.client.api.patch(
       `/users/${
         this.id === this.#collection.client.user?.id ? "@me" : this.id
@@ -231,7 +243,7 @@ export class User {
    * @param username New username
    * @param password Current password
    */
-  async changeUsername(username: string, password: string) {
+  async changeUsername(username: string, password: string): Promise<APIUser> {
     return await this.#collection.client.api.patch("/users/@me/username", {
       username,
       password,
@@ -242,7 +254,7 @@ export class User {
    * Open a DM with a user
    * @returns DM Channel
    */
-  async openDM() {
+  async openDM(): Promise<Channel> {
     let dm = [...this.#collection.client.channels.values()].find(
       (x) => x.type === "DirectMessage" && x.recipient == this,
     );
@@ -269,7 +281,7 @@ export class User {
   /**
    * Send a friend request to a user
    */
-  async addFriend() {
+  async addFriend(): Promise<User> {
     const user = await this.#collection.client.api.post(`/users/friend`, {
       username: this.username + "#" + this.discriminator,
     });
@@ -280,21 +292,21 @@ export class User {
   /**
    * Remove a user from the friend list
    */
-  async removeFriend() {
+  async removeFriend(): Promise<void> {
     await this.#collection.client.api.delete(`/users/${this.id as ""}/friend`);
   }
 
   /**
    * Block a user
    */
-  async blockUser() {
+  async blockUser(): Promise<void> {
     await this.#collection.client.api.put(`/users/${this.id as ""}/block`);
   }
 
   /**
    * Unblock a user
    */
-  async unblockUser() {
+  async unblockUser(): Promise<void> {
     await this.#collection.client.api.delete(`/users/${this.id as ""}/block`);
   }
 
@@ -302,7 +314,7 @@ export class User {
    * Fetch the profile of a user
    * @returns The profile of the user
    */
-  async fetchProfile() {
+  async fetchProfile(): Promise<UserProfile> {
     return new UserProfile(
       this.#collection.client,
       await this.#collection.client.api.get(`/users/${this.id as ""}/profile`),
@@ -313,7 +325,7 @@ export class User {
    * Fetch the mutual connections of the current user and a target user
    * @returns The mutual connections of the current user and a target user
    */
-  async fetchMutual() {
+  async fetchMutual(): Promise<{ users: string[]; servers: string[] }> {
     return await this.#collection.client.api.get(
       `/users/${this.id as ""}/mutual`,
     );

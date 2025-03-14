@@ -20,21 +20,21 @@ export class ChannelUnread {
   /**
    * Whether this object exists
    */
-  get $exists() {
+  get $exists(): boolean {
     return !!this.#collection.getUnderlyingObject(this.id).id;
   }
 
   /**
    * Last read message id
    */
-  get lastMessageId() {
+  get lastMessageId(): string | undefined {
     return this.#collection.getUnderlyingObject(this.id).lastMessageId;
   }
 
   /**
    * List of message IDs that we were mentioned in
    */
-  get messageMentionIds() {
+  get messageMentionIds(): Set<string> {
     return this.#collection.getUnderlyingObject(this.id).messageMentionIds;
   }
 }

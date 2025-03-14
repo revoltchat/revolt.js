@@ -1,4 +1,5 @@
 import {
+  Message as APIMessage,
   MessageWebhook as APIMessageWebhook,
   DataEditMessage,
   DataMessageSend,
@@ -8,7 +9,13 @@ import { decodeTime } from "ulid";
 import { Client } from "../Client.js";
 import { MessageCollection } from "../collections/MessageCollection.js";
 
+import { Channel } from "./Channel.js";
 import { File } from "./File.js";
+import { MessageEmbed } from "./MessageEmbed.js";
+import { Server } from "./Server.js";
+import { ServerMember } from "./ServerMember.js";
+import { SystemMessage } from "./SystemMessage.js";
+import { User } from "./User.js";
 
 /**
  * Message Class
@@ -30,49 +37,49 @@ export class Message {
   /**
    * Whether this object exists
    */
-  get $exists() {
+  get $exists(): boolean {
     return !!this.#collection.getUnderlyingObject(this.id).id;
   }
 
   /**
    * Time when this message was posted
    */
-  get createdAt() {
+  get createdAt(): Date {
     return new Date(decodeTime(this.id));
   }
 
   /**
    * Absolute pathname to this message in the client
    */
-  get path() {
+  get path(): string {
     return `${this.channel?.path}/${this.id}`;
   }
 
   /**
    * URL to this message
    */
-  get url() {
+  get url(): string {
     return this.#collection.client.configuration?.app + this.path;
   }
 
   /**
    * Nonce value
    */
-  get nonce() {
+  get nonce(): string | undefined {
     return this.#collection.getUnderlyingObject(this.id).nonce;
   }
 
   /**
    * Id of channel this message was sent in
    */
-  get channelId() {
+  get channelId(): string {
     return this.#collection.getUnderlyingObject(this.id).channelId;
   }
 
   /**
    * Channel this message was sent in
    */
-  get channel() {
+  get channel(): Channel | undefined {
     return this.#collection.client.channels.get(
       this.#collection.getUnderlyingObject(this.id).channelId,
     );
@@ -81,14 +88,14 @@ export class Message {
   /**
    * Server this message was sent in
    */
-  get server() {
+  get server(): Server | undefined {
     return this.channel?.server;
   }
 
   /**
    * Member this message was sent by
    */
-  get member() {
+  get member(): ServerMember | undefined {
     return this.#collection.client.serverMembers.getByKey({
       server: this.channel?.serverId as string,
       user: this.authorId!,
@@ -98,14 +105,14 @@ export class Message {
   /**
    * Id of user or webhook this message was sent by
    */
-  get authorId() {
+  get authorId(): string | undefined {
     return this.#collection.getUnderlyingObject(this.id).authorId;
   }
 
   /**
    * User this message was sent by
    */
-  get author() {
+  get author(): User | undefined {
     return this.#collection.client.users.get(
       this.#collection.getUnderlyingObject(this.id).authorId!,
     );
@@ -114,98 +121,98 @@ export class Message {
   /**
    * Webhook information for this message
    */
-  get webhook() {
+  get webhook(): MessageWebhook | undefined {
     return this.#collection.getUnderlyingObject(this.id).webhook!;
   }
 
   /**
    * Content
    */
-  get content() {
+  get content(): string {
     return this.#collection.getUnderlyingObject(this.id).content ?? "";
   }
 
   /**
    * System message content
    */
-  get systemMessage() {
+  get systemMessage(): SystemMessage | undefined {
     return this.#collection.getUnderlyingObject(this.id).systemMessage;
   }
 
   /**
    * Attachments
    */
-  get attachments() {
+  get attachments(): File[] | undefined {
     return this.#collection.getUnderlyingObject(this.id).attachments;
   }
 
   /**
    * Time at which this message was edited
    */
-  get editedAt() {
+  get editedAt(): Date | undefined {
     return this.#collection.getUnderlyingObject(this.id).editedAt;
   }
 
   /**
    * Embeds
    */
-  get embeds() {
+  get embeds(): MessageEmbed[] | undefined {
     return this.#collection.getUnderlyingObject(this.id).embeds;
   }
 
   /**
    * IDs of users this message mentions
    */
-  get mentionIds() {
+  get mentionIds(): string[] | undefined {
     return this.#collection.getUnderlyingObject(this.id).mentionIds;
   }
 
   /**
    * Whether this message mentions us
    */
-  get mentioned() {
+  get mentioned(): boolean | undefined {
     return this.mentionIds?.includes(this.#collection.client.user!.id);
   }
 
   /**
    * IDs of messages this message replies to
    */
-  get replyIds() {
+  get replyIds(): string[] | undefined {
     return this.#collection.getUnderlyingObject(this.id).replyIds;
   }
 
   /**
    * Reactions
    */
-  get reactions() {
+  get reactions(): Map<string, Set<string>> {
     return this.#collection.getUnderlyingObject(this.id).reactions;
   }
 
   /**
    * Interactions
    */
-  get interactions() {
+  get interactions(): APIMessage["interactions"] {
     return this.#collection.getUnderlyingObject(this.id).interactions;
   }
 
   /**
    * Masquerade
    */
-  get masquerade() {
+  get masquerade(): APIMessage["masquerade"] {
     return this.#collection.getUnderlyingObject(this.id).masquerade;
   }
 
   /**
    * Flags
    */
-  get flags() {
+  get flags(): number {
     return this.#collection.getUnderlyingObject(this.id).flags || 0;
   }
 
   /**
    * Get the username for this message
    */
-  get username() {
+  get username(): string | undefined {
     const webhook = this.webhook;
 
     return (
@@ -219,14 +226,14 @@ export class Message {
   /**
    * Get the role colour for this message
    */
-  get roleColour() {
+  get roleColour(): string | null | undefined {
     return this.masquerade?.colour ?? this.member?.roleColour;
   }
 
   /**
    * Get the avatar URL for this message
    */
-  get avatarURL() {
+  get avatarURL(): string | undefined {
     const webhook = this.webhook;
 
     return (
@@ -240,7 +247,7 @@ export class Message {
   /**
    * Get the animated avatar URL for this message
    */
-  get animatedAvatarURL() {
+  get animatedAvatarURL(): string | undefined {
     const webhook = this.webhook;
 
     return (
@@ -256,7 +263,7 @@ export class Message {
   /**
    * Avatar URL from the masquerade
    */
-  get masqueradeAvatarURL() {
+  get masqueradeAvatarURL(): string | undefined {
     const avatar = this.masquerade?.avatar;
     return avatar ? this.#collection.client.proxyFile(avatar) : undefined;
   }
@@ -264,7 +271,7 @@ export class Message {
   /**
    * Whether this message has suppressed desktop/push notifications
    */
-  get isSuppressed() {
+  get isSuppressed(): boolean {
     return (this.flags & 1) === 1;
   }
 
@@ -272,7 +279,7 @@ export class Message {
    * Edit a message
    * @param data Message edit route data
    */
-  async edit(data: DataEditMessage) {
+  async edit(data: DataEditMessage): Promise<APIMessage> {
     return await this.#collection.client.api.patch(
       `/channels/${this.channelId as ""}/messages/${this.id as ""}`,
       data,
@@ -282,7 +289,7 @@ export class Message {
   /**
    * Delete a message
    */
-  async delete() {
+  async delete(): Promise<void> {
     return await this.#collection.client.api.delete(
       `/channels/${this.channelId as ""}/messages/${this.id as ""}`,
     );
@@ -291,7 +298,7 @@ export class Message {
   /**
    * Acknowledge this message as read
    */
-  ack() {
+  ack(): void {
     this.channel?.ack(this);
   }
 
@@ -305,7 +312,7 @@ export class Message {
           nonce?: string;
         }),
     mention = true,
-  ) {
+  ): Promise<Message> | undefined {
     const obj = typeof data === "string" ? { content: data } : data;
     return this.channel?.sendMessage({
       ...obj,
@@ -316,7 +323,7 @@ export class Message {
   /**
    * Clear all reactions from this message
    */
-  async clearReactions() {
+  async clearReactions(): Promise<void> {
     return await this.#collection.client.api.delete(
       `/channels/${this.channelId as ""}/messages/${this.id as ""}/reactions`,
     );
@@ -326,7 +333,7 @@ export class Message {
    * React to a message
    * @param emoji Unicode or emoji ID
    */
-  async react(emoji: string) {
+  async react(emoji: string): Promise<void> {
     return await this.#collection.client.api.put(
       `/channels/${this.channelId as ""}/messages/${this.id as ""}/reactions/${
         emoji as ""
@@ -338,7 +345,7 @@ export class Message {
    * Un-react from a message
    * @param emoji Unicode or emoji ID
    */
-  async unreact(emoji: string) {
+  async unreact(emoji: string): Promise<void> {
     return await this.#collection.client.api.delete(
       `/channels/${this.channelId as ""}/messages/${this.id as ""}/reactions/${
         emoji as ""
@@ -382,7 +389,7 @@ export class MessageWebhook {
   /**
    * Get the avatar URL for this message webhook
    */
-  get avatarURL() {
+  get avatarURL(): string | undefined {
     return (
       this.avatar?.createFileURL() ??
       `${this.#client.options.baseURL}/users/${this.id}/default_avatar`

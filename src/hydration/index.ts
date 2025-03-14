@@ -99,10 +99,10 @@ export function hydrate<T extends keyof Hydrators>(
   input: Partial<ExtractInput<Hydrators[T]>>,
   context: unknown,
   initial?: boolean,
-) {
+): ExtractOutput<Hydrators[T]> {
   return hydrateInternal(
     hydrators[type] as never,
     initial ? { ...hydrators[type].initialHydration(), ...input } : input,
     context,
-  ) as ExtractOutput<Hydrators[T]>;
+  );
 }

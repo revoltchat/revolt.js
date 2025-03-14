@@ -4,6 +4,7 @@ import { Client } from "../Client.js";
 import { ServerFlags } from "../hydration/server.js";
 
 import { File } from "./File.js";
+import { Server } from "./Server.js";
 
 /**
  * Public Channel Invite
@@ -95,7 +96,7 @@ export class ServerPublicInvite extends PublicChannelInvite {
   /**
    * Join the server
    */
-  async join() {
+  async join(): Promise<Server> {
     const existingServer = this.client!.servers.get(this.serverId);
     if (existingServer) return existingServer;
 

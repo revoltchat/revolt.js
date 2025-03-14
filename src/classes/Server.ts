@@ -1,4 +1,5 @@
 import type {
+  Server as APIServer,
   AllMemberResponse,
   BannedUser,
   Category,
@@ -8,11 +9,13 @@ import type {
   DataEditRole,
   DataEditServer,
   Override,
+  Role,
 } from "revolt-api";
 import { decodeTime } from "ulid";
 
 import { ServerCollection } from "../collections/ServerCollection.js";
 import { hydrate } from "../hydration/index.js";
+import { ServerFlags } from "../hydration/server.js";
 import {
   bitwiseAndEq,
   calculatePermission,
@@ -20,6 +23,8 @@ import {
 import { Permission } from "../permissions/definitions.js";
 
 import { Channel } from "./Channel.js";
+import { Emoji } from "./Emoji.js";
+import { File } from "./File.js";
 import { ChannelInvite } from "./Invite.js";
 import { ServerBan } from "./ServerBan.js";
 import { ServerMember } from "./ServerMember.js";
@@ -46,35 +51,35 @@ export class Server {
    * Convert to string
    * @returns String
    */
-  toString() {
+  toString(): string {
     return `<%${this.id}>`;
   }
 
   /**
    * Whether this object exists
    */
-  get $exists() {
+  get $exists(): boolean {
     return !!this.#collection.getUnderlyingObject(this.id).id;
   }
 
   /**
    * Time when this server was created
    */
-  get createdAt() {
+  get createdAt(): Date {
     return new Date(decodeTime(this.id));
   }
 
   /**
    * Owner's user ID
    */
-  get ownerId() {
+  get ownerId(): string {
     return this.#collection.getUnderlyingObject(this.id).ownerId;
   }
 
   /**
    * Owner
    */
-  get owner() {
+  get owner(): User | undefined {
     return this.#collection.client.users.get(
       this.#collection.getUnderlyingObject(this.id).ownerId,
     );
@@ -83,42 +88,42 @@ export class Server {
   /**
    * Name
    */
-  get name() {
+  get name(): string {
     return this.#collection.getUnderlyingObject(this.id).name;
   }
 
   /**
    * Description
    */
-  get description() {
+  get description(): string | undefined {
     return this.#collection.getUnderlyingObject(this.id).description;
   }
 
   /**
    * Icon
    */
-  get icon() {
+  get icon(): File | undefined {
     return this.#collection.getUnderlyingObject(this.id).icon;
   }
 
   /**
    * Banner
    */
-  get banner() {
+  get banner(): File | undefined {
     return this.#collection.getUnderlyingObject(this.id).banner;
   }
 
   /**
    * Channel IDs
    */
-  get channelIds() {
+  get channelIds(): Set<string> {
     return this.#collection.getUnderlyingObject(this.id).channelIds;
   }
 
   /**
    * Channels
    */
-  get channels() {
+  get channels(): Channel[] {
     return Array.from(
       this.#collection.getUnderlyingObject(this.id).channelIds.values(),
     )
@@ -129,56 +134,56 @@ export class Server {
   /**
    * Categories
    */
-  get categories() {
+  get categories(): APIServer["categories"] {
     return this.#collection.getUnderlyingObject(this.id).categories;
   }
 
   /**
    * System message channels
    */
-  get systemMessages() {
+  get systemMessages(): APIServer["system_messages"] {
     return this.#collection.getUnderlyingObject(this.id).systemMessages;
   }
 
   /**
    * Roles
    */
-  get roles() {
+  get roles(): Map<string, Role> {
     return this.#collection.getUnderlyingObject(this.id).roles;
   }
 
   /**
    * Default permissions
    */
-  get defaultPermissions() {
+  get defaultPermissions(): number {
     return this.#collection.getUnderlyingObject(this.id).defaultPermissions;
   }
 
   /**
    * Server flags
    */
-  get flags() {
+  get flags(): ServerFlags {
     return this.#collection.getUnderlyingObject(this.id).flags;
   }
 
   /**
    * Whether analytics are enabled for this server
    */
-  get analytics() {
+  get analytics(): boolean {
     return this.#collection.getUnderlyingObject(this.id).analytics;
   }
 
   /**
    * Whether this server is publicly discoverable
    */
-  get discoverable() {
+  get discoverable(): boolean {
     return this.#collection.getUnderlyingObject(this.id).discoverable;
   }
 
   /**
    * Whether this server is marked as mature
    */
-  get mature() {
+  get mature(): boolean {
     return this.#collection.getUnderlyingObject(this.id).nsfw;
   }
 
@@ -251,7 +256,7 @@ export class Server {
    * ranking roles. This is dictated by the "rank" property
    * which is smaller for higher priority roles.
    */
-  get orderedRoles() {
+  get orderedRoles(): Role[] {
     const roles = this.roles;
     return roles
       ? [...roles.entries()]
@@ -264,7 +269,7 @@ export class Server {
    * Check whether the server is currently unread
    * @returns Whether the server is unread
    */
-  get unread() {
+  get unread(): Channel | undefined {
     return this.channels.find((channel) => channel.unread);
   }
 
@@ -272,7 +277,7 @@ export class Server {
    * Find all message IDs of unread messages
    * @returns Array of message IDs which are unread
    */
-  get mentions() {
+  get mentions(): string[] {
     const arr = this.channels.map((channel) =>
       Array.from(channel.mentions?.values() ?? []),
     );
@@ -283,28 +288,28 @@ export class Server {
   /**
    * URL to the server's icon
    */
-  get iconURL() {
+  get iconURL(): string | undefined {
     return this.icon?.createFileURL();
   }
 
   /**
    * URL to the server's animated icon
    */
-  get animatedIconURL() {
+  get animatedIconURL(): string | undefined {
     return this.icon?.createFileURL(true);
   }
 
   /**
    * URL to the server's banner
    */
-  get bannerURL() {
+  get bannerURL(): string | undefined {
     return this.banner?.createFileURL();
   }
 
   /**
    * Own member object for this server
    */
-  get member() {
+  get member(): ServerMember | undefined {
     return this.#collection.client.serverMembers.getByKey({
       server: this.id,
       user: this.#collection.client.user!.id,
@@ -314,7 +319,7 @@ export class Server {
   /**
    * Permission the currently authenticated user has against this server
    */
-  get permission() {
+  get permission(): number {
     return calculatePermission(this.#collection.client, this);
   }
 
@@ -323,7 +328,7 @@ export class Server {
    * @param permission Permission Names
    * @returns Whether we have this permission
    */
-  havePermission(...permission: (keyof typeof Permission)[]) {
+  havePermission(...permission: (keyof typeof Permission)[]): boolean {
     return bitwiseAndEq(
       this.permission,
       ...permission.map((x) => Permission[x]),
@@ -335,7 +340,7 @@ export class Server {
    * @param permission Permission Names
    * @returns Whether we have one of the permissions
    */
-  orPermission(...permission: (keyof typeof Permission)[]) {
+  orPermission(...permission: (keyof typeof Permission)[]): boolean {
     return (
       permission.findIndex((x) =>
         bitwiseAndEq(this.permission, Permission[x]),
@@ -348,7 +353,7 @@ export class Server {
    * @param userId User's ID
    * @returns Server Member (if cached)
    */
-  getMember(userId: string) {
+  getMember(userId: string): ServerMember | undefined {
     return this.#collection.client.serverMembers.getByKey({
       server: this.id,
       user: userId,
@@ -360,7 +365,7 @@ export class Server {
    * @param data Channel create route data
    * @returns The newly-created channel
    */
-  async createChannel(data: DataCreateServerChannel) {
+  async createChannel(data: DataCreateServerChannel): Promise<Channel> {
     const channel = await this.#collection.client.api.post(
       `/servers/${this.id as ""}/channels`,
       data,
@@ -373,7 +378,7 @@ export class Server {
    * Edit a server
    * @param data Changes
    */
-  async edit(data: DataEditServer) {
+  async edit(data: DataEditServer): Promise<void> {
     this.#collection.setUnderlyingObject(
       this.id,
       hydrate(
@@ -392,7 +397,7 @@ export class Server {
    * Delete the underlying server
    * @param leaveEvent Whether we are leaving
    */
-  $delete(leaveEvent?: boolean) {
+  $delete(leaveEvent?: boolean): void {
     const server = this.#collection.client.servers.getUnderlyingObject(this.id);
 
     // Avoid race conditions
@@ -415,7 +420,7 @@ export class Server {
    * Delete or leave a server
    * @param leaveSilently Whether to not send a message on leave
    */
-  async delete(leaveSilently?: boolean) {
+  async delete(leaveSilently?: boolean): Promise<void> {
     await this.#collection.client.api.delete(`/servers/${this.id as ""}`, {
       leave_silently: leaveSilently,
     });
@@ -426,7 +431,7 @@ export class Server {
   /**
    * Mark a server as read
    */
-  async ack() {
+  async ack(): Promise<void> {
     for (const channel of this.channels) {
       channel.ack(undefined, false, true);
     }
@@ -442,7 +447,7 @@ export class Server {
   async banUser(
     user: string | User | ServerMember,
     options: DataBanCreate = {},
-  ) {
+  ): Promise<ServerBan> {
     const userId =
       user instanceof User
         ? user.id
@@ -462,7 +467,7 @@ export class Server {
    * Kick user from this server
    * @param user User
    */
-  async kickUser(user: string | User | ServerMember) {
+  async kickUser(user: string | User | ServerMember): Promise<void> {
     return await this.#collection.client.api.delete(
       `/servers/${this.id as ""}/members/${
         typeof user === "string"
@@ -478,7 +483,7 @@ export class Server {
    * Pardon user's ban
    * @param user User
    */
-  async unbanUser(user: string | User) {
+  async unbanUser(user: string | User): Promise<void> {
     const userId = user instanceof User ? user.id : user;
     return await this.#collection.client.api.delete(
       `/servers/${this.id as ""}/bans/${userId}`,
@@ -489,7 +494,7 @@ export class Server {
    * Fetch a server's invites
    * @returns An array of the server's invites
    */
-  async fetchInvites() {
+  async fetchInvites(): Promise<ChannelInvite[]> {
     const invites = await this.#collection.client.api.get(
       `/servers/${this.id as ""}/invites`,
     );
@@ -503,7 +508,7 @@ export class Server {
    * Fetch a server's bans
    * @returns An array of the server's bans.
    */
-  async fetchBans() {
+  async fetchBans(): Promise<ServerBan[]> {
     const { users, bans } = await this.#collection.client.api.get(
       `/servers/${this.id as ""}/bans`,
     );
@@ -524,7 +529,10 @@ export class Server {
    * @param roleId Role Id, set to 'default' to affect all users
    * @param permissions Permission value
    */
-  async setPermissions(roleId = "default", permissions: Override | number) {
+  async setPermissions(
+    roleId = "default",
+    permissions: Override | number,
+  ): Promise<APIServer> {
     return await this.#collection.client.api.put(
       `/servers/${this.id as ""}/permissions/${roleId as ""}`,
       { permissions: permissions as Override },
@@ -535,7 +543,7 @@ export class Server {
    * Create role
    * @param name Role name
    */
-  async createRole(name: string) {
+  async createRole(name: string): Promise<{ id: string; role: Role }> {
     return await this.#collection.client.api.post(
       `/servers/${this.id as ""}/roles`,
       {
@@ -549,7 +557,7 @@ export class Server {
    * @param roleId Role ID
    * @param data Role editing route data
    */
-  async editRole(roleId: string, data: DataEditRole) {
+  async editRole(roleId: string, data: DataEditRole): Promise<Role> {
     return await this.#collection.client.api.patch(
       `/servers/${this.id as ""}/roles/${roleId as ""}`,
       data,
@@ -560,7 +568,7 @@ export class Server {
    * Delete role
    * @param roleId Role ID
    */
-  async deleteRole(roleId: string) {
+  async deleteRole(roleId: string): Promise<void> {
     return await this.#collection.client.api.delete(
       `/servers/${this.id as ""}/roles/${roleId as ""}`,
     );
@@ -571,7 +579,7 @@ export class Server {
    * @param user User
    * @returns Server member object
    */
-  async fetchMember(user: User | string) {
+  async fetchMember(user: User | string): Promise<ServerMember> {
     const userId = typeof user === "string" ? user : user.id;
     const existing = this.#collection.client.serverMembers.getByKey({
       server: this.id,
@@ -588,7 +596,7 @@ export class Server {
    * Optimised member fetch route
    * @param excludeOffline
    */
-  async syncMembers(excludeOffline?: boolean) {
+  async syncMembers(excludeOffline?: boolean): Promise<void> {
     if (this.#synced && (this.#synced === "full" || excludeOffline)) return;
 
     const data = await this.#collection.client.api.get(
@@ -624,7 +632,7 @@ export class Server {
   /**
    * Reset member sync status
    */
-  resetSyncStatus() {
+  resetSyncStatus(): void {
     this.#synced = undefined;
   }
 
@@ -632,7 +640,7 @@ export class Server {
    * Fetch a server's members
    * @returns List of the server's members and their user objects
    */
-  async fetchMembers() {
+  async fetchMembers(): Promise<{ members: ServerMember[]; users: User[] }> {
     const data = (await this.#collection.client.api.get(
       // @ts-expect-error TODO weird typing issue
       `/servers/${this.id as ""}/members`,
@@ -653,7 +661,9 @@ export class Server {
    * @param query Name
    * @returns List of the server's members and their user objects
    */
-  async queryMembersExperimental(query: string) {
+  async queryMembersExperimental(
+    query: string,
+  ): Promise<{ members: ServerMember[]; users: User[] }> {
     const data = (await this.#collection.client.api.get(
       `/servers/${
         this.id as ""
@@ -680,7 +690,7 @@ export class Server {
   async createEmoji(
     autumnId: string,
     options: Omit<DataCreateEmoji, "parent">,
-  ) {
+  ): Promise<Emoji> {
     const emoji = await this.#collection.client.api.put(
       `/custom/emoji/${autumnId as ""}`,
       {
@@ -699,7 +709,7 @@ export class Server {
    * Fetch a server's emoji
    * @returns List of server emoji
    */
-  async fetchEmojis() {
+  async fetchEmojis(): Promise<Emoji[]> {
     const emojis = await this.#collection.client.api.get(
       `/servers/${this.id as ""}/emojis`,
     );
@@ -713,7 +723,9 @@ export class Server {
    * Delete emoji
    * @param emojiId Emoji ID
    */
-  async deleteEmoji(emojiId: string) {
-    return await this.#collection.client.api.delete(`/custom/emoji/${emojiId}`);
+  async deleteEmoji(emojiId: string): Promise<void> {
+    return (await this.#collection.client.api.delete(
+      `/custom/emoji/${emojiId}`,
+    )) as void;
   }
 }

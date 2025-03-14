@@ -2,6 +2,10 @@ import { Invite } from "revolt-api";
 
 import { Client } from "../Client.js";
 
+import { Channel } from "./Channel.js";
+import { Server } from "./Server.js";
+import { User } from "./User.js";
+
 /**
  * Channel Invite
  */
@@ -66,28 +70,28 @@ export class ServerInvite extends ChannelInvite {
   /**
    * Creator of the invite
    */
-  get creator() {
+  get creator(): User | undefined {
     return this.client!.users.get(this.creatorId);
   }
 
   /**
    * Server this invite points to
    */
-  get server() {
+  get server(): Server | undefined {
     return this.client!.servers.get(this.serverId);
   }
 
   /**
    * Channel this invite points to
    */
-  get channel() {
+  get channel(): Channel | undefined {
     return this.client!.channels.get(this.channelId);
   }
 
   /**
    * Delete the invite
    */
-  async delete() {
+  async delete(): Promise<void> {
     await this.client!.api.delete(`/invites/${this.id}`);
   }
 }

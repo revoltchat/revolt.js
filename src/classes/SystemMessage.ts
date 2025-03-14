@@ -2,6 +2,8 @@ import { SystemMessage as APISystemMessage } from "revolt-api";
 
 import { Client } from "../Client.js";
 
+import { User } from "./User.js";
+
 /**
  * System Message
  */
@@ -103,7 +105,7 @@ export class UserSystemMessage extends SystemMessage {
   /**
    * User this message concerns
    */
-  get user() {
+  get user(): User | undefined {
     return this.client!.users.get(this.userId);
   }
 }
@@ -132,8 +134,7 @@ export class UserModeratedSystemMessage extends UserSystemMessage {
   /**
    * User this action was performed by
    */
-  get by() {
-    console.info("deez!", this.byId);
+  get by(): User | undefined {
     return this.client!.users.get(this.byId);
   }
 }
@@ -165,7 +166,7 @@ export class ChannelEditSystemMessage extends SystemMessage {
   /**
    * User this action was performed by
    */
-  get by() {
+  get by(): User | undefined {
     return this.client!.users.get(this.byId);
   }
 }
@@ -218,14 +219,14 @@ export class ChannelOwnershipChangeSystemMessage extends SystemMessage {
   /**
    * User giving away channel ownership
    */
-  get from() {
+  get from(): User | undefined {
     return this.client!.users.get(this.fromId);
   }
 
   /**
    * User receiving channel ownership
    */
-  get to() {
+  get to(): User | undefined {
     return this.client!.users.get(this.toId);
   }
 }

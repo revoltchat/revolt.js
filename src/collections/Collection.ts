@@ -31,7 +31,7 @@ export class Collection<T, V> {
   /**
    * Set a key of an underlying object
    */
-  setUnderlyingKey<K extends keyof V>(id: string, key: K, value: V[K]) {
+  setUnderlyingKey<K extends keyof V>(id: string, key: K, value: V[K]): void {
     this.#storage.set(id, {
       [key]: value,
       ...((this.#storage.get(id) ?? {}) as V),
@@ -41,7 +41,7 @@ export class Collection<T, V> {
   /**
    * Set an underlying object
    */
-  setUnderlyingObject(id: string, value: V) {
+  setUnderlyingObject(id: string, value: V): void {
     this.#storage.set(id, value);
   }
 
