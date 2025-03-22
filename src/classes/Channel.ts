@@ -13,6 +13,7 @@ import { APIRoutes } from "revolt-api/dist/routes";
 import { decodeTime, ulid } from "ulid";
 
 import { ChannelCollection } from "../collections/index.js";
+import { hydrate } from "../hydration/index.js";
 import { Message } from "../index.js";
 import {
   bitwiseAndEq,
@@ -410,7 +411,15 @@ export class Channel {
    * @param data Changes
    */
   async edit(data: DataEditChannel) {
-    await this.#collection.client.api.patch(`/channels/${this.id as ""}`, data);
+    const channel = await this.#collection.client.api.patch(
+      `/channels/${this.id as ""}`,
+      data
+    );
+
+    this.#collection.updateUnderlyingObject(
+      this.id,
+      hydrate("channel", channel, this.#collection.client, false)
+    );
   }
 
   /**
