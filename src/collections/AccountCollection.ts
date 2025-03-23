@@ -29,8 +29,7 @@ export class AccountCollection {
    * Create a MFA helper
    */
   async mfa(): Promise<MFA> {
-    const state = await this.client.api.get("/auth/mfa/");
-    return new MFA(this.client, state);
+    return new MFA(this.client, await this.client.api.get("/auth/mfa/"));
   }
 
   /**

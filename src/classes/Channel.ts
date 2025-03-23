@@ -12,6 +12,7 @@ import type { APIRoutes } from "revolt-api/dist/routes";
 import { decodeTime, ulid } from "ulid";
 
 import type { ChannelCollection } from "../collections/ChannelCollection.ts";
+import { hydrate } from "../hydration/index.ts";
 import {
   bitwiseAndEq,
   calculatePermission,
@@ -412,8 +413,16 @@ export class Channel {
    * Edit a channel
    * @param data Changes
    */
-  async edit(data: DataEditChannel): Promise<void> {
-    await this.#collection.client.api.patch(`/channels/${this.id as ""}`, data);
+  async edit(data: DataEditChannel) {
+    const channel = await this.#collection.client.api.patch(
+      `/channels/${this.id as ""}`,
+      data,
+    );
+
+    this.#collection.setUnderlyingObject(
+      this.id,
+      hydrate("channel", channel, this.#collection.client, false),
+    );
   }
 
   /**
@@ -692,7 +701,7 @@ export class Channel {
     const channelUnread = unreads.get(this.id);
     if (channelUnread) {
       unreads.setUnderlyingObject(this.id, {
-        ...channelUnread,
+        ...unreads.getUnderlyingObject(this.id),
         lastMessageId,
         messageMentionIds: unreads.getUnderlyingObject(this.id)
           .messageMentionIds,
@@ -709,7 +718,7 @@ export class Channel {
     /**
      * Send the actual acknowledgement request
      */
-    const performAck = () => {
+    const performAck = (): void => {
       this.#ackLimit = undefined;
       this.#collection.client.api.put(
         `/channels/${this.id}/ack/${lastMessageId as ""}`,

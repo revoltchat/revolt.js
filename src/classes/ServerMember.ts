@@ -235,14 +235,14 @@ export class ServerMember {
    * Ban this member from the server
    * @param options Ban options
    */
-  ban(options: DataBanCreate): void {
-    this.server?.banUser(this, options);
+  async ban(options: DataBanCreate): Promise<void> {
+    await this.server?.banUser(this, options);
   }
 
   /**
    * Kick this member from the server
    */
-  kick(): void {
-    this.server?.kickUser(this);
+  async kick(): Promise<void> {
+    await this.server?.kickUser(this);
   }
 }

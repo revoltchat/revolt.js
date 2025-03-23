@@ -80,10 +80,9 @@ export type Events = {
   serverMemberLeave: [member: HydratedServerMember];
 
   userUpdate: [user: User, previousUser: HydratedUser];
-  userSettingsUpdate: [
-    userId: string,
-    settings: Record<string, [number, string]>,
-  ];
+  // ^ userRelationshipChanged: [user: User, previousRelationship: RelationshipStatus];
+  // ^ userPresenceChanged: [user: User, previousPresence: boolean];
+  userSettingsUpdate: [id: string, update: Record<string, [number, string]>];
 
   emojiCreate: [emoji: Emoji];
   emojiDelete: [emoji: HydratedEmoji];
@@ -174,7 +173,7 @@ export class Client extends AsyncEventEmitter<Events> {
   #session: Session | undefined;
   user: User | undefined;
 
-  #ready = false;
+  ready = false;
   connectionFailureCount = 0;
 
   #reconnectTimeout: number | undefined;
@@ -238,30 +237,20 @@ export class Client extends AsyncEventEmitter<Events> {
                 1e3,
             ) as never;
 
-            this.connectionFailureCount = this.connectionFailureCount + 1;
+            this.connectionFailureCount += 1;
           }
           break;
       }
     });
 
-    this.events.on(
-      "event",
-      (event) => handleEvent(this, event, this.#setReady.bind(this)),
-    );
-  }
-
-  /**
-   * Whether the client is ready
-   */
-  get ready(): boolean {
-    return this.#ready;
-  }
-
-  /**
-   * Set whether the client is ready
-   */
-  #setReady(value: boolean): void {
-    this.#ready = value;
+    this.events.on("event", (event) =>
+      handleEvent(
+        this,
+        event,
+        ((value: boolean) => {
+          this.ready = value;
+        }).bind(this),
+      ));
   }
 
   /**
@@ -274,7 +263,7 @@ export class Client extends AsyncEventEmitter<Events> {
   /**
    * Get authentication header
    */
-  get authenticationHeader(): string[] {
+  get authenticationHeader(): [string, string] {
     return typeof this.#session === "string"
       ? ["X-Bot-Token", this.#session]
       : ["X-Session-Token", this.#session?.token as string];
@@ -286,7 +275,7 @@ export class Client extends AsyncEventEmitter<Events> {
   connect(): void {
     clearTimeout(this.#reconnectTimeout);
     this.events.disconnect();
-    this.#setReady(false);
+    this.ready = false;
     this.events.connect(
       this.configuration?.ws ?? "wss://ws.revolt.chat",
       typeof this.#session === "string" ? this.#session : this.#session!.token,

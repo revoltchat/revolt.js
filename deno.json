@@ -1,6 +1,6 @@
 {
   "name": "@revolt/revoltjs",
-  "version": "7.0.5",
+  "version": "7.1.0-rc.2",
   "exports": "./src/index.ts",
   "imports": {
     "@vladfrangu/async_event_emitter": "npm:@vladfrangu/async_event_emitter@^2.4.6",

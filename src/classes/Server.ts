@@ -134,7 +134,7 @@ export class Server {
   /**
    * Categories
    */
-  get categories(): APIServer["categories"] {
+  get categories(): Category[] | undefined {
     return this.#collection.getUnderlyingObject(this.id).categories;
   }
 

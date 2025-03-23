@@ -1,6 +1,7 @@
 import type {
   DataEditMessage,
   DataMessageSend,
+  Masquerade,
   Message as APIMessage,
   MessageWebhook as APIMessageWebhook,
 } from "revolt-api";
@@ -170,8 +171,8 @@ export class Message {
   /**
    * Whether this message mentions us
    */
-  get mentioned(): boolean | undefined {
-    return this.mentionIds?.includes(this.#collection.client.user!.id);
+  get mentioned(): boolean {
+    return this.mentionIds?.includes(this.#collection.client.user!.id) ?? false;
   }
 
   /**
@@ -198,7 +199,7 @@ export class Message {
   /**
    * Masquerade
    */
-  get masquerade(): APIMessage["masquerade"] {
+  get masquerade(): Masquerade | undefined {
     return this.#collection.getUnderlyingObject(this.id).masquerade;
   }
 
@@ -387,7 +388,7 @@ export class MessageWebhook {
   /**
    * Get the avatar URL for this message webhook
    */
-  get avatarURL(): string | undefined {
+  get avatarURL(): string {
     return (
       this.avatar?.createFileURL() ??
         `${this.#client.options.baseURL}/users/${this.id}/default_avatar`

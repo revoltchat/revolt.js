@@ -78,7 +78,14 @@ export class ChannelWebhook {
    * Edit this webhook
    * TODO: not in production
    */
-  async edit(data: unknown /*: DataEditWebhook*/): Promise<void> {
+  async edit(
+    data: Partial<{
+      name: string;
+      avatar: string;
+      permissions: number;
+      remove: ["Icon"];
+    }>,
+  ): Promise<void> {
     const webhook = await this.#collection.client.api.patch(
       // @ts-expect-error not in prod
       `/webhooks/${this.id as ""}/${this.token as ""}`,

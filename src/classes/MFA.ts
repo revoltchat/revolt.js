@@ -65,7 +65,7 @@ export class MFA {
     return new MFATicket(
       this.#client,
       await this.#client.api.put("/auth/mfa/ticket", params),
-      this.#setStore,
+      this.#setStore.bind(this),
     );
   }
 
@@ -159,12 +159,13 @@ export class MFATicket {
    */
   async generateAuthenticatorSecret(): Promise<string> {
     this.#consume();
-    const response = await this.#client.api.post("/auth/mfa/totp", undefined, {
-      headers: {
-        "X-MFA-Ticket": this.token,
-      },
-    });
-    return response.secret;
+    return (
+      await this.#client.api.post("/auth/mfa/totp", undefined, {
+        headers: {
+          "X-MFA-Ticket": this.token,
+        },
+      })
+    ).secret;
   }
 
   /**
