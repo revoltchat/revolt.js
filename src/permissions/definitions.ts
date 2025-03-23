@@ -82,8 +82,14 @@ export const Permission = {
   /// Move members between voice channels
   MoveMembers: 2 ** 35,
 
+  // * Mention permissions
+  /// Mention @everyone or @online
+  MentionEveryone: 2 ** 37,
+  /// Mention a role
+  MentionRoles: 2 ** 38,
+
   // * Misc. permissions
-  // % Bits 36 to 52: free area
+  // % Bits 39 to 52: free area
   // % Bits 53 to 64: do not use
 
   // * Grant all permissions
