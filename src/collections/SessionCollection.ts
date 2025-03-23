@@ -1,8 +1,9 @@
-import { Session } from "../classes/index.js";
-import { HydratedSession } from "../hydration/session.js";
-import { API } from "../index.js";
+import type { SessionInfo } from "revolt-api";
 
-import { Collection } from "./index.js";
+import { Session } from "../classes/Session.js";
+import type { HydratedSession } from "../hydration/session.js";
+
+import { Collection } from "./Collection.js";
 
 /**
  * Collection of Sessions
@@ -21,7 +22,7 @@ export class SessionCollection extends Collection<Session, HydratedSession> {
    * Delete all sessions, optionally including self
    * @param revokeSelf Whether to remove current session too
    */
-  async deleteAll(revokeSelf = false) {
+  async deleteAll(revokeSelf = false): Promise<void> {
     await this.client.api.delete("/auth/session/all", {
       revoke_self: revokeSelf,
     });
@@ -38,7 +39,7 @@ export class SessionCollection extends Collection<Session, HydratedSession> {
    * @param data Data
    * @returns Session
    */
-  getOrCreate(id: string, data: API.SessionInfo) {
+  getOrCreate(id: string, data: SessionInfo): Session {
     if (this.has(id)) {
       return this.get(id)!;
     } else {

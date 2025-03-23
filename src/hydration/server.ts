@@ -1,13 +1,14 @@
-import {
-  Server as ApiServer,
+import type {
+  Server as APIServer,
   Category,
   Role,
   SystemMessageChannels,
 } from "revolt-api";
 
-import { Client, File } from "../index.js";
+import type { Client } from "../Client.js";
+import { File } from "../classes/File.js";
 
-import { Hydrate } from "./index.js";
+import type { Hydrate } from "./index.js";
 
 export type HydratedServer = {
   id: string;
@@ -32,7 +33,7 @@ export type HydratedServer = {
   nsfw: boolean;
 };
 
-export const serverHydration: Hydrate<ApiServer, HydratedServer> = {
+export const serverHydration: Hydrate<APIServer, HydratedServer> = {
   keyMapping: {
     _id: "id",
     owner: "ownerId",

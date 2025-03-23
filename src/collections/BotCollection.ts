@@ -1,9 +1,10 @@
-import { OwnedBotsResponse } from "revolt-api";
+import type { Bot as APIBot, OwnedBotsResponse } from "revolt-api";
 
-import { HydratedBot } from "../hydration/bot.js";
-import { API, Bot, PublicBot } from "../index.js";
+import { Bot } from "../classes/Bot.js";
+import { PublicBot } from "../classes/PublicBot.js";
+import type { HydratedBot } from "../hydration/bot.js";
 
-import { Collection } from "./index.js";
+import { Collection } from "./Collection.js";
 
 /**
  * Collection of Bots
@@ -48,7 +49,7 @@ export class BotCollection extends Collection<Bot, HydratedBot> {
    * @param data Data
    * @returns Bot
    */
-  getOrCreate(id: string, data: API.Bot) {
+  getOrCreate(id: string, data: APIBot): Bot {
     if (this.has(id)) {
       return this.get(id)!;
     } else {
@@ -63,7 +64,7 @@ export class BotCollection extends Collection<Bot, HydratedBot> {
    * @param name Bot name
    * @returns The newly-created bot
    */
-  async createBot(name: string) {
+  async createBot(name: string): Promise<Bot> {
     const bot = await this.client.api.post(`/bots/create`, {
       name,
     });

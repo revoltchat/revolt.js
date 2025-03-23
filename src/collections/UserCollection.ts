@@ -1,7 +1,10 @@
-import { HydratedUser } from "../hydration/index.js";
-import { API, Client, User } from "../index.js";
+import type { User as APIUser } from "revolt-api";
 
-import { Collection } from "./index.js";
+import type { Client } from "../Client.js";
+import { User } from "../classes/User.js";
+import type { HydratedUser } from "../hydration/user.js";
+
+import { Collection } from "./Collection.js";
 
 /**
  * Collection of Users
@@ -41,7 +44,7 @@ export class UserCollection extends Collection<User, HydratedUser> {
    * @param data Data
    * @param isNew Whether this object is new
    */
-  getOrCreate(id: string, data: API.User) {
+  getOrCreate(id: string, data: APIUser): User {
     if (this.has(id) && !this.isPartial(id)) {
       return this.get(id)!;
     } else {
@@ -55,7 +58,7 @@ export class UserCollection extends Collection<User, HydratedUser> {
    * Get or return partial
    * @param id Id
    */
-  getOrPartial(id: string) {
+  getOrPartial(id: string): User | undefined {
     if (this.has(id)) {
       return this.get(id)!;
     } else if (this.client.options.partials) {

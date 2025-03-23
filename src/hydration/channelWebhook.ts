@@ -1,7 +1,10 @@
-import { API, Client, File } from "../index.js";
+import type { Webhook } from "revolt-api";
+
+import type { Client } from "../Client.js";
+import { File } from "../classes/File.js";
 import type { Merge } from "../lib/merge.js";
 
-import { Hydrate } from "./index.js";
+import type { Hydrate } from "./index.js";
 
 export type HydratedChannelWebhook = {
   id: string;
@@ -12,7 +15,7 @@ export type HydratedChannelWebhook = {
 };
 
 export const channelWebhookHydration: Hydrate<
-  Merge<API.Webhook>,
+  Merge<Webhook>,
   HydratedChannelWebhook
 > = {
   keyMapping: {

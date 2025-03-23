@@ -1,6 +1,8 @@
-import { BannedUser as ApiBannedUser } from "revolt-api";
+import type { BannedUser as APIBannedUser } from "revolt-api";
 
-import { Client, File } from "../index.js";
+import type { Client } from "../Client.js";
+
+import { File } from "./File.js";
 
 /**
  * Banned User
@@ -16,7 +18,7 @@ export class BannedUser {
    * @param client Client
    * @param data Data
    */
-  constructor(client: Client, data: ApiBannedUser) {
+  constructor(client: Client, data: APIBannedUser) {
     this.id = data._id;
     this.avatar = data.avatar ? new File(client, data.avatar) : undefined;
     this.username = data.username;

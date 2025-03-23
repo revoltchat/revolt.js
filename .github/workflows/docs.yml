@@ -13,10 +13,10 @@ jobs:
         with:
           submodules: recursive
       - uses: pnpm/action-setup@v4.0.0
-      - name: Use Node.js 18
+      - name: Use Node.js LTS
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 22
           cache: "pnpm"
       - name: Install packages
         run: pnpm install

@@ -1,5 +1,10 @@
-import { ChannelWebhookCollection } from "../collections/index.js";
+import * as APITmp from "revolt-api";
+
+import type { ChannelWebhookCollection } from "../collections/ChannelWebhookCollection.js";
 import { hydrate } from "../hydration/index.js";
+
+import type { Channel } from "./Channel.js";
+import type { File } from "./File.js";
 
 /**
  * Channel Webhook Class
@@ -21,28 +26,28 @@ export class ChannelWebhook {
   /**
    * Whether this object exists
    */
-  get $exists() {
+  get $exists(): boolean {
     return !!this.#collection.getUnderlyingObject(this.id).id;
   }
 
   /**
    * Webhook name
    */
-  get name() {
+  get name(): string {
     return this.#collection.getUnderlyingObject(this.id).name;
   }
 
   /**
    * Webhook avatar
    */
-  get avatar() {
+  get avatar(): File | undefined {
     return this.#collection.getUnderlyingObject(this.id).avatar;
   }
 
   /**
    * Webhook avatar URL
    */
-  get avatarURL() {
+  get avatarURL(): string | undefined {
     return this.#collection
       .getUnderlyingObject(this.id)
       .avatar?.createFileURL();
@@ -51,23 +56,23 @@ export class ChannelWebhook {
   /**
    * Channel ID this webhook belongs to
    */
-  get channelId() {
+  get channelId(): string {
     return this.#collection.getUnderlyingObject(this.id).channelId;
   }
 
   /**
    * Channel this webhook belongs to
    */
-  get channel() {
+  get channel(): Channel | undefined {
     return this.#collection.client.channels.get(
-      this.#collection.getUnderlyingObject(this.id).channelId
+      this.#collection.getUnderlyingObject(this.id).channelId,
     );
   }
 
   /**
    * Secret token for sending messages to this webhook
    */
-  get token() {
+  get token(): string {
     return this.#collection.getUnderlyingObject(this.id).token;
   }
 
@@ -75,17 +80,28 @@ export class ChannelWebhook {
    * Edit this webhook
    * TODO: not in production
    */
-  async edit(data: any /*: DataEditWebhook*/) {
+  async edit(
+    data: Partial<{
+      name: string;
+      avatar: string;
+      permissions: number;
+      remove: ["Icon"];
+    }>,
+  ): Promise<void> {
+    // @ts-expect-error this should error once edit webhook is stable
+    // eslint-disable-next-line
+    type TodoUseThisDefinitionOnceItExists = APITmp.DataEditWebhook;
+
     const webhook = await this.#collection.client.api.patch(
       // @ts-expect-error not in prod
       `/webhooks/${this.id as ""}/${this.token as ""}`,
-      data
+      data,
     );
 
     this.#collection.setUnderlyingObject(
       this.id,
       // @ts-expect-error not in prod
-      hydrate("channelWebhook", webhook, this.#collection.client)
+      hydrate("channelWebhook", webhook, this.#collection.client),
     );
   }
 
@@ -93,10 +109,10 @@ export class ChannelWebhook {
    * Delete this webhook
    * TODO: not in production
    */
-  async delete() {
+  async delete(): Promise<void> {
     await this.#collection.client.api.delete(
       // @ts-expect-error not in prod
-      `/webhooks/${this.id}/${this.token}`
+      `/webhooks/${this.id}/${this.token}`,
     );
 
     this.#collection.delete(this.id);

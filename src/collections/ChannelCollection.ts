@@ -1,7 +1,10 @@
-import { HydratedChannel } from "../hydration/index.js";
-import { API, Channel, User } from "../index.js";
+import type { Channel as APIChannel } from "revolt-api";
 
-import { Collection } from "./index.js";
+import { Channel } from "../classes/Channel.js";
+import { User } from "../classes/User.js";
+import type { HydratedChannel } from "../hydration/channel.js";
+
+import { Collection } from "./Collection.js";
 
 /**
  * Collection of Channels
@@ -35,13 +38,13 @@ export class ChannelCollection extends Collection<Channel, HydratedChannel> {
    * @param data Data
    * @param isNew Whether this object is new
    */
-  getOrCreate(id: string, data: API.Channel, isNew = false) {
+  getOrCreate(id: string, data: APIChannel, isNew = false): Channel {
     if (this.has(id) && !this.isPartial(id)) {
       return this.get(id)!;
     } else {
       const instance = new Channel(this, id);
       this.create(id, "channel", instance, this.client, data);
-      isNew && this.client.emit("channelCreate", instance);
+      if (isNew) this.client.emit("channelCreate", instance);
       return instance;
     }
   }
@@ -50,7 +53,7 @@ export class ChannelCollection extends Collection<Channel, HydratedChannel> {
    * Get or return partial
    * @param id Id
    */
-  getOrPartial(id: string) {
+  getOrPartial(id: string): Channel | undefined {
     if (this.has(id)) {
       return this.get(id)!;
     } else if (this.client.options.partials) {
@@ -69,7 +72,7 @@ export class ChannelCollection extends Collection<Channel, HydratedChannel> {
    * @param users Users to add
    * @returns The newly-created group
    */
-  async createGroup(name: string, users: (User | string)[]) {
+  async createGroup(name: string, users: (User | string)[]): Promise<Channel> {
     const group = await this.client.api.post(`/channels/create`, {
       name,
       users: users.map((user) => (user instanceof User ? user.id : user)),

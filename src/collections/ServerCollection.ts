@@ -1,9 +1,13 @@
-import { DataCreateServer } from "revolt-api";
+import type {
+  Server as APIServer,
+  Channel,
+  DataCreateServer,
+} from "revolt-api";
 
-import { HydratedServer } from "../hydration/index.js";
-import { API, Server } from "../index.js";
+import { Server } from "../classes/Server.js";
+import type { HydratedServer } from "../hydration/server.js";
 
-import { Collection } from "./index.js";
+import { Collection } from "./Collection.js";
 
 /**
  * Collection of Servers
@@ -23,7 +27,7 @@ export class ServerCollection extends Collection<Server, HydratedServer> {
       include_channels: true,
     });
 
-    for (const channel of data.channels as unknown as API.Channel[]) {
+    for (const channel of data.channels as unknown as Channel[]) {
       if (typeof channel !== "string") {
         this.client.channels.getOrCreate(channel._id, channel);
       }
@@ -38,13 +42,13 @@ export class ServerCollection extends Collection<Server, HydratedServer> {
    * @param data Data
    * @param isNew Whether this object is new
    */
-  getOrCreate(id: string, data: API.Server, isNew = false) {
+  getOrCreate(id: string, data: APIServer, isNew = false): Server {
     if (this.has(id) && !this.isPartial(id)) {
       return this.get(id)!;
     } else {
       const instance = new Server(this, id);
       this.create(id, "server", instance, this.client, data);
-      isNew && this.client.emit("serverCreate", instance);
+      if (isNew) this.client.emit("serverCreate", instance);
       return instance;
     }
   }
@@ -53,7 +57,7 @@ export class ServerCollection extends Collection<Server, HydratedServer> {
    * Get or return partial
    * @param id Id
    */
-  getOrPartial(id: string) {
+  getOrPartial(id: string): Server | undefined {
     if (this.has(id)) {
       return this.get(id)!;
     } else if (this.client.options.partials) {
@@ -71,10 +75,10 @@ export class ServerCollection extends Collection<Server, HydratedServer> {
    * @param data Server options
    * @returns The newly-created server
    */
-  async createServer(data: DataCreateServer) {
+  async createServer(data: DataCreateServer): Promise<Server> {
     const { server, channels } = await this.client.api.post(
       `/servers/create`,
-      data
+      data,
     );
 
     for (const channel of channels) {

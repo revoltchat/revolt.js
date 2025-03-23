@@ -1,19 +1,24 @@
-import { ServerFlags } from "../hydration/server.js";
-import { API, Client, File } from "../index.js";
+import type { Invite, InviteResponse } from "revolt-api";
+
+import type { Client } from "../Client.js";
+import type { ServerFlags } from "../hydration/server.js";
+
+import { File } from "./File.js";
+import type { Server } from "./Server.js";
 
 /**
  * Public Channel Invite
  */
 export abstract class PublicChannelInvite {
   protected client?: Client;
-  readonly type: API.Invite["type"] | "None";
+  readonly type: Invite["type"] | "None";
 
   /**
    * Construct Channel Invite
    * @param client Client
    * @param type Type
    */
-  constructor(client?: Client, type: API.Invite["type"] | "None" = "None") {
+  constructor(client?: Client, type: Invite["type"] | "None" = "None") {
     this.client = client;
     this.type = type;
   }
@@ -24,7 +29,7 @@ export abstract class PublicChannelInvite {
    * @param invite Data
    * @returns Invite
    */
-  static from(client: Client, invite: API.InviteResponse): PublicChannelInvite {
+  static from(client: Client, invite: InviteResponse): PublicChannelInvite {
     switch (invite.type) {
       case "Server":
         return new ServerPublicInvite(client, invite);
@@ -63,7 +68,7 @@ export class ServerPublicInvite extends PublicChannelInvite {
    * @param client Client
    * @param invite Invite
    */
-  constructor(client: Client, invite: API.InviteResponse & { type: "Server" }) {
+  constructor(client: Client, invite: InviteResponse & { type: "Server" }) {
     super(client, "Server");
 
     this.code = invite.code;
@@ -91,7 +96,7 @@ export class ServerPublicInvite extends PublicChannelInvite {
   /**
    * Join the server
    */
-  async join() {
+  async join(): Promise<Server> {
     const existingServer = this.client!.servers.get(this.serverId);
     if (existingServer) return existingServer;
 
@@ -105,7 +110,7 @@ export class ServerPublicInvite extends PublicChannelInvite {
       return this.client!.servers.getOrCreate(
         invite.server._id,
         invite.server,
-        true
+        true,
       );
     } else {
       throw "unreachable";

@@ -1,14 +1,13 @@
-import {
-  API,
-  Client,
-  File,
-  MessageEmbed,
-  MessageWebhook,
-  SystemMessage,
-} from "../index.js";
+import type { Interactions, Masquerade, Message } from "revolt-api";
+
+import type { Client } from "../Client.js";
+import { File } from "../classes/File.js";
+import { MessageWebhook } from "../classes/Message.js";
+import { MessageEmbed } from "../classes/MessageEmbed.js";
+import { SystemMessage } from "../classes/SystemMessage.js";
 import type { Merge } from "../lib/merge.js";
 
-import { Hydrate } from "./index.js";
+import type { Hydrate } from "./index.js";
 
 export type HydratedMessage = {
   id: string;
@@ -24,12 +23,12 @@ export type HydratedMessage = {
   mentionIds?: string[];
   replyIds?: string[];
   reactions: Map<string, Set<string>>;
-  interactions?: API.Interactions;
-  masquerade?: API.Masquerade;
+  interactions?: Interactions;
+  masquerade?: Masquerade;
   flags?: number;
 };
 
-export const messageHydration: Hydrate<Merge<API.Message>, HydratedMessage> = {
+export const messageHydration: Hydrate<Merge<Message>, HydratedMessage> = {
   keyMapping: {
     _id: "id",
     channel: "channelId",

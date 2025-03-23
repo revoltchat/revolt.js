@@ -1,7 +1,9 @@
-import { HydratedEmoji } from "../hydration/index.js";
-import { API, Emoji } from "../index.js";
+import type { Emoji as APIEmoji } from "revolt-api";
 
-import { Collection } from "./index.js";
+import { Emoji } from "../classes/Emoji.js";
+import type { HydratedEmoji } from "../hydration/emoji.js";
+
+import { Collection } from "./Collection.js";
 
 /**
  * Collection of Emoji
@@ -25,13 +27,13 @@ export class EmojiCollection extends Collection<Emoji, HydratedEmoji> {
    * @param data Data
    * @param isNew Whether this object is new
    */
-  getOrCreate(id: string, data: API.Emoji, isNew = false) {
+  getOrCreate(id: string, data: APIEmoji, isNew = false): Emoji {
     if (this.has(id) && !this.isPartial(id)) {
       return this.get(id)!;
     } else {
       const instance = new Emoji(this, id);
       this.create(id, "emoji", instance, this.client, data);
-      isNew && this.client.emit("emojiCreate", instance);
+      if (isNew) this.client.emit("emojiCreate", instance);
       return instance;
     }
   }
@@ -40,7 +42,7 @@ export class EmojiCollection extends Collection<Emoji, HydratedEmoji> {
    * Get or return partial
    * @param id Id
    */
-  getOrPartial(id: string) {
+  getOrPartial(id: string): Emoji | undefined {
     if (this.has(id)) {
       return this.get(id)!;
     } else if (this.client.options.partials) {

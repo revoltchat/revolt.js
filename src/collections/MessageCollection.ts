@@ -1,7 +1,9 @@
-import { HydratedMessage } from "../hydration";
-import { API, Message } from "../index.js";
+import type { Message as APIMessage } from "revolt-api";
 
-import { Collection } from "./index.js";
+import { Message } from "../classes/Message.js";
+import type { HydratedMessage } from "../hydration/message.js";
+
+import { Collection } from "./Collection.js";
 
 /**
  * Collection of Messages
@@ -18,7 +20,7 @@ export class MessageCollection extends Collection<Message, HydratedMessage> {
     if (message && !this.isPartial(messageId)) return message;
 
     const data = await this.client.api.get(
-      `/channels/${channelId as ""}/messages/${messageId as ""}`
+      `/channels/${channelId as ""}/messages/${messageId as ""}`,
     );
 
     return this.getOrCreate(data._id, data, false);
@@ -30,13 +32,13 @@ export class MessageCollection extends Collection<Message, HydratedMessage> {
    * @param data Data
    * @param isNew Whether this object is new
    */
-  getOrCreate(id: string, data: API.Message, isNew = false) {
+  getOrCreate(id: string, data: APIMessage, isNew = false): Message {
     if (this.has(id) && !this.isPartial(id)) {
       return this.get(id)!;
     } else {
       const instance = new Message(this, id);
       this.create(id, "message", instance, this.client, data);
-      isNew && this.client.emit("messageCreate", instance);
+      if (isNew) this.client.emit("messageCreate", instance);
       return instance;
     }
   }
@@ -45,7 +47,7 @@ export class MessageCollection extends Collection<Message, HydratedMessage> {
    * Get or return partial
    * @param id Id
    */
-  getOrPartial(id: string) {
+  getOrPartial(id: string): Message | undefined {
     if (this.has(id)) {
       return this.get(id)!;
     } else if (this.client.options.partials) {

@@ -1,5 +1,5 @@
 import { Client } from "../Client.js";
-import { Hydrators, hydrate } from "../hydration/index.js";
+import { type Hydrators, hydrate } from "../hydration/index.js";
 
 /**
  * Collection backed by a store
@@ -85,12 +85,12 @@ export class Collection<T, V> {
     type: keyof Hydrators,
     instance: T,
     context: unknown,
-    data?: unknown
+    data?: unknown,
   ): void {
     if (data) {
       this.#storage.set(
         id,
-        hydrate(type, { partial: false, ...data } as never, context, true) as V
+        hydrate(type, { partial: false, ...data } as never, context, true) as V,
       );
     }
     this.#objects.set(id, instance);

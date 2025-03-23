@@ -1,13 +1,14 @@
-import { Channel as ApiChannel, OverrideField } from "revolt-api";
+import type { Channel as APIChannel, OverrideField } from "revolt-api";
 
-import { Client, File } from "../index.js";
+import type { Client } from "../Client.js";
+import { File } from "../classes/File.js";
 import type { Merge } from "../lib/merge.js";
 
-import { Hydrate } from "./index.js";
+import type { Hydrate } from "./index.js";
 
 export type HydratedChannel = {
   id: string;
-  channelType: ApiChannel["channel_type"];
+  channelType: APIChannel["channel_type"];
 
   name: string;
   description?: string;
@@ -29,7 +30,7 @@ export type HydratedChannel = {
   lastMessageId?: string;
 };
 
-export const channelHydration: Hydrate<Merge<ApiChannel>, HydratedChannel> = {
+export const channelHydration: Hydrate<Merge<APIChannel>, HydratedChannel> = {
   keyMapping: {
     _id: "id",
     channel_type: "channelType",
