@@ -5,9 +5,8 @@ export type Merge<T extends object> = {
   [k in NonCommonKeys<T>]?: PickTypeOf<T, k>;
 };
 
-type PickTypeOf<T, K extends string | number | symbol> = K extends AllKeys<T>
-  ? PickType<T, K>
-  : never;
+type PickTypeOf<T, K extends string | number | symbol> =
+  K extends AllKeys<T> ? PickType<T, K> : never;
 
 // eslint-disable-next-line
 type PickType<T, K extends AllKeys<T>> = T extends { [k in K]?: any }

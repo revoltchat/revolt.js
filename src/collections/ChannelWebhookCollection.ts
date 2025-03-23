@@ -36,7 +36,7 @@ export class ChannelWebhookCollection extends ClassCollection<
     if (webhook) return webhook;
     const data = await this.client.api.get(
       // @ts-expect-error not in prod
-      `/webhooks/${id as ""}/${token as ""}`
+      `/webhooks/${id as ""}/${token as ""}`,
     );
     // @ts-expect-error not in prod
     return this.getOrCreate(data.id, data);

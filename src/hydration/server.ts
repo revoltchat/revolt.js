@@ -52,7 +52,7 @@ export const serverHydration: Hydrate<ApiServer, HydratedServer> = {
     systemMessages: (server) => server.system_messages ?? {},
     roles: (server) =>
       new ReactiveMap(
-        Object.keys(server.roles!).map((id) => [id, server.roles![id]])
+        Object.keys(server.roles!).map((id) => [id, server.roles![id]]),
       ),
     defaultPermissions: (server) => server.default_permissions,
     icon: (server, ctx) => new File(ctx as Client, server.icon!),

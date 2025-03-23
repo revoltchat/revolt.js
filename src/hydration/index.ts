@@ -55,19 +55,20 @@ export type Hydrate<Input, Output> = {
 function hydrateInternal<Input extends object, Output>(
   hydration: Hydrate<Input, Output>,
   input: Input,
-  context: unknown
+  context: unknown,
 ): Output {
   return (Object.keys(input) as (keyof Input)[]).reduce((acc, key) => {
     let targetKey, value;
     try {
       targetKey = hydration.keyMapping[key] ?? key;
       value = hydration.functions[targetKey as keyof Output](input, context);
-    } catch (err) {
-      if (key === "partial")
+    } catch {
+      if (key === "partial") {
         return {
           ...acc,
           partial: input["partial" as never],
         };
+      }
       if (key === "type") return acc;
       console.debug(`Skipping key ${String(key)} during hydration!`);
       return acc;
@@ -112,11 +113,11 @@ export function hydrate<T extends keyof Hydrators>(
   type: T,
   input: Partial<ExtractInput<Hydrators[T]>>,
   context: unknown,
-  initial?: boolean
+  initial?: boolean,
 ) {
   return hydrateInternal(
     hydrators[type] as never,
     initial ? { ...hydrators[type].initialHydration(), ...input } : input,
-    context
+    context,
   ) as ExtractOutput<Hydrators[T]>;
 }

@@ -108,7 +108,7 @@ export class ServerPublicInvite extends PublicChannelInvite {
         return this.client!.servers.getOrCreate(
           invite.server._id,
           invite.server,
-          true
+          true,
         );
       });
     } else {

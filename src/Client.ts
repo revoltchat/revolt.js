@@ -1,7 +1,7 @@
 import { Accessor, Setter, batch, createSignal } from "solid-js";
 
-import EventEmitter from "eventemitter3";
-import type { DataLogin, Error, RevoltConfig } from "revolt-api";
+import { AsyncEventEmitter } from "@vladfrangu/async_event_emitter";
+import type { DataLogin, RevoltConfig } from "revolt-api";
 import { API, Role } from "revolt-api";
 
 import {
@@ -48,55 +48,52 @@ export type Session = { _id: string; token: string; user_id: string } | string;
  */
 export type Events = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  error(error: any): void;
+  error: [error: any];
 
-  connected(): void;
-  connecting(): void;
-  disconnected(): void;
-  ready(): void;
-  logout(): void;
+  connected: [];
+  connecting: [];
+  disconnected: [];
+  ready: [];
+  logout: [];
 
-  messageCreate(message: Message): void;
-  messageUpdate(message: Message, previousMessage: HydratedMessage): void;
-  messageDelete(message: HydratedMessage): void;
-  messageDeleteBulk(messages: HydratedMessage[], channel?: Channel): void;
-  messageReactionAdd(message: Message, userId: string, emoji: string): void;
-  messageReactionRemove(message: Message, userId: string, emoji: string): void;
-  messageReactionRemoveEmoji(message: Message, emoji: string): void;
+  messageCreate: [message: Message];
+  messageUpdate: [message: Message, previousMessage: HydratedMessage];
+  messageDelete: [message: HydratedMessage];
+  messageDeleteBulk: [messages: HydratedMessage[], channel?: Channel];
+  messageReactionAdd: [message: Message, userId: string, emoji: string];
+  messageReactionRemove: [message: Message, userId: string, emoji: string];
+  messageReactionRemoveEmoji: [message: Message, emoji: string];
 
-  channelCreate(channel: Channel): void;
-  channelUpdate(channel: Channel, previousChannel: HydratedChannel): void;
-  channelDelete(channel: HydratedChannel): void;
-  channelGroupJoin(channel: Channel, user: User): void;
-  channelGroupLeave(channel: Channel, user?: User): void;
-  channelStartTyping(channel: Channel, user?: User): void;
-  channelStopTyping(channel: Channel, user?: User): void;
-  channelAcknowledged(channel: Channel, messageId: string): void;
+  channelCreate: [channel: Channel];
+  channelUpdate: [channel: Channel, previousChannel: HydratedChannel];
+  channelDelete: [channel: HydratedChannel];
+  channelGroupJoin: [channel: Channel, user: User];
+  channelGroupLeave: [channel: Channel, user?: User];
+  channelStartTyping: [channel: Channel, user?: User];
+  channelStopTyping: [channel: Channel, user?: User];
+  channelAcknowledged: [channel: Channel, messageId: string];
 
-  serverCreate(server: Server): void;
-  serverUpdate(server: Server, previousServer: HydratedServer): void;
-  serverDelete(server: HydratedServer): void;
-  serverLeave(server: HydratedServer): void;
-  serverRoleUpdate(server: Server, roleId: string, previousRole: Role): void;
-  serverRoleDelete(server: Server, roleId: string, role: Role): void;
+  serverCreate: [server: Server];
+  serverUpdate: [server: Server, previousServer: HydratedServer];
+  serverDelete: [server: HydratedServer];
+  serverLeave: [server: HydratedServer];
+  serverRoleUpdate: [server: Server, roleId: string, previousRole: Role];
+  serverRoleDelete: [server: Server, roleId: string, role: Role];
 
-  serverMemberUpdate(
+  serverMemberUpdate: [
     member: ServerMember,
-    previousMember: HydratedServerMember
-  ): void;
-  serverMemberJoin(member: ServerMember): void;
-  serverMemberLeave(member: HydratedServerMember): void;
+    previousMember: HydratedServerMember,
+  ];
+  serverMemberJoin: [member: ServerMember];
+  serverMemberLeave: [member: HydratedServerMember];
 
-  userUpdate(user: User, previousUser: HydratedUser): void;
-  // ^ userRelationshipChanged(user: User, previousRelationship: RelationshipStatus): void;
-  // ^ userPresenceChanged(user: User, previousPresence: boolean): void;
-  userSettingsUpdate(
-    id: string,
-    update: Record<string, [number, string]>
-  ): void;
+  userUpdate: [user: User, previousUser: HydratedUser];
+  // ^ userRelationshipChanged: [user: User, previousRelationship: RelationshipStatus];
+  // ^ userPresenceChanged: [user: User, previousPresence: boolean];
+  userSettingsUpdate: [id: string, update: Record<string, [number, string]>];
 
-  emojiCreate(emoji: Emoji): void;
-  emojiDelete(emoji: HydratedEmoji): void;
+  emojiCreate: [emoji: Emoji];
+  emojiDelete: [emoji: HydratedEmoji];
 };
 
 /**
@@ -159,7 +156,7 @@ export type ClientOptions = Partial<EventClientOptions> & {
 /**
  * Revolt.js Clients
  */
-export class Client extends EventEmitter<Events> {
+export class Client extends AsyncEventEmitter<Events> {
   readonly account;
   readonly bots;
   readonly channels;
@@ -265,7 +262,7 @@ export class Client extends EventEmitter<Events> {
             this.#reconnectTimeout = setTimeout(
               () => this.connect(),
               this.options.retryDelayFunction(this.connectionFailureCount()) *
-                1e3
+                1e3,
             ) as never;
 
             this.#setConnectionFailureCount((count) => count + 1);
@@ -275,7 +272,7 @@ export class Client extends EventEmitter<Events> {
     });
 
     this.events.on("event", (event) =>
-      handleEventV1(this, event, this.#setReady)
+      handleEventV1(this, event, this.#setReady),
     );
   }
 
@@ -304,7 +301,7 @@ export class Client extends EventEmitter<Events> {
     this.#setReady(false);
     this.events.connect(
       this.configuration?.ws ?? "wss://ws.revolt.chat",
-      typeof this.#session === "string" ? this.#session : this.#session!.token
+      typeof this.#session === "string" ? this.#session : this.#session!.token,
     );
   }
 
@@ -399,9 +396,9 @@ export class Client extends EventEmitter<Events> {
    */
   proxyFile(url: string): string | undefined {
     if (this.configuration?.features.january.enabled) {
-      return `${
-        this.configuration.features.january.url
-      }/proxy?url=${encodeURIComponent(url)}`;
+      return `${this.configuration.features.january.url}/proxy?url=${encodeURIComponent(
+        url,
+      )}`;
     } else {
       return url;
     }
