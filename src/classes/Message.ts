@@ -84,7 +84,7 @@ export class Message {
    */
   get channel(): Channel | undefined {
     return this.#collection.client.channels.get(
-      this.#collection.getUnderlyingObject(this.id).channelId
+      this.#collection.getUnderlyingObject(this.id).channelId,
     );
   }
 
@@ -117,7 +117,7 @@ export class Message {
    */
   get author(): User | undefined {
     return this.#collection.client.users.get(
-      this.#collection.getUnderlyingObject(this.id).authorId!
+      this.#collection.getUnderlyingObject(this.id).authorId!,
     );
   }
 
@@ -220,7 +220,9 @@ export class Message {
 
     return (
       this.masquerade?.name ??
-      (webhook ? webhook.name : this.member?.nickname ?? this.author?.username)
+      (webhook
+        ? webhook.name
+        : (this.member?.nickname ?? this.author?.username))
     );
   }
 
@@ -241,7 +243,7 @@ export class Message {
       this.masqueradeAvatarURL ??
       (webhook
         ? webhook.avatarURL
-        : this.member?.avatarURL ?? this.author?.avatarURL)
+        : (this.member?.avatarURL ?? this.author?.avatarURL))
     );
   }
 
@@ -256,8 +258,8 @@ export class Message {
       (webhook
         ? webhook.avatarURL
         : this.member
-        ? this.member?.animatedAvatarURL
-        : this.author?.animatedAvatarURL)
+          ? this.member?.animatedAvatarURL
+          : this.author?.animatedAvatarURL)
     );
   }
 
@@ -283,7 +285,7 @@ export class Message {
   async edit(data: DataEditMessage): Promise<APIMessage> {
     return await this.#collection.client.api.patch(
       `/channels/${this.channelId as ""}/messages/${this.id as ""}`,
-      data
+      data,
     );
   }
 
@@ -292,7 +294,7 @@ export class Message {
    */
   async delete(): Promise<void> {
     return await this.#collection.client.api.delete(
-      `/channels/${this.channelId as ""}/messages/${this.id as ""}`
+      `/channels/${this.channelId as ""}/messages/${this.id as ""}`,
     );
   }
 
@@ -312,7 +314,7 @@ export class Message {
       | (Omit<DataMessageSend, "nonce"> & {
           nonce?: string;
         }),
-    mention = true
+    mention = true,
   ): Promise<Message> | undefined {
     const obj = typeof data === "string" ? { content: data } : data;
     return this.channel?.sendMessage({
@@ -326,7 +328,7 @@ export class Message {
    */
   async clearReactions(): Promise<void> {
     return await this.#collection.client.api.delete(
-      `/channels/${this.channelId as ""}/messages/${this.id as ""}/reactions`
+      `/channels/${this.channelId as ""}/messages/${this.id as ""}/reactions`,
     );
   }
 
@@ -338,7 +340,7 @@ export class Message {
     return await this.#collection.client.api.put(
       `/channels/${this.channelId as ""}/messages/${this.id as ""}/reactions/${
         emoji as ""
-      }`
+      }`,
     );
   }
 
@@ -350,7 +352,7 @@ export class Message {
     return await this.#collection.client.api.delete(
       `/channels/${this.channelId as ""}/messages/${this.id as ""}/reactions/${
         emoji as ""
-      }`
+      }`,
     );
   }
 }

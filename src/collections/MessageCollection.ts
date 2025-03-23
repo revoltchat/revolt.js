@@ -23,7 +23,7 @@ export class MessageCollection extends ClassCollection<
     if (message && !this.isPartial(messageId)) return message;
 
     const data = await this.client.api.get(
-      `/channels/${channelId as ""}/messages/${messageId as ""}`
+      `/channels/${channelId as ""}/messages/${messageId as ""}`,
     );
 
     return this.getOrCreate(data._id, data, false);
@@ -41,7 +41,7 @@ export class MessageCollection extends ClassCollection<
     } else {
       const instance = new Message(this, id);
       this.create(id, "message", instance, this.client, data);
-      isNew && this.client.emit("messageCreate", instance);
+      if (isNew) this.client.emit("messageCreate", instance);
       return instance;
     }
   }

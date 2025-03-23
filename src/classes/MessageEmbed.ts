@@ -130,7 +130,7 @@ export class WebsiteEmbed extends MessageEmbed {
    */
   constructor(
     client: Client,
-    embed: Omit<Embed & { type: "Website" }, "type">
+    embed: Omit<Embed & { type: "Website" }, "type">,
   ) {
     super(client, "Website");
 
@@ -177,7 +177,7 @@ export class WebsiteEmbed extends MessageEmbed {
         return `https://open.spotify.com/embed/${this.specialContent.content_type}/${this.specialContent.id}`;
       case "Soundcloud":
         return `https://w.soundcloud.com/player/?url=${encodeURIComponent(
-          this.url!
+          this.url!,
         )}&color=%23FF7F50&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true`;
       case "Bandcamp": {
         return `https://bandcamp.com/EmbeddedPlayer/${this.specialContent.content_type.toLowerCase()}=${

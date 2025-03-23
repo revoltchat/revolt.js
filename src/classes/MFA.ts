@@ -93,7 +93,7 @@ export class MFATicket {
   constructor(
     client: Client,
     ticket: TicketType,
-    mutate: SetStoreFunction<MultiFactorStatus>
+    mutate: SetStoreFunction<MultiFactorStatus>,
   ) {
     this.#client = client;
     this.#ticket = ticket;
@@ -142,7 +142,7 @@ export class MFATicket {
         headers: {
           "X-MFA-Ticket": this.token,
         },
-      }
+      },
     );
 
     this.#mutate("recovery_active", true);

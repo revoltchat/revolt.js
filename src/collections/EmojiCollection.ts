@@ -33,7 +33,7 @@ export class EmojiCollection extends ClassCollection<Emoji, HydratedEmoji> {
     } else {
       const instance = new Emoji(this, id);
       this.create(id, "emoji", instance, this.client, data);
-      isNew && this.client.emit("emojiCreate", instance);
+      if (isNew) this.client.emit("emojiCreate", instance);
       return instance;
     }
   }

@@ -45,7 +45,7 @@ export class File {
    */
   constructor(
     client: Client,
-    file: Pick<APIFile, "_id" | "tag" | "metadata"> & Partial<APIFile>
+    file: Pick<APIFile, "_id" | "tag" | "metadata"> & Partial<APIFile>,
   ) {
     this.#client = client;
     this.id = file._id;

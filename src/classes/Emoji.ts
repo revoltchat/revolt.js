@@ -56,7 +56,7 @@ export class Emoji {
    */
   get creator(): User | undefined {
     return this.#collection.client.users.get(
-      this.#collection.getUnderlyingObject(this.id).creatorId
+      this.#collection.getUnderlyingObject(this.id).creatorId,
     );
   }
 

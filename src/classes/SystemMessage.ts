@@ -68,7 +68,7 @@ export class TextSystemMessage extends SystemMessage {
    */
   constructor(
     client: Client,
-    systemMessage: APISystemMessage & { type: "text" }
+    systemMessage: APISystemMessage & { type: "text" },
   ) {
     super(client, systemMessage.type);
     this.content = systemMessage.content;
@@ -96,7 +96,7 @@ export class UserSystemMessage extends SystemMessage {
         | "user_left"
         | "user_kicked"
         | "user_banned";
-    }
+    },
   ) {
     super(client, systemMessage.type);
     this.userId = systemMessage.id;
@@ -125,7 +125,7 @@ export class UserModeratedSystemMessage extends UserSystemMessage {
     client: Client,
     systemMessage: APISystemMessage & {
       type: "user_added" | "user_remove";
-    }
+    },
   ) {
     super(client, systemMessage);
     this.byId = systemMessage.by;
@@ -157,7 +157,7 @@ export class ChannelEditSystemMessage extends SystemMessage {
         | "channel_renamed"
         | "channel_description_changed"
         | "channel_icon_changed";
-    }
+    },
   ) {
     super(client, systemMessage.type);
     this.byId = systemMessage.by;
@@ -186,7 +186,7 @@ export class ChannelRenamedSystemMessage extends ChannelEditSystemMessage {
     client: Client,
     systemMessage: APISystemMessage & {
       type: "channel_renamed";
-    }
+    },
   ) {
     super(client, systemMessage);
     this.name = systemMessage.name;
@@ -209,7 +209,7 @@ export class ChannelOwnershipChangeSystemMessage extends SystemMessage {
     client: Client,
     systemMessage: APISystemMessage & {
       type: "channel_ownership_changed";
-    }
+    },
   ) {
     super(client, systemMessage.type);
     this.fromId = systemMessage.from;

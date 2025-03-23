@@ -21,7 +21,7 @@ export class SessionCollection extends ClassCollection<
   async fetch(): Promise<Session[]> {
     const data = await this.client.api.get("/auth/session/all");
     return batch(() =>
-      data.map((session) => this.getOrCreate(session._id, session))
+      data.map((session) => this.getOrCreate(session._id, session)),
     );
   }
 

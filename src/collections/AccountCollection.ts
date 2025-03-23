@@ -86,7 +86,7 @@ export class AccountCollection {
   confirmPasswordReset(
     token: string,
     newPassword: string,
-    removeSessions: boolean
+    removeSessions: boolean,
   ): Promise<void> {
     return this.client.api.patch("/auth/account/reset_password", {
       token,
@@ -138,7 +138,7 @@ export class AccountCollection {
    */
   setSettings(
     settings: Record<string, any>,
-    timestamp = +new Date()
+    timestamp = +new Date(),
   ): Promise<void> {
     return this.client.api.post("/sync/settings/set", {
       ...settings,

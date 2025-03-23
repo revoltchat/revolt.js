@@ -15,7 +15,8 @@ import type {
 import type { APIRoutes } from "revolt-api/dist/routes";
 import { decodeTime, ulid } from "ulid";
 
-import type { ChannelCollection } from "../collections/ChannelCollection.js";
+import { ChannelCollection } from "../collections/index.js";
+import { hydrate } from "../hydration/index.js";
 import {
   bitwiseAndEq,
   calculatePermission,
@@ -107,8 +108,8 @@ export class Channel {
     return this.type === "SavedMessages"
       ? this.user?.username
       : this.type === "DirectMessage"
-      ? this.recipient?.username
-      : this.name;
+        ? this.recipient?.username
+        : this.name;
   }
 
   /**
@@ -144,7 +145,7 @@ export class Channel {
    */
   get typing(): User[] {
     return [...this.typingIds.values()].map(
-      (id) => this.#collection.client.users.get(id)!
+      (id) => this.#collection.client.users.get(id)!,
     );
   }
 
@@ -170,7 +171,7 @@ export class Channel {
   get recipient(): User | undefined {
     return this.type === "DirectMessage"
       ? this.recipients?.find(
-          (user) => user?.id !== this.#collection.client.user!.id
+          (user) => user?.id !== this.#collection.client.user!.id,
         )
       : undefined;
   }
@@ -187,7 +188,7 @@ export class Channel {
    */
   get user(): User | undefined {
     return this.#collection.client.users.get(
-      this.#collection.getUnderlyingObject(this.id).userId!
+      this.#collection.getUnderlyingObject(this.id).userId!,
     );
   }
 
@@ -203,7 +204,7 @@ export class Channel {
    */
   get owner(): User | undefined {
     return this.#collection.client.users.get(
-      this.#collection.getUnderlyingObject(this.id).ownerId!
+      this.#collection.getUnderlyingObject(this.id).ownerId!,
     );
   }
 
@@ -219,7 +220,7 @@ export class Channel {
    */
   get server(): Server | undefined {
     return this.#collection.client.servers.get(
-      this.#collection.getUnderlyingObject(this.id).serverId!
+      this.#collection.getUnderlyingObject(this.id).serverId!,
     );
   }
 
@@ -338,12 +339,12 @@ export class Channel {
         (role) =>
           bitwiseAndEq(
             this.rolePermissions?.[role]?.d ?? 0,
-            Permission.ViewChannel
+            Permission.ViewChannel,
           ) ||
           bitwiseAndEq(
             this.server?.roles.get(role)?.permissions.d ?? 0,
-            Permission.ViewChannel
-          )
+            Permission.ViewChannel,
+          ),
       )
     );
   }
@@ -363,7 +364,7 @@ export class Channel {
   havePermission(...permission: (keyof typeof Permission)[]): boolean {
     return bitwiseAndEq(
       this.permission,
-      ...permission.map((x) => Permission[x])
+      ...permission.map((x) => Permission[x]),
     );
   }
 
@@ -375,7 +376,7 @@ export class Channel {
   orPermission(...permission: (keyof typeof Permission)[]): boolean {
     return (
       permission.findIndex((x) =>
-        bitwiseAndEq(this.permission, Permission[x])
+        bitwiseAndEq(this.permission, Permission[x]),
       ) !== -1
     );
   }
@@ -387,13 +388,13 @@ export class Channel {
    */
   async fetchMembers(): Promise<User[]> {
     const members = await this.#collection.client.api.get(
-      `/channels/${this.id as ""}/members`
+      `/channels/${this.id as ""}/members`,
     );
 
     return batch(() =>
       members.map((user) =>
-        this.#collection.client.users.getOrCreate(user._id, user)
-      )
+        this.#collection.client.users.getOrCreate(user._id, user),
+      ),
     );
   }
 
@@ -404,13 +405,16 @@ export class Channel {
    */
   async fetchWebhooks(): Promise<ChannelWebhook[]> {
     const webhooks = await this.#collection.client.api.get(
-      `/channels/${this.id as ""}/webhooks`
+      `/channels/${this.id as ""}/webhooks`,
     );
 
     return batch(() =>
       webhooks.map((webhook) =>
-        this.#collection.client.channelWebhooks.getOrCreate(webhook.id, webhook)
-      )
+        this.#collection.client.channelWebhooks.getOrCreate(
+          webhook.id,
+          webhook,
+        ),
+      ),
     );
   }
 
@@ -418,8 +422,16 @@ export class Channel {
    * Edit a channel
    * @param data Changes
    */
-  async edit(data: DataEditChannel): Promise<void> {
-    await this.#collection.client.api.patch(`/channels/${this.id as ""}`, data);
+  async edit(data: DataEditChannel) {
+    const channel = await this.#collection.client.api.patch(
+      `/channels/${this.id as ""}`,
+      data,
+    );
+
+    this.#collection.updateUnderlyingObject(
+      this.id,
+      hydrate("channel", channel, this.#collection.client, false),
+    );
   }
 
   /**
@@ -447,7 +459,7 @@ export class Channel {
    */
   async addMember(user_id: string): Promise<void> {
     return await this.#collection.client.api.put(
-      `/channels/${this.id as ""}/recipients/${user_id as ""}`
+      `/channels/${this.id as ""}/recipients/${user_id as ""}`,
     );
   }
 
@@ -458,7 +470,7 @@ export class Channel {
    */
   async removeMember(user_id: string): Promise<void> {
     return await this.#collection.client.api.delete(
-      `/channels/${this.id as ""}/recipients/${user_id as ""}`
+      `/channels/${this.id as ""}/recipients/${user_id as ""}`,
     );
   }
 
@@ -470,7 +482,7 @@ export class Channel {
    */
   async sendMessage(
     data: string | DataMessageSend,
-    idempotencyKey: string = ulid()
+    idempotencyKey: string = ulid(),
   ): Promise<Message> {
     const msg: DataMessageSend =
       typeof data === "string" ? { content: data } : data;
@@ -489,13 +501,13 @@ export class Channel {
         headers: {
           "Idempotency-Key": idempotencyKey,
         },
-      }
+      },
     );
 
     return this.#collection.client.messages.getOrCreate(
       message._id,
       message,
-      true
+      true,
     );
   }
 
@@ -507,7 +519,7 @@ export class Channel {
    */
   async fetchMessage(messageId: string): Promise<Message> {
     const message = await this.#collection.client.api.get(
-      `/channels/${this.id as ""}/messages/${messageId as ""}`
+      `/channels/${this.id as ""}/messages/${messageId as ""}`,
     );
 
     return this.#collection.client.messages.getOrCreate(message._id, message);
@@ -526,15 +538,15 @@ export class Channel {
         path: "/channels/{target}/messages";
       })["params"],
       "include_users"
-    >
+    >,
   ): Promise<Message[]> {
     const messages = (await this.#collection.client.api.get(
       `/channels/${this.id as ""}/messages`,
-      { ...params }
+      { ...params },
     )) as APIMessage[];
 
     return messages.map((message) =>
-      this.#collection.client.messages.getOrCreate(message._id, message)
+      this.#collection.client.messages.getOrCreate(message._id, message),
     );
   }
 
@@ -551,7 +563,7 @@ export class Channel {
         path: "/channels/{target}/messages";
       })["params"],
       "include_users"
-    >
+    >,
   ): Promise<{
     messages: Message[];
     users: User[];
@@ -559,18 +571,18 @@ export class Channel {
   }> {
     const data = (await this.#collection.client.api.get(
       `/channels/${this.id as ""}/messages`,
-      { ...params, include_users: true }
+      { ...params, include_users: true },
     )) as { messages: APIMessage[]; users: APIUser[]; members?: APIMember[] };
 
     return batch(() => ({
       messages: data.messages.map((message) =>
-        this.#collection.client.messages.getOrCreate(message._id, message)
+        this.#collection.client.messages.getOrCreate(message._id, message),
       ),
       users: data.users.map((user) =>
-        this.#collection.client.users.getOrCreate(user._id, user)
+        this.#collection.client.users.getOrCreate(user._id, user),
       ),
       members: data.members?.map((member) =>
-        this.#collection.client.serverMembers.getOrCreate(member._id, member)
+        this.#collection.client.serverMembers.getOrCreate(member._id, member),
       ),
     }));
   }
@@ -582,17 +594,17 @@ export class Channel {
    * @returns Messages
    */
   async search(
-    params: Omit<DataMessageSearch, "include_users">
+    params: Omit<DataMessageSearch, "include_users">,
   ): Promise<Message[]> {
     const messages = (await this.#collection.client.api.post(
       `/channels/${this.id as ""}/search`,
-      params
+      params,
     )) as APIMessage[];
 
     return batch(() =>
       messages.map((message) =>
-        this.#collection.client.messages.getOrCreate(message._id, message)
-      )
+        this.#collection.client.messages.getOrCreate(message._id, message),
+      ),
     );
   }
 
@@ -603,7 +615,7 @@ export class Channel {
    * @returns Object including messages and users
    */
   async searchWithUsers(
-    params: Omit<DataMessageSearch, "include_users">
+    params: Omit<DataMessageSearch, "include_users">,
   ): Promise<{
     messages: Message[];
     users: User[];
@@ -614,18 +626,18 @@ export class Channel {
       {
         ...params,
         include_users: true,
-      }
+      },
     )) as { messages: APIMessage[]; users: APIUser[]; members?: APIMember[] };
 
     return batch(() => ({
       messages: data.messages.map((message) =>
-        this.#collection.client.messages.getOrCreate(message._id, message)
+        this.#collection.client.messages.getOrCreate(message._id, message),
       ),
       users: data.users.map((user) =>
-        this.#collection.client.users.getOrCreate(user._id, user)
+        this.#collection.client.users.getOrCreate(user._id, user),
       ),
       members: data.members?.map((member) =>
-        this.#collection.client.serverMembers.getOrCreate(member._id, member)
+        this.#collection.client.serverMembers.getOrCreate(member._id, member),
       ),
     }));
   }
@@ -640,7 +652,7 @@ export class Channel {
       `/channels/${this.id as ""}/messages/bulk`,
       {
         ids,
-      }
+      },
     );
   }
 
@@ -651,7 +663,7 @@ export class Channel {
    */
   async createInvite(): Promise<Invite> {
     return await this.#collection.client.api.post(
-      `/channels/${this.id as ""}/invites`
+      `/channels/${this.id as ""}/invites`,
     );
   }
 
@@ -671,7 +683,7 @@ export class Channel {
     message?: Message | string,
     skipRateLimiter?: boolean,
     skipRequest?: boolean,
-    skipNextMarking?: boolean
+    skipNextMarking?: boolean,
   ): Promise<void> {
     if (!message && this.#manuallyMarked) {
       this.#manuallyMarked = false;
@@ -708,7 +720,7 @@ export class Channel {
     const performAck = (): void => {
       this.#ackLimit = undefined;
       this.#collection.client.api.put(
-        `/channels/${this.id}/ack/${lastMessageId as ""}`
+        `/channels/${this.id}/ack/${lastMessageId as ""}`,
       );
     };
 
@@ -735,11 +747,11 @@ export class Channel {
    */
   async setPermissions(
     role_id = "default",
-    permissions: Override
+    permissions: Override,
   ): Promise<APIChannel> {
     return await this.#collection.client.api.put(
       `/channels/${this.id as ""}/permissions/${role_id as ""}`,
-      { permissions }
+      { permissions },
     );
   }
 

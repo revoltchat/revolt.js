@@ -42,7 +42,7 @@ export class ServerBan {
    */
   async pardon(): Promise<void> {
     await this.client.api.delete(
-      `/servers/${this.id.server as ""}/bans/${this.id.user as ""}`
+      `/servers/${this.id.server as ""}/bans/${this.id.user as ""}`,
     );
   }
 }

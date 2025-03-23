@@ -59,7 +59,7 @@ export abstract class Collection<T> {
    * @param cb Callback for each pair
    */
   abstract forEach(
-    cb: (value: T, key: string, map: Map<string, T>) => void
+    cb: (value: T, key: string, map: Map<string, T>) => void,
   ): void;
 
   /**
@@ -169,7 +169,7 @@ export abstract class StoreCollection<T, V> extends Collection<T> {
     type: keyof Hydrators,
     instance: T,
     context: unknown,
-    data?: unknown
+    data?: unknown,
   ): void {
     this.#storage.hydrate(id, type, context, data);
     this.#objects.set(id, instance);

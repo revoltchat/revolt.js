@@ -1,8 +1,7 @@
 import type { Accessor, Setter } from "solid-js";
 import { createSignal } from "solid-js";
 
-import EventEmitter from "eventemitter3";
-import WebSocket from "isomorphic-ws";
+import { AsyncEventEmitter } from "@vladfrangu/async_event_emitter";
 import type { Error } from "revolt-api";
 
 import type { ProtocolV1 } from "./v1.js";
@@ -67,17 +66,17 @@ export interface EventClientOptions {
  * Events provided by the client.
  */
 type Events<T extends AvailableProtocols, P extends EventProtocol<T>> = {
-  error: (error: Error) => void;
-  event: (event: P["server"]) => void;
-  state: (state: ConnectionState) => void;
+  error: [error: Error];
+  event: [event: P["server"]];
+  state: [state: ConnectionState];
 };
 
 /**
  * Simple wrapper around the Revolt websocket service.
  */
-export class EventClient<T extends AvailableProtocols> extends EventEmitter<
-  Events<T, EventProtocol<T>>
-> {
+export class EventClient<
+  T extends AvailableProtocols,
+> extends AsyncEventEmitter<Events<T, EventProtocol<T>>> {
   readonly options: EventClientOptions;
 
   #protocolVersion: T;
@@ -106,7 +105,7 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
   constructor(
     protocolVersion: T,
     transportFormat: "json" = "json",
-    options?: Partial<EventClientOptions>
+    options?: Partial<EventClientOptions>,
   ) {
     super();
 
@@ -153,13 +152,11 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
 
     this.#connectTimeoutReference = setTimeout(
       () => this.disconnect(),
-      this.options.pongTimeout * 1e3
+      this.options.pongTimeout * 1e3,
     ) as never;
 
     this.#socket = new WebSocket(
-      `${uri}?version=${this.#protocolVersion}&format=${
-        this.#transportFormat
-      }&token=${token}`
+      `${uri}?version=${this.#protocolVersion}&format=${this.#transportFormat}&token=${token}`,
     );
 
     this.#socket.onopen = () => {
@@ -167,7 +164,7 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
         this.send({ type: "Ping", data: +new Date() });
         this.#pongTimeoutReference = setTimeout(
           () => this.disconnect(),
-          this.options.pongTimeout * 1e3
+          this.options.pongTimeout * 1e3,
         ) as never;
       }, this.options.heartbeatInterval * 1e3) as never;
     };
@@ -215,7 +212,7 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
    * @param event Event
    */
   send(event: EventProtocol<T>["client"]): void {
-    this.options.debug && console.debug("[C->S]", event);
+    if (this.options.debug) console.debug("[C->S]", event);
     if (!this.#socket) throw "Socket closed, trying to send.";
     this.#socket.send(JSON.stringify(event));
   }
@@ -225,7 +222,7 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
    * @param event Event
    */
   handle(event: EventProtocol<T>["server"]): void {
-    this.options.debug && console.debug("[S->C]", event);
+    if (this.options.debug) console.debug("[S->C]", event);
     switch (event.type) {
       case "Ping":
         this.send({
@@ -236,7 +233,7 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
       case "Pong":
         clearTimeout(this.#pongTimeoutReference);
         this.#setPing(+new Date() - event.data);
-        this.options.debug && console.debug(`[ping] ${this.ping()}ms`);
+        if (this.options.debug) console.debug(`[ping] ${this.ping()}ms`);
         return;
       case "Error":
         this.#lastError = {
@@ -267,9 +264,7 @@ export class EventClient<T extends AvailableProtocols> extends EventEmitter<
         }
         break;
       default:
-        throw `Unreachable code. Received ${
-          event.type
-        } in state ${this.state()}.`;
+        throw `Unreachable code. Received ${event.type} in state ${this.state()}.`;
     }
   }
 

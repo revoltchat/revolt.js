@@ -52,7 +52,7 @@ export class ServerCollection extends ClassCollection<Server, HydratedServer> {
     } else {
       const instance = new Server(this, id);
       this.create(id, "server", instance, this.client, data);
-      isNew && this.client.emit("serverCreate", instance);
+      if (isNew) this.client.emit("serverCreate", instance);
       return instance;
     }
   }
@@ -82,7 +82,7 @@ export class ServerCollection extends ClassCollection<Server, HydratedServer> {
   async createServer(data: DataCreateServer): Promise<Server> {
     const { server, channels } = await this.client.api.post(
       `/servers/create`,
-      data
+      data,
     );
 
     return batch(() => {

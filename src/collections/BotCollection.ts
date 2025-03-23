@@ -33,7 +33,7 @@ export class BotCollection extends ClassCollection<Bot, HydratedBot> {
     const data = (await this.client.api.get("/bots/@me")) as OwnedBotsResponse;
     return batch(() => {
       data.users.forEach((user) =>
-        this.client.users.getOrCreate(user._id, user)
+        this.client.users.getOrCreate(user._id, user),
       );
       return data.bots.map((bot) => this.getOrCreate(bot._id, bot));
     });
