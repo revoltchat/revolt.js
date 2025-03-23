@@ -266,7 +266,11 @@ export async function handleEvent(
         client.messages.setUnderlyingObject(event.id, {
           ...hydrate(
             "message",
-            { ...event.data, channel: event.channel },
+            {
+              ...previousMessage,
+              ...event.data,
+              channel: event.channel,
+            } as typeof event.data,
             client,
             false,
           ),
