@@ -7,15 +7,12 @@
 ## Example Usage
 
 ```javascript
-// esm / typescript
 import { Client } from "revolt.js";
-// ...or commonjs
-const { Client } = require("revolt.js");
 
 let client = new Client();
 
 client.on("ready", async () =>
-  console.info(`Logged in as ${client.user.username}!`)
+  console.info(`Logged in as ${client.user.username}!`),
 );
 
 client.on("messageCreate", async (message) => {
