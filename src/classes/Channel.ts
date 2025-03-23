@@ -1,25 +1,34 @@
 import { batch } from "solid-js";
 
+import type { ReactiveSet } from "@solid-primitives/set";
 import type {
-  Member as ApiMember,
-  Message as ApiMessage,
-  User as ApiUser,
+  Channel as APIChannel,
+  Member as APIMember,
+  Message as APIMessage,
+  User as APIUser,
   DataEditChannel,
   DataMessageSearch,
   DataMessageSend,
+  Invite,
   Override,
 } from "revolt-api";
-import { APIRoutes } from "revolt-api/dist/routes";
+import type { APIRoutes } from "revolt-api/dist/routes";
 import { decodeTime, ulid } from "ulid";
 
 import { ChannelCollection } from "../collections/index.js";
 import { hydrate } from "../hydration/index.js";
-import { Message } from "../index.js";
 import {
   bitwiseAndEq,
   calculatePermission,
 } from "../permissions/calculator.js";
 import { Permission } from "../permissions/definitions.js";
+
+import type { ChannelWebhook } from "./ChannelWebhook.js";
+import type { File } from "./File.js";
+import type { Message } from "./Message.js";
+import type { Server } from "./Server.js";
+import type { ServerMember } from "./ServerMember.js";
+import type { User } from "./User.js";
 
 /**
  * Channel Class
@@ -42,35 +51,35 @@ export class Channel {
    * Write to string as a channel mention
    * @returns Formatted String
    */
-  toString() {
+  toString(): string {
     return `<#${this.id}>`;
   }
 
   /**
    * Whether this object exists
    */
-  get $exists() {
+  get $exists(): boolean {
     return !!this.#collection.getUnderlyingObject(this.id).id;
   }
 
   /**
    * Time when this server was created
    */
-  get createdAt() {
+  get createdAt(): Date {
     return new Date(decodeTime(this.id));
   }
 
   /**
    * Channel type
    */
-  get type() {
+  get type(): APIChannel["channel_type"] {
     return this.#collection.getUnderlyingObject(this.id).channelType;
   }
 
   /**
    * Absolute pathname to this channel in the client
    */
-  get path() {
+  get path(): string {
     if (this.serverId) {
       return `/server/${this.serverId}/channel/${this.id}`;
     } else {
@@ -81,21 +90,21 @@ export class Channel {
   /**
    * URL to this channel
    */
-  get url() {
+  get url(): string {
     return this.#collection.client.configuration?.app + this.path;
   }
 
   /**
    * Channel name
    */
-  get name() {
+  get name(): string {
     return this.#collection.getUnderlyingObject(this.id).name;
   }
 
   /**
    * Display name
    */
-  get displayName() {
+  get displayName(): string | undefined {
     return this.type === "SavedMessages"
       ? this.user?.username
       : this.type === "DirectMessage"
@@ -106,35 +115,35 @@ export class Channel {
   /**
    * Channel description
    */
-  get description() {
+  get description(): string | undefined {
     return this.#collection.getUnderlyingObject(this.id).description;
   }
 
   /**
    * Channel icon
    */
-  get icon() {
+  get icon(): File | undefined {
     return this.#collection.getUnderlyingObject(this.id).icon;
   }
 
   /**
    * Whether the conversation is active
    */
-  get active() {
+  get active(): boolean {
     return this.#collection.getUnderlyingObject(this.id).active;
   }
 
   /**
    * User ids of people currently typing in channel
    */
-  get typingIds() {
+  get typingIds(): ReactiveSet<string> {
     return this.#collection.getUnderlyingObject(this.id).typingIds;
   }
 
   /**
    * Users currently trying in channel
    */
-  get typing() {
+  get typing(): User[] {
     return [...this.typingIds.values()].map(
       (id) => this.#collection.client.users.get(id)!,
     );
@@ -143,14 +152,14 @@ export class Channel {
   /**
    * User ids of recipients of the group
    */
-  get recipientIds() {
+  get recipientIds(): ReactiveSet<string> {
     return this.#collection.getUnderlyingObject(this.id).recipientIds;
   }
 
   /**
    * Recipients of the group
    */
-  get recipients() {
+  get recipients(): User[] {
     return [
       ...this.#collection.getUnderlyingObject(this.id).recipientIds.values(),
     ].map((id) => this.#collection.client.users.get(id)!);
@@ -159,7 +168,7 @@ export class Channel {
   /**
    * Find recipient of this DM
    */
-  get recipient() {
+  get recipient(): User | undefined {
     return this.type === "DirectMessage"
       ? this.recipients?.find(
           (user) => user?.id !== this.#collection.client.user!.id,
@@ -170,14 +179,14 @@ export class Channel {
   /**
    * User ID
    */
-  get userId() {
+  get userId(): string {
     return this.#collection.getUnderlyingObject(this.id).userId!;
   }
 
   /**
    * User this channel belongs to
    */
-  get user() {
+  get user(): User | undefined {
     return this.#collection.client.users.get(
       this.#collection.getUnderlyingObject(this.id).userId!,
     );
@@ -186,14 +195,14 @@ export class Channel {
   /**
    * Owner ID
    */
-  get ownerId() {
+  get ownerId(): string {
     return this.#collection.getUnderlyingObject(this.id).ownerId!;
   }
 
   /**
    * Owner of the group
    */
-  get owner() {
+  get owner(): User | undefined {
     return this.#collection.client.users.get(
       this.#collection.getUnderlyingObject(this.id).ownerId!,
     );
@@ -202,14 +211,14 @@ export class Channel {
   /**
    * Server ID
    */
-  get serverId() {
+  get serverId(): string {
     return this.#collection.getUnderlyingObject(this.id).serverId!;
   }
 
   /**
    * Server this channel is in
    */
-  get server() {
+  get server(): Server | undefined {
     return this.#collection.client.servers.get(
       this.#collection.getUnderlyingObject(this.id).serverId!,
     );
@@ -218,49 +227,49 @@ export class Channel {
   /**
    * Permissions allowed for users in this group
    */
-  get permissions() {
+  get permissions(): number | undefined {
     return this.#collection.getUnderlyingObject(this.id).permissions;
   }
 
   /**
    * Default permissions for this server channel
    */
-  get defaultPermissions() {
+  get defaultPermissions(): { a: number; d: number } | undefined {
     return this.#collection.getUnderlyingObject(this.id).defaultPermissions;
   }
 
   /**
    * Role permissions for this server channel
    */
-  get rolePermissions() {
+  get rolePermissions(): Record<string, { a: number; d: number }> | undefined {
     return this.#collection.getUnderlyingObject(this.id).rolePermissions;
   }
 
   /**
    * Whether this channel is marked as mature
    */
-  get mature() {
+  get mature(): boolean {
     return this.#collection.getUnderlyingObject(this.id).nsfw;
   }
 
   /**
    * ID of the last message sent in this channel
    */
-  get lastMessageId() {
+  get lastMessageId(): string | undefined {
     return this.#collection.getUnderlyingObject(this.id).lastMessageId;
   }
 
   /**
    * Last message sent in this channel
    */
-  get lastMessage() {
+  get lastMessage(): Message | undefined {
     return this.#collection.client.messages.get(this.lastMessageId!);
   }
 
   /**
    * Time when the last message was sent
    */
-  get lastMessageAt() {
+  get lastMessageAt(): Date | undefined {
     return this.lastMessageId
       ? new Date(decodeTime(this.lastMessageId))
       : undefined;
@@ -269,14 +278,14 @@ export class Channel {
   /**
    * Time when the channel was last updated (either created or a message was sent)
    */
-  get updatedAt() {
+  get updatedAt(): Date {
     return this.lastMessageAt ?? this.createdAt;
   }
 
   /**
    * Get whether this channel is unread.
    */
-  get unread() {
+  get unread(): boolean {
     if (
       !this.lastMessageId ||
       this.type === "SavedMessages" ||
@@ -296,7 +305,7 @@ export class Channel {
   /**
    * Get mentions in this channel for user.
    */
-  get mentions() {
+  get mentions(): ReactiveSet<string> | undefined {
     if (this.type === "SavedMessages" || this.type === "VoiceChannel")
       return undefined;
 
@@ -307,21 +316,21 @@ export class Channel {
   /**
    * URL to the channel icon
    */
-  get iconURL() {
+  get iconURL(): string | undefined {
     return this.icon?.createFileURL() ?? this.recipient?.avatarURL;
   }
 
   /**
    * URL to the animated channel icon
    */
-  get animatedIconURL() {
+  get animatedIconURL(): string | undefined {
     return this.icon?.createFileURL(true) ?? this.recipient?.animatedAvatarURL;
   }
 
   /**
    * Whether this channel may be hidden to some users
    */
-  get potentiallyRestrictedChannel() {
+  get potentiallyRestrictedChannel(): string | boolean | undefined {
     if (!this.serverId) return false;
     return (
       bitwiseAndEq(this.defaultPermissions?.d ?? 0, Permission.ViewChannel) ||
@@ -343,7 +352,7 @@ export class Channel {
   /**
    * Permission the currently authenticated user has against this channel
    */
-  get permission() {
+  get permission(): number {
     return calculatePermission(this.#collection.client, this);
   }
 
@@ -352,7 +361,7 @@ export class Channel {
    * @param permission Permission Names
    * @returns Whether we have this permission
    */
-  havePermission(...permission: (keyof typeof Permission)[]) {
+  havePermission(...permission: (keyof typeof Permission)[]): boolean {
     return bitwiseAndEq(
       this.permission,
       ...permission.map((x) => Permission[x]),
@@ -364,7 +373,7 @@ export class Channel {
    * @param permission Permission Names
    * @returns Whether we have one of the permissions
    */
-  orPermission(...permission: (keyof typeof Permission)[]) {
+  orPermission(...permission: (keyof typeof Permission)[]): boolean {
     return (
       permission.findIndex((x) =>
         bitwiseAndEq(this.permission, Permission[x]),
@@ -377,7 +386,7 @@ export class Channel {
    * @requires `Group`
    * @returns An array of the channel's members.
    */
-  async fetchMembers() {
+  async fetchMembers(): Promise<User[]> {
     const members = await this.#collection.client.api.get(
       `/channels/${this.id as ""}/members`,
     );
@@ -394,7 +403,7 @@ export class Channel {
    * @requires `TextChannel`, `Group`
    * @returns Webhooks
    */
-  async fetchWebhooks() {
+  async fetchWebhooks(): Promise<ChannelWebhook[]> {
     const webhooks = await this.#collection.client.api.get(
       `/channels/${this.id as ""}/webhooks`,
     );
@@ -416,12 +425,12 @@ export class Channel {
   async edit(data: DataEditChannel) {
     const channel = await this.#collection.client.api.patch(
       `/channels/${this.id as ""}`,
-      data
+      data,
     );
 
     this.#collection.updateUnderlyingObject(
       this.id,
-      hydrate("channel", channel, this.#collection.client, false)
+      hydrate("channel", channel, this.#collection.client, false),
     );
   }
 
@@ -430,7 +439,7 @@ export class Channel {
    * @param leaveSilently Whether to not send a message on leave
    * @requires `DirectMessage`, `Group`, `TextChannel`, `VoiceChannel`
    */
-  async delete(leaveSilently?: boolean) {
+  async delete(leaveSilently?: boolean): Promise<void> {
     await this.#collection.client.api.delete(`/channels/${this.id as ""}`, {
       leave_silently: leaveSilently,
     });
@@ -448,7 +457,7 @@ export class Channel {
    * @param user_id ID of the target user
    * @requires `Group`
    */
-  async addMember(user_id: string) {
+  async addMember(user_id: string): Promise<void> {
     return await this.#collection.client.api.put(
       `/channels/${this.id as ""}/recipients/${user_id as ""}`,
     );
@@ -459,7 +468,7 @@ export class Channel {
    * @param user_id ID of the target user
    * @requires `Group`
    */
-  async removeMember(user_id: string) {
+  async removeMember(user_id: string): Promise<void> {
     return await this.#collection.client.api.delete(
       `/channels/${this.id as ""}/recipients/${user_id as ""}`,
     );
@@ -474,7 +483,7 @@ export class Channel {
   async sendMessage(
     data: string | DataMessageSend,
     idempotencyKey: string = ulid(),
-  ) {
+  ): Promise<Message> {
     const msg: DataMessageSend =
       typeof data === "string" ? { content: data } : data;
 
@@ -508,7 +517,7 @@ export class Channel {
    * @requires `SavedMessages`, `DirectMessage`, `Group`, `TextChannel`
    * @returns Message
    */
-  async fetchMessage(messageId: string) {
+  async fetchMessage(messageId: string): Promise<Message> {
     const message = await this.#collection.client.api.get(
       `/channels/${this.id as ""}/messages/${messageId as ""}`,
     );
@@ -530,11 +539,11 @@ export class Channel {
       })["params"],
       "include_users"
     >,
-  ) {
+  ): Promise<Message[]> {
     const messages = (await this.#collection.client.api.get(
       `/channels/${this.id as ""}/messages`,
       { ...params },
-    )) as ApiMessage[];
+    )) as APIMessage[];
 
     return messages.map((message) =>
       this.#collection.client.messages.getOrCreate(message._id, message),
@@ -555,11 +564,15 @@ export class Channel {
       })["params"],
       "include_users"
     >,
-  ) {
+  ): Promise<{
+    messages: Message[];
+    users: User[];
+    members: ServerMember[] | undefined;
+  }> {
     const data = (await this.#collection.client.api.get(
       `/channels/${this.id as ""}/messages`,
       { ...params, include_users: true },
-    )) as { messages: ApiMessage[]; users: ApiUser[]; members?: ApiMember[] };
+    )) as { messages: APIMessage[]; users: APIUser[]; members?: APIMember[] };
 
     return batch(() => ({
       messages: data.messages.map((message) =>
@@ -580,11 +593,13 @@ export class Channel {
    * @requires `SavedMessages`, `DirectMessage`, `Group`, `TextChannel`
    * @returns Messages
    */
-  async search(params: Omit<DataMessageSearch, "include_users">) {
+  async search(
+    params: Omit<DataMessageSearch, "include_users">,
+  ): Promise<Message[]> {
     const messages = (await this.#collection.client.api.post(
       `/channels/${this.id as ""}/search`,
       params,
-    )) as ApiMessage[];
+    )) as APIMessage[];
 
     return batch(() =>
       messages.map((message) =>
@@ -599,14 +614,20 @@ export class Channel {
    * @requires `SavedMessages`, `DirectMessage`, `Group`, `TextChannel`
    * @returns Object including messages and users
    */
-  async searchWithUsers(params: Omit<DataMessageSearch, "include_users">) {
+  async searchWithUsers(
+    params: Omit<DataMessageSearch, "include_users">,
+  ): Promise<{
+    messages: Message[];
+    users: User[];
+    members: ServerMember[] | undefined;
+  }> {
     const data = (await this.#collection.client.api.post(
       `/channels/${this.id as ""}/search`,
       {
         ...params,
         include_users: true,
       },
-    )) as { messages: ApiMessage[]; users: ApiUser[]; members?: ApiMember[] };
+    )) as { messages: APIMessage[]; users: APIUser[]; members?: APIMember[] };
 
     return batch(() => ({
       messages: data.messages.map((message) =>
@@ -626,7 +647,7 @@ export class Channel {
    * @param ids List of message IDs
    * @requires `SavedMessages`, `DirectMessage`, `Group`, `TextChannel`
    */
-  async deleteMessages(ids: string[]) {
+  async deleteMessages(ids: string[]): Promise<void> {
     await this.#collection.client.api.delete(
       `/channels/${this.id as ""}/messages/bulk`,
       {
@@ -640,7 +661,7 @@ export class Channel {
    * @requires `TextChannel`, `VoiceChannel`
    * @returns Newly created invite code
    */
-  async createInvite() {
+  async createInvite(): Promise<Invite> {
     return await this.#collection.client.api.post(
       `/channels/${this.id as ""}/invites`,
     );
@@ -663,7 +684,7 @@ export class Channel {
     skipRateLimiter?: boolean,
     skipRequest?: boolean,
     skipNextMarking?: boolean,
-  ) {
+  ): Promise<void> {
     if (!message && this.#manuallyMarked) {
       this.#manuallyMarked = false;
       return;
@@ -696,7 +717,7 @@ export class Channel {
     /**
      * Send the actual acknowledgement request
      */
-    const performAck = () => {
+    const performAck = (): void => {
       this.#ackLimit = undefined;
       this.#collection.client.api.put(
         `/channels/${this.id}/ack/${lastMessageId as ""}`,
@@ -724,7 +745,10 @@ export class Channel {
    * @param permissions Permission value
    * @requires `Group`, `TextChannel`, `VoiceChannel`
    */
-  async setPermissions(role_id = "default", permissions: Override) {
+  async setPermissions(
+    role_id = "default",
+    permissions: Override,
+  ): Promise<APIChannel> {
     return await this.#collection.client.api.put(
       `/channels/${this.id as ""}/permissions/${role_id as ""}`,
       { permissions },
@@ -735,7 +759,7 @@ export class Channel {
    * Start typing in this channel
    * @requires `DirectMessage`, `Group`, `TextChannel`
    */
-  startTyping() {
+  startTyping(): void {
     this.#collection.client.events.send({
       type: "BeginTyping",
       channel: this.id,
@@ -746,7 +770,7 @@ export class Channel {
    * Stop typing in this channel
    * @requires `DirectMessage`, `Group`, `TextChannel`
    */
-  stopTyping() {
+  stopTyping(): void {
     this.#collection.client.events.send({
       type: "EndTyping",
       channel: this.id,

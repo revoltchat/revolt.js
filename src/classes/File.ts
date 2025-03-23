@@ -1,6 +1,6 @@
-import { Metadata } from "revolt-api";
+import type { File as APIFile, Metadata } from "revolt-api";
 
-import { API, Client } from "../index.js";
+import type { Client } from "../Client.js";
 
 /**
  * Uploaded File
@@ -45,7 +45,7 @@ export class File {
    */
   constructor(
     client: Client,
-    file: Pick<API.File, "_id" | "tag" | "metadata"> & Partial<API.File>,
+    file: Pick<APIFile, "_id" | "tag" | "metadata"> & Partial<APIFile>,
   ) {
     this.#client = client;
     this.id = file._id;
@@ -59,7 +59,7 @@ export class File {
   /**
    * Direct URL to the file
    */
-  get url() {
+  get url(): string {
     return `${this.#client.configuration?.features.autumn.url}/${this.tag}/${
       this.id
     }/${this.filename}`;
@@ -68,7 +68,7 @@ export class File {
   /**
    * Download URL for the file
    */
-  get downloadURL() {
+  get downloadURL(): string {
     return `${this.#client.configuration?.features.autumn.url}/${
       this.tag
     }/download/${this.id}/${this.filename}`;
@@ -77,7 +77,7 @@ export class File {
   /**
    * Human readable file size
    */
-  get humanReadableSize() {
+  get humanReadableSize(): string {
     if (!this.size) return "Unknown size";
 
     if (this.size > 1e6) {
@@ -92,7 +92,7 @@ export class File {
   /**
    * Whether this file should have a spoiler
    */
-  get isSpoiler() {
+  get isSpoiler(): boolean {
     return this.filename?.toLowerCase().startsWith("spoiler_") ?? false;
   }
 
@@ -101,7 +101,7 @@ export class File {
    * @param forceAnimation Returns GIF if applicable (for avatars/icons)
    * @returns Generated URL or nothing
    */
-  createFileURL(forceAnimation?: boolean) {
+  createFileURL(forceAnimation?: boolean): string | undefined {
     const autumn = this.#client.configuration?.features.autumn;
     if (!autumn?.enabled) return;
 

@@ -1,7 +1,7 @@
-import { DataCreateAccount, WebPushSubscription } from "revolt-api";
+import type { DataCreateAccount, WebPushSubscription } from "revolt-api";
 
+import type { Client } from "../Client.js";
 import { MFA } from "../classes/MFA.js";
-import { Client } from "../index.js";
 
 /**
  * Utility functions for working with accounts
@@ -21,25 +21,22 @@ export class AccountCollection {
    * Fetch current account email
    * @returns Email
    */
-  fetchEmail() {
-    return this.client.api
-      .get("/auth/account/")
-      .then((account) => account.email);
+  async fetchEmail(): Promise<string> {
+    return (await this.client.api.get("/auth/account/")).email;
   }
 
   /**
    * Create a MFA helper
    */
-  async mfa() {
-    const state = await this.client.api.get("/auth/mfa/");
-    return new MFA(this.client, state);
+  async mfa(): Promise<MFA> {
+    return new MFA(this.client, await this.client.api.get("/auth/mfa/"));
   }
 
   /**
    * Create a new account
    * @param data Account details
    */
-  create(data: DataCreateAccount) {
+  create(data: DataCreateAccount): Promise<void> {
     return this.client.api.post("/auth/account/create", data);
   }
 
@@ -48,7 +45,7 @@ export class AccountCollection {
    * @param email Email
    * @param captcha Captcha if enabled
    */
-  reverify(email: string, captcha?: string) {
+  reverify(email: string, captcha?: string): Promise<void> {
     return this.client.api.post("/auth/account/reverify", { email, captcha });
   }
 
@@ -57,7 +54,7 @@ export class AccountCollection {
    * @param email Email
    * @param captcha Captcha if enabled
    */
-  resetPassword(email: string, captcha?: string) {
+  resetPassword(email: string, captcha?: string): Promise<void> {
     return this.client.api.post("/auth/account/reset_password", {
       email,
       captcha,
@@ -68,7 +65,7 @@ export class AccountCollection {
    * Verify an account given the code
    * @param code Verification code
    */
-  verify(code: string) {
+  verify(code: string): Promise<unknown> {
     return this.client.api.post(`/auth/account/verify/${code}`);
   }
 
@@ -76,7 +73,7 @@ export class AccountCollection {
    * Confirm account deletion
    * @param token Deletion token
    */
-  confirmDelete(token: string) {
+  confirmDelete(token: string): Promise<void> {
     return this.client.api.put("/auth/account/delete", { token });
   }
 
@@ -90,7 +87,7 @@ export class AccountCollection {
     token: string,
     newPassword: string,
     removeSessions: boolean,
-  ) {
+  ): Promise<void> {
     return this.client.api.patch("/auth/account/reset_password", {
       token,
       password: newPassword,
@@ -103,7 +100,7 @@ export class AccountCollection {
    * @param newPassword New password
    * @param currentPassword Current password
    */
-  changePassword(newPassword: string, currentPassword: string) {
+  changePassword(newPassword: string, currentPassword: string): Promise<void> {
     return this.client.api.patch("/auth/account/change/password", {
       password: newPassword,
       current_password: currentPassword,
@@ -115,7 +112,7 @@ export class AccountCollection {
    * @param newEmail New email
    * @param currentPassword Current password
    */
-  changeEmail(newEmail: string, currentPassword: string) {
+  changeEmail(newEmail: string, currentPassword: string): Promise<void> {
     return this.client.api.patch("/auth/account/change/email", {
       email: newEmail,
       current_password: currentPassword,
@@ -127,7 +124,7 @@ export class AccountCollection {
    * @param keys Keys
    * @returns Settings
    */
-  fetchSettings(keys: string[]) {
+  fetchSettings(keys: string[]): Promise<Record<string, [number, string]>> {
     return this.client.api.post("/sync/settings/fetch", { keys }) as Promise<
       Record<string, [number, string]>
     >;
@@ -139,7 +136,10 @@ export class AccountCollection {
    * @param settings Settings
    * @param timestamp Timestamp
    */
-  setSettings(settings: Record<string, any>, timestamp = +new Date()) {
+  setSettings(
+    settings: Record<string, any>,
+    timestamp = +new Date(),
+  ): Promise<void> {
     return this.client.api.post("/sync/settings/set", {
       ...settings,
       timestamp,
@@ -151,14 +151,14 @@ export class AccountCollection {
    * Create a new Web Push subscription
    * @param subscription Subscription
    */
-  webPushSubscribe(subscription: WebPushSubscription) {
+  webPushSubscribe(subscription: WebPushSubscription): Promise<void> {
     return this.client.api.post("/push/subscribe", subscription);
   }
 
   /**
    * Remove existing Web Push subscription
    */
-  webPushUnsubscribe() {
+  webPushUnsubscribe(): Promise<void> {
     return this.client.api.post("/push/unsubscribe");
   }
 }

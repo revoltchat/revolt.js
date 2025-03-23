@@ -1,6 +1,7 @@
-import { SetStoreFunction, createStore } from "solid-js/store";
+import type { SetStoreFunction } from "solid-js/store";
+import { createStore } from "solid-js/store";
 
-import { Hydrators, hydrate } from "../hydration/index.js";
+import { type Hydrators, hydrate } from "../hydration/index.js";
 
 /**
  * Wrapper around Solid.js store
@@ -24,7 +25,7 @@ export class ObjectStorage<T> {
    * @param id ID
    * @returns Object
    */
-  get(id: string) {
+  get(id: string): T | undefined {
     return this.store[id];
   }
 
@@ -35,7 +36,12 @@ export class ObjectStorage<T> {
    * @param context Context
    * @param data Input Data
    */
-  hydrate(id: string, type: keyof Hydrators, context: unknown, data?: unknown) {
+  hydrate(
+    id: string,
+    type: keyof Hydrators,
+    context: unknown,
+    data?: unknown
+  ): void {
     if (data) {
       data = { partial: false, ...data };
       this.set(id, hydrate(type, data as never, context, true) as T);
