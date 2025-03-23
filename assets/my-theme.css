@@ -50,13 +50,11 @@
   vertical-align: top;
   margin: 0;
 }
-.tsd-navigation.settings h3{
+.tsd-navigation.settings h3,
+.tsd-accordion-summary h3 {
   display: flex;
   align-items: center;
   font-size: 14px;
-}
-.tsd-navigation.settings .tsd-index-accordion {
-  position: relative;
 }
 .tsd-navigation.settings .tsd-accordion-summary {
   display: inline-flex;
