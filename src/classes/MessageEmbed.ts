@@ -1,8 +1,8 @@
 import type { Embed, ImageSize, Special } from "revolt-api";
 
-import type { Client } from "../Client.js";
+import type { Client } from "../Client.ts";
 
-import { File } from "./File.js";
+import { File } from "./File.ts";
 
 /**
  * Message Embed
@@ -168,25 +168,27 @@ export class WebsiteEmbed extends MessageEmbed {
         return `https://www.youtube-nocookie.com/embed/${this.specialContent.id}?modestbranding=1${timestamp}`;
       }
       case "Twitch":
-        return `https://player.twitch.tv/?${this.specialContent.content_type.toLowerCase()}=${
-          this.specialContent.id
-        }&parent=${(window ?? {})?.location?.hostname}&autoplay=false`;
+        return `https://player.twitch.tv/?${this.specialContent.content_type.toLowerCase()}=${this.specialContent.id}&parent=${
+          (globalThis ?? {})?.location?.hostname
+        }&autoplay=false`;
       case "Lightspeed":
         return `https://new.lightspeed.tv/embed/${this.specialContent.id}/stream`;
       case "Spotify":
         return `https://open.spotify.com/embed/${this.specialContent.content_type}/${this.specialContent.id}`;
       case "Soundcloud":
-        return `https://w.soundcloud.com/player/?url=${encodeURIComponent(
-          this.url!,
-        )}&color=%23FF7F50&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true`;
+        return `https://w.soundcloud.com/player/?url=${
+          encodeURIComponent(
+            this.url!,
+          )
+        }&color=%23FF7F50&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true`;
       case "Bandcamp": {
-        return `https://bandcamp.com/EmbeddedPlayer/${this.specialContent.content_type.toLowerCase()}=${
-          this.specialContent.id
-        }/size=large/bgcol=181a1b/linkcol=056cc4/tracklist=false/transparent=true/`;
+        return `https://bandcamp.com/EmbeddedPlayer/${this.specialContent.content_type.toLowerCase()}=${this.specialContent.id}/size=large/bgcol=181a1b/linkcol=056cc4/tracklist=false/transparent=true/`;
       }
       case "Streamable": {
         return `https://streamable.com/e/${this.specialContent.id}?loop=0`;
       }
+      default:
+        return undefined;
     }
   }
 }

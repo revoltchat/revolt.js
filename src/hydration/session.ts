@@ -1,13 +1,13 @@
-import type { SessionInfo as APISession } from "revolt-api";
+import type { SessionInfo } from "revolt-api";
 
-import type { Hydrate } from "./index.js";
+import type { Hydrate } from "./index.ts";
 
 export type HydratedSession = {
   id: string;
   name: string;
 };
 
-export const sessionHydration: Hydrate<APISession, HydratedSession> = {
+export const sessionHydration: Hydrate<SessionInfo, HydratedSession> = {
   keyMapping: {
     _id: "id",
   },

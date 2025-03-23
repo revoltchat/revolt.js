@@ -1,7 +1,3 @@
-import type { Setter } from "solid-js";
-import { batch } from "solid-js";
-
-import { ReactiveSet } from "@solid-primitives/set";
 import type {
   Channel,
   Emoji,
@@ -19,9 +15,9 @@ import type {
   User,
 } from "revolt-api";
 
-import type { Client } from "../Client.js";
-import { MessageEmbed } from "../classes/MessageEmbed.js";
-import { hydrate } from "../hydration/index.js";
+import type { Client } from "../Client.ts";
+import { MessageEmbed } from "../classes/MessageEmbed.ts";
+import { hydrate } from "../hydration/index.ts";
 
 /**
  * Version 1 of the events protocol
@@ -37,21 +33,21 @@ export type ProtocolV1 = {
 type ClientMessage =
   | { type: "Authenticate"; token: string }
   | {
-      type: "BeginTyping";
-      channel: string;
-    }
+    type: "BeginTyping";
+    channel: string;
+  }
   | {
-      type: "EndTyping";
-      channel: string;
-    }
+    type: "EndTyping";
+    channel: string;
+  }
   | {
-      type: "Ping";
-      data: number;
-    }
+    type: "Ping";
+    data: number;
+  }
   | {
-      type: "Pong";
-      data: number;
-    };
+    type: "Pong";
+    data: number;
+  };
 
 /**
  * Messages sent from the server
@@ -65,46 +61,46 @@ type ServerMessage =
   | { type: "Pong"; data: number }
   | ({ type: "Message" } & Message)
   | {
-      type: "MessageUpdate";
-      id: string;
-      channel: string;
-      data: Partial<Message>;
-    }
+    type: "MessageUpdate";
+    id: string;
+    channel: string;
+    data: Partial<Message>;
+  }
   | {
-      type: "MessageAppend";
-      id: string;
-      channel: string;
-      append: Pick<Partial<Message>, "embeds">;
-    }
+    type: "MessageAppend";
+    id: string;
+    channel: string;
+    append: Pick<Partial<Message>, "embeds">;
+  }
   | { type: "MessageDelete"; id: string; channel: string }
   | {
-      type: "MessageReact";
-      id: string;
-      channel_id: string;
-      user_id: string;
-      emoji_id: string;
-    }
+    type: "MessageReact";
+    id: string;
+    channel_id: string;
+    user_id: string;
+    emoji_id: string;
+  }
   | {
-      type: "MessageUnreact";
-      id: string;
-      channel_id: string;
-      user_id: string;
-      emoji_id: string;
-    }
+    type: "MessageUnreact";
+    id: string;
+    channel_id: string;
+    user_id: string;
+    emoji_id: string;
+  }
   | {
-      type: "MessageRemoveReaction";
-      id: string;
-      channel_id: string;
-      emoji_id: string;
-    }
+    type: "MessageRemoveReaction";
+    id: string;
+    channel_id: string;
+    emoji_id: string;
+  }
   | { type: "BulkMessageDelete"; channel: string; ids: string[] }
   | ({ type: "ChannelCreate" } & Channel)
   | {
-      type: "ChannelUpdate";
-      id: string;
-      data: Partial<Channel>;
-      clear?: FieldsChannel[];
-    }
+    type: "ChannelUpdate";
+    id: string;
+    data: Partial<Channel>;
+    clear?: FieldsChannel[];
+  }
   | { type: "ChannelDelete"; id: string }
   | { type: "ChannelGroupJoin"; id: string; user: string }
   | { type: "ChannelGroupLeave"; id: string; user: string }
@@ -112,63 +108,66 @@ type ServerMessage =
   | { type: "ChannelStopTyping"; id: string; user: string }
   | { type: "ChannelAck"; id: string; user: string; message_id: string }
   | {
-      type: "ServerCreate";
-      id: string;
-      server: Server;
-      channels: Channel[];
-    }
+    type: "ServerCreate";
+    id: string;
+    server: Server;
+    channels: Channel[];
+  }
   | {
-      type: "ServerUpdate";
-      id: string;
-      data: Partial<Server>;
-      clear?: FieldsServer[];
-    }
+    type: "ServerUpdate";
+    id: string;
+    data: Partial<Server>;
+    clear?: FieldsServer[];
+  }
   | { type: "ServerDelete"; id: string }
   | {
-      type: "ServerMemberUpdate";
-      id: MemberCompositeKey;
-      data: Partial<Member>;
-      clear?: FieldsMember[];
-    }
+    type: "ServerMemberUpdate";
+    id: MemberCompositeKey;
+    data: Partial<Member>;
+    clear?: FieldsMember[];
+  }
   | { type: "ServerMemberJoin"; id: string; user: string }
   | { type: "ServerMemberLeave"; id: string; user: string }
   | {
-      type: "ServerRoleUpdate";
-      id: string;
-      role_id: string;
-      data: Partial<Role>;
-    }
+    type: "ServerRoleUpdate";
+    id: string;
+    role_id: string;
+    data: Partial<Role>;
+  }
   | { type: "ServerRoleDelete"; id: string; role_id: string }
   | {
-      type: "UserUpdate";
-      id: string;
-      data: Partial<User>;
-      clear?: FieldsUser[];
-    }
+    type: "UserUpdate";
+    id: string;
+    data: Partial<User>;
+    clear?: FieldsUser[];
+  }
   | { type: "UserRelationship"; user: User; status: RelationshipStatus }
   | { type: "UserPresence"; id: string; online: boolean }
   | {
-      type: "UserSettingsUpdate";
-      id: string;
-      update: { [key: string]: [number, string] };
-    }
+    type: "UserSettingsUpdate";
+    id: string;
+    update: { [key: string]: [number, string] };
+  }
   | { type: "UserPlatformWipe"; user_id: string; flags: number }
   | ({ type: "EmojiCreate" } & Emoji)
   | { type: "EmojiDelete"; id: string }
-  | ({
+  | (
+    & {
       type: "Auth";
-    } & (
+    }
+    & (
       | {
-          event_type: "DeleteSession";
-          user_id: string;
-          session_id: string;
-        }
+        event_type: "DeleteSession";
+        user_id: string;
+        session_id: string;
+      }
       | {
-          event_type: "DeleteAllSessions";
-          user_id: string;
-          exclude_session_id: string;
-        }
-    ));
+        event_type: "DeleteAllSessions";
+        user_id: string;
+        exclude_session_id: string;
+      }
+    )
+  );
 
 /**
  * Initial synchronisation packet
@@ -190,7 +189,7 @@ type ReadyData = {
 export async function handleEvent(
   client: Client,
   event: ServerMessage,
-  setReady: Setter<boolean>,
+  setReady: (value: boolean) => void,
 ): Promise<void> {
   if (client.options.debug) {
     console.debug("[S->C]", event);
@@ -204,31 +203,29 @@ export async function handleEvent(
       break;
     }
     case "Ready": {
-      batch(() => {
-        for (const user of event.users) {
-          const u = client.users.getOrCreate(user._id, user);
+      for (const user of event.users) {
+        const u = client.users.getOrCreate(user._id, user);
 
-          if (u.relationship === "User") {
-            client.user = u;
-          }
+        if (u.relationship === "User") {
+          client.user = u;
         }
+      }
 
-        for (const server of event.servers) {
-          client.servers.getOrCreate(server._id, server);
-        }
+      for (const server of event.servers) {
+        client.servers.getOrCreate(server._id, server);
+      }
 
-        for (const member of event.members) {
-          client.serverMembers.getOrCreate(member._id, member);
-        }
+      for (const member of event.members) {
+        client.serverMembers.getOrCreate(member._id, member);
+      }
 
-        for (const channel of event.channels) {
-          client.channels.getOrCreate(channel._id, channel);
-        }
+      for (const channel of event.channels) {
+        client.channels.getOrCreate(channel._id, channel);
+      }
 
-        for (const emoji of event.emojis) {
-          client.emojis.getOrCreate(emoji._id, emoji);
-        }
-      });
+      for (const emoji of event.emojis) {
+        client.emojis.getOrCreate(emoji._id, emoji);
+      }
 
       if (client.options.syncUnreads) {
         await client.channelUnreads.sync();
@@ -241,25 +238,23 @@ export async function handleEvent(
     }
     case "Message": {
       if (!client.messages.has(event._id)) {
-        batch(() => {
-          if (event.member) {
-            client.serverMembers.getOrCreate(event.member._id, event.member);
-          }
+        if (event.member) {
+          client.serverMembers.getOrCreate(event.member._id, event.member);
+        }
 
-          if (event.user) {
-            client.users.getOrCreate(event.user._id, event.user);
-          }
+        if (event.user) {
+          client.users.getOrCreate(event.user._id, event.user);
+        }
 
-          delete event.member;
-          delete event.user;
+        delete event.member;
+        delete event.user;
 
-          client.messages.getOrCreate(event._id, event, true);
-          client.channels.updateUnderlyingObject(
-            event.channel,
-            "lastMessageId",
-            event._id,
-          );
-        });
+        client.messages.getOrCreate(event._id, event, true);
+        client.channels.setUnderlyingKey(
+          event.channel,
+          "lastMessageId",
+          event._id,
+        );
       }
       break;
     }
@@ -271,7 +266,7 @@ export async function handleEvent(
           channelId: event.channel,
         };
 
-        client.messages.updateUnderlyingObject(event.id, {
+        client.messages.setUnderlyingObject(event.id, {
           ...hydrate(
             "message",
             { ...event.data, channel: event.channel },
@@ -293,18 +288,14 @@ export async function handleEvent(
           channelId: event.channel,
         };
 
-        client.messages.updateUnderlyingObject(event.id, "embeds", (embeds) => [
-          ...(embeds ?? []),
+        client.messages.setUnderlyingKey(event.id, "embeds", [
+          ...(previousMessage.embeds ?? []),
           ...(event.append.embeds?.map((embed) =>
-            MessageEmbed.from(client, embed),
+            MessageEmbed.from(client, embed)
           ) ?? []),
         ]);
 
-        client.messages.updateUnderlyingObject(
-          event.id,
-          "channelId",
-          event.channel,
-        );
+        client.messages.setUnderlyingKey(event.id, "channelId", event.channel);
 
         client.emit("messageUpdate", message, previousMessage);
       }
@@ -312,29 +303,29 @@ export async function handleEvent(
     }
     case "MessageDelete": {
       if (client.messages.getOrPartial(event.id)) {
-        const message = client.messages.getUnderlyingObject(event.id);
-        client.emit("messageDelete", message);
+        client.emit(
+          "messageDelete",
+          client.messages.getUnderlyingObject(event.id),
+        );
         client.messages.delete(event.id);
       }
       break;
     }
     case "BulkMessageDelete": {
-      batch(() =>
-        client.emit(
-          "messageDeleteBulk",
-          event.ids
-            .map((id) => {
-              if (client.messages.has(id)) {
-                const message = client.messages.getUnderlyingObject(id);
-                client.messages.delete(id);
-                return message!;
-              }
+      client.emit(
+        "messageDeleteBulk",
+        event.ids
+          .map((id) => {
+            if (client.messages.has(id)) {
+              const message = client.messages.getUnderlyingObject(id);
+              client.messages.delete(id);
+              return message!;
+            }
 
-              return undefined!;
-            })
-            .filter((x) => x),
-          client.channels.get(event.channel),
-        ),
+            return undefined!;
+          })
+          .filter((x) => x),
+        client.channels.get(event.channel),
       );
       break;
     }
@@ -347,7 +338,7 @@ export async function handleEvent(
           if (set.has(event.user_id)) return;
           set.add(event.user_id);
         } else {
-          reactions.set(event.emoji_id, new ReactiveSet([event.user_id]));
+          reactions.set(event.emoji_id, new Set([event.user_id]));
         }
 
         client.emit(
@@ -401,9 +392,7 @@ export async function handleEvent(
     case "ChannelUpdate": {
       const channel = client.channels.getOrPartial(event.id);
       if (channel) {
-        const previousChannel = {
-          ...client.channels.getUnderlyingObject(event.id),
-        };
+        const previousChannel = client.channels.getUnderlyingObject(event.id);
 
         const changes = hydrate("channel", event.data, client, false);
 
@@ -423,15 +412,17 @@ export async function handleEvent(
           }
         }
 
-        client.channels.updateUnderlyingObject(event.id, changes);
+        client.channels.setUnderlyingObject(event.id, changes);
         client.emit("channelUpdate", channel, previousChannel);
       }
       break;
     }
     case "ChannelDelete": {
       if (client.channels.getOrPartial(event.id)) {
-        const channel = client.channels.getUnderlyingObject(event.id);
-        client.emit("channelDelete", channel);
+        client.emit(
+          "channelDelete",
+          client.channels.getUnderlyingObject(event.id),
+        );
         client.channels.delete(event.id);
       }
       break;
@@ -513,22 +504,18 @@ export async function handleEvent(
     }
     case "ServerCreate": {
       if (!client.servers.has(event.server._id)) {
-        batch(() => {
-          for (const channel of event.channels) {
-            client.channels.getOrCreate(channel._id, channel);
-          }
+        for (const channel of event.channels) {
+          client.channels.getOrCreate(channel._id, channel);
+        }
 
-          client.servers.getOrCreate(event.server._id, event.server, true);
-        });
+        client.servers.getOrCreate(event.server._id, event.server, true);
       }
       break;
     }
     case "ServerUpdate": {
       const server = client.servers.getOrPartial(event.id);
       if (server) {
-        const previousServer = {
-          ...client.servers.getUnderlyingObject(event.id),
-        };
+        const previousServer = client.servers.getUnderlyingObject(event.id);
 
         const changes = hydrate("server", event.data, client, false);
 
@@ -554,7 +541,7 @@ export async function handleEvent(
           }
         }
 
-        client.servers.updateUnderlyingObject(event.id, changes);
+        client.servers.setUnderlyingObject(event.id, changes);
         client.emit("serverUpdate", server, previousServer);
       }
       break;
@@ -622,11 +609,9 @@ export async function handleEvent(
     case "ServerMemberUpdate": {
       const member = client.serverMembers.getOrPartial(event.id);
       if (member) {
-        const previousMember = {
-          ...client.serverMembers.getUnderlyingObject(
-            event.id.server + event.id.user,
-          ),
-        };
+        const previousMember = client.serverMembers.getUnderlyingObject(
+          event.id.server + event.id.user,
+        );
 
         const changes = hydrate("serverMember", event.data, client, false);
 
@@ -649,7 +634,7 @@ export async function handleEvent(
           }
         }
 
-        client.serverMembers.updateUnderlyingObject(
+        client.serverMembers.setUnderlyingObject(
           event.id.server + event.id.user,
           changes as never,
         );
@@ -690,9 +675,7 @@ export async function handleEvent(
     case "UserUpdate": {
       const user = client.users.getOrPartial(event.id);
       if (user) {
-        const previousUser = {
-          ...client.users.getUnderlyingObject(event.id),
-        };
+        const previousUser = client.users.getUnderlyingObject(event.id);
 
         const changes = hydrate("user", event.data, client, false);
 
@@ -720,7 +703,7 @@ export async function handleEvent(
           }
         }
 
-        client.users.updateUnderlyingObject(event.id, changes as never);
+        client.users.setUnderlyingObject(event.id, changes as never);
         client.emit("userUpdate", user, previousUser);
       }
       break;
@@ -758,37 +741,35 @@ export async function handleEvent(
       break;
     }
     case "UserPlatformWipe": {
-      batch(() => {
-        handleEvent(
-          client,
-          {
-            type: "BulkMessageDelete",
-            channel: "0",
-            ids: client.messages
-              .toList()
-              .filter((message) => message.authorId === event.user_id)
-              .map((message) => message.id),
-          },
-          setReady,
-        );
+      handleEvent(
+        client,
+        {
+          type: "BulkMessageDelete",
+          channel: "0",
+          ids: client.messages
+            .toList()
+            .filter((message) => message.authorId === event.user_id)
+            .map((message) => message.id),
+        },
+        setReady,
+      );
 
-        handleEvent(
-          client,
-          {
-            type: "UserUpdate",
-            id: event.user_id,
-            data: {
-              username: `Deleted User`,
-              online: false,
-              flags: event.flags,
-              badges: 0,
-              relationship: "None",
-            },
-            clear: ["Avatar", "StatusPresence", "StatusText"],
+      handleEvent(
+        client,
+        {
+          type: "UserUpdate",
+          id: event.user_id,
+          data: {
+            username: `Deleted User`,
+            online: false,
+            flags: event.flags,
+            badges: 0,
+            relationship: "None",
           },
-          setReady,
-        );
-      });
+          clear: ["Avatar", "StatusPresence", "StatusText"],
+        },
+        setReady,
+      );
 
       break;
     }
@@ -800,8 +781,7 @@ export async function handleEvent(
     }
     case "EmojiDelete": {
       if (client.emojis.getOrPartial(event.id)) {
-        const emoji = client.emojis.getUnderlyingObject(event.id);
-        client.emit("emojiDelete", emoji);
+        client.emit("emojiDelete", client.emojis.getUnderlyingObject(event.id));
         client.emojis.delete(event.id);
       }
       break;

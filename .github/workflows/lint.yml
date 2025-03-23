@@ -10,22 +10,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository and submodules
+      - name: Checkout repository
         uses: actions/checkout@v3
+      - name: Setup Deno 2.x
+        uses: denoland/setup-deno@v2
         with:
-          submodules: recursive
-      - uses: pnpm/action-setup@v4.0.0
-      - name: Use Node.js LTS
-        uses: actions/setup-node@v3
-        with:
-          node-version: 22
-          cache: "pnpm"
-      - name: Install packages
-        run: pnpm install
-
+          deno-version: 2.x
       - name: Typecheck
-        run: pnpm typecheck
+        run: deno check src/
       - name: Code Formatting
-        run: pnpm fmt:check
+        run: deno fmt --check
       - name: Lint
-        run: pnpm lint
+        run: deno lint

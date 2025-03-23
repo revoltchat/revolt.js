@@ -99,20 +99,19 @@ export const U32_MAX = 2 ** 32 - 1; // 4294967295
 /**
  * Permissions allowed for a user while in timeout
  */
-export const ALLOW_IN_TIMEOUT =
-  Permission.ViewChannel + Permission.ReadMessageHistory;
+export const ALLOW_IN_TIMEOUT = Permission.ViewChannel +
+  Permission.ReadMessageHistory;
 
 /**
  * Default permissions if we can only view
  */
-export const DEFAULT_PERMISSION_VIEW_ONLY =
-  Permission.ViewChannel + Permission.ReadMessageHistory;
+export const DEFAULT_PERMISSION_VIEW_ONLY = Permission.ViewChannel +
+  Permission.ReadMessageHistory;
 
 /**
  * Default base permissions for channels
  */
-export const DEFAULT_PERMISSION =
-  DEFAULT_PERMISSION_VIEW_ONLY +
+export const DEFAULT_PERMISSION = DEFAULT_PERMISSION_VIEW_ONLY +
   Permission.SendMessage +
   Permission.InviteOthers +
   Permission.SendEmbeds +
@@ -128,14 +127,13 @@ export const DEFAULT_PERMISSION_SAVED_MESSAGES = Permission.GrantAllSafe;
 /**
  * Permissions in direct message channels / default permissions for group DMs
  */
-export const DEFAULT_PERMISSION_DIRECT_MESSAGE =
-  DEFAULT_PERMISSION + Permission.React + Permission.ManageChannel;
+export const DEFAULT_PERMISSION_DIRECT_MESSAGE = DEFAULT_PERMISSION +
+  Permission.React + Permission.ManageChannel;
 
 /**
  * Permissions in server text / voice channel
  */
-export const DEFAULT_PERMISSION_SERVER =
-  DEFAULT_PERMISSION +
+export const DEFAULT_PERMISSION_SERVER = DEFAULT_PERMISSION +
   Permission.React +
   Permission.ChangeNickname +
   Permission.ChangeAvatar;

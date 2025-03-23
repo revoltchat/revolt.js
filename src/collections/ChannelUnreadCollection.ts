@@ -1,16 +1,14 @@
-import { batch } from "solid-js";
-
 import type { ChannelUnread as APIChannelUnread } from "revolt-api";
 
-import { ChannelUnread } from "../classes/ChannelUnread.js";
-import type { HydratedChannelUnread } from "../hydration/channelUnread.js";
+import { ChannelUnread } from "../classes/ChannelUnread.ts";
+import type { HydratedChannelUnread } from "../hydration/channelUnread.ts";
 
-import { ClassCollection } from "./Collection.js";
+import { Collection } from "./Collection.ts";
 
 /**
  * Collection of Channel Unreads
  */
-export class ChannelUnreadCollection extends ClassCollection<
+export class ChannelUnreadCollection extends Collection<
   ChannelUnread,
   HydratedChannelUnread
 > {
@@ -19,19 +17,19 @@ export class ChannelUnreadCollection extends ClassCollection<
    */
   async sync(): Promise<void> {
     const unreads = await this.client.api.get("/sync/unreads");
-    batch(() => {
-      this.reset();
-      for (const unread of unreads) {
-        this.getOrCreate(unread._id.channel, unread);
-      }
-    });
+    this.reset();
+    for (const unread of unreads) {
+      this.getOrCreate(unread._id.channel, unread);
+    }
   }
 
   /**
    * Clear all unread data
    */
   reset(): void {
-    this.updateUnderlyingObject({});
+    for (const key of this.keys()) {
+      this.setUnderlyingObject(key, {} as never);
+    }
   }
 
   /**

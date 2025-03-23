@@ -1,8 +1,8 @@
-import type { Emoji as APIEmoji, EmojiParent } from "revolt-api";
+import type { Emoji, EmojiParent } from "revolt-api";
 
-import type { Merge } from "../lib/merge.js";
+import type { Merge } from "../lib/merge.ts";
 
-import type { Hydrate } from "./index.js";
+import type { Hydrate } from "./index.ts";
 
 export type HydratedEmoji = {
   id: string;
@@ -13,7 +13,7 @@ export type HydratedEmoji = {
   nsfw: boolean;
 };
 
-export const emojiHydration: Hydrate<Merge<APIEmoji>, HydratedEmoji> = {
+export const emojiHydration: Hydrate<Merge<Emoji>, HydratedEmoji> = {
   keyMapping: {
     _id: "id",
     creator_id: "creatorId",

@@ -1,0 +1,31 @@
+# publish to jsr and npm on release
+name: Publish
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Setup Deno 2.x
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: 2.x
+      - name: Setup Node 22.x
+        uses: actions/setup-node@v2
+        with:
+          node-version: 22.x
+      - name: Publish to jsr
+        run: deno publish
+      - name: Build for npm
+        run: deno task npm
+      - name: Publish to npm
+        run: npm publish

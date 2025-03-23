@@ -1,10 +1,8 @@
-import * as APITmp from "revolt-api";
+import type { ChannelWebhookCollection } from "../collections/ChannelWebhookCollection.ts";
+import { hydrate } from "../hydration/index.ts";
 
-import type { ChannelWebhookCollection } from "../collections/ChannelWebhookCollection.js";
-import { hydrate } from "../hydration/index.js";
-
-import type { Channel } from "./Channel.js";
-import type { File } from "./File.js";
+import type { Channel } from "./Channel.ts";
+import type { File } from "./File.ts";
 
 /**
  * Channel Webhook Class
@@ -88,17 +86,13 @@ export class ChannelWebhook {
       remove: ["Icon"];
     }>,
   ): Promise<void> {
-    // @ts-expect-error this should error once edit webhook is stable
-    // eslint-disable-next-line
-    type TodoUseThisDefinitionOnceItExists = APITmp.DataEditWebhook;
-
     const webhook = await this.#collection.client.api.patch(
       // @ts-expect-error not in prod
       `/webhooks/${this.id as ""}/${this.token as ""}`,
       data,
     );
 
-    this.#collection.updateUnderlyingObject(
+    this.#collection.setUnderlyingObject(
       this.id,
       // @ts-expect-error not in prod
       hydrate("channelWebhook", webhook, this.#collection.client),

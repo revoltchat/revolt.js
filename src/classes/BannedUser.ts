@@ -1,8 +1,8 @@
 import type { BannedUser as APIBannedUser } from "revolt-api";
 
-import type { Client } from "../Client.js";
+import type { Client } from "../Client.ts";
 
-import { File } from "./File.js";
+import { File } from "./File.ts";
 
 /**
  * Banned User

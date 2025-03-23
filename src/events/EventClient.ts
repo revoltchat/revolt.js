@@ -1,10 +1,7 @@
-import type { Accessor, Setter } from "solid-js";
-import { createSignal } from "solid-js";
-
 import { AsyncEventEmitter } from "@vladfrangu/async_event_emitter";
 import type { Error } from "revolt-api";
 
-import type { ProtocolV1 } from "./v1.js";
+import type { ProtocolV1 } from "./v1.ts";
 
 /**
  * Available protocols to connect with
@@ -82,19 +79,16 @@ export class EventClient<
   #protocolVersion: T;
   #transportFormat: "json" | "msgpack";
 
-  readonly ping: Accessor<number>;
-  #setPing: Setter<number>;
-
-  readonly state: Accessor<ConnectionState>;
-  #setStateSetter: Setter<ConnectionState>;
+  ping = -1;
+  state = ConnectionState.Idle;
 
   #socket: WebSocket | undefined;
   #heartbeatIntervalReference: number | undefined;
   #pongTimeoutReference: number | undefined;
   #connectTimeoutReference: number | undefined;
 
-  #lastError: // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  { type: "socket"; data: any } | { type: "revolt"; data: Error } | undefined;
+  // deno-lint-ignore no-explicit-any
+  #lastError?: { type: "socket"; data: any } | { type: "revolt"; data: Error };
 
   /**
    * Create a new event client.
@@ -120,14 +114,6 @@ export class EventClient<
       ...options,
     };
 
-    const [state, setState] = createSignal(ConnectionState.Idle);
-    this.state = state;
-    this.#setStateSetter = setState;
-
-    const [ping, setPing] = createSignal(-1);
-    this.ping = ping;
-    this.#setPing = setPing;
-
     this.disconnect = this.disconnect.bind(this);
   }
 
@@ -136,7 +122,7 @@ export class EventClient<
    * @param state state
    */
   private setState(state: ConnectionState): void {
-    this.#setStateSetter(state);
+    this.state = state;
     this.emit("state", state);
   }
 
@@ -232,8 +218,8 @@ export class EventClient<
         return;
       case "Pong":
         clearTimeout(this.#pongTimeoutReference);
-        this.#setPing(+new Date() - event.data);
-        if (this.options.debug) console.debug(`[ping] ${this.ping()}ms`);
+        this.ping = +new Date() - event.data;
+        if (this.options.debug) console.debug(`[ping] ${this.ping}ms`);
         return;
       case "Error":
         this.#lastError = {
@@ -245,7 +231,7 @@ export class EventClient<
         return;
     }
 
-    switch (this.state()) {
+    switch (this.state) {
       case ConnectionState.Connecting:
         if (event.type === "Authenticated") {
           // no-op
@@ -264,7 +250,7 @@ export class EventClient<
         }
         break;
       default:
-        throw `Unreachable code. Received ${event.type} in state ${this.state()}.`;
+        throw `Unreachable code. Received ${event.type} in state ${this.state}.`;
     }
   }
 
@@ -272,15 +258,8 @@ export class EventClient<
    * Last error encountered by events client
    */
   get lastError():
-    | {
-        type: "socket";
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        data: any;
-      }
-    | {
-        type: "revolt";
-        data: Error;
-      }
+    | { type: "socket"; data: unknown }
+    | { type: "revolt"; data: Error }
     | undefined {
     return this.#lastError;
   }

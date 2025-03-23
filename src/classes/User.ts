@@ -1,12 +1,18 @@
-import type { User as APIUser, DataEditUser, Presence } from "revolt-api";
+import type {
+  DataEditUser,
+  Presence,
+  RelationshipStatus,
+  User as APIUser,
+} from "revolt-api";
 import { decodeTime } from "ulid";
 
-import type { UserCollection } from "../collections/UserCollection.js";
-import { U32_MAX, UserPermission } from "../permissions/definitions.js";
+import type { UserCollection } from "../collections/UserCollection.ts";
+import type { UserBadges, UserFlags } from "../hydration/user.ts";
+import { U32_MAX, UserPermission } from "../permissions/definitions.ts";
 
-import type { Channel } from "./Channel.js";
-import type { File } from "./File.js";
-import { UserProfile } from "./UserProfile.js";
+import type { Channel } from "./Channel.ts";
+import type { File } from "./File.ts";
+import { UserProfile } from "./UserProfile.ts";
 
 /**
  * User Class
@@ -67,7 +73,7 @@ export class User {
   get displayName(): string {
     return (
       this.#collection.getUnderlyingObject(this.id).displayName ??
-      this.#collection.getUnderlyingObject(this.id).username
+        this.#collection.getUnderlyingObject(this.id).username
     );
   }
 
@@ -81,7 +87,7 @@ export class User {
   /**
    * Badges
    */
-  get badges(): number {
+  get badges(): UserBadges {
     return this.#collection.getUnderlyingObject(this.id).badges;
   }
 
@@ -92,15 +98,16 @@ export class User {
     | { text?: string | null; presence?: Presence | null }
     | undefined {
     // TODO: issue with API, upstream fix required #319
-    if (!this.online)
+    if (!this.online) {
       return { text: undefined, presence: "Invisible" as const };
+    }
     return this.#collection.getUnderlyingObject(this.id).status;
   }
 
   /**
    * Relationship with user
    */
-  get relationship(): string {
+  get relationship(): RelationshipStatus {
     return this.#collection.getUnderlyingObject(this.id).relationship;
   }
 
@@ -121,7 +128,7 @@ export class User {
   /**
    * Flags
    */
-  get flags(): number {
+  get flags(): UserFlags {
     return this.#collection.getUnderlyingObject(this.id).flags;
   }
 
@@ -143,9 +150,7 @@ export class User {
    * URL to the user's default avatar
    */
   get defaultAvatarURL(): string {
-    return `${this.#collection.client.options.baseURL}/users/${
-      this.id
-    }/default_avatar`;
+    return `${this.#collection.client.options.baseURL}/users/${this.id}/default_avatar`;
   }
 
   /**
@@ -179,7 +184,7 @@ export class User {
   ): string | undefined {
     return this.online
       ? (this.status?.text ??
-          (this.presence === "Focus" ? translate("Focus") : undefined))
+        (this.presence === "Focus" ? translate("Focus") : undefined))
       : undefined;
   }
 
@@ -256,7 +261,7 @@ export class User {
 
     if (dm) {
       if (!dm.active) {
-        this.#collection.client.channels.updateUnderlyingObject(
+        this.#collection.client.channels.setUnderlyingKey(
           dm.id,
           "active",
           true,

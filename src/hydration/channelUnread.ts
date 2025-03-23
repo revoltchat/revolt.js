@@ -1,14 +1,13 @@
-import { ReactiveSet } from "@solid-primitives/set";
 import type { ChannelUnread } from "revolt-api";
 
-import type { Merge } from "../lib/merge.js";
+import type { Merge } from "../lib/merge.ts";
 
-import type { Hydrate } from "./index.js";
+import type { Hydrate } from "./index.ts";
 
 export type HydratedChannelUnread = {
   id: string;
   lastMessageId?: string;
-  messageMentionIds: ReactiveSet<string>;
+  messageMentionIds: Set<string>;
 };
 
 export const channelUnreadHydration: Hydrate<
@@ -23,9 +22,9 @@ export const channelUnreadHydration: Hydrate<
   functions: {
     id: (unread) => unread._id.channel,
     lastMessageId: (unread) => unread.last_id!,
-    messageMentionIds: (unread) => new ReactiveSet(unread.mentions!),
+    messageMentionIds: (unread) => new Set(unread.mentions!),
   },
   initialHydration: () => ({
-    messageMentionIds: new ReactiveSet(),
+    messageMentionIds: new Set(),
   }),
 };

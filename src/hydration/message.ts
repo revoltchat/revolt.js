@@ -1,15 +1,13 @@
-import { ReactiveMap } from "@solid-primitives/map";
-import { ReactiveSet } from "@solid-primitives/set";
 import type { Interactions, Masquerade, Message } from "revolt-api";
 
-import type { Client } from "../Client.js";
-import { File } from "../classes/File.js";
-import { MessageWebhook } from "../classes/Message.js";
-import { MessageEmbed } from "../classes/MessageEmbed.js";
-import { SystemMessage } from "../classes/SystemMessage.js";
-import type { Merge } from "../lib/merge.js";
+import type { Client } from "../Client.ts";
+import { File } from "../classes/File.ts";
+import { MessageWebhook } from "../classes/Message.ts";
+import { MessageEmbed } from "../classes/MessageEmbed.ts";
+import { SystemMessage } from "../classes/SystemMessage.ts";
+import type { Merge } from "../lib/merge.ts";
 
-import type { Hydrate } from "./index.js";
+import type { Hydrate } from "./index.ts";
 
 export type HydratedMessage = {
   id: string;
@@ -24,7 +22,7 @@ export type HydratedMessage = {
   embeds?: MessageEmbed[];
   mentionIds?: string[];
   replyIds?: string[];
-  reactions: ReactiveMap<string, ReactiveSet<string>>;
+  reactions: Map<string, Set<string>>;
   interactions?: Interactions;
   masquerade?: Masquerade;
   flags?: number;
@@ -60,10 +58,10 @@ export const messageHydration: Hydrate<Merge<Message>, HydratedMessage> = {
     mentionIds: (message) => message.mentions!,
     replyIds: (message) => message.replies!,
     reactions: (message) => {
-      const map = new ReactiveMap<string, ReactiveSet<string>>();
+      const map = new Map<string, Set<string>>();
       if (message.reactions) {
         for (const reaction of Object.keys(message.reactions)) {
-          map.set(reaction, new ReactiveSet(message.reactions![reaction]));
+          map.set(reaction, new Set(message.reactions![reaction]));
         }
       }
       return map;
@@ -73,6 +71,6 @@ export const messageHydration: Hydrate<Merge<Message>, HydratedMessage> = {
     flags: (message) => message.flags!,
   },
   initialHydration: () => ({
-    reactions: new ReactiveMap(),
+    reactions: new Map(),
   }),
 };

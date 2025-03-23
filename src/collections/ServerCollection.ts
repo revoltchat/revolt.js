@@ -1,20 +1,18 @@
-import { batch } from "solid-js";
-
 import type {
-  Server as APIServer,
   Channel,
   DataCreateServer,
+  Server as APIServer,
 } from "revolt-api";
 
-import { Server } from "../classes/Server.js";
-import type { HydratedServer } from "../hydration/server.js";
+import { Server } from "../classes/Server.ts";
+import type { HydratedServer } from "../hydration/server.ts";
 
-import { ClassCollection } from "./Collection.js";
+import { Collection } from "./Collection.ts";
 
 /**
  * Collection of Servers
  */
-export class ServerCollection extends ClassCollection<Server, HydratedServer> {
+export class ServerCollection extends Collection<Server, HydratedServer> {
   /**
    * Fetch server by ID
    *
@@ -29,15 +27,13 @@ export class ServerCollection extends ClassCollection<Server, HydratedServer> {
       include_channels: true,
     });
 
-    return batch(() => {
-      for (const channel of data.channels as unknown as Channel[]) {
-        if (typeof channel !== "string") {
-          this.client.channels.getOrCreate(channel._id, channel);
-        }
+    for (const channel of data.channels as unknown as Channel[]) {
+      if (typeof channel !== "string") {
+        this.client.channels.getOrCreate(channel._id, channel);
       }
+    }
 
-      return this.getOrCreate(data._id, data);
-    });
+    return this.getOrCreate(data._id, data);
   }
 
   /**
@@ -85,12 +81,10 @@ export class ServerCollection extends ClassCollection<Server, HydratedServer> {
       data,
     );
 
-    return batch(() => {
-      for (const channel of channels) {
-        this.client.channels.getOrCreate(channel._id, channel);
-      }
+    for (const channel of channels) {
+      this.client.channels.getOrCreate(channel._id, channel);
+    }
 
-      return this.getOrCreate(server._id, server, true);
-    });
+    return this.getOrCreate(server._id, server, true);
   }
 }

@@ -1,8 +1,8 @@
 import type { SystemMessage as APISystemMessage } from "revolt-api";
 
-import type { Client } from "../Client.js";
+import type { Client } from "../Client.ts";
 
-import type { User } from "./User.js";
+import type { User } from "./User.ts";
 
 /**
  * System Message

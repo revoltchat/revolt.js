@@ -1,12 +1,11 @@
-export * from "./Collection.js";
-
-export { BotCollection } from "./BotCollection.js";
-export { ChannelCollection } from "./ChannelCollection.js";
-export { ChannelUnreadCollection } from "./ChannelUnreadCollection.js";
-export { ChannelWebhookCollection } from "./ChannelWebhookCollection.js";
-export { EmojiCollection } from "./EmojiCollection.js";
-export { MessageCollection } from "./MessageCollection.js";
-export { ServerCollection } from "./ServerCollection.js";
-export { ServerMemberCollection } from "./ServerMemberCollection.js";
-export { SessionCollection } from "./SessionCollection.js";
-export { UserCollection } from "./UserCollection.js";
+export { BotCollection } from "./BotCollection.ts";
+export { ChannelCollection } from "./ChannelCollection.ts";
+export { ChannelUnreadCollection } from "./ChannelUnreadCollection.ts";
+export { ChannelWebhookCollection } from "./ChannelWebhookCollection.ts";
+export { Collection } from "./Collection.ts";
+export { EmojiCollection } from "./EmojiCollection.ts";
+export { MessageCollection } from "./MessageCollection.ts";
+export { ServerCollection } from "./ServerCollection.ts";
+export { ServerMemberCollection } from "./ServerMemberCollection.ts";
+export { SessionCollection } from "./SessionCollection.ts";
+export { UserCollection } from "./UserCollection.ts";

@@ -1,18 +1,15 @@
 import type { Channel as APIChannel } from "revolt-api";
 
-import { Channel } from "../classes/Channel.js";
-import { User } from "../classes/User.js";
-import type { HydratedChannel } from "../hydration/channel.js";
+import { Channel } from "../classes/Channel.ts";
+import { User } from "../classes/User.ts";
+import type { HydratedChannel } from "../hydration/channel.ts";
 
-import { ClassCollection } from "./Collection.js";
+import { Collection } from "./Collection.ts";
 
 /**
  * Collection of Channels
  */
-export class ChannelCollection extends ClassCollection<
-  Channel,
-  HydratedChannel
-> {
+export class ChannelCollection extends Collection<Channel, HydratedChannel> {
   /**
    * Delete an object
    * @param id Id

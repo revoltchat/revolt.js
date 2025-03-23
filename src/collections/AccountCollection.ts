@@ -1,7 +1,7 @@
 import type { DataCreateAccount, WebPushSubscription } from "revolt-api";
 
-import type { Client } from "../Client.js";
-import { MFA } from "../classes/MFA.js";
+import type { Client } from "../Client.ts";
+import { MFA } from "../classes/MFA.ts";
 
 /**
  * Utility functions for working with accounts
@@ -36,8 +36,8 @@ export class AccountCollection {
    * Create a new account
    * @param data Account details
    */
-  create(data: DataCreateAccount): Promise<void> {
-    return this.client.api.post("/auth/account/create", data);
+  async create(data: DataCreateAccount): Promise<void> {
+    return await this.client.api.post("/auth/account/create", data);
   }
 
   /**
@@ -45,8 +45,11 @@ export class AccountCollection {
    * @param email Email
    * @param captcha Captcha if enabled
    */
-  reverify(email: string, captcha?: string): Promise<void> {
-    return this.client.api.post("/auth/account/reverify", { email, captcha });
+  async reverify(email: string, captcha?: string): Promise<void> {
+    return await this.client.api.post("/auth/account/reverify", {
+      email,
+      captcha,
+    });
   }
 
   /**
@@ -54,8 +57,8 @@ export class AccountCollection {
    * @param email Email
    * @param captcha Captcha if enabled
    */
-  resetPassword(email: string, captcha?: string): Promise<void> {
-    return this.client.api.post("/auth/account/reset_password", {
+  async resetPassword(email: string, captcha?: string): Promise<void> {
+    return await this.client.api.post("/auth/account/reset_password", {
       email,
       captcha,
     });
@@ -65,16 +68,16 @@ export class AccountCollection {
    * Verify an account given the code
    * @param code Verification code
    */
-  verify(code: string): Promise<unknown> {
-    return this.client.api.post(`/auth/account/verify/${code}`);
+  async verify(code: string): Promise<unknown> {
+    return await this.client.api.post(`/auth/account/verify/${code}`);
   }
 
   /**
    * Confirm account deletion
    * @param token Deletion token
    */
-  confirmDelete(token: string): Promise<void> {
-    return this.client.api.put("/auth/account/delete", { token });
+  async confirmDelete(token: string): Promise<void> {
+    return await this.client.api.put("/auth/account/delete", { token });
   }
 
   /**
@@ -83,12 +86,12 @@ export class AccountCollection {
    * @param newPassword New password
    * @param removeSessions Whether to remove existing sessions
    */
-  confirmPasswordReset(
+  async confirmPasswordReset(
     token: string,
     newPassword: string,
     removeSessions: boolean,
   ): Promise<void> {
-    return this.client.api.patch("/auth/account/reset_password", {
+    return await this.client.api.patch("/auth/account/reset_password", {
       token,
       password: newPassword,
       remove_sessions: removeSessions,
@@ -100,8 +103,11 @@ export class AccountCollection {
    * @param newPassword New password
    * @param currentPassword Current password
    */
-  changePassword(newPassword: string, currentPassword: string): Promise<void> {
-    return this.client.api.patch("/auth/account/change/password", {
+  async changePassword(
+    newPassword: string,
+    currentPassword: string,
+  ): Promise<void> {
+    return await this.client.api.patch("/auth/account/change/password", {
       password: newPassword,
       current_password: currentPassword,
     });
@@ -112,8 +118,8 @@ export class AccountCollection {
    * @param newEmail New email
    * @param currentPassword Current password
    */
-  changeEmail(newEmail: string, currentPassword: string): Promise<void> {
-    return this.client.api.patch("/auth/account/change/email", {
+  async changeEmail(newEmail: string, currentPassword: string): Promise<void> {
+    return await this.client.api.patch("/auth/account/change/email", {
       email: newEmail,
       current_password: currentPassword,
     });
@@ -124,41 +130,40 @@ export class AccountCollection {
    * @param keys Keys
    * @returns Settings
    */
-  fetchSettings(keys: string[]): Promise<Record<string, [number, string]>> {
-    return this.client.api.post("/sync/settings/fetch", { keys }) as Promise<
-      Record<string, [number, string]>
-    >;
+  async fetchSettings(
+    keys: string[],
+  ): Promise<Record<string, [number, string]>> {
+    return await this.client.api.post("/sync/settings/fetch", { keys });
   }
 
-  /* eslint-disable @typescript-eslint/no-explicit-any */
   /**
    * Set settings
    * @param settings Settings
    * @param timestamp Timestamp
    */
-  setSettings(
+  async setSettings(
+    // deno-lint-ignore no-explicit-any
     settings: Record<string, any>,
-    timestamp = +new Date(),
+    timestamp: number = new Date().getTime(),
   ): Promise<void> {
-    return this.client.api.post("/sync/settings/set", {
+    return await this.client.api.post("/sync/settings/set", {
       ...settings,
       timestamp,
     });
   }
-  /* eslint-enable @typescript-eslint/no-explicit-any */
 
   /**
    * Create a new Web Push subscription
    * @param subscription Subscription
    */
-  webPushSubscribe(subscription: WebPushSubscription): Promise<void> {
-    return this.client.api.post("/push/subscribe", subscription);
+  async webPushSubscribe(subscription: WebPushSubscription): Promise<void> {
+    return await this.client.api.post("/push/subscribe", subscription);
   }
 
   /**
    * Remove existing Web Push subscription
    */
-  webPushUnsubscribe(): Promise<void> {
-    return this.client.api.post("/push/unsubscribe");
+  async webPushUnsubscribe(): Promise<void> {
+    return await this.client.api.post("/push/unsubscribe");
   }
 }

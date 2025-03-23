@@ -1,6 +1,6 @@
 import { decodeTime } from "ulid";
 
-import type { SessionCollection } from "../collections/SessionCollection.js";
+import type { SessionCollection } from "../collections/SessionCollection.ts";
 
 /**
  * Session Class
@@ -64,7 +64,7 @@ export class Session {
       friendly_name: name,
     });
 
-    this.#collection.updateUnderlyingObject(this.id, "name", name);
+    this.#collection.setUnderlyingKey(this.id, "name", name);
   }
 
   /**

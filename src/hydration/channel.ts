@@ -1,23 +1,22 @@
-import { ReactiveSet } from "@solid-primitives/set";
-import type { Channel as APIChannel, OverrideField } from "revolt-api";
+import type { Channel, OverrideField } from "revolt-api";
 
-import type { Client } from "../Client.js";
-import { File } from "../classes/File.js";
-import type { Merge } from "../lib/merge.js";
+import type { Client } from "../Client.ts";
+import { File } from "../classes/File.ts";
+import type { Merge } from "../lib/merge.ts";
 
-import type { Hydrate } from "./index.js";
+import type { Hydrate } from "./index.ts";
 
 export type HydratedChannel = {
   id: string;
-  channelType: APIChannel["channel_type"];
+  channelType: Channel["channel_type"];
 
   name: string;
   description?: string;
   icon?: File;
 
   active: boolean;
-  typingIds: ReactiveSet<string>;
-  recipientIds: ReactiveSet<string>;
+  typingIds: Set<string>;
+  recipientIds: Set<string>;
 
   userId?: string;
   ownerId?: string;
@@ -31,7 +30,7 @@ export type HydratedChannel = {
   lastMessageId?: string;
 };
 
-export const channelHydration: Hydrate<Merge<APIChannel>, HydratedChannel> = {
+export const channelHydration: Hydrate<Merge<Channel>, HydratedChannel> = {
   keyMapping: {
     _id: "id",
     channel_type: "channelType",
@@ -50,8 +49,8 @@ export const channelHydration: Hydrate<Merge<APIChannel>, HydratedChannel> = {
     description: (channel) => channel.description!,
     icon: (channel, ctx) => new File(ctx as Client, channel.icon!),
     active: (channel) => channel.active || false,
-    typingIds: () => new ReactiveSet(),
-    recipientIds: (channel) => new ReactiveSet(channel.recipients),
+    typingIds: () => new Set(),
+    recipientIds: (channel) => new Set(channel.recipients),
     userId: (channel) => channel.user,
     ownerId: (channel) => channel.owner,
     serverId: (channel) => channel.server,
@@ -62,7 +61,7 @@ export const channelHydration: Hydrate<Merge<APIChannel>, HydratedChannel> = {
     lastMessageId: (channel) => channel.last_message_id!,
   },
   initialHydration: () => ({
-    typingIds: new ReactiveSet(),
-    recipientIds: new ReactiveSet(),
+    typingIds: new Set(),
+    recipientIds: new Set(),
   }),
 };

@@ -5,17 +5,17 @@ import type {
   Role,
 } from "revolt-api";
 
-import type { ServerMemberCollection } from "../collections/ServerMemberCollection.js";
+import type { ServerMemberCollection } from "../collections/ServerMemberCollection.ts";
 import {
   bitwiseAndEq,
   calculatePermission,
-} from "../permissions/calculator.js";
-import { Permission } from "../permissions/definitions.js";
+} from "../permissions/calculator.ts";
+import { Permission } from "../permissions/definitions.ts";
 
-import type { Channel } from "./Channel.js";
-import type { File } from "./File.js";
-import type { Server } from "./Server.js";
-import type { User } from "./User.js";
+import type { Channel } from "./Channel.ts";
+import type { File } from "./File.ts";
+import type { Server } from "./Server.ts";
+import type { User } from "./User.ts";
 
 /**
  * Deterministic conversion of member composite key to string ID
@@ -236,13 +236,13 @@ export class ServerMember {
    * @param options Ban options
    */
   async ban(options: DataBanCreate): Promise<void> {
-    this.server?.banUser(this, options);
+    await this.server?.banUser(this, options);
   }
 
   /**
    * Kick this member from the server
    */
   async kick(): Promise<void> {
-    this.server?.kickUser(this);
+    await this.server?.kickUser(this);
   }
 }

@@ -1,10 +1,10 @@
 import type { File as APIFile, PublicBot as APIPublicBot } from "revolt-api";
 
-import type { Client } from "../Client.js";
+import type { Client } from "../Client.ts";
 
-import { Channel } from "./Channel.js";
-import { File } from "./File.js";
-import { Server } from "./Server.js";
+import { Channel } from "./Channel.ts";
+import { File } from "./File.ts";
+import { Server } from "./Server.ts";
 
 /**
  * Public Bot Class
@@ -28,9 +28,9 @@ export class PublicBot {
     this.username = data.username;
     this.avatar = data.avatar
       ? new File(client, {
-          _id: data.avatar,
-          tag: "avatars",
-        } as APIFile)
+        _id: data.avatar,
+        tag: "avatars",
+      } as APIFile)
       : undefined;
     this.description = data.description!;
   }

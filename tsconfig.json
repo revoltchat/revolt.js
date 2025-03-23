@@ -1,11 +1,13 @@
 {
   "compilerOptions": {
+    "allowImportingTsExtensions": true,
     "target": "ES2022",
     "module": "ES6",
     "moduleResolution": "node",
     "rootDir": "./src",
     "declaration": true,
     "declarationMap": true,
+    "lib": ["ES2022", "DOM"],
     "outDir": "./lib",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,

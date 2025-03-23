@@ -1,14 +1,14 @@
 import type {
-  User as APIUser,
   BotInformation,
   RelationshipStatus,
+  User,
   UserStatus,
 } from "revolt-api";
 
-import type { Client } from "../Client.js";
-import { File } from "../classes/File.js";
+import type { Client } from "../Client.ts";
+import { File } from "../classes/File.ts";
 
-import type { Hydrate } from "./index.js";
+import type { Hydrate } from "./index.ts";
 
 export type HydratedUser = {
   id: string;
@@ -29,7 +29,7 @@ export type HydratedUser = {
   bot?: BotInformation;
 };
 
-export const userHydration: Hydrate<APIUser, HydratedUser> = {
+export const userHydration: Hydrate<User, HydratedUser> = {
   keyMapping: {
     _id: "id",
     display_name: "displayName",

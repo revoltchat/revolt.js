@@ -1,12 +1,10 @@
-import { batch } from "solid-js";
-
 import type { Invite, InviteResponse } from "revolt-api";
 
-import type { Client } from "../Client.js";
-import type { ServerFlags } from "../hydration/server.js";
+import type { Client } from "../Client.ts";
+import type { ServerFlags } from "../hydration/server.ts";
 
-import { File } from "./File.js";
-import type { Server } from "./Server.js";
+import { File } from "./File.ts";
+import type { Server } from "./Server.ts";
 
 /**
  * Public Channel Invite
@@ -105,17 +103,15 @@ export class ServerPublicInvite extends PublicChannelInvite {
     const invite = await this.client!.api.post(`/invites/${this.code as ""}`);
 
     if (invite.type === "Server") {
-      return batch(() => {
-        for (const channel of invite.channels) {
-          this.client!.channels.getOrCreate(channel._id, channel);
-        }
+      for (const channel of invite.channels) {
+        this.client!.channels.getOrCreate(channel._id, channel);
+      }
 
-        return this.client!.servers.getOrCreate(
-          invite.server._id,
-          invite.server,
-          true,
-        );
-      });
+      return this.client!.servers.getOrCreate(
+        invite.server._id,
+        invite.server,
+        true,
+      );
     } else {
       throw "unreachable";
     }

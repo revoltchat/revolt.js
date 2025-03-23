@@ -1,4 +1,7 @@
-import { Channel, Client, Server, ServerMember } from "../index.js";
+import type { Client } from "../Client.ts";
+import type { Channel } from "../classes/Channel.ts";
+import { Server } from "../classes/Server.ts";
+import type { ServerMember } from "../classes/ServerMember.ts";
 
 import {
   ALLOW_IN_TIMEOUT,
@@ -6,7 +9,7 @@ import {
   DEFAULT_PERMISSION_VIEW_ONLY,
   Permission,
   UserPermission,
-} from "./definitions.js";
+} from "./definitions.ts";
 
 /**
  * Check whether `b` is present in `a`
@@ -123,8 +126,7 @@ export function calculatePermission(
 
           // 6. Apply default allows and denies for channel.
           if (target.defaultPermissions) {
-            perm =
-              (perm | BigInt(target.defaultPermissions.a)) &
+            perm = (perm | BigInt(target.defaultPermissions.a)) &
               ~BigInt(target.defaultPermissions.d);
           }
 

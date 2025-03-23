@@ -1,40 +1,37 @@
-import type { Accessor, Setter } from "solid-js";
-import { batch, createSignal } from "solid-js";
-
 import { AsyncEventEmitter } from "@vladfrangu/async_event_emitter";
-import { API } from "revolt-api";
-import type { DataLogin, RevoltConfig, Role } from "revolt-api";
+import type { DataLogin, RevoltConfig } from "revolt-api";
+import { API, type Role } from "revolt-api";
 
-import type { Channel } from "./classes/Channel.js";
-import type { Emoji } from "./classes/Emoji.js";
-import type { Message } from "./classes/Message.js";
-import type { Server } from "./classes/Server.js";
-import type { ServerMember } from "./classes/ServerMember.js";
-import type { User } from "./classes/User.js";
-import { AccountCollection } from "./collections/AccountCollection.js";
-import { BotCollection } from "./collections/BotCollection.js";
-import { ChannelCollection } from "./collections/ChannelCollection.js";
-import { ChannelUnreadCollection } from "./collections/ChannelUnreadCollection.js";
-import { ChannelWebhookCollection } from "./collections/ChannelWebhookCollection.js";
-import { EmojiCollection } from "./collections/EmojiCollection.js";
-import { MessageCollection } from "./collections/MessageCollection.js";
-import { ServerCollection } from "./collections/ServerCollection.js";
-import { ServerMemberCollection } from "./collections/ServerMemberCollection.js";
-import { SessionCollection } from "./collections/SessionCollection.js";
-import { UserCollection } from "./collections/UserCollection.js";
+import type { Channel } from "./classes/Channel.ts";
+import type { Emoji } from "./classes/Emoji.ts";
+import type { Message } from "./classes/Message.ts";
+import type { Server } from "./classes/Server.ts";
+import type { ServerMember } from "./classes/ServerMember.ts";
+import type { User } from "./classes/User.ts";
+import { AccountCollection } from "./collections/AccountCollection.ts";
+import { BotCollection } from "./collections/BotCollection.ts";
+import { ChannelCollection } from "./collections/ChannelCollection.ts";
+import { ChannelUnreadCollection } from "./collections/ChannelUnreadCollection.ts";
+import { ChannelWebhookCollection } from "./collections/ChannelWebhookCollection.ts";
+import { EmojiCollection } from "./collections/EmojiCollection.ts";
+import { MessageCollection } from "./collections/MessageCollection.ts";
+import { ServerCollection } from "./collections/ServerCollection.ts";
+import { ServerMemberCollection } from "./collections/ServerMemberCollection.ts";
+import { SessionCollection } from "./collections/SessionCollection.ts";
+import { UserCollection } from "./collections/UserCollection.ts";
 import {
   ConnectionState,
   EventClient,
   type EventClientOptions,
-} from "./events/EventClient.js";
-import { handleEvent } from "./events/v1.js";
-import type { HydratedChannel } from "./hydration/channel.js";
-import type { HydratedEmoji } from "./hydration/emoji.js";
-import type { HydratedMessage } from "./hydration/message.js";
-import type { HydratedServer } from "./hydration/server.js";
-import type { HydratedServerMember } from "./hydration/serverMember.js";
-import type { HydratedUser } from "./hydration/user.js";
-import { RE_CHANNELS, RE_MENTIONS, RE_SPOILER } from "./lib/regex.js";
+} from "./events/EventClient.ts";
+import { handleEvent } from "./events/v1.ts";
+import type { HydratedChannel } from "./hydration/channel.ts";
+import type { HydratedEmoji } from "./hydration/emoji.ts";
+import type { HydratedMessage } from "./hydration/message.ts";
+import type { HydratedServer } from "./hydration/server.ts";
+import type { HydratedServerMember } from "./hydration/serverMember.ts";
+import type { HydratedUser } from "./hydration/user.ts";
+import { RE_CHANNELS, RE_MENTIONS, RE_SPOILER } from "./lib/regex.ts";
 
 export type Session = { _id: string; token: string; user_id: string } | string;
 
@@ -42,8 +39,8 @@ export type Session = { _id: string; token: string; user_id: string } | string;
  * Events provided by the client
  */
 export type Events = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  error: [error: any];
+  // deno-lint-ignore no-explicit-any
+  error: [any];
 
   connected: [];
   connecting: [];
@@ -152,31 +149,33 @@ export type ClientOptions = Partial<EventClientOptions> & {
  * Revolt.js Clients
  */
 export class Client extends AsyncEventEmitter<Events> {
-  readonly account;
-  readonly bots;
-  readonly channels;
-  readonly channelUnreads;
-  readonly channelWebhooks;
-  readonly emojis;
-  readonly messages;
-  readonly servers;
-  readonly serverMembers;
-  readonly sessions;
-  readonly users;
+  readonly account: AccountCollection = new AccountCollection(this);
+  readonly bots: BotCollection = new BotCollection(this);
+  readonly channels: ChannelCollection = new ChannelCollection(this);
+  readonly channelUnreads: ChannelUnreadCollection =
+    new ChannelUnreadCollection(this);
+  readonly channelWebhooks: ChannelWebhookCollection =
+    new ChannelWebhookCollection(this);
+  readonly emojis: EmojiCollection = new EmojiCollection(this);
+  readonly messages: MessageCollection = new MessageCollection(this);
+  readonly servers: ServerCollection = new ServerCollection(this);
+  readonly serverMembers: ServerMemberCollection = new ServerMemberCollection(
+    this,
+  );
+  readonly sessions: SessionCollection = new SessionCollection(this);
+  readonly users: UserCollection = new UserCollection(this);
 
   readonly api: API;
   readonly options: ClientOptions;
   readonly events: EventClient<1>;
 
-  configuration: RevoltConfig | undefined;
+  public configuration: RevoltConfig | undefined;
   #session: Session | undefined;
   user: User | undefined;
 
-  readonly ready: Accessor<boolean>;
-  #setReady: Setter<boolean>;
+  ready = false;
+  connectionFailureCount = 0;
 
-  readonly connectionFailureCount: Accessor<number>;
-  #setConnectionFailureCount: Setter<number>;
   #reconnectTimeout: number | undefined;
 
   /**
@@ -217,36 +216,14 @@ export class Client extends AsyncEventEmitter<Events> {
       baseURL: this.options.baseURL,
     });
 
-    const [ready, setReady] = createSignal(false);
-    this.ready = ready;
-    this.#setReady = setReady;
-
-    const [connectionFailureCount, setConnectionFailureCount] = createSignal(0);
-    this.connectionFailureCount = connectionFailureCount;
-    this.#setConnectionFailureCount = setConnectionFailureCount;
-
-    this.account = new AccountCollection(this);
-    this.bots = new BotCollection(this);
-    this.channels = new ChannelCollection(this);
-    this.channelUnreads = new ChannelUnreadCollection(this);
-    this.channelWebhooks = new ChannelWebhookCollection(this);
-    this.emojis = new EmojiCollection(this);
-    this.messages = new MessageCollection(this);
-    this.servers = new ServerCollection(this);
-    this.serverMembers = new ServerMemberCollection(this);
-    this.sessions = new SessionCollection(this);
-    this.users = new UserCollection(this);
-
     this.events = new EventClient(1, "json", this.options);
     this.events.on("error", (error) => this.emit("error", error));
     this.events.on("state", (state) => {
       switch (state) {
         case ConnectionState.Connected:
-          batch(() => {
-            this.servers.forEach((server) => server.resetSyncStatus());
-            this.#setConnectionFailureCount(0);
-            this.emit("connected");
-          });
+          this.servers.forEach((server) => server.resetSyncStatus());
+          this.connectionFailureCount = 0;
+          this.emit("connected");
           break;
         case ConnectionState.Connecting:
           this.emit("connecting");
@@ -256,19 +233,24 @@ export class Client extends AsyncEventEmitter<Events> {
           if (this.options.autoReconnect) {
             this.#reconnectTimeout = setTimeout(
               () => this.connect(),
-              this.options.retryDelayFunction(this.connectionFailureCount()) *
+              this.options.retryDelayFunction(this.connectionFailureCount) *
                 1e3,
             ) as never;
 
-            this.#setConnectionFailureCount((count) => count + 1);
+            this.connectionFailureCount += 1;
           }
           break;
       }
     });
 
     this.events.on("event", (event) =>
-      handleEvent(this, event, this.#setReady),
-    );
+      handleEvent(
+        this,
+        event,
+        ((value: boolean) => {
+          this.ready = value;
+        }).bind(this),
+      ));
   }
 
   /**
@@ -293,7 +275,7 @@ export class Client extends AsyncEventEmitter<Events> {
   connect(): void {
     clearTimeout(this.#reconnectTimeout);
     this.events.disconnect();
-    this.#setReady(false);
+    this.ready = false;
     this.events.connect(
       this.configuration?.ws ?? "wss://ws.revolt.chat",
       typeof this.#session === "string" ? this.#session : this.#session!.token,
@@ -391,9 +373,11 @@ export class Client extends AsyncEventEmitter<Events> {
    */
   proxyFile(url: string): string | undefined {
     if (this.configuration?.features.january.enabled) {
-      return `${this.configuration.features.january.url}/proxy?url=${encodeURIComponent(
-        url,
-      )}`;
+      return `${this.configuration.features.january.url}/proxy?url=${
+        encodeURIComponent(
+          url,
+        )
+      }`;
     } else {
       return url;
     }
