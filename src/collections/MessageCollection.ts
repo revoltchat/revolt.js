@@ -3,15 +3,12 @@ import type { Message as APIMessage } from "revolt-api";
 import { Message } from "../classes/Message.js";
 import type { HydratedMessage } from "../hydration/message.js";
 
-import { ClassCollection } from "./Collection.js";
+import { Collection } from "./Collection.js";
 
 /**
  * Collection of Messages
  */
-export class MessageCollection extends ClassCollection<
-  Message,
-  HydratedMessage
-> {
+export class MessageCollection extends Collection<Message, HydratedMessage> {
   /**
    * Fetch message by Id
    * @param channelId Channel Id

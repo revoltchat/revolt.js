@@ -1,6 +1,3 @@
-import type { SetStoreFunction } from "solid-js/store";
-import { createStore } from "solid-js/store";
-
 import type {
   MFAMethod,
   MFAResponse,
@@ -15,7 +12,7 @@ import type { Client } from "../Client.js";
  */
 export class MFA {
   #client: Client;
-  #store: [MultiFactorStatus, SetStoreFunction<MultiFactorStatus>];
+  #store: MultiFactorStatus;
 
   /**
    * Construct MFA helper
@@ -24,21 +21,30 @@ export class MFA {
    */
   constructor(client: Client, state: MultiFactorStatus) {
     this.#client = client;
-    this.#store = createStore(state);
+    this.#store = state;
+  }
+
+  /**
+   * Mutate the store
+   * @param key Key
+   * @param value Value
+   */
+  #mutateStore(key: keyof MultiFactorStatus, value: boolean) {
+    this.#store[key] = value;
   }
 
   /**
    * Whether authenticator app is enabled
    */
   get authenticatorEnabled(): boolean {
-    return this.#store[0].totp_mfa;
+    return this.#store.totp_mfa;
   }
 
   /**
    * Whether recovery codes are enabled
    */
   get recoveryEnabled(): boolean {
-    return this.#store[0].recovery_active;
+    return this.#store.recovery_active;
   }
 
   /**
@@ -61,7 +67,7 @@ export class MFA {
     return new MFATicket(
       this.#client,
       await this.#client.api.put("/auth/mfa/ticket", params),
-      this.#store[1]
+      this.#mutateStore.bind(this),
     );
   }
 
@@ -71,7 +77,7 @@ export class MFA {
    */
   async enableAuthenticator(token: string): Promise<void> {
     await this.#client.api.put("/auth/mfa/totp", { totp_code: token });
-    this.#store[1]("totp_mfa", true);
+    this.#mutateStore("totp_mfa", true);
   }
 }
 
@@ -81,7 +87,7 @@ export class MFA {
 export class MFATicket {
   #client: Client;
   #ticket: TicketType;
-  #mutate: SetStoreFunction<MultiFactorStatus>;
+  #mutate: (key: keyof MultiFactorStatus, value: boolean) => void;
   #used = false;
 
   /**
@@ -93,7 +99,7 @@ export class MFATicket {
   constructor(
     client: Client,
     ticket: TicketType,
-    mutate: SetStoreFunction<MultiFactorStatus>,
+    mutate: (key: keyof MultiFactorStatus, value: boolean) => void,
   ) {
     this.#client = client;
     this.#ticket = ticket;

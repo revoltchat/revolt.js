@@ -1,66 +1,151 @@
-import type { SetStoreFunction } from "solid-js/store";
-
-import { ReactiveMap } from "@solid-primitives/map";
-
-import type { Client } from "../Client.js";
-import type { Hydrators } from "../hydration/index.js";
-import { ObjectStorage } from "../storage/ObjectStorage.js";
+import { Client } from "../Client.js";
+import { type Hydrators, hydrate } from "../hydration/index.js";
 
 /**
- * Abstract Collection type
+ * Collection backed by a store
  */
-export abstract class Collection<T> {
+export class Collection<T, V> {
+  #storage = new Map<string, V>();
+  #objects = new Map<string, T>();
+
+  /**
+   * Construct store backed collection
+   */
+  constructor(public readonly client: Client) {}
+
   /**
    * Get an existing object
    * @param id Id
-   * @returns Object
    */
-  abstract get(id: string): T | undefined;
+  get(id: string): T | undefined {
+    return this.#objects.get(id);
+  }
+
+  /**
+   * Get an underlying object
+   */
+  getUnderlyingObject(id: string): V {
+    return this.#storage.get(id) ?? ({} as V);
+  }
+
+  /**
+   * Set a key of an underlying object
+   */
+  setUnderlyingKey<K extends keyof V>(id: string, key: K, value: V[K]) {
+    this.#storage.set(id, {
+      [key]: value,
+      ...((this.#storage.get(id) ?? {}) as V),
+    });
+  }
+
+  /**
+   * Set an underlying object
+   */
+  setUnderlyingObject(id: string, value: V) {
+    this.#storage.set(id, value);
+  }
 
   /**
    * Check whether an id exists in the Collection
    * @param id Id
    * @returns Whether it exists
    */
-  abstract has(id: string): boolean;
+  has(id: string): boolean {
+    return this.#objects.has(id);
+  }
+
+  /**
+   * Check whether the underlying id exists
+   * @param id Id
+   * @returns Whether it exists
+   */
+  hasUnderlying(id: string): boolean {
+    return !!((this.#storage.get(id) as { id: string }) ?? { id: false }).id;
+  }
 
   /**
    * Delete an object
    * @param id Id
    */
-  abstract delete(id: string): void;
+  delete(id: string): void {
+    this.#objects.delete(id);
+    this.#storage.delete(id);
+  }
+
+  /**
+   * Create a new instance of an object
+   * @param id Id
+   * @param type Type
+   * @param instance Instance
+   * @param context Context
+   * @param data Data
+   */
+  create(
+    id: string,
+    type: keyof Hydrators,
+    instance: T,
+    context: unknown,
+    data?: unknown,
+  ): void {
+    if (data) {
+      this.#storage.set(
+        id,
+        hydrate(type, { partial: false, ...data } as never, context, true) as V,
+      );
+    }
+    this.#objects.set(id, instance);
+  }
+
+  /**
+   * Check whether an object is partially defined
+   * @param id Id
+   * @returns Whether it is a partial
+   */
+  isPartial(id: string): boolean {
+    return !!(
+      (this.#storage.get(id) ?? { partial: true }) as { partial: boolean }
+    ).partial;
+  }
 
   /**
    * Number of stored objects
    * @returns Size
    */
-  abstract size(): number;
+  size(): number {
+    return this.#objects.size;
+  }
 
   /**
    * Iterable of keys in the map
    * @returns Iterable
    */
-  abstract keys(): IterableIterator<string>;
+  keys(): MapIterator<string> {
+    return this.#objects.keys();
+  }
 
   /**
    * Iterable of values in the map
    * @returns Iterable
    */
-  abstract values(): IterableIterator<T>;
+  values(): MapIterator<T> {
+    return this.#objects.values();
+  }
 
   /**
    * Iterable of key, value pairs in the map
    * @returns Iterable
    */
-  abstract entries(): IterableIterator<[string, T]>;
+  entries(): MapIterator<[string, T]> {
+    return this.#objects.entries();
+  }
 
   /**
    * Execute a provided function over each key, value pair in the map
    * @param cb Callback for each pair
    */
-  abstract forEach(
-    cb: (value: T, key: string, map: Map<string, T>) => void,
-  ): void;
+  forEach(cb: (value: T, key: string, map: Map<string, T>) => void): void {
+    return this.#objects.forEach(cb);
+  }
 
   /**
    * List of values in the map
@@ -108,136 +193,6 @@ export abstract class Collection<T> {
         return value;
       }
     }
-  }
-}
-
-/**
- * Collection backed by a Solid.js Store
- */
-export abstract class StoreCollection<T, V> extends Collection<T> {
-  #storage = new ObjectStorage<V>();
-  #objects = new ReactiveMap<string, T>();
-  readonly getUnderlyingObject: (id: string) => V;
-  readonly updateUnderlyingObject: SetStoreFunction<Record<string, V>>;
-
-  /**
-   * Construct store backed collection
-   */
-  constructor() {
-    super();
-    this.getUnderlyingObject = (key) => this.#storage.get(key) ?? ({} as V);
-    this.updateUnderlyingObject = this.#storage.set;
-  }
-
-  /**
-   * Get an existing object
-   * @param id Id
-   * @returns Object
-   */
-  get(id: string): T | undefined {
-    return this.#objects.get(id);
-  }
-
-  /**
-   * Check whether an id exists in the Collection
-   * @param id Id
-   * @returns Whether it exists
-   */
-  has(id: string): boolean {
-    return this.#objects.has(id);
-  }
-
-  /**
-   * Delete an object
-   * @param id Id
-   */
-  delete(id: string): void {
-    this.#objects.delete(id);
-    this.updateUnderlyingObject(id, undefined as never);
-  }
-
-  /**
-   * Create a new instance of an object
-   * @param id Id
-   * @param type Type
-   * @param instance Instance
-   * @param context Context
-   * @param data Data
-   */
-  create(
-    id: string,
-    type: keyof Hydrators,
-    instance: T,
-    context: unknown,
-    data?: unknown,
-  ): void {
-    this.#storage.hydrate(id, type, context, data);
-    this.#objects.set(id, instance);
-  }
-
-  /**
-   * Check whether an object is partially defined
-   * @param id Id
-   * @returns Whether it is a partial
-   */
-  isPartial(id: string): boolean {
-    return !!(this.getUnderlyingObject(id) as { partial: boolean }).partial;
-  }
-
-  /**
-   * Number of stored objects
-   * @returns Size
-   */
-  size(): number {
-    return this.#objects.size;
-  }
-
-  /**
-   * Iterable of keys in the map
-   * @returns Iterable
-   */
-  keys(): IterableIterator<string> {
-    return this.#objects.keys();
-  }
-
-  /**
-   * Iterable of values in the map
-   * @returns Iterable
-   */
-  values(): IterableIterator<T> {
-    return this.#objects.values();
-  }
-
-  /**
-   * Iterable of key, value pairs in the map
-   * @returns Iterable
-   */
-  entries(): IterableIterator<[string, T]> {
-    return this.#objects.entries();
-  }
-
-  /**
-   * Execute a provided function over each key, value pair in the map
-   * @param cb Callback for each pair
-   * @returns Iterable
-   */
-  forEach(cb: (value: T, key: string, map: Map<string, T>) => void): void {
-    return this.#objects.forEach(cb);
-  }
-}
-
-/**
- * Generic class collection backed by store
- */
-export class ClassCollection<T, V> extends StoreCollection<T, V> {
-  readonly client: Client;
-
-  /**
-   * Create generic class collection
-   * @param client Client
-   */
-  constructor(client: Client) {
-    super();
-    this.client = client;
+    return undefined;
   }
 }

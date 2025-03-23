@@ -4,15 +4,12 @@ import { Channel } from "../classes/Channel.js";
 import { User } from "../classes/User.js";
 import type { HydratedChannel } from "../hydration/channel.js";
 
-import { ClassCollection } from "./Collection.js";
+import { Collection } from "./Collection.js";
 
 /**
  * Collection of Channels
  */
-export class ChannelCollection extends ClassCollection<
-  Channel,
-  HydratedChannel
-> {
+export class ChannelCollection extends Collection<Channel, HydratedChannel> {
   /**
    * Delete an object
    * @param id Id

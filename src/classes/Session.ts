@@ -64,7 +64,7 @@ export class Session {
       friendly_name: name,
     });
 
-    this.#collection.updateUnderlyingObject(this.id, "name", name);
+    this.#collection.setUnderlyingKey(this.id, "name", name);
   }
 
   /**

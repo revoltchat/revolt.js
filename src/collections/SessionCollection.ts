@@ -1,28 +1,21 @@
-import { batch } from "solid-js";
-
 import type { SessionInfo } from "revolt-api";
 
 import { Session } from "../classes/Session.js";
 import type { HydratedSession } from "../hydration/session.js";
 
-import { ClassCollection } from "./Collection.js";
+import { Collection } from "./Collection.js";
 
 /**
  * Collection of Sessions
  */
-export class SessionCollection extends ClassCollection<
-  Session,
-  HydratedSession
-> {
+export class SessionCollection extends Collection<Session, HydratedSession> {
   /**
    * Fetch active sessions
    * @returns List of sessions
    */
   async fetch(): Promise<Session[]> {
     const data = await this.client.api.get("/auth/session/all");
-    return batch(() =>
-      data.map((session) => this.getOrCreate(session._id, session)),
-    );
+    return data.map((session) => this.getOrCreate(session._id, session));
   }
 
   /**

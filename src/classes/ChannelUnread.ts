@@ -1,5 +1,3 @@
-import type { ReactiveSet } from "@solid-primitives/set";
-
 import type { ChannelUnreadCollection } from "../collections/ChannelUnreadCollection.js";
 
 /**
@@ -36,7 +34,7 @@ export class ChannelUnread {
   /**
    * List of message IDs that we were mentioned in
    */
-  get messageMentionIds(): ReactiveSet<string> {
+  get messageMentionIds(): Set<string> {
     return this.#collection.getUnderlyingObject(this.id).messageMentionIds;
   }
 }
