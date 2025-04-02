@@ -11,7 +11,7 @@ specifiers:
   eslint-plugin-prettier: ^5.2.3
   eslint-plugin-solid: ^0.14.5
   prettier: ^3.5.3
-  revolt-api: 0.8.3
+  revolt-api: 0.8.4
   solid-js: ^1.9.5
   typedoc: ^0.27.9
   typescript: ^5.8.2
@@ -22,7 +22,7 @@ dependencies:
   '@solid-primitives/map': 0.6.0_solid-js@1.9.5
   '@solid-primitives/set': 0.6.0_solid-js@1.9.5
   '@vladfrangu/async_event_emitter': 2.4.6
-  revolt-api: 0.8.3
+  revolt-api: 0.8.4
   solid-js: 1.9.5
   ulid: 2.4.0
 
@@ -1181,8 +1181,8 @@ packages:
     engines: {iojs: '>=1.0.0', node: '>=0.10.0'}
     dev: true
 
-  /revolt-api/0.8.3:
-    resolution: {integrity: sha512-4dOe6sbiWFGF5PlAuYtH9vWHXdFOge/L6/EKr6oLgslN+QBn2DKfSOIhl6Ni2n0B0cBurhA1KuBy0mWfE68fIQ==}
+  /revolt-api/0.8.4:
+    resolution: {integrity: sha512-/goCx6Xq0lv7qyMDJYaqyAcNSFvYPzHaHiCGqUj2NxqKCdwid2g21P91KalrMHCF8wV0jfgTuckl/bM74GihkQ==}
     dependencies:
       axios: 0.26.1
       lodash.defaultsdeep: 4.6.1
