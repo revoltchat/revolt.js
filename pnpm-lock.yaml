@@ -18,8 +18,8 @@ importers:
         specifier: ^2.4.6
         version: 2.4.6
       revolt-api:
-        specifier: 0.8.4-rc.3
-        version: 0.8.4-rc.3
+        specifier: 0.8.4-rc.4
+        version: 0.8.4-rc.4
       solid-js:
         specifier: ^1.9.5
         version: 1.9.5
@@ -695,8 +695,8 @@ packages:
     resolution: {integrity: sha512-g6QUff04oZpHs0eG5p83rFLhHeV00ug/Yf9nZM6fLeUrPguBTkTQOdpAWWspMh55TZfVQDPaN3NQJfbVRAxdIw==}
     engines: {iojs: '>=1.0.0', node: '>=0.10.0'}
 
-  revolt-api@0.8.4-rc.3:
-    resolution: {integrity: sha512-k6feLYk8PAsYTgJ20kTR2V0QqQSQFlxXJpUx5+ZJHaJlPAK/0SJkWavkcyFUSpdcQMXhp4g/ngfESI5DU/9e2A==}
+  revolt-api@0.8.4-rc.4:
+    resolution: {integrity: sha512-lkH58auGZ03K2IkW30r8LgTiQTLyJH7JPNmkxu7kq+k8EjguuaTYZeWHlR+S8g79iDJ5HvaOBguXscNhNnfe0g==}
 
   run-parallel@1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
@@ -1454,7 +1454,7 @@ snapshots:
 
   reusify@1.1.0: {}
 
-  revolt-api@0.8.4-rc.3: {}
+  revolt-api@0.8.4-rc.4: {}
 
   run-parallel@1.2.0:
     dependencies:
