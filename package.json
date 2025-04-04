@@ -1,6 +1,6 @@
 {
   "name": "revolt.js",
-  "version": "7.1.0-rc.2",
+  "version": "7.1.0-rc.3",
   "type": "module",
   "module": "lib/index.js",
   "types": "lib/index.d.ts",

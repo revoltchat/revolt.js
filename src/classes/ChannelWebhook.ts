@@ -1,4 +1,4 @@
-import * as APITmp from "revolt-api";
+import { DataEditWebhook } from "revolt-api";
 
 import type { ChannelWebhookCollection } from "../collections/ChannelWebhookCollection.js";
 import { hydrate } from "../hydration/index.js";
@@ -78,29 +78,15 @@ export class ChannelWebhook {
 
   /**
    * Edit this webhook
-   * TODO: not in production
    */
-  async edit(
-    data: Partial<{
-      name: string;
-      avatar: string;
-      permissions: number;
-      remove: ["Icon"];
-    }>,
-  ): Promise<void> {
-    // @ts-expect-error this should error once edit webhook is stable
-    // eslint-disable-next-line
-    type TodoUseThisDefinitionOnceItExists = APITmp.DataEditWebhook;
-
+  async edit(data: DataEditWebhook): Promise<void> {
     const webhook = await this.#collection.client.api.patch(
-      // @ts-expect-error not in prod
       `/webhooks/${this.id as ""}/${this.token as ""}`,
       data,
     );
 
     this.#collection.updateUnderlyingObject(
       this.id,
-      // @ts-expect-error not in prod
       hydrate("channelWebhook", webhook, this.#collection.client),
     );
   }
@@ -111,7 +97,6 @@ export class ChannelWebhook {
    */
   async delete(): Promise<void> {
     await this.#collection.client.api.delete(
-      // @ts-expect-error not in prod
       `/webhooks/${this.id}/${this.token}`,
     );
 
