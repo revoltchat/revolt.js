@@ -12,7 +12,7 @@ import type {
   Invite,
   Override,
 } from "revolt-api";
-import type { APIRoutes } from "revolt-api/dist/routes";
+import type { APIRoutes } from "revolt-api/lib/routes";
 import { decodeTime, ulid } from "ulid";
 
 import { ChannelCollection } from "../collections/index.js";

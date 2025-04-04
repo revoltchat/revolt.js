@@ -18,8 +18,8 @@ importers:
         specifier: ^2.4.6
         version: 2.4.6
       revolt-api:
-        specifier: 0.8.4
-        version: 0.8.4
+        specifier: 0.8.4-rc.3
+        version: 0.8.4-rc.3
       solid-js:
         specifier: ^1.9.5
         version: 1.9.5
@@ -325,9 +325,6 @@ packages:
   argparse@2.0.1:
     resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
 
-  axios@0.26.1:
-    resolution: {integrity: sha512-fPwcX4EvnSHuInCMItEhAGnaSEXRBjtzh9fOtsE6E1G6p7vl7edEeZe11QHf18+6+9gR5PbKV/sGKNaD8YaMeA==}
-
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
 
@@ -493,15 +490,6 @@ packages:
   flatted@3.3.3:
     resolution: {integrity: sha512-GX+ysw4PBCz0PzosHDepZGANEuFCMLrnRTiEy9McGjmkCQYwRq4A/X786G/fjM/+OjsWSU1ZrY5qyARZmO/uwg==}
 
-  follow-redirects@1.15.9:
-    resolution: {integrity: sha512-gew4GsXizNgdoRyqmyfMHyAmXsZDk6mHkSxZFCzW9gwlbtOW44CDtYavM+y+72qD/Vq2l550kMF52DT8fOLJqQ==}
-    engines: {node: '>=4.0'}
-    peerDependencies:
-      debug: '*'
-    peerDependenciesMeta:
-      debug:
-        optional: true
-
   glob-parent@5.1.2:
     resolution: {integrity: sha512-AOIgSQCepiJYwP3ARnGx+5VnTu2HBYdzbGP45eLw1vr3zB3vZLeyed1sC9hnbcOc9/SrMyM5RPQrkGz4aS9Zow==}
     engines: {node: '>= 6'}
@@ -607,9 +595,6 @@ packages:
     resolution: {integrity: sha512-iPZK6eYjbxRu3uB4/WZ3EsEIMJFMqAoopl3R+zuq0UjcAm/MO6KCweDgPfP3elTztoKP3KtnVHxTn2NHBSDVUw==}
     engines: {node: '>=10'}
 
-  lodash.defaultsdeep@4.6.1:
-    resolution: {integrity: sha512-3j8wdDzYuWO3lM3Reg03MuQR957t287Rpcxp1njpEa8oDrikb+FwGdW3n+FELh/A6qib6yPit0j/pv9G/yeAqA==}
-
   lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
 
@@ -710,8 +695,8 @@ packages:
     resolution: {integrity: sha512-g6QUff04oZpHs0eG5p83rFLhHeV00ug/Yf9nZM6fLeUrPguBTkTQOdpAWWspMh55TZfVQDPaN3NQJfbVRAxdIw==}
     engines: {iojs: '>=1.0.0', node: '>=0.10.0'}
 
-  revolt-api@0.8.4:
-    resolution: {integrity: sha512-/goCx6Xq0lv7qyMDJYaqyAcNSFvYPzHaHiCGqUj2NxqKCdwid2g21P91KalrMHCF8wV0jfgTuckl/bM74GihkQ==}
+  revolt-api@0.8.4-rc.3:
+    resolution: {integrity: sha512-k6feLYk8PAsYTgJ20kTR2V0QqQSQFlxXJpUx5+ZJHaJlPAK/0SJkWavkcyFUSpdcQMXhp4g/ngfESI5DU/9e2A==}
 
   run-parallel@1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
@@ -1124,12 +1109,6 @@ snapshots:
 
   argparse@2.0.1: {}
 
-  axios@0.26.1:
-    dependencies:
-      follow-redirects: 1.15.9
-    transitivePeerDependencies:
-      - debug
-
   balanced-match@1.0.2: {}
 
   brace-expansion@1.1.11:
@@ -1312,8 +1291,6 @@ snapshots:
 
   flatted@3.3.3: {}
 
-  follow-redirects@1.15.9: {}
-
   glob-parent@5.1.2:
     dependencies:
       is-glob: 4.0.3
@@ -1393,8 +1370,6 @@ snapshots:
   locate-path@6.0.0:
     dependencies:
       p-locate: 5.0.0
-
-  lodash.defaultsdeep@4.6.1: {}
 
   lodash.merge@4.6.2: {}
 
@@ -1479,12 +1454,7 @@ snapshots:
 
   reusify@1.1.0: {}
 
-  revolt-api@0.8.4:
-    dependencies:
-      axios: 0.26.1
-      lodash.defaultsdeep: 4.6.1
-    transitivePeerDependencies:
-      - debug
+  revolt-api@0.8.4-rc.3: {}
 
   run-parallel@1.2.0:
     dependencies:
