@@ -1,8 +1,10 @@
 {
   "name": "revolt.js",
-  "version": "7.1.0-rc.6",
+  "version": "7.2.0",
   "type": "module",
-  "module": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js"
+  },
   "types": "lib/index.d.ts",
   "repository": "https://github.com/revoltchat/revolt.js",
   "author": "Paul Makles <insrt.uk>",
@@ -22,25 +24,25 @@
     "lib"
   ],
   "description": "Library for interacting with the Revolt API.",
-  "packageManager": "pnpm@9.4.0",
+  "packageManager": "pnpm@10.10.0+sha512.d615db246fe70f25dcfea6d8d73dee782ce23e2245e3c4f6f888249fb568149318637dca73c2c5c8ef2a4ca0d5657fb9567188bfab47f566d1ee6ce987815c39",
   "dependencies": {
-    "@solid-primitives/map": "^0.6.0",
-    "@solid-primitives/set": "^0.6.0",
+    "@solid-primitives/map": "^0.7.1",
+    "@solid-primitives/set": "^0.7.1",
     "@vladfrangu/async_event_emitter": "^2.4.6",
-    "revolt-api": "0.8.5",
-    "solid-js": "^1.9.5",
-    "ulid": "^2.3.0"
+    "revolt-api": "0.8.5-1",
+    "solid-js": "^1.9.6",
+    "ulid": "^2.4.0"
   },
   "devDependencies": {
     "@mxssfd/typedoc-theme": "^1.1.7",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
-    "@types/node": "^22.13.10",
-    "eslint": "^9.22.0",
-    "eslint-plugin-prettier": "^5.2.3",
+    "@types/node": "^22.15.17",
+    "eslint": "^9.26.0",
+    "eslint-plugin-prettier": "^5.4.0",
     "eslint-plugin-solid": "^0.14.5",
     "prettier": "^3.5.3",
     "typedoc": "^0.27.9",
-    "typescript": "^5.8.2",
-    "typescript-eslint": "^8.26.1"
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.32.0"
   }
 }
