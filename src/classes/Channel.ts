@@ -747,11 +747,11 @@ export class Channel {
    */
   async setPermissions(
     role_id = "default",
-    permissions: Override,
+    permissions: Override | number,
   ): Promise<APIChannel> {
     return await this.#collection.client.api.put(
       `/channels/${this.id as ""}/permissions/${role_id as ""}`,
-      { permissions },
+      { permissions: permissions as never },
     );
   }
 
