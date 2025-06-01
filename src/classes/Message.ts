@@ -75,7 +75,7 @@ export class Message {
   /**
    * Id of channel this message was sent in
    */
-  get channelId(): string | undefined {
+  get channelId(): string {
     return this.#collection.getUnderlyingObject(this.id).channelId;
   }
 
