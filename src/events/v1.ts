@@ -364,7 +364,14 @@ export async function handleEvent(
       if (message) {
         const set = message.reactions.get(event.emoji_id);
         if (set?.has(event.user_id)) {
-          set.delete(event.user_id);
+          if (
+            set.size === 1 &&
+            !message.interactions?.reactions?.includes(event.emoji_id)
+          ) {
+            message.reactions.delete(event.emoji_id);
+          } else {
+            set.delete(event.user_id);
+          }
         } else if (!client.messages.isPartial(event.id)) {
           return;
         }
