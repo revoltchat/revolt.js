@@ -90,6 +90,13 @@ export class Server {
   }
 
   /**
+   * Absolute pathname to this server in the client
+   */
+  get path(): string {
+    return `/server/${this.id}`;
+  }
+
+  /**
    * Name
    */
   get name(): string {
