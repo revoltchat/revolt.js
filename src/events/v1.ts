@@ -21,6 +21,7 @@ import type {
 
 import type { Client } from "../Client.js";
 import { MessageEmbed } from "../classes/MessageEmbed.js";
+import { ServerRole } from "../classes/ServerRole.js";
 import { hydrate } from "../hydration/index.js";
 
 /**
@@ -578,10 +579,13 @@ export async function handleEvent(
       const server = client.servers.getOrPartial(event.id);
       if (server) {
         const role = server.roles.get(event.role_id) ?? {};
-        server.roles.set(event.role_id, {
-          ...role,
-          ...event.data,
-        } as Role);
+        server.roles.set(
+          event.role_id,
+          new ServerRole(client, server.id, event.role_id, {
+            ...role,
+            ...event.data,
+          } as never),
+        );
 
         client.emit("serverRoleUpdate", server, event.role_id, role as never);
       }

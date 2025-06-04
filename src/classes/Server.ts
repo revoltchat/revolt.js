@@ -33,6 +33,7 @@ import type { File } from "./File.js";
 import { ChannelInvite } from "./Invite.js";
 import { ServerBan } from "./ServerBan.js";
 import { ServerMember } from "./ServerMember.js";
+import { ServerRole } from "./ServerRole.js";
 import { User } from "./User.js";
 
 /**
@@ -159,16 +160,7 @@ export class Server {
   /**
    * Roles
    */
-  get roles(): ReactiveMap<
-    string,
-    {
-      name: string;
-      permissions: OverrideField;
-      colour?: string | null;
-      hoist?: boolean;
-      rank?: number;
-    }
-  > {
+  get roles(): ReactiveMap<string, ServerRole> {
     return this.#collection.getUnderlyingObject(this.id).roles;
   }
 
@@ -286,9 +278,7 @@ export class Server {
   }[] {
     const roles = this.roles;
     return roles
-      ? [...roles.entries()]
-          .map(([id, role]) => ({ id, ...role }))
-          .sort((a, b) => (a.rank || 0) - (b.rank || 0))
+      ? [...roles.values()].sort((a, b) => (a.rank || 0) - (b.rank || 0))
       : [];
   }
 

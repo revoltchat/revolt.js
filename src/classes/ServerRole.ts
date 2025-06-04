@@ -36,6 +36,14 @@ export class ServerRole {
   }
 
   /**
+   * Write to string as a role mention
+   * @returns Formatted String
+   */
+  toString(): string {
+    return `<%${this.id}>`;
+  }
+
+  /**
    * Whether this role is assigned to our server member
    */
   get assigned() {
