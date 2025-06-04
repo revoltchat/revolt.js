@@ -136,6 +136,13 @@ export class Message {
   }
 
   /**
+   * Content converted to plain text
+   */
+  get contentPlain(): string {
+    return this.#collection.client.markdownToText(this.content);
+  }
+
+  /**
    * System message content
    */
   get systemMessage(): SystemMessage | undefined {
