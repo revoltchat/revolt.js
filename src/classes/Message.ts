@@ -11,12 +11,14 @@ import { decodeTime } from "ulid";
 
 import type { Client } from "../Client.js";
 import type { MessageCollection } from "../collections/MessageCollection.js";
+import { MessageFlags } from "../hydration/message.js";
 
 import type { Channel } from "./Channel.js";
 import { File } from "./File.js";
 import type { MessageEmbed } from "./MessageEmbed.js";
 import type { Server } from "./Server.js";
 import type { ServerMember } from "./ServerMember.js";
+import { ServerRole } from "./ServerRole.js";
 import type { SystemMessage } from "./SystemMessage.js";
 import type { User } from "./User.js";
 
@@ -178,10 +180,32 @@ export class Message {
   }
 
   /**
+   * IDs of roles this message mentions
+   */
+  get roleMentionIds(): string[] | undefined {
+    return this.#collection.getUnderlyingObject(this.id).roleMentionIds;
+  }
+
+  /**
+   * Roles this message mentions
+   */
+  get roleMentions(): ServerRole[] | undefined {
+    return this.roleMentionIds
+      ?.map((roleId) => this.server?.roles.get(roleId) as ServerRole)
+      .filter((role) => role);
+  }
+
+  /**
    * Whether this message mentions us
    */
   get mentioned(): boolean {
-    return this.mentionIds?.includes(this.#collection.client.user!.id) ?? false;
+    return (
+      !!(this.flags & MessageFlags.MentionsEveryone) ||
+      !!(this.flags & MessageFlags.MentionsOnline) ||
+      this.mentionIds?.includes(this.#collection.client.user!.id) ||
+      this.roleMentions?.some((role) => role.assigned) ||
+      false
+    );
   }
 
   /**
