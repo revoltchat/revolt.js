@@ -237,6 +237,13 @@ export class Message {
   }
 
   /**
+   * Whether this message is pinned
+   */
+  get pinned(): boolean {
+    return this.#collection.getUnderlyingObject(this.id).pinned || false;
+  }
+
+  /**
    * Flags
    */
   get flags(): number {
@@ -384,6 +391,24 @@ export class Message {
       `/channels/${this.channelId as ""}/messages/${this.id as ""}/reactions/${
         emoji as ""
       }`,
+    );
+  }
+
+  /**
+   * Pin the message
+   */
+  pin(): Promise<void> {
+    return this.#collection.client.api.post(
+      `/channels/${this.channelId as ""}/messages/${this.id as ""}/pin`,
+    );
+  }
+
+  /**
+   * Unpin the message
+   */
+  unpin(): Promise<void> {
+    return this.#collection.client.api.delete(
+      `/channels/${this.channelId as ""}/messages/${this.id as ""}/pin`,
     );
   }
 }

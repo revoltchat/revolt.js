@@ -28,6 +28,7 @@ export type HydratedMessage = {
   reactions: ReactiveMap<string, ReactiveSet<string>>;
   interactions?: Interactions;
   masquerade?: Masquerade;
+  pinned?: boolean;
   flags?: MessageFlags;
 };
 
@@ -72,6 +73,7 @@ export const messageHydration: Hydrate<Merge<Message>, HydratedMessage> = {
     },
     interactions: (message) => message.interactions,
     masquerade: (message) => message.masquerade!,
+    pinned: (message) => message.pinned!,
     flags: (message) => message.flags!,
   },
   initialHydration: () => ({
