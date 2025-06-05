@@ -399,6 +399,25 @@ export class Channel {
   }
 
   /**
+   * Create a webhook
+   * @param name Webhook name
+   * @returns The newly-created webhook
+   */
+  async createWebhook(name: string): Promise<ChannelWebhook> {
+    const webhook = await this.#collection.client.api.post(
+      `/channels/${this.id as ""}/webhooks`,
+      {
+        name,
+      },
+    );
+
+    return this.#collection.client.channelWebhooks.getOrCreate(
+      webhook.id,
+      webhook,
+    );
+  }
+
+  /**
    * Fetch a channel's webhooks
    * @requires `TextChannel`, `Group`
    * @returns Webhooks

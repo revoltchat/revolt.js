@@ -93,7 +93,6 @@ export class ChannelWebhook {
 
   /**
    * Delete this webhook
-   * TODO: not in production
    */
   async delete(): Promise<void> {
     await this.#collection.client.api.delete(
