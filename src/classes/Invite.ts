@@ -64,7 +64,7 @@ export class ServerInvite extends ChannelInvite {
     this.id = invite._id;
     this.creatorId = invite.creator;
     this.serverId = invite.server;
-    this.channelId = invite.server;
+    this.channelId = invite.channel;
   }
 
   /**
