@@ -747,6 +747,15 @@ export class Server {
   }
 
   /**
+   * All emojis tied to this server
+   */
+  get emojis(): Emoji[] {
+    return this.#collection.client.emojis.filter(
+      (emoji) => emoji.parent.type === "Server" && emoji.parent.id === this.id,
+    );
+  }
+
+  /**
    * Delete emoji
    * @param emojiId Emoji ID
    */
