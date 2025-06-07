@@ -29,7 +29,7 @@
     "@solid-primitives/map": "^0.7.1",
     "@solid-primitives/set": "^0.7.1",
     "@vladfrangu/async_event_emitter": "^2.4.6",
-    "revolt-api": "0.8.6-1",
+    "revolt-api": "0.8.7",
     "solid-js": "^1.9.6",
     "ulid": "^2.4.0"
   },
