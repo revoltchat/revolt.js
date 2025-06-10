@@ -30,6 +30,10 @@ import { hydrate } from "../hydration/index.js";
 export type ProtocolV1 = {
   client: ClientMessage;
   server: ServerMessage;
+
+  types: {
+    policyChange: PolicyChange;
+  };
 };
 
 /**
@@ -172,6 +176,16 @@ type ServerMessage =
     ));
 
 /**
+ * Policy change type
+ */
+type PolicyChange = {
+  created_time: string;
+  effective_time: string;
+  description: string;
+  url: string;
+};
+
+/**
  * Initial synchronisation packet
  */
 type ReadyData = {
@@ -180,12 +194,7 @@ type ReadyData = {
   channels: Channel[];
   members: Member[];
   emojis: Emoji[];
-  policy_changes: {
-    created_time: string;
-    effective_time: string;
-    description: string;
-    url: string;
-  }[];
+  policy_changes: PolicyChange[];
 };
 
 /**

@@ -52,7 +52,7 @@ export type Events = {
   logout: [];
 
   policyChanges: [
-    policyChanges: (ProtocolV1["server"] & { type: "Ready" })["policy_changes"],
+    policyChanges: ProtocolV1["types"]["policyChange"][],
     acknowledge: () => Promise<void>,
   ];
 
