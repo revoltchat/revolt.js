@@ -27,7 +27,7 @@ import {
   EventClient,
   type EventClientOptions,
 } from "./events/EventClient.js";
-import { handleEvent } from "./events/v1.js";
+import { ProtocolV1, handleEvent } from "./events/v1.js";
 import type { HydratedChannel } from "./hydration/channel.js";
 import type { HydratedEmoji } from "./hydration/emoji.js";
 import type { HydratedMessage } from "./hydration/message.js";
@@ -50,6 +50,11 @@ export type Events = {
   disconnected: [];
   ready: [];
   logout: [];
+
+  policyChanges: [
+    policyChanges: (ProtocolV1["server"] & { type: "Ready" })["policy_changes"],
+    acknowledge: () => Promise<void>,
+  ];
 
   messageCreate: [message: Message];
   messageUpdate: [message: Message, previousMessage: HydratedMessage];

@@ -180,6 +180,12 @@ type ReadyData = {
   channels: Channel[];
   members: Member[];
   emojis: Emoji[];
+  policy_changes: {
+    created_time: string;
+    effective_time: string;
+    description: string;
+    url: string;
+  }[];
 };
 
 /**
@@ -237,6 +243,12 @@ export async function handleEvent(
 
       setReady(true);
       client.emit("ready");
+
+      if (event.policy_changes.length) {
+        client.emit("policyChanges", event.policy_changes, async () =>
+          client.api.post("/policy/acknowledge"),
+        );
+      }
 
       break;
     }
