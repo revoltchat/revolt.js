@@ -403,4 +403,33 @@ export class Client extends AsyncEventEmitter<Events> {
       return url;
     }
   }
+
+  /**
+   * Upload a file
+   * @param tag Tag
+   * @param file File
+   * @param uploadUrl Media server upload route
+   */
+  async uploadFile(
+    tag: string,
+    file: File,
+    uploadUrl?: string,
+  ): Promise<string> {
+    const body = new FormData();
+    body.append("file", file);
+
+    const [key, value] = this.authenticationHeader;
+    const data: { id: string } = await fetch(
+      `${uploadUrl ?? this.configuration?.features.autumn.url}/${tag}`,
+      {
+        method: "POST",
+        body,
+        headers: {
+          [key]: value,
+        },
+      },
+    ).then((res) => res.json());
+
+    return data.id;
+  }
 }
