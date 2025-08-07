@@ -257,7 +257,7 @@ export class WebSocketClient {
 
                                     if (
                                         packet.author !==
-                                            "00000000000000000000000000" &&
+                                        "00000000000000000000000000" &&
                                         !packet.webhook
                                     )
                                         await server.fetchMember(packet.author);
@@ -588,6 +588,22 @@ export class WebSocketClient {
                             break;
                         }
 
+                        case "ServerRoleRanksUpdate": {
+                            const server = this.client.servers.get(packet.id);
+                            if (server) {
+                                server.roles = Object.entries(server.roles ?? {})
+                                    .map(([id, role]) => [id, {
+                                        ...role,
+                                        rank: packet.ranks.findIndex(roleId => id === roleId)
+                                    }] as const)
+                                    .filter(([_, role]) => role.rank !== -1)
+                                    .reduce((d, [id, role]) => ({ ...d, [id]: role }), {});
+
+                                // NB. no event for client here
+                            }
+                            break;
+                        }
+
                         case "ServerRoleDelete": {
                             const server = this.client.servers.get(packet.id);
                             if (server) {
@@ -628,7 +644,7 @@ export class WebSocketClient {
                                 ].find(
                                     (channel) =>
                                         channel.channel_type ===
-                                            "DirectMessage" &&
+                                        "DirectMessage" &&
                                         channel.recipient_ids?.includes(
                                             user_id,
                                         ),

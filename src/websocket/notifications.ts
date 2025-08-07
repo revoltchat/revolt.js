@@ -120,6 +120,11 @@ export type ClientboundNotification =
           role_id: string;
           data: Partial<Role>;
       }
+    | {
+          type: "ServerRoleRanksUpdate";
+          id: string;
+          ranks: string[];
+      }
     | { type: "ServerRoleDelete"; id: string; role_id: string }
     | {
           type: "UserUpdate";
