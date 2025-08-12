@@ -96,6 +96,13 @@ export class ServerPublicInvite extends PublicChannelInvite {
   }
 
   /**
+   * Server (if it exists in cache)
+   */
+  get server(): Server | undefined {
+    return this.client!.servers.get(this.serverId);
+  }
+
+  /**
    * Join the server
    */
   async join(): Promise<Server> {
