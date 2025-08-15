@@ -411,6 +411,27 @@ export class Server {
   }
 
   /**
+   * Set ordering of roles
+   * @param roleIds Role IDs
+   */
+  async setRoleOrdering(roleIds: string[]): Promise<void> {
+    this.#collection.updateUnderlyingObject(
+      this.id,
+      hydrate(
+        "server",
+        await this.#collection.client.api.patch(
+          `/servers/${this.id as ""}/roles/ranks`,
+          {
+            ranks: roleIds,
+          },
+        ),
+        this.#collection.client,
+        false,
+      ),
+    );
+  }
+
+  /**
    * Delete the underlying server
    * @param leaveEvent Whether we are leaving
    */
