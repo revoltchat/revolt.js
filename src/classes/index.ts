@@ -10,6 +10,7 @@ export * from "./Message.js";
 export * from "./MessageEmbed.js";
 export * from "./PublicBot.js";
 export * from "./PublicInvite.js";
+export * from "./ServerRole.js";
 export * from "./Server.js";
 export * from "./ServerBan.js";
 export * from "./ServerMember.js";

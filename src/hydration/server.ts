@@ -1,12 +1,12 @@
 import type {
   Server as APIServer,
   Category,
-  Role,
   SystemMessageChannels,
 } from "revolt-api";
 
 import type { Client } from "../Client.js";
 import { File } from "../classes/File.js";
+import { ServerRole } from "../classes/ServerRole.js";
 
 import type { Hydrate } from "./index.js";
 
@@ -24,7 +24,7 @@ export type HydratedServer = {
   categories?: Category[];
 
   systemMessages?: SystemMessageChannels;
-  roles: Map<string, Role>;
+  roles: Map<string, ServerRole>;
   defaultPermissions: number;
 
   flags: ServerFlags;
@@ -49,8 +49,13 @@ export const serverHydration: Hydrate<APIServer, HydratedServer> = {
     channelIds: (server) => new Set(server.channels),
     categories: (server) => server.categories ?? [],
     systemMessages: (server) => server.system_messages ?? {},
-    roles: (server) =>
-      new Map(Object.keys(server.roles!).map((id) => [id, server.roles![id]])),
+    roles: (server, ctx) =>
+      new Map(
+        Object.keys(server.roles!).map((id) => [
+          id,
+          new ServerRole(ctx as Client, server._id, id, server.roles![id]),
+        ]),
+      ),
     defaultPermissions: (server) => server.default_permissions,
     icon: (server, ctx) => new File(ctx as Client, server.icon!),
     banner: (server, ctx) => new File(ctx as Client, server.banner!),

@@ -21,11 +21,13 @@ export type HydratedMessage = {
   editedAt?: Date;
   embeds?: MessageEmbed[];
   mentionIds?: string[];
+  roleMentionIds?: string[];
   replyIds?: string[];
   reactions: Map<string, Set<string>>;
   interactions?: Interactions;
   masquerade?: Masquerade;
-  flags?: number;
+  pinned?: boolean;
+  flags?: MessageFlags;
 };
 
 export const messageHydration: Hydrate<Merge<Message>, HydratedMessage> = {
@@ -56,6 +58,7 @@ export const messageHydration: Hydrate<Merge<Message>, HydratedMessage> = {
     embeds: (message, ctx) =>
       message.embeds!.map((embed) => MessageEmbed.from(ctx as Client, embed)),
     mentionIds: (message) => message.mentions!,
+    roleMentionIds: (message) => message.role_mentions!,
     replyIds: (message) => message.replies!,
     reactions: (message) => {
       const map = new Map<string, Set<string>>();
@@ -68,9 +71,29 @@ export const messageHydration: Hydrate<Merge<Message>, HydratedMessage> = {
     },
     interactions: (message) => message.interactions,
     masquerade: (message) => message.masquerade!,
+    pinned: (message) => message.pinned!,
     flags: (message) => message.flags!,
   },
   initialHydration: () => ({
     reactions: new Map(),
   }),
 };
+
+/**
+ * Flags attributed to messages
+ */
+export enum MessageFlags {
+  /**
+   * Message will not send push / desktop notifications
+   */
+  SuppressNotifications = 1,
+  /**
+   * Message will mention all users who can see the channel
+   */
+  MentionsEveryone = 2,
+  /**
+   * Message will mention all users who are online and can see the channel.
+   * This cannot be true if MentionsEveryone is true
+   */
+  MentionsOnline = 3,
+}

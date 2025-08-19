@@ -24,7 +24,7 @@ import {
   EventClient,
   type EventClientOptions,
 } from "./events/EventClient.js";
-import { handleEvent } from "./events/v1.js";
+import { ProtocolV1, handleEvent } from "./events/v1.js";
 import type { HydratedChannel } from "./hydration/channel.js";
 import type { HydratedEmoji } from "./hydration/emoji.js";
 import type { HydratedMessage } from "./hydration/message.js";
@@ -47,6 +47,11 @@ export type Events = {
   disconnected: [];
   ready: [];
   logout: [];
+
+  policyChanges: [
+    policyChanges: ProtocolV1["types"]["policyChange"][],
+    acknowledge: () => Promise<void>,
+  ];
 
   messageCreate: [message: Message];
   messageUpdate: [message: Message, previousMessage: HydratedMessage];
@@ -388,5 +393,34 @@ export class Client extends AsyncEventEmitter<Events> {
     } else {
       return url;
     }
+  }
+
+  /**
+   * Upload a file
+   * @param tag Tag
+   * @param file File
+   * @param uploadUrl Media server upload route
+   */
+  async uploadFile(
+    tag: string,
+    file: File,
+    uploadUrl?: string,
+  ): Promise<string> {
+    const body = new FormData();
+    body.append("file", file);
+
+    const [key, value] = this.authenticationHeader;
+    const data: { id: string } = await fetch(
+      `${uploadUrl ?? this.configuration?.features.autumn.url}/${tag}`,
+      {
+        method: "POST",
+        body,
+        headers: {
+          [key]: value,
+        },
+      },
+    ).then((res) => res.json());
+
+    return data.id;
   }
 }

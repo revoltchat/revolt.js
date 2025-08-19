@@ -3,6 +3,7 @@ import type { SystemMessage as APISystemMessage } from "revolt-api";
 import type { Client } from "../Client.js";
 
 import type { User } from "./User.js";
+import { Message } from "./index.js";
 
 /**
  * System Message
@@ -46,6 +47,9 @@ export abstract class SystemMessage {
         return new ChannelEditSystemMessage(client, message);
       case "channel_ownership_changed":
         return new ChannelOwnershipChangeSystemMessage(client, message);
+      case "message_pinned":
+      case "message_unpinned":
+        return new MessagePinnedSystemMessage(client, message);
       default:
         return new TextSystemMessage(client, {
           type: "text",
@@ -228,5 +232,43 @@ export class ChannelOwnershipChangeSystemMessage extends SystemMessage {
    */
   get to(): User | undefined {
     return this.client!.users.get(this.toId);
+  }
+}
+
+/**
+ * Message Pinned System Message
+ */
+export class MessagePinnedSystemMessage extends SystemMessage {
+  readonly messageId: string;
+  readonly byId: string;
+
+  /**
+   * Construct System Message
+   * @param client Client
+   * @param systemMessage System Message
+   */
+  constructor(
+    client: Client,
+    systemMessage: APISystemMessage & {
+      type: "message_pinned" | "message_unpinned";
+    },
+  ) {
+    super(client, systemMessage.type);
+    this.messageId = systemMessage.id;
+    this.byId = systemMessage.by;
+  }
+
+  /**
+   * Message that was pinned/unpinned
+   */
+  get message(): Message | undefined {
+    return this.client!.messages.get(this.messageId);
+  }
+
+  /**
+   * User that pinned/unpinned
+   */
+  get by(): User | undefined {
+    return this.client!.users.get(this.byId);
   }
 }

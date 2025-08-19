@@ -20,9 +20,7 @@ export class ChannelWebhookCollection extends Collection<
   async fetch(id: string): Promise<ChannelWebhook> {
     const webhook = this.get(id);
     if (webhook) return webhook;
-    // @ts-expect-error not in prod
     const data = await this.client.api.get(`/webhooks/${id as ""}`);
-    // @ts-expect-error not in prod
     return this.getOrCreate(data.id, data as Webhook);
   }
 
@@ -36,10 +34,8 @@ export class ChannelWebhookCollection extends Collection<
     const webhook = this.get(id);
     if (webhook) return webhook;
     const data = await this.client.api.get(
-      // @ts-expect-error not in prod
       `/webhooks/${id as ""}/${token as ""}`,
     );
-    // @ts-expect-error not in prod
     return this.getOrCreate(data.id, data);
   }
 

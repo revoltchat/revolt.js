@@ -9,7 +9,7 @@ import type {
   Invite,
   Override,
 } from "revolt-api";
-import type { APIRoutes } from "revolt-api/dist/routes";
+import type { APIRoutes } from "revolt-api/lib/routes";
 import { decodeTime, ulid } from "ulid";
 
 import { ChannelCollection } from "../collections/index.js";
@@ -394,6 +394,25 @@ export class Channel {
   }
 
   /**
+   * Create a webhook
+   * @param name Webhook name
+   * @returns The newly-created webhook
+   */
+  async createWebhook(name: string): Promise<ChannelWebhook> {
+    const webhook = await this.#collection.client.api.post(
+      `/channels/${this.id as ""}/webhooks`,
+      {
+        name,
+      },
+    );
+
+    return this.#collection.client.channelWebhooks.getOrCreate(
+      webhook.id,
+      webhook,
+    );
+  }
+
+  /**
    * Fetch a channel's webhooks
    * @requires `TextChannel`, `Group`
    * @returns Webhooks
@@ -736,11 +755,11 @@ export class Channel {
    */
   async setPermissions(
     role_id = "default",
-    permissions: Override,
+    permissions: Override | number,
   ): Promise<APIChannel> {
     return await this.#collection.client.api.put(
       `/channels/${this.id as ""}/permissions/${role_id as ""}`,
-      { permissions },
+      { permissions: permissions as never },
     );
   }
 

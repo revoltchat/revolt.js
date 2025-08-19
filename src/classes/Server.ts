@@ -29,6 +29,7 @@ import type { File } from "./File.js";
 import { ChannelInvite } from "./Invite.js";
 import { ServerBan } from "./ServerBan.js";
 import { ServerMember } from "./ServerMember.js";
+import { ServerRole } from "./ServerRole.js";
 import { User } from "./User.js";
 
 /**
@@ -83,6 +84,13 @@ export class Server {
     return this.#collection.client.users.get(
       this.#collection.getUnderlyingObject(this.id).ownerId,
     );
+  }
+
+  /**
+   * Absolute pathname to this server in the client
+   */
+  get path(): string {
+    return `/server/${this.id}`;
   }
 
   /**
@@ -148,16 +156,7 @@ export class Server {
   /**
    * Roles
    */
-  get roles(): Map<
-    string,
-    {
-      name: string;
-      permissions: OverrideField;
-      colour?: string | null;
-      hoist?: boolean;
-      rank?: number;
-    }
-  > {
+  get roles(): Map<string, ServerRole> {
     return this.#collection.getUnderlyingObject(this.id).roles;
   }
 
@@ -275,9 +274,7 @@ export class Server {
   }[] {
     const roles = this.roles;
     return roles
-      ? [...roles.entries()]
-          .map(([id, role]) => ({ id, ...role }))
-          .sort((a, b) => (a.rank || 0) - (b.rank || 0))
+      ? [...roles.values()].sort((a, b) => (a.rank || 0) - (b.rank || 0))
       : [];
   }
 
@@ -402,6 +399,27 @@ export class Server {
         await this.#collection.client.api.patch(
           `/servers/${this.id as ""}`,
           data,
+        ),
+        this.#collection.client,
+        false,
+      ),
+    );
+  }
+
+  /**
+   * Set ordering of roles
+   * @param roleIds Role IDs
+   */
+  async setRoleOrdering(roleIds: string[]): Promise<void> {
+    this.#collection.updateUnderlyingObject(
+      this.id,
+      hydrate(
+        "server",
+        await this.#collection.client.api.patch(
+          `/servers/${this.id as ""}/roles/ranks`,
+          {
+            ranks: roleIds,
+          },
         ),
         this.#collection.client,
         false,
@@ -732,6 +750,15 @@ export class Server {
 
     return emojis.map((emoji) =>
       this.#collection.client.emojis.getOrCreate(emoji._id, emoji),
+    );
+  }
+
+  /**
+   * All emojis tied to this server
+   */
+  get emojis(): Emoji[] {
+    return this.#collection.client.emojis.filter(
+      (emoji) => emoji.parent.type === "Server" && emoji.parent.id === this.id,
     );
   }
 
