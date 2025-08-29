@@ -10,4 +10,4 @@ client.on("disconnected", () => console.info("Disconnected."));
 
 client.on("messageCreate", (message) => console.info(message.content));
 
-client.loginBot(env.TOKEN);
+await client.loginBot(env.TOKEN);

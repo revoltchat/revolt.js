@@ -1,5 +1,3 @@
-import type { ReactiveMap } from "@solid-primitives/map";
-import type { ReactiveSet } from "@solid-primitives/set";
 import type {
   Message as APIMessage,
   MessageWebhook as APIMessageWebhook,
@@ -218,7 +216,7 @@ export class Message {
   /**
    * Reactions
    */
-  get reactions(): ReactiveMap<string, ReactiveSet<string>> {
+  get reactions(): Map<string, Set<string>> {
     return this.#collection.getUnderlyingObject(this.id).reactions;
   }
 

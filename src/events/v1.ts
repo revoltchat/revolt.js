@@ -1,7 +1,3 @@
-import type { Setter } from "solid-js";
-import { batch } from "solid-js";
-
-import { ReactiveSet } from "@solid-primitives/set";
 import type {
   Channel,
   Emoji,
@@ -206,7 +202,7 @@ type ReadyData = {
 export async function handleEvent(
   client: Client,
   event: ServerMessage,
-  setReady: Setter<boolean>,
+  setReady: (value: boolean) => void,
 ): Promise<void> {
   if (client.options.debug) {
     console.debug("[S->C]", event);
@@ -220,31 +216,29 @@ export async function handleEvent(
       break;
     }
     case "Ready": {
-      batch(() => {
-        for (const user of event.users) {
-          const u = client.users.getOrCreate(user._id, user);
+      for (const user of event.users) {
+        const u = client.users.getOrCreate(user._id, user);
 
-          if (u.relationship === "User") {
-            client.user = u;
-          }
+        if (u.relationship === "User") {
+          client.user = u;
         }
+      }
 
-        for (const server of event.servers) {
-          client.servers.getOrCreate(server._id, server);
-        }
+      for (const server of event.servers) {
+        client.servers.getOrCreate(server._id, server);
+      }
 
-        for (const member of event.members) {
-          client.serverMembers.getOrCreate(member._id, member);
-        }
+      for (const member of event.members) {
+        client.serverMembers.getOrCreate(member._id, member);
+      }
 
-        for (const channel of event.channels) {
-          client.channels.getOrCreate(channel._id, channel);
-        }
+      for (const channel of event.channels) {
+        client.channels.getOrCreate(channel._id, channel);
+      }
 
-        for (const emoji of event.emojis) {
-          client.emojis.getOrCreate(emoji._id, emoji);
-        }
-      });
+      for (const emoji of event.emojis) {
+        client.emojis.getOrCreate(emoji._id, emoji);
+      }
 
       if (client.options.syncUnreads) {
         await client.channelUnreads.sync();
@@ -263,25 +257,23 @@ export async function handleEvent(
     }
     case "Message": {
       if (!client.messages.has(event._id)) {
-        batch(() => {
-          if (event.member) {
-            client.serverMembers.getOrCreate(event.member._id, event.member);
-          }
+        if (event.member) {
+          client.serverMembers.getOrCreate(event.member._id, event.member);
+        }
 
-          if (event.user) {
-            client.users.getOrCreate(event.user._id, event.user);
-          }
+        if (event.user) {
+          client.users.getOrCreate(event.user._id, event.user);
+        }
 
-          delete event.member;
-          delete event.user;
+        delete event.member;
+        delete event.user;
 
-          client.messages.getOrCreate(event._id, event, true);
-          client.channels.updateUnderlyingObject(
-            event.channel,
-            "lastMessageId",
-            event._id,
-          );
-        });
+        client.messages.getOrCreate(event._id, event, true);
+        client.channels.setUnderlyingKey(
+          event.channel,
+          "lastMessageId",
+          event._id,
+        );
       }
       break;
     }
@@ -293,10 +285,14 @@ export async function handleEvent(
           channelId: event.channel,
         };
 
-        client.messages.updateUnderlyingObject(event.id, {
+        client.messages.setUnderlyingObject(event.id, {
           ...hydrate(
             "message",
-            { ...event.data, channel: event.channel },
+            {
+              ...previousMessage,
+              ...event.data,
+              channel: event.channel,
+            } as typeof event.data,
             client,
             false,
           ),
@@ -315,18 +311,14 @@ export async function handleEvent(
           channelId: event.channel,
         };
 
-        client.messages.updateUnderlyingObject(event.id, "embeds", (embeds) => [
-          ...(embeds ?? []),
+        client.messages.setUnderlyingKey(event.id, "embeds", [
+          ...(previousMessage.embeds ?? []),
           ...(event.append.embeds?.map((embed) =>
             MessageEmbed.from(client, embed),
           ) ?? []),
         ]);
 
-        client.messages.updateUnderlyingObject(
-          event.id,
-          "channelId",
-          event.channel,
-        );
+        client.messages.setUnderlyingKey(event.id, "channelId", event.channel);
 
         client.emit("messageUpdate", message, previousMessage);
       }
@@ -341,22 +333,20 @@ export async function handleEvent(
       break;
     }
     case "BulkMessageDelete": {
-      batch(() =>
-        client.emit(
-          "messageDeleteBulk",
-          event.ids
-            .map((id) => {
-              if (client.messages.has(id)) {
-                const message = client.messages.getUnderlyingObject(id);
-                client.messages.delete(id);
-                return message!;
-              }
+      client.emit(
+        "messageDeleteBulk",
+        event.ids
+          .map((id) => {
+            if (client.messages.has(id)) {
+              const message = client.messages.getUnderlyingObject(id);
+              client.messages.delete(id);
+              return message!;
+            }
 
-              return undefined!;
-            })
-            .filter((x) => x),
-          client.channels.get(event.channel),
-        ),
+            return undefined!;
+          })
+          .filter((x) => x),
+        client.channels.get(event.channel),
       );
       break;
     }
@@ -369,7 +359,7 @@ export async function handleEvent(
           if (set.has(event.user_id)) return;
           set.add(event.user_id);
         } else {
-          reactions.set(event.emoji_id, new ReactiveSet([event.user_id]));
+          reactions.set(event.emoji_id, new Set([event.user_id]));
         }
 
         client.emit(
@@ -452,7 +442,7 @@ export async function handleEvent(
           }
         }
 
-        client.channels.updateUnderlyingObject(event.id, changes);
+        client.channels.setUnderlyingObject(event.id, changes);
         client.emit("channelUpdate", channel, previousChannel);
       }
       break;
@@ -542,13 +532,11 @@ export async function handleEvent(
     }
     case "ServerCreate": {
       if (!client.servers.has(event.server._id)) {
-        batch(() => {
-          for (const channel of event.channels) {
-            client.channels.getOrCreate(channel._id, channel);
-          }
+        for (const channel of event.channels) {
+          client.channels.getOrCreate(channel._id, channel);
+        }
 
-          client.servers.getOrCreate(event.server._id, event.server, true);
-        });
+        client.servers.getOrCreate(event.server._id, event.server, true);
       }
       break;
     }
@@ -583,7 +571,7 @@ export async function handleEvent(
           }
         }
 
-        client.servers.updateUnderlyingObject(event.id, changes);
+        client.servers.setUnderlyingObject(event.id, changes);
         client.emit("serverUpdate", server, previousServer);
       }
       break;
@@ -681,7 +669,7 @@ export async function handleEvent(
           }
         }
 
-        client.serverMembers.updateUnderlyingObject(
+        client.serverMembers.setUnderlyingObject(
           event.id.server + event.id.user,
           changes as never,
         );
@@ -752,7 +740,7 @@ export async function handleEvent(
           }
         }
 
-        client.users.updateUnderlyingObject(event.id, changes as never);
+        client.users.setUnderlyingObject(event.id, changes as never);
         client.emit("userUpdate", user, previousUser);
       }
       break;
@@ -790,37 +778,35 @@ export async function handleEvent(
       break;
     }
     case "UserPlatformWipe": {
-      batch(() => {
-        handleEvent(
-          client,
-          {
-            type: "BulkMessageDelete",
-            channel: "0",
-            ids: client.messages
-              .toList()
-              .filter((message) => message.authorId === event.user_id)
-              .map((message) => message.id),
-          },
-          setReady,
-        );
+      handleEvent(
+        client,
+        {
+          type: "BulkMessageDelete",
+          channel: "0",
+          ids: client.messages
+            .toList()
+            .filter((message) => message.authorId === event.user_id)
+            .map((message) => message.id),
+        },
+        setReady,
+      );
 
-        handleEvent(
-          client,
-          {
-            type: "UserUpdate",
-            id: event.user_id,
-            data: {
-              username: `Deleted User`,
-              online: false,
-              flags: event.flags,
-              badges: 0,
-              relationship: "None",
-            },
-            clear: ["Avatar", "StatusPresence", "StatusText"],
+      handleEvent(
+        client,
+        {
+          type: "UserUpdate",
+          id: event.user_id,
+          data: {
+            username: `Deleted User`,
+            online: false,
+            flags: event.flags,
+            badges: 0,
+            relationship: "None",
           },
-          setReady,
-        );
-      });
+          clear: ["Avatar", "StatusPresence", "StatusText"],
+        },
+        setReady,
+      );
 
       break;
     }

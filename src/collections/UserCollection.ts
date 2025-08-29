@@ -4,12 +4,12 @@ import type { Client } from "../Client.js";
 import { User } from "../classes/User.js";
 import type { HydratedUser } from "../hydration/user.js";
 
-import { ClassCollection } from "./Collection.js";
+import { Collection } from "./Collection.js";
 
 /**
  * Collection of Users
  */
-export class UserCollection extends ClassCollection<User, HydratedUser> {
+export class UserCollection extends Collection<User, HydratedUser> {
   /**
    * Construct User collection
    */

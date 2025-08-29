@@ -1,7 +1,3 @@
-import { batch } from "solid-js";
-
-import type { ReactiveMap } from "@solid-primitives/map";
-import type { ReactiveSet } from "@solid-primitives/set";
 import type {
   Server as APIServer,
   AllMemberResponse,
@@ -128,7 +124,7 @@ export class Server {
   /**
    * Channel IDs
    */
-  get channelIds(): ReactiveSet<string> {
+  get channelIds(): Set<string> {
     return this.#collection.getUnderlyingObject(this.id).channelIds;
   }
 
@@ -160,7 +156,7 @@ export class Server {
   /**
    * Roles
    */
-  get roles(): ReactiveMap<string, ServerRole> {
+  get roles(): Map<string, ServerRole> {
     return this.#collection.getUnderlyingObject(this.id).roles;
   }
 
@@ -396,7 +392,7 @@ export class Server {
    * @param data Changes
    */
   async edit(data: DataEditServer): Promise<void> {
-    this.#collection.updateUnderlyingObject(
+    this.#collection.setUnderlyingObject(
       this.id,
       hydrate(
         "server",
@@ -436,26 +432,22 @@ export class Server {
    * @param leaveEvent Whether we are leaving
    */
   $delete(leaveEvent?: boolean): void {
-    batch(() => {
-      const server = this.#collection.client.servers.getUnderlyingObject(
-        this.id,
+    const server = this.#collection.client.servers.getUnderlyingObject(this.id);
+
+    // Avoid race conditions
+    if (server.id) {
+      this.#collection.client.emit(
+        leaveEvent ? "serverLeave" : "serverDelete",
+        server,
       );
 
-      // Avoid race conditions
-      if (server.id) {
-        this.#collection.client.emit(
-          leaveEvent ? "serverLeave" : "serverDelete",
-          server,
-        );
-
-        for (const channel of this.channelIds) {
-          this.#collection.client.channels.delete(channel);
-        }
-
-        this.#collection.delete(this.id);
+      for (const channel of this.channelIds) {
+        this.#collection.client.channels.delete(channel);
       }
-      // TODO: delete members, emoji, etc
-    });
+
+      this.#collection.delete(this.id);
+    }
+    // TODO: delete members, emoji, etc
   }
 
   /**
@@ -474,11 +466,9 @@ export class Server {
    * Mark a server as read
    */
   async ack(): Promise<void> {
-    batch(() => {
-      for (const channel of this.channels) {
-        channel.ack(undefined, false, true);
-      }
-    });
+    for (const channel of this.channels) {
+      channel.ack(undefined, false, true);
+    }
 
     await this.#collection.client.api.put(`/servers/${this.id}/ack`);
   }
@@ -659,31 +649,29 @@ export class Server {
       { exclude_offline: excludeOffline },
     );
 
-    batch(() => {
-      if (excludeOffline) {
-        for (let i = 0; i < data.users.length; i++) {
-          const user = data.users[i];
-          if (user.online) {
-            this.#collection.client.users.getOrCreate(user._id, user);
-            this.#collection.client.serverMembers.getOrCreate(
-              data.members[i]._id,
-              data.members[i],
-            );
-          }
-        }
-      } else {
-        for (let i = 0; i < data.users.length; i++) {
-          this.#collection.client.users.getOrCreate(
-            data.users[i]._id,
-            data.users[i],
-          );
+    if (excludeOffline) {
+      for (let i = 0; i < data.users.length; i++) {
+        const user = data.users[i];
+        if (user.online) {
+          this.#collection.client.users.getOrCreate(user._id, user);
           this.#collection.client.serverMembers.getOrCreate(
             data.members[i]._id,
             data.members[i],
           );
         }
       }
-    });
+    } else {
+      for (let i = 0; i < data.users.length; i++) {
+        this.#collection.client.users.getOrCreate(
+          data.users[i]._id,
+          data.users[i],
+        );
+        this.#collection.client.serverMembers.getOrCreate(
+          data.members[i]._id,
+          data.members[i],
+        );
+      }
+    }
   }
 
   /**
@@ -703,14 +691,14 @@ export class Server {
       `/servers/${this.id as ""}/members`,
     )) as AllMemberResponse;
 
-    return batch(() => ({
+    return {
       members: data.members.map((member) =>
         this.#collection.client.serverMembers.getOrCreate(member._id, member),
       ),
       users: data.users.map((user) =>
         this.#collection.client.users.getOrCreate(user._id, user),
       ),
-    }));
+    };
   }
 
   /**
@@ -729,14 +717,14 @@ export class Server {
       )}` as never,
     )) as AllMemberResponse;
 
-    return batch(() => ({
+    return {
       members: data.members.map((member) =>
         this.#collection.client.serverMembers.getOrCreate(member._id, member),
       ),
       users: data.users.map((user) =>
         this.#collection.client.users.getOrCreate(user._id, user),
       ),
-    }));
+    };
   }
 
   /**
@@ -771,10 +759,8 @@ export class Server {
       `/servers/${this.id as ""}/emojis`,
     );
 
-    return batch(() =>
-      emojis.map((emoji) =>
-        this.#collection.client.emojis.getOrCreate(emoji._id, emoji),
-      ),
+    return emojis.map((emoji) =>
+      this.#collection.client.emojis.getOrCreate(emoji._id, emoji),
     );
   }
 

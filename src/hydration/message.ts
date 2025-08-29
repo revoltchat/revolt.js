@@ -1,5 +1,3 @@
-import { ReactiveMap } from "@solid-primitives/map";
-import { ReactiveSet } from "@solid-primitives/set";
 import type { Interactions, Masquerade, Message } from "revolt-api";
 
 import type { Client } from "../Client.js";
@@ -25,7 +23,7 @@ export type HydratedMessage = {
   mentionIds?: string[];
   roleMentionIds?: string[];
   replyIds?: string[];
-  reactions: ReactiveMap<string, ReactiveSet<string>>;
+  reactions: Map<string, Set<string>>;
   interactions?: Interactions;
   masquerade?: Masquerade;
   pinned?: boolean;
@@ -63,10 +61,10 @@ export const messageHydration: Hydrate<Merge<Message>, HydratedMessage> = {
     roleMentionIds: (message) => message.role_mentions!,
     replyIds: (message) => message.replies!,
     reactions: (message) => {
-      const map = new ReactiveMap<string, ReactiveSet<string>>();
+      const map = new Map<string, Set<string>>();
       if (message.reactions) {
         for (const reaction of Object.keys(message.reactions)) {
-          map.set(reaction, new ReactiveSet(message.reactions![reaction]));
+          map.set(reaction, new Set(message.reactions![reaction]));
         }
       }
       return map;
@@ -77,7 +75,7 @@ export const messageHydration: Hydrate<Merge<Message>, HydratedMessage> = {
     flags: (message) => message.flags!,
   },
   initialHydration: () => ({
-    reactions: new ReactiveMap(),
+    reactions: new Map(),
   }),
 };
 

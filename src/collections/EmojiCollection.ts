@@ -3,12 +3,12 @@ import type { Emoji as APIEmoji } from "revolt-api";
 import { Emoji } from "../classes/Emoji.js";
 import type { HydratedEmoji } from "../hydration/emoji.js";
 
-import { ClassCollection } from "./Collection.js";
+import { Collection } from "./Collection.js";
 
 /**
  * Collection of Emoji
  */
-export class EmojiCollection extends ClassCollection<Emoji, HydratedEmoji> {
+export class EmojiCollection extends Collection<Emoji, HydratedEmoji> {
   /**
    * Fetch emoji by ID
    * @param id Id

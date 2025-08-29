@@ -26,11 +26,8 @@
   "description": "Library for interacting with the Revolt API.",
   "packageManager": "pnpm@10.10.0+sha512.d615db246fe70f25dcfea6d8d73dee782ce23e2245e3c4f6f888249fb568149318637dca73c2c5c8ef2a4ca0d5657fb9567188bfab47f566d1ee6ce987815c39",
   "dependencies": {
-    "@solid-primitives/map": "^0.7.1",
-    "@solid-primitives/set": "^0.7.1",
     "@vladfrangu/async_event_emitter": "^2.4.6",
     "revolt-api": "0.8.8",
-    "solid-js": "^1.9.6",
     "ulid": "^2.4.0"
   },
   "devDependencies": {
@@ -39,7 +36,6 @@
     "@types/node": "^22.15.17",
     "eslint": "^9.26.0",
     "eslint-plugin-prettier": "^5.4.0",
-    "eslint-plugin-solid": "^0.14.5",
     "prettier": "^3.5.3",
     "typedoc": "^0.27.9",
     "typescript": "^5.8.3",

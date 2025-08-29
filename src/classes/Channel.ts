@@ -1,6 +1,3 @@
-import { batch } from "solid-js";
-
-import type { ReactiveSet } from "@solid-primitives/set";
 import type {
   Channel as APIChannel,
   Member as APIMember,
@@ -136,7 +133,7 @@ export class Channel {
   /**
    * User ids of people currently typing in channel
    */
-  get typingIds(): ReactiveSet<string> {
+  get typingIds(): Set<string> {
     return this.#collection.getUnderlyingObject(this.id).typingIds;
   }
 
@@ -152,7 +149,7 @@ export class Channel {
   /**
    * User ids of recipients of the group
    */
-  get recipientIds(): ReactiveSet<string> {
+  get recipientIds(): Set<string> {
     return this.#collection.getUnderlyingObject(this.id).recipientIds;
   }
 
@@ -305,7 +302,7 @@ export class Channel {
   /**
    * Get mentions in this channel for user.
    */
-  get mentions(): ReactiveSet<string> | undefined {
+  get mentions(): Set<string> | undefined {
     if (this.type === "SavedMessages" || this.type === "VoiceChannel")
       return undefined;
 
@@ -391,10 +388,8 @@ export class Channel {
       `/channels/${this.id as ""}/members`,
     );
 
-    return batch(() =>
-      members.map((user) =>
-        this.#collection.client.users.getOrCreate(user._id, user),
-      ),
+    return members.map((user) =>
+      this.#collection.client.users.getOrCreate(user._id, user),
     );
   }
 
@@ -427,13 +422,8 @@ export class Channel {
       `/channels/${this.id as ""}/webhooks`,
     );
 
-    return batch(() =>
-      webhooks.map((webhook) =>
-        this.#collection.client.channelWebhooks.getOrCreate(
-          webhook.id,
-          webhook,
-        ),
-      ),
+    return webhooks.map((webhook) =>
+      this.#collection.client.channelWebhooks.getOrCreate(webhook.id, webhook),
     );
   }
 
@@ -447,7 +437,7 @@ export class Channel {
       data,
     );
 
-    this.#collection.updateUnderlyingObject(
+    this.#collection.setUnderlyingObject(
       this.id,
       hydrate("channel", channel, this.#collection.client, false),
     );
@@ -464,7 +454,7 @@ export class Channel {
     });
 
     if (this.type === "DirectMessage") {
-      this.#collection.updateUnderlyingObject(this.id, "active", false);
+      this.#collection.setUnderlyingKey(this.id, "active", false);
       return;
     }
 
@@ -593,7 +583,7 @@ export class Channel {
       { ...params, include_users: true },
     )) as { messages: APIMessage[]; users: APIUser[]; members?: APIMember[] };
 
-    return batch(() => ({
+    return {
       messages: data.messages.map((message) =>
         this.#collection.client.messages.getOrCreate(message._id, message),
       ),
@@ -603,7 +593,7 @@ export class Channel {
       members: data.members?.map((member) =>
         this.#collection.client.serverMembers.getOrCreate(member._id, member),
       ),
-    }));
+    };
   }
 
   /**
@@ -620,10 +610,8 @@ export class Channel {
       params,
     )) as APIMessage[];
 
-    return batch(() =>
-      messages.map((message) =>
-        this.#collection.client.messages.getOrCreate(message._id, message),
-      ),
+    return messages.map((message) =>
+      this.#collection.client.messages.getOrCreate(message._id, message),
     );
   }
 
@@ -648,7 +636,7 @@ export class Channel {
       },
     )) as { messages: APIMessage[]; users: APIUser[]; members?: APIMember[] };
 
-    return batch(() => ({
+    return {
       messages: data.messages.map((message) =>
         this.#collection.client.messages.getOrCreate(message._id, message),
       ),
@@ -658,7 +646,7 @@ export class Channel {
       members: data.members?.map((member) =>
         this.#collection.client.serverMembers.getOrCreate(member._id, member),
       ),
-    }));
+    };
   }
 
   /**
@@ -721,7 +709,8 @@ export class Channel {
     const unreads = this.#collection.client.channelUnreads;
     const channelUnread = unreads.get(this.id);
     if (channelUnread) {
-      unreads.updateUnderlyingObject(this.id, {
+      unreads.setUnderlyingObject(this.id, {
+        ...unreads.getUnderlyingObject(this.id),
         lastMessageId,
       });
 

@@ -85,7 +85,7 @@ export class ChannelWebhook {
       data,
     );
 
-    this.#collection.updateUnderlyingObject(
+    this.#collection.setUnderlyingObject(
       this.id,
       hydrate("channelWebhook", webhook, this.#collection.client),
     );
