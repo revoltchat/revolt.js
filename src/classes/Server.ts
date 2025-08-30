@@ -236,21 +236,22 @@ export class Server {
       }
     }
 
-    if (uncategorised.size > 0) {
-      const channels = [...uncategorised].map(
-        (key) => this.#collection.client.channels.get(key)!,
-      );
+    // force Default category for client logic
+    // if (uncategorised.size > 0) {
+    const channels = [...uncategorised].map(
+      (key) => this.#collection.client.channels.get(key)!,
+    );
 
-      if (defaultCategory) {
-        defaultCategory.channels = [...defaultCategory.channels, ...channels];
-      } else {
-        elements.unshift({
-          id: "default",
-          title: "Default",
-          channels,
-        });
-      }
+    if (defaultCategory) {
+      defaultCategory.channels = [...defaultCategory.channels, ...channels];
+    } else {
+      elements.unshift({
+        id: "default",
+        title: "Default",
+        channels,
+      });
     }
+    // }
 
     return elements;
   }
