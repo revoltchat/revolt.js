@@ -320,11 +320,23 @@ export async function handleEvent(
         }
 
         if (event.voice_states) {
+          // The server only includes channels that currently have voice
+          // participants, so a channel that just emptied out is silently
+          // omitted rather than sent with an empty participant list. If we
+          // only cleared the channels mentioned below, an omitted channel's
+          // stale entries would survive this reconciliation (and every
+          // reconnect after it). Clear every known channel up front so the
+          // loop below is a full rebuild, not a per-channel merge.
+          for (const channel of client.channels.values()) {
+            channel.voiceParticipants.clear();
+          }
+
           for (const state of event.voice_states) {
+            // Non-creating lookup is safe: channels are always hydrated
+            // above (see event.channels handling a few lines up) before we
+            // get here, so there is no channel data left to create from.
             const channel = client.channels.get(state.id);
             if (channel) {
-              channel.voiceParticipants.clear();
-
               for (const participant of state.participants) {
                 channel.voiceParticipants.set(
                   participant.id,
@@ -1013,7 +1025,19 @@ export async function handleEvent(
       break;
     }
     case "VoiceChannelMove": {
-      // todo
+      const from = client.channels.getOrPartial(event.from);
+      if (from) {
+        from.voiceParticipants.delete(event.user);
+      }
+
+      const to = client.channels.getOrPartial(event.to);
+      if (to) {
+        to.voiceParticipants.set(
+          event.state.id,
+          new VoiceParticipant(client, event.state),
+        );
+      }
+      // todo: event
       break;
     }
     case "UserVoiceStateUpdate": {
