@@ -476,7 +476,7 @@ export async function handleEvent(
       const message = client.messages.getOrPartial(event.id);
       if (message) {
         const reactions = message.reactions;
-        const set = reactions.get(event.emoji_id)!;
+        const set = reactions.get(event.emoji_id);
         if (set) {
           if (set.has(event.user_id)) return;
           set.add(event.user_id);
@@ -560,6 +560,12 @@ export async function handleEvent(
               case "Icon":
                 changes["icon"] = undefined;
                 break;
+              case "Slowmode":
+                changes["slowmode"] = 0;
+                break;
+              case "Voice":
+                changes["voice"] = undefined;
+                break;
             }
           }
         }
@@ -606,7 +612,7 @@ export async function handleEvent(
         client.emit(
           "channelGroupLeave",
           channel,
-          client.users.getOrPartial(event.user)!,
+          client.users.getOrPartial(event.user),
         );
       }
       break;
@@ -631,7 +637,7 @@ export async function handleEvent(
           client.emit(
             "channelStartTyping",
             channel,
-            client.users.getOrPartial(event.user)!,
+            client.users.getOrPartial(event.user),
           );
         }
       }
@@ -649,7 +655,7 @@ export async function handleEvent(
           client.emit(
             "channelStopTyping",
             channel,
-            client.users.getOrPartial(event.user)!,
+            client.users.getOrPartial(event.user),
           );
         }
       }
@@ -849,7 +855,7 @@ export async function handleEvent(
 
         client.serverMembers.updateUnderlyingObject(
           event.id.server + event.id.user,
-          changes as never,
+          changes,
         );
 
         client.emit("serverMemberUpdate", member, previousMember);
@@ -917,11 +923,14 @@ export async function handleEvent(
               case "Pronouns":
                 changes["pronouns"] = undefined;
                 break;
+              case "DisplayName":
+                changes["displayName"] = undefined;
+                break;
             }
           }
         }
 
-        client.users.updateUnderlyingObject(event.id, changes as never);
+        client.users.updateUnderlyingObject(event.id, changes);
         client.emit("userUpdate", user, previousUser);
       }
       break;
@@ -937,7 +946,7 @@ export async function handleEvent(
           type: "UserUpdate",
           id: event.user._id,
           data: {
-            relationship: event.user.relationship!,
+            relationship: event.user.relationship,
           },
         },
         setReady,
