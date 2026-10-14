@@ -19,6 +19,20 @@ export function bitwiseAndEq(a: bigint, ...b: bigint[]): boolean {
 }
 
 /**
+ * Build a stand-in member holding only the roles being previewed
+ * @param server Server the target belongs to
+ */
+function previewMember(server?: Server): ServerMember | undefined {
+  const orderedRoles = server?.previewRoles;
+  if (!orderedRoles) return;
+
+  return {
+    roles: orderedRoles.map((role) => role.id),
+    orderedRoles,
+  } as unknown as ServerMember;
+}
+
+/**
  * Calculate permissions against a given object
  * @param target Target object to check permissions against
  * @param options Additional options to use when calculating
@@ -33,6 +47,11 @@ export function calculatePermission(
     member?: ServerMember;
   },
 ): bigint {
+  const preview =
+    !options?.member &&
+    previewMember(target instanceof Server ? target : target.server);
+  if (preview) options = { member: preview };
+
   const user = options?.member ? options?.member.user : client.user;
   if (user?.privileged) {
     return Permission.GrantAllSafe;

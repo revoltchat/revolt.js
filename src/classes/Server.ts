@@ -273,7 +273,9 @@ export class Server {
    * Default channel for this server
    */
   get defaultChannel(): Channel | undefined {
-    return this.orderedChannels.find((cat) => cat.channels.length)?.channels[0];
+    return this.orderedChannels
+      .flatMap((cat) => cat.channels)
+      .find((channel) => this.#previewCanView(channel));
   }
 
   /**
@@ -294,7 +296,9 @@ export class Server {
    * @returns Whether the server is unread
    */
   get unread(): boolean {
-    return !!this.channels.find((channel) => channel.unread);
+    return !!this.channels.find(
+      (channel) => channel.unread && this.#previewCanView(channel),
+    );
   }
 
   /**
@@ -302,9 +306,9 @@ export class Server {
    * @returns Array of message IDs which are unread
    */
   get mentions(): string[] {
-    const arr = this.channels.map((channel) =>
-      Array.from(channel.mentions?.values() ?? []),
-    );
+    const arr = this.channels
+      .filter((channel) => this.#previewCanView(channel))
+      .map((channel) => Array.from(channel.mentions?.values() ?? []));
 
     return ([] as string[]).concat(...arr);
   }
@@ -338,6 +342,27 @@ export class Server {
       server: this.id,
       user: this.#collection.client.user!.id,
     });
+  }
+
+  /**
+   * Whether a channel is visible to the roles we are previewing, if any
+   * @param channel Channel
+   */
+  #previewCanView(channel: Channel): boolean {
+    return !this.previewRoles || channel.havePermission("ViewChannel");
+  }
+
+  /**
+   * Roles we are previewing in this server, from lowest to highest priority
+   */
+  get previewRoles(): ServerRole[] | undefined {
+    const viewAs = this.#collection.client.viewAs();
+    if (viewAs?.server !== this.id) return;
+
+    return viewAs.roles
+      .map((id) => this.roles.get(id)!)
+      .filter((role) => role)
+      .sort((a, b) => b.rank! - a.rank!);
   }
 
   /**

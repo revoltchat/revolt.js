@@ -209,6 +209,12 @@ export class Client extends AsyncEventEmitter<Events> {
   #reconnectTimeout: number | undefined;
 
   /**
+   * Server and roles to calculate permissions as, for previewing a role
+   */
+  readonly viewAs: Accessor<{ server: string; roles: string[] } | undefined>;
+  #setViewAs: Setter<{ server: string; roles: string[] } | undefined>;
+
+  /**
    * Create Stoat.js Client
    * @param configuration Deprecated - Please use `Client.initConfig` if you need to override config.
    */
@@ -256,6 +262,8 @@ export class Client extends AsyncEventEmitter<Events> {
       baseURL: this.options.baseURL,
     });
 
+    this.#guardAPI();
+
     const [configured, setConfigured] = createSignal(
       configuration !== undefined,
     );
@@ -269,6 +277,12 @@ export class Client extends AsyncEventEmitter<Events> {
     const [connectionFailureCount, setConnectionFailureCount] = createSignal(0);
     this.connectionFailureCount = connectionFailureCount;
     this.#setConnectionFailureCount = setConnectionFailureCount;
+
+    const [viewAs, setViewAs] = createSignal<
+      { server: string; roles: string[] } | undefined
+    >();
+    this.viewAs = viewAs;
+    this.#setViewAs = setViewAs;
 
     this.account = new AccountCollection(this);
     this.bots = new BotCollection(this);
@@ -335,6 +349,48 @@ export class Client extends AsyncEventEmitter<Events> {
   }
 
   /**
+   * Calculate permissions in a server as if we only had the given roles
+   * @param server Server ID, or nothing to stop previewing
+   * @param roles Role IDs
+   */
+  setViewAs(server?: string, roles: string[] = []): void {
+    this.#setViewAs(server ? { server, roles } : undefined);
+  }
+
+  /**
+   * Whether a request would make changes in the server we are previewing
+   * @param path Request path
+   */
+  #blockedWhilePreviewing(
+    method: string,
+    path: string,
+    data?: unknown,
+  ): boolean {
+    const server = this.viewAs()?.server;
+    if (!server || /\/(ack|search)(\/|$)/.test(path)) return false;
+
+    const [, type, id, sub] = path.split("/");
+    if (type === "servers") return id === server;
+    if (type === "channels") return this.channels.get(id)?.serverId === server;
+    if (type === "custom" && id === "emoji") {
+      if (method === "put") {
+        return (data as { parent?: { id?: string } })?.parent?.id === server;
+      }
+      const emoji = this.emojis.get(sub);
+      return emoji
+        ? emoji.parent.type === "Server" && emoji.parent.id === server
+        : true;
+    }
+    if (type === "webhooks") {
+      const webhook = this.channelWebhooks.get(id);
+      return webhook ? webhook.channel?.serverId === server : true;
+    }
+    if (type === "invites") return method === "delete";
+
+    return false;
+  }
+
+  /**
    * Connect to Revolt
    */
   connect(): void {
@@ -381,6 +437,23 @@ export class Client extends AsyncEventEmitter<Events> {
         revolt: this.#session,
       },
     });
+
+    this.#guardAPI();
+  }
+
+  /**
+   * Block changes to a server while previewing it as a role
+   */
+  #guardAPI(): void {
+    const req = this.api.req.bind(this.api);
+    this.api.req = ((method: string, path: string, ...args: unknown[]) =>
+      method !== "get" && this.#blockedWhilePreviewing(method, path, args[0])
+        ? Promise.reject({ type: "ViewingAsRole" })
+        : (req as (...args: unknown[]) => Promise<unknown>)(
+            method,
+            path,
+            ...args,
+          )) as typeof this.api.req;
   }
 
   /**
