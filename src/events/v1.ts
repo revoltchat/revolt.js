@@ -375,23 +375,36 @@ export async function handleEvent(
           const channel = client.channels.get(event.channel);
           if (!channel) return;
 
+          const isOwn = event.author === client.user!.id;
+
+          // Capture the ack position and last message before they are updated
+          const previousLastId = channel.lastMessageId;
+          const previousAckId =
+            client.channelUnreads.for(channel).lastMessageId;
+
           client.channels.updateUnderlyingObject(
             channel.id,
             "lastMessageId",
             event._id,
           );
 
-          if (
+          if (isOwn) {
+            // Only advance the ack locally if nothing else was unread (the ack
+            // was at the channel's last message), otherwise we would mark
+            // others' messages as read.
+            if (
+              client.options.syncUnreads &&
+              previousAckId &&
+              previousAckId === previousLastId
+            ) {
+              void channel.ack(event._id, false, true);
+            }
+          } else if (
             event.mentions?.includes(client.user!.id) &&
             client.options.syncUnreads
           ) {
             const unread = client.channelUnreads.for(channel);
             unread.messageMentionIds.add(event._id);
-            client.channels.updateUnderlyingObject(
-              event.channel,
-              "lastMessageId",
-              event._id,
-            );
           }
         });
       }
