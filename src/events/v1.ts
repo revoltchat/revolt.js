@@ -35,6 +35,7 @@ export type ProtocolV1 = {
 
   types: {
     policyChange: PolicyChange;
+    entitlement: Entitlement;
   };
 };
 
@@ -161,6 +162,7 @@ type ServerMessage =
       update: { [key: string]: [number, string] };
     }
   | { type: "UserPlatformWipe"; user_id: string; flags: number }
+  | { type: "EntitlementsUpdate"; entitlements: Entitlement[] }
   | ({ type: "EmojiCreate" } & Emoji)
   | { type: "EmojiDelete"; id: string }
   | ({
@@ -209,6 +211,22 @@ type ServerMessage =
       type: "UserSlowmodes";
       slowmodes: UserSlowmodes[];
     };
+
+/**
+ * Entitlement the user holds
+ */
+type Entitlement = {
+  /** Entitlement key, a ULID */
+  key: string;
+  /** When it stops granting access; may be in the past */
+  expires_at: string;
+  /** Entitlement data revision. Backend implementation detail. Only ever increases */
+  revision: number;
+  /** Issuer that last set it. Opaque string */
+  source: string;
+  /** Start of the holder's current streak of access to this entitlement */
+  since: string;
+};
 
 /**
  * Policy change type
@@ -265,6 +283,7 @@ type ReadyData = {
   channel_unreads: ChannelUnread[];
 
   policy_changes: PolicyChange[];
+  entitlements: Entitlement[];
 };
 
 /**
@@ -339,7 +358,11 @@ export async function handleEvent(
             client.emojis.getOrCreate(emoji._id, emoji);
           }
         }
+
+        client.setEntitlements(event.entitlements ?? []);
       });
+
+      client.emit("entitlementsUpdate", client.entitlements());
 
       if (client.options.syncUnreads) {
         await client.channelUnreads.sync();
@@ -978,6 +1001,11 @@ export async function handleEvent(
         },
         setReady,
       );
+      break;
+    }
+    case "EntitlementsUpdate": {
+      client.setEntitlements(event.entitlements);
+      client.emit("entitlementsUpdate", event.entitlements);
       break;
     }
     case "UserSettingsUpdate": {

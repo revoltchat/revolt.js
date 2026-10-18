@@ -101,6 +101,7 @@ export type Events = {
   // ^ userRelationshipChanged: [user: User, previousRelationship: RelationshipStatus];
   // ^ userPresenceChanged: [user: User, previousPresence: boolean];
   userSettingsUpdate: [id: string, update: Record<string, [number, string]>];
+  entitlementsUpdate: [entitlements: ProtocolV1["types"]["entitlement"][]];
 
   emojiCreate: [emoji: Emoji];
   emojiDelete: [emoji: HydratedEmoji];
@@ -206,6 +207,14 @@ export class Client extends AsyncEventEmitter<Events> {
 
   readonly connectionFailureCount: Accessor<number>;
   #setConnectionFailureCount: Setter<number>;
+
+  /**
+   * Entitlements the current user holds, as last sent by the server.
+   * Note that passing an expiration date will NOT remove its data,
+   * so you may need to keep track of expiration yourself.
+   */
+  readonly entitlements: Accessor<ProtocolV1["types"]["entitlement"][]>;
+  #setEntitlements: Setter<ProtocolV1["types"]["entitlement"][]>;
   #reconnectTimeout: number | undefined;
 
   /**
@@ -269,6 +278,12 @@ export class Client extends AsyncEventEmitter<Events> {
     const [connectionFailureCount, setConnectionFailureCount] = createSignal(0);
     this.connectionFailureCount = connectionFailureCount;
     this.#setConnectionFailureCount = setConnectionFailureCount;
+
+    const [entitlements, setEntitlements] = createSignal<
+      ProtocolV1["types"]["entitlement"][]
+    >([]);
+    this.entitlements = entitlements;
+    this.#setEntitlements = setEntitlements;
 
     this.account = new AccountCollection(this);
     this.bots = new BotCollection(this);
@@ -428,6 +443,15 @@ export class Client extends AsyncEventEmitter<Events> {
     this.events.removeAllListeners();
     this.removeAllListeners();
     this.events.disconnect();
+    this.#setEntitlements([]);
+  }
+
+  /**
+   * Replace the current user's entitlements, from the events socket
+   * @internal
+   */
+  setEntitlements(entitlements: ProtocolV1["types"]["entitlement"][]): void {
+    this.#setEntitlements(entitlements);
   }
 
   /**
