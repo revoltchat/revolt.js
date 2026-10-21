@@ -101,6 +101,7 @@ export type Events = {
   // ^ userRelationshipChanged: [user: User, previousRelationship: RelationshipStatus];
   // ^ userPresenceChanged: [user: User, previousPresence: boolean];
   userSettingsUpdate: [id: string, update: Record<string, [number, string]>];
+  entitlementsUpdate: [entitlements: ProtocolV1["types"]["entitlement"][]];
 
   emojiCreate: [emoji: Emoji];
   emojiDelete: [emoji: HydratedEmoji];
@@ -206,6 +207,14 @@ export class Client extends AsyncEventEmitter<Events> {
 
   readonly connectionFailureCount: Accessor<number>;
   #setConnectionFailureCount: Setter<number>;
+
+  /**
+   * Entitlements the current user holds, as last sent by the server.
+   * Note that passing an expiration date will NOT remove its data,
+   * so you may need to keep track of expiration yourself.
+   */
+  readonly entitlements: Accessor<ProtocolV1["types"]["entitlement"][]>;
+  #setEntitlements: Setter<ProtocolV1["types"]["entitlement"][]>;
   #reconnectTimeout: number | undefined;
 
   /**
@@ -283,6 +292,12 @@ export class Client extends AsyncEventEmitter<Events> {
     >();
     this.viewAs = viewAs;
     this.#setViewAs = setViewAs;
+
+    const [entitlements, setEntitlements] = createSignal<
+      ProtocolV1["types"]["entitlement"][]
+    >([]);
+    this.entitlements = entitlements;
+    this.#setEntitlements = setEntitlements;
 
     this.account = new AccountCollection(this);
     this.bots = new BotCollection(this);
@@ -371,7 +386,10 @@ export class Client extends AsyncEventEmitter<Events> {
 
     const [, type, id, sub] = path.split("/");
     if (type === "servers") return id === server;
-    if (type === "channels") return this.channels.get(id)?.serverId === server;
+    if (type === "channels") {
+      const channel = this.channels.get(id);
+      return channel ? channel.serverId === server : true;
+    }
     if (type === "custom" && id === "emoji") {
       if (method === "put") {
         return (data as { parent?: { id?: string } })?.parent?.id === server;
@@ -383,7 +401,14 @@ export class Client extends AsyncEventEmitter<Events> {
     }
     if (type === "webhooks") {
       const webhook = this.channelWebhooks.get(id);
-      return webhook ? webhook.channel?.serverId === server : true;
+      return webhook
+        ? webhook.channel
+          ? webhook.channel.serverId === server
+          : true
+        : true;
+    }
+    if (type === "bots" && sub === "invite") {
+      return (data as { server?: string })?.server === server;
     }
     if (type === "invites") return method === "delete";
 
@@ -501,6 +526,16 @@ export class Client extends AsyncEventEmitter<Events> {
     this.events.removeAllListeners();
     this.removeAllListeners();
     this.events.disconnect();
+    this.#setEntitlements([]);
+    this.#setViewAs(undefined);
+  }
+
+  /**
+   * Replace the current user's entitlements, from the events socket
+   * @internal
+   */
+  setEntitlements(entitlements: ProtocolV1["types"]["entitlement"][]): void {
+    this.#setEntitlements(entitlements);
   }
 
   /**

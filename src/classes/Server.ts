@@ -516,6 +516,10 @@ export class Server {
         }
 
         this.#collection.delete(this.id);
+
+        if (this.#collection.client.viewAs()?.server === this.id) {
+          this.#collection.client.setViewAs();
+        }
       }
       // TODO: delete members, emoji, etc
     });

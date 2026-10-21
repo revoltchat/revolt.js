@@ -35,6 +35,7 @@ export type ProtocolV1 = {
 
   types: {
     policyChange: PolicyChange;
+    entitlement: Entitlement;
   };
 };
 
@@ -161,6 +162,7 @@ type ServerMessage =
       update: { [key: string]: [number, string] };
     }
   | { type: "UserPlatformWipe"; user_id: string; flags: number }
+  | { type: "EntitlementsUpdate"; entitlements: Entitlement[] }
   | ({ type: "EmojiCreate" } & Emoji)
   | { type: "EmojiDelete"; id: string }
   | ({
@@ -209,6 +211,22 @@ type ServerMessage =
       type: "UserSlowmodes";
       slowmodes: UserSlowmodes[];
     };
+
+/**
+ * Entitlement the user holds
+ */
+type Entitlement = {
+  /** Entitlement key, a ULID */
+  key: string;
+  /** When it stops granting access; may be in the past */
+  expires_at: string;
+  /** Entitlement data revision. Backend implementation detail. Only ever increases */
+  revision: number;
+  /** Issuer that last set it. Opaque string */
+  source: string;
+  /** Start of the holder's current streak of access to this entitlement */
+  since: string;
+};
 
 /**
  * Policy change type
@@ -265,6 +283,7 @@ type ReadyData = {
   channel_unreads: ChannelUnread[];
 
   policy_changes: PolicyChange[];
+  entitlements: Entitlement[];
 };
 
 /**
@@ -339,7 +358,11 @@ export async function handleEvent(
             client.emojis.getOrCreate(emoji._id, emoji);
           }
         }
+
+        client.setEntitlements(event.entitlements ?? []);
       });
+
+      client.emit("entitlementsUpdate", client.entitlements());
 
       if (client.options.syncUnreads) {
         await client.channelUnreads.sync();
@@ -375,23 +398,36 @@ export async function handleEvent(
           const channel = client.channels.get(event.channel);
           if (!channel) return;
 
+          const isOwn = event.author === client.user!.id;
+
+          // Capture the ack position and last message before they are updated
+          const previousLastId = channel.lastMessageId;
+          const previousAckId =
+            client.channelUnreads.for(channel).lastMessageId;
+
           client.channels.updateUnderlyingObject(
             channel.id,
             "lastMessageId",
             event._id,
           );
 
-          if (
+          if (isOwn) {
+            // Only advance the ack locally if nothing else was unread (the ack
+            // was at the channel's last message), otherwise we would mark
+            // others' messages as read.
+            if (
+              client.options.syncUnreads &&
+              previousAckId &&
+              previousAckId === previousLastId
+            ) {
+              void channel.ack(event._id, false, true);
+            }
+          } else if (
             event.mentions?.includes(client.user!.id) &&
             client.options.syncUnreads
           ) {
             const unread = client.channelUnreads.for(channel);
             unread.messageMentionIds.add(event._id);
-            client.channels.updateUnderlyingObject(
-              event.channel,
-              "lastMessageId",
-              event._id,
-            );
           }
         });
       }
@@ -476,7 +512,7 @@ export async function handleEvent(
       const message = client.messages.getOrPartial(event.id);
       if (message) {
         const reactions = message.reactions;
-        const set = reactions.get(event.emoji_id)!;
+        const set = reactions.get(event.emoji_id);
         if (set) {
           if (set.has(event.user_id)) return;
           set.add(event.user_id);
@@ -560,6 +596,12 @@ export async function handleEvent(
               case "Icon":
                 changes["icon"] = undefined;
                 break;
+              case "Slowmode":
+                changes["slowmode"] = 0;
+                break;
+              case "Voice":
+                changes["voice"] = undefined;
+                break;
             }
           }
         }
@@ -606,7 +648,7 @@ export async function handleEvent(
         client.emit(
           "channelGroupLeave",
           channel,
-          client.users.getOrPartial(event.user)!,
+          client.users.getOrPartial(event.user),
         );
       }
       break;
@@ -631,7 +673,7 @@ export async function handleEvent(
           client.emit(
             "channelStartTyping",
             channel,
-            client.users.getOrPartial(event.user)!,
+            client.users.getOrPartial(event.user),
           );
         }
       }
@@ -649,7 +691,7 @@ export async function handleEvent(
           client.emit(
             "channelStopTyping",
             channel,
-            client.users.getOrPartial(event.user)!,
+            client.users.getOrPartial(event.user),
           );
         }
       }
@@ -849,7 +891,7 @@ export async function handleEvent(
 
         client.serverMembers.updateUnderlyingObject(
           event.id.server + event.id.user,
-          changes as never,
+          changes,
         );
 
         client.emit("serverMemberUpdate", member, previousMember);
@@ -917,11 +959,14 @@ export async function handleEvent(
               case "Pronouns":
                 changes["pronouns"] = undefined;
                 break;
+              case "DisplayName":
+                changes["displayName"] = undefined;
+                break;
             }
           }
         }
 
-        client.users.updateUnderlyingObject(event.id, changes as never);
+        client.users.updateUnderlyingObject(event.id, changes);
         client.emit("userUpdate", user, previousUser);
       }
       break;
@@ -937,7 +982,7 @@ export async function handleEvent(
           type: "UserUpdate",
           id: event.user._id,
           data: {
-            relationship: event.user.relationship!,
+            relationship: event.user.relationship,
           },
         },
         setReady,
@@ -956,6 +1001,11 @@ export async function handleEvent(
         },
         setReady,
       );
+      break;
+    }
+    case "EntitlementsUpdate": {
+      client.setEntitlements(event.entitlements);
+      client.emit("entitlementsUpdate", event.entitlements);
       break;
     }
     case "UserSettingsUpdate": {
