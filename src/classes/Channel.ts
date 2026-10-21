@@ -1,4 +1,11 @@
-import { Accessor, Setter, batch, createSignal } from "solid-js";
+import {
+  Accessor,
+  Setter,
+  batch,
+  createEffect,
+  createSignal,
+  on,
+} from "solid-js";
 
 import { ReactiveMap } from "@solid-primitives/map";
 import type { ReactiveSet } from "@solid-primitives/set";
@@ -19,6 +26,8 @@ import { decodeTime, ulid } from "ulid";
 import { ChannelCollection } from "../collections/index.js";
 import { UserSlowmodes } from "../events/v1.js";
 import { hydrate } from "../hydration/index.js";
+import { APIMessageDec } from "../hydration/message.js";
+import { EncryptError, decryptStr, encryptStr } from "../lib/e2ee.js";
 import {
   bitwiseAndEq,
   calculatePermission,
@@ -27,7 +36,7 @@ import { Permission } from "../permissions/definitions.js";
 
 import type { ChannelWebhook } from "./ChannelWebhook.js";
 import type { File } from "./File.js";
-import type { Message } from "./Message.js";
+import { type Message, decodeMsg } from "./Message.js";
 import type { Server } from "./Server.js";
 import type { ServerMember } from "./ServerMember.js";
 import type { User } from "./User.js";
@@ -60,6 +69,41 @@ export class Channel {
     const [slowmode, setSlowmode] = createSignal<UserSlowmodes | undefined>();
     this.userSlowmode = slowmode;
     this.#setUserSlowmode = setSlowmode;
+
+    //Decrypt messages if key changes
+    let decRun = false;
+    createEffect(
+      on(
+        () => this.key,
+        (key) => {
+          if (!key || decRun) return;
+          decRun = true;
+          (async () => {
+            const decoded: [Message, string][] = [],
+              id = this.id;
+
+            //Decrypt asynchronously
+            for (const msg of this.#collection.client.messages.values())
+              if (msg.channelId === id)
+                try {
+                  const cont = msg._rawContent();
+                  if (cont != null) {
+                    const dec = await decryptStr(key, cont);
+                    if (dec != null) decoded.push([msg, dec]);
+                  }
+                } catch (e) {
+                  console.error(`Decrypt Msg ${this.id}`, e);
+                }
+
+            //Run update in batch
+            batch(() => {
+              for (const [msg, dec] of decoded) msg._setDecoded(dec);
+            });
+            decRun = false;
+          })();
+        },
+      ),
+    );
   }
 
   /**
@@ -265,6 +309,23 @@ export class Channel {
    */
   get mature(): boolean {
     return this.#collection.getUnderlyingObject(this.id).nsfw;
+  }
+
+  /**
+   * Whether messages are end-to-end encrypted
+   */
+  get e2e(): boolean {
+    return this.#collection.getUnderlyingObject(this.id).e2e;
+  }
+
+  /**
+   * CryptoKey associated with this channel. Setting this enables decryption
+   */
+  set key(k: CryptoKey) {
+    this.#collection.updateUnderlyingObject(this.id, "key", k);
+  }
+  get key(): CryptoKey | undefined {
+    return this.#collection.getUnderlyingObject(this.id).key;
   }
 
   /**
@@ -545,6 +606,15 @@ export class Channel {
       msg.flags |= 1;
     }
 
+    let decoded: string | undefined;
+    if (this.e2e) {
+      if (!this.key) throw new EncryptError("no_key");
+      if (msg.content) {
+        decoded = msg.content;
+        msg.content = await encryptStr(this.key, msg.content);
+      }
+    }
+
     const message = await this.#collection.client.api.post(
       `/channels/${this.id as ""}/messages`,
       msg,
@@ -554,6 +624,12 @@ export class Channel {
         },
       },
     );
+
+    //Mark as already decoded
+    if (decoded) {
+      (message as APIMessageDec)._dec = decoded;
+      delete message.content;
+    }
 
     return this.#collection.client.messages.getOrCreate(
       message._id,
@@ -572,6 +648,9 @@ export class Channel {
     const message = await this.#collection.client.api.get(
       `/channels/${this.id as ""}/messages/${messageId as ""}`,
     );
+
+    const key = this.key;
+    if (key) await decodeMsg(key, message);
 
     return this.#collection.client.messages.getOrCreate(message._id, message);
   }
@@ -595,6 +674,9 @@ export class Channel {
       `/channels/${this.id as ""}/messages`,
       { ...params },
     )) as APIMessage[];
+
+    const key = this.key;
+    if (key) for (const m of messages) await decodeMsg(key, m);
 
     return messages.map((message) =>
       this.#collection.client.messages.getOrCreate(message._id, message),
@@ -624,6 +706,9 @@ export class Channel {
       `/channels/${this.id as ""}/messages`,
       { ...params, include_users: true },
     )) as { messages: APIMessage[]; users: APIUser[]; members?: APIMember[] };
+
+    const key = this.key;
+    if (key) for (const m of data.messages) await decodeMsg(key, m);
 
     return batch(() => ({
       messages: data.messages.map((message) =>

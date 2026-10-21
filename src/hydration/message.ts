@@ -18,6 +18,7 @@ export type HydratedMessage = {
   authorId?: string;
   webhook?: MessageWebhook;
   content?: string;
+  _dec?: string;
   systemMessage?: SystemMessage;
   attachments?: File[];
   editedAt?: Date;
@@ -31,6 +32,8 @@ export type HydratedMessage = {
   pinned?: boolean;
   flags?: MessageFlags;
 };
+
+export type APIMessageDec = Message & { _dec?: string };
 
 export const messageHydration: Hydrate<Merge<Message>, HydratedMessage> = {
   keyMapping: {
@@ -53,6 +56,7 @@ export const messageHydration: Hydrate<Merge<Message>, HydratedMessage> = {
         ? new MessageWebhook(ctx as Client, message.webhook, message.author)
         : undefined,
     content: (message) => message.content!,
+    _dec: (message: APIMessageDec) => message._dec,
     systemMessage: (message, ctx) =>
       SystemMessage.from(ctx as Client, message, message.system!),
     attachments: (message, ctx) =>

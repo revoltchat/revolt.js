@@ -11,7 +11,8 @@ import { decodeTime } from "ulid";
 
 import type { Client } from "../Client.js";
 import type { MessageCollection } from "../collections/MessageCollection.js";
-import { MessageFlags } from "../hydration/message.js";
+import { APIMessageDec, MessageFlags } from "../hydration/message.js";
+import { EncryptError, decryptStr, encryptStr } from "../lib/e2ee.js";
 
 import type { Channel } from "./Channel.js";
 import { File } from "./File.js";
@@ -21,6 +22,20 @@ import type { ServerMember } from "./ServerMember.js";
 import { ServerRole } from "./ServerRole.js";
 import type { SystemMessage } from "./SystemMessage.js";
 import type { User } from "./User.js";
+
+/** Load decrypted payload into APIMessage */
+export async function decodeMsg(
+  cliOrKey: Client | CryptoKey,
+  msg: Partial<APIMessageDec>,
+) {
+  if (!msg.content) return;
+  const key =
+    "usages" in cliOrKey ? cliOrKey : cliOrKey.channels.get(msg.channel!)?.key;
+  if (key) {
+    msg._dec = await decryptStr(key, msg.content!);
+    delete msg.content;
+  }
+}
 
 /**
  * Message Class
@@ -37,6 +52,15 @@ export class Message {
   constructor(collection: MessageCollection, id: string) {
     this.#collection = collection;
     this.id = id;
+  }
+
+  _rawContent() {
+    return this.#collection.getUnderlyingObject(this.id).content;
+  }
+
+  _setDecoded(dec: string) {
+    this.#collection.updateUnderlyingObject(this.id, "_dec", dec);
+    this.#collection.updateUnderlyingObject(this.id, "content", undefined);
   }
 
   /**
@@ -134,7 +158,8 @@ export class Message {
    * Content
    */
   get content(): string {
-    return this.#collection.getUnderlyingObject(this.id).content ?? "";
+    const obj = this.#collection.getUnderlyingObject(this.id);
+    return (this.channel?.e2e ? obj._dec : obj.content) ?? "";
   }
 
   /**
@@ -330,6 +355,12 @@ export class Message {
    * @param data Message edit route data
    */
   async edit(data: DataEditMessage): Promise<APIMessage> {
+    const chan = this.channel;
+    if (chan?.e2e) {
+      if (!chan.key) throw new EncryptError("no_key");
+      if (data.content) data.content = await encryptStr(chan.key, data.content);
+    }
+
     return await this.#collection.client.api.patch(
       `/channels/${this.channelId as ""}/messages/${this.id as ""}`,
       data,

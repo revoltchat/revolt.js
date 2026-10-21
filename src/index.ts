@@ -9,4 +9,5 @@ export { BotFlags } from "./hydration/bot.js";
 export { ServerFlags } from "./hydration/server.js";
 export { UserBadges, UserFlags } from "./hydration/user.js";
 export * from "./lib/regex.js";
+export * from "./lib/e2ee.js";
 export * from "./permissions/definitions.js";

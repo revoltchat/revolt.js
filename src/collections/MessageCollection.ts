@@ -1,6 +1,6 @@
 import type { Message as APIMessage } from "stoat-api";
 
-import { Message } from "../classes/Message.js";
+import { Message, decodeMsg } from "../classes/Message.js";
 import type { HydratedMessage } from "../hydration/message.js";
 
 import { ClassCollection } from "./Collection.js";
@@ -26,6 +26,7 @@ export class MessageCollection extends ClassCollection<
       `/channels/${channelId as ""}/messages/${messageId as ""}`,
     );
 
+    await decodeMsg(this.client, data);
     return this.getOrCreate(data._id, data, false);
   }
 

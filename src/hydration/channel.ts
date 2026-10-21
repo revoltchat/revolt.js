@@ -28,10 +28,11 @@ export type HydratedChannel = {
   rolePermissions?: Record<string, { a: bigint; d: bigint }>;
   nsfw: boolean;
   slowmode: number;
-
   lastMessageId?: string;
-
   voice?: { maxUsers?: number };
+
+  e2e: boolean;
+  key?: CryptoKey;
 };
 
 export const channelHydration: Hydrate<Merge<APIChannel>, HydratedChannel> = {
@@ -46,6 +47,7 @@ export const channelHydration: Hydrate<Merge<APIChannel>, HydratedChannel> = {
     role_permissions: "rolePermissions",
     last_message_id: "lastMessageId",
     slowmode: "slowmode",
+    e2e: "e2e",
   },
   functions: {
     id: (channel) => channel._id,
@@ -75,6 +77,8 @@ export const channelHydration: Hydrate<Merge<APIChannel>, HydratedChannel> = {
         ]),
       ),
     nsfw: (channel) => channel.nsfw || false,
+    e2e: (channel) => channel.e2e || false,
+    key: () => undefined,
     lastMessageId: (channel) => channel.last_message_id!,
     slowmode: (channel) => channel.slowmode ?? 0,
     voice: (channel) =>

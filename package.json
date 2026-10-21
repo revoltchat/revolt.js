@@ -31,7 +31,7 @@
     "@vladfrangu/async_event_emitter": "^2.4.7",
     "json-with-bigint": "^3.4.4",
     "solid-js": "^1.9.14",
-    "stoat-api": "0.15.3",
+    "stoat-api": "git+https://github.com/Pecacheu/javascript-client-api#8a612098dd853dbaaad6ae03baf2af40c079818c",
     "ulid": "^3.0.2"
   },
   "devDependencies": {

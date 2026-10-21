@@ -24,6 +24,7 @@ import type { Client } from "../Client.js";
 import { MessageEmbed } from "../classes/MessageEmbed.js";
 import { ServerRole } from "../classes/ServerRole.js";
 import { VoiceParticipant } from "../classes/VoiceParticipant.js";
+import { decodeMsg } from "../classes/index.js";
 import { hydrate } from "../hydration/index.js";
 
 /**
@@ -381,6 +382,7 @@ export async function handleEvent(
     }
     case "Message": {
       if (!client.messages.has(event._id)) {
+        await decodeMsg(client, event);
         batch(() => {
           if (event.member) {
             client.serverMembers.getOrCreate(event.member._id, event.member);
@@ -441,13 +443,11 @@ export async function handleEvent(
           channelId: event.channel,
         };
 
+        event.data.channel = event.channel;
+        await decodeMsg(client, event.data);
+
         client.messages.updateUnderlyingObject(event.id, {
-          ...hydrate(
-            "message",
-            { ...event.data, channel: event.channel },
-            client,
-            false,
-          ),
+          ...hydrate("message", event.data, client, false),
           editedAt: new Date(),
         });
 

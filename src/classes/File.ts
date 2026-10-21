@@ -1,6 +1,9 @@
+import { createSignal } from "solid-js";
+
 import type { File as APIFile, Metadata } from "stoat-api";
 
 import type { Client } from "../Client.js";
+import { decrypt } from "../lib/e2ee.js";
 
 /**
  * Uploaded File
@@ -38,6 +41,12 @@ export class File {
    */
   readonly size?: number;
 
+  /** Key's channel id, if encrypted */
+  readonly e2e_id: string;
+
+  #url;
+  #setUrl;
+
   /**
    * Construct File
    * @param client Client
@@ -48,38 +57,77 @@ export class File {
     file: (Pick<APIFile, "_id" | "tag" | "metadata"> & Partial<APIFile>) | File,
   ) {
     this.#client = client;
-    if (file instanceof File) {
+
+    if ("id" in file) {
       this.id = file.id;
-      this.tag = file.tag;
-      this.filename = file.filename;
-      this.metadata = file.metadata;
       this.contentType = file.contentType;
-      this.size = file.size;
     } else {
       this.id = file._id;
-      this.tag = file.tag;
-      this.filename = file.filename;
-      this.metadata = file.metadata;
       this.contentType = file.content_type;
-      this.size = file.size;
+    }
+
+    this.tag = file.tag;
+    this.filename = file.filename;
+    this.metadata = file.metadata;
+    this.size = file.size;
+    this.e2e_id = file.e2e_id!;
+
+    if (this.e2e_id && !("id" in file)) {
+      const [url, setUrl] = createSignal<string>();
+      this.#url = url;
+      this.#setUrl = setUrl;
+
+      if (this.filename) {
+        const extIdx = this.filename.indexOf("."),
+          ext = extIdx === -1 ? "" : this.filename.slice(extIdx),
+          mime = this.filename.slice(0, -ext.length);
+
+        //Detect meta type from mime
+        (this.contentType as string) = mime;
+        if (mime.startsWith("image/")) this.metadata.type = "Image";
+        else if (mime.startsWith("video/")) this.metadata.type = "Video";
+        else if (mime.startsWith("audio/")) this.metadata.type = "Audio";
+        else if (mime.startsWith("text/")) this.metadata.type = "Text";
+        this.filename = this.metadata.type.toLowerCase() + ext;
+      }
     }
   }
 
-  /**
-   * Direct URL to the file
-   */
-  // get url(): string {
-  //   if (!this.filename) return this.previewUrl;
-  //
-  //   return `${this.#client.configuration?.features.autumn.url}/${this.tag}/${
-  //     this.id
-  //   }/${this.filename}`;
-  // }
+  /** Load encrypted file URL, if any. Call `unloadFile()` when finished */
+  async loadFile() {
+    if (!this.e2e_id) return;
+    const key = this.#client.channels.get(this.e2e_id)?.key;
+    if (key)
+      try {
+        const req = await fetch(this._rawUrl);
+        if (req.status !== 200) throw `HTTP Code ${req.status}`;
+        const buf = await decrypt(key, await req.arrayBuffer());
+        this.#setUrl!(
+          URL.createObjectURL(new Blob([buf], { type: this.contentType })),
+        );
+      } catch (e) {
+        console.error(`Decrypt File ${this.filename}`, e);
+      }
+  }
+
+  /** Unload file from memory */
+  unloadFile() {
+    if (!this.#url) return;
+    URL.revokeObjectURL(this.#url!()!);
+    this.#setUrl!();
+  }
+
+  get _rawUrl() {
+    return `${this.#client.configuration?.features.autumn.url}/${
+      this.tag
+    }/${this.id}/original`;
+  }
 
   /**
    * Preview URL for the file
    */
   get previewUrl(): string {
+    if (this.e2e_id) return this.#url!() ?? "";
     return `${this.#client.configuration?.features.autumn.url}/${
       this.tag
     }/${this.id}`;
@@ -89,9 +137,7 @@ export class File {
    * Original download URL for the file
    */
   get originalUrl(): string {
-    return `${this.#client.configuration?.features.autumn.url}/${
-      this.tag
-    }/${this.id}/original`;
+    return this.e2e_id ? (this.#url!() ?? "") : this._rawUrl;
   }
 
   /**
@@ -122,6 +168,8 @@ export class File {
    * @returns Generated URL or nothing
    */
   createFileURL(forceAnimation?: boolean): string | undefined {
+    if (this.e2e_id) return this.#url!() ?? "";
+
     const autumn = this.#client.configuration?.features.autumn;
     if (!autumn?.enabled) return;
 
