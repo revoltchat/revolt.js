@@ -20,7 +20,6 @@ export function bitwiseAndEq(a: bigint, ...b: bigint[]): boolean {
 
 /**
  * Build a stand-in member holding only the roles being previewed
- * @param server Server the target belongs to
  */
 function previewMember(server?: Server): ServerMember | undefined {
   const orderedRoles = server?.previewRoles;

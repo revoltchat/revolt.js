@@ -346,7 +346,6 @@ export class Server {
 
   /**
    * Whether a channel is visible to the roles we are previewing, if any
-   * @param channel Channel
    */
   #previewCanView(channel: Channel): boolean {
     return !this.previewRoles || channel.havePermission("ViewChannel");

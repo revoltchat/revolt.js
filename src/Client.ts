@@ -365,8 +365,6 @@ export class Client extends AsyncEventEmitter<Events> {
 
   /**
    * Calculate permissions in a server as if we only had the given roles
-   * @param server Server ID, or nothing to stop previewing
-   * @param roles Role IDs
    */
   setViewAs(server?: string, roles: string[] = []): void {
     this.#setViewAs(server ? { server, roles } : undefined);
@@ -374,7 +372,6 @@ export class Client extends AsyncEventEmitter<Events> {
 
   /**
    * Whether a request would make changes in the server we are previewing
-   * @param path Request path
    */
   #blockedWhilePreviewing(
     method: string,
