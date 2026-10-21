@@ -1,10 +1,12 @@
-import { DataEditWebhook } from "stoat-api";
+import { DataEditWebhook, DataMessageSend } from "stoat-api";
 
 import type { ChannelWebhookCollection } from "../collections/ChannelWebhookCollection.js";
 import { hydrate } from "../hydration/index.js";
 
 import type { Channel } from "./Channel.js";
 import type { File } from "./File.js";
+import { Message } from "./Message.js";
+import { ulid } from "ulid";
 
 /**
  * Channel Webhook Class
@@ -100,5 +102,41 @@ export class ChannelWebhook {
     );
 
     this.#collection.delete(this.id);
+  }
+
+  /**
+   * Send a message through this webhook
+   * @param data Either the message as a string or message sending route data
+   * @returns Sent message
+   */
+  async sendMessage(
+    data: string | DataMessageSend,
+    idempotencyKey: string = ulid(),
+  ): Promise<Message> {
+    const msg: DataMessageSend =
+      typeof data === "string" ? { content: data } : data;
+
+    // Mark as silent message
+    if (msg.content?.startsWith("@silent ")) {
+      msg.content = msg.content.substring(8);
+      msg.flags ||= 1;
+      msg.flags |= 1;
+    }
+
+    const message = await this.#collection.client.api.post(
+      `/webhooks/${this.id as ""}/${this.token as ""}`,
+      msg,
+      {
+        headers: {
+          "Idempotency-Key": idempotencyKey,
+        },
+      },
+    );
+
+    return this.#collection.client.messages.getOrCreate(
+      message._id,
+      message,
+      true,
+    );
   }
 }
