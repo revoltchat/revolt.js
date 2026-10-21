@@ -162,10 +162,10 @@ export class ServerMember {
   }
 
   /**
-   * Member's ranking
+   * Member's ranking, ignoring any role preview
    * Smaller values are ranked as higher priority
    */
-  get ranking(): number {
+  get realRanking(): number {
     if (this.id.user === this.server?.ownerId) {
       return -Infinity;
     }
@@ -176,6 +176,22 @@ export class ServerMember {
     } else {
       return Infinity;
     }
+  }
+
+  /**
+   * Member's ranking
+   * Smaller values are ranked as higher priority
+   */
+  get ranking(): number {
+    // Our own member is ranked as the previewed roles, if any
+    const preview =
+      this.id.user === this.#collection.client.user?.id
+        ? this.server?.previewRoles
+        : undefined;
+
+    if (!preview) return this.realRanking;
+
+    return preview.length > 0 ? preview[preview.length - 1].rank! : Infinity;
   }
 
   /**
