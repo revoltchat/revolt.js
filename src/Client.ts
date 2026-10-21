@@ -350,7 +350,8 @@ export class Client extends AsyncEventEmitter<Events> {
   }
 
   /**
-   * Connect to Revolt
+   * Connect to Revolt.
+   * To be called after `client.login`'s `Promise` resolves
    */
   connect(): void {
     clearTimeout(this.#reconnectTimeout);
@@ -400,6 +401,7 @@ export class Client extends AsyncEventEmitter<Events> {
 
   /**
    * Log in with auth data, creating a new session in the process.
+   * Does not automatically connect. A call to `Client.connect()` is required after this `Promise` resolves
    * @param details Login data object
    * @returns An on-boarding function if on-boarding is required, undefined otherwise
    */
@@ -423,7 +425,8 @@ export class Client extends AsyncEventEmitter<Events> {
   }
 
   /**
-   * Log in as a bot
+   * Log in as a bot.
+   * Automatically connects
    * @param token Bot token
    */
   async loginBot(token: string): Promise<void> {
