@@ -457,12 +457,13 @@ export class Server {
       this.id,
       hydrate(
         "server",
-        await this.#collection.client.api.patch(
+        // Cast as APIServer because TypeScript matches both /roles/ranks and /roles/${role_id} in stoat-api routes
+        (await this.#collection.client.api.patch(
           `/servers/${this.id as ""}/roles/ranks`,
           {
             ranks: roleIds,
           },
-        ),
+        )) as APIServer,
         this.#collection.client,
         false,
       ),
